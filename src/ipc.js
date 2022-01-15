@@ -13,6 +13,16 @@ var system = require("./system");
 
 var ipcMain = electron.ipcMain;
 
-ipcMain.on("power_shutDown", function(event, data) {
+ipcMain.handle("system_getFlags", function(event, data) {
+    return system.getFlags();
+});
+
+ipcMain.handle("power_shutDown", function(event, data) {
     system.shutDown();
+
+    return Promise.resolve();
+});
+
+ipcMain.handle("power_getState", function(event, data) {
+    return system.getPowerState();
 });

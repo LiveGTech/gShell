@@ -8,6 +8,7 @@
 */
 
 const child_process = require("child_process");
+const fs = require("fs");
 const electron = require("electron");
 
 var flags = require("./flags");
@@ -26,8 +27,12 @@ exports.executeCommand = function(command) {
     });
 };
 
+exports.getFlags = function() {
+    return Promise.resolve(flags);
+};
+
 exports.getScreenResolution = function() {
-    if (!flags.isRealHardware()) {
+    if (!flags.isRealHardware) {
         return Promise.resolve({width: 360, height: 720});
     }
 
@@ -39,11 +44,34 @@ exports.getScreenResolution = function() {
 };
 
 exports.shutDown = function() {
-    if (!flags.isRealHardware()) {
+    if (!flags.isRealHardware) {
         electron.app.exit(0);
 
         return Promise.resolve();
     }
 
     return exports.executeCommand("sudo shutdown -h now");
+};
+
+exports.getPowerState = function() {
+    if (!flags.isRealHardware) {
+        return Promise.resolve({
+            state: null,
+            level: 100
+        });
+    }
+
+    try {
+        return Promise.resolve({
+            state: {
+                "Charging": "charging",
+                "Discharging": "discharging",
+                "Not charging": "notCharging",
+                "Full": "full"
+            }[fs.readFileSync("/sys/class/power_supply/cw2015-battery/status").split("\n")[0]] || null,
+            level: Number(fs.readFileSync("/sys/class/power_supply/cw2015-battery/capacity"))
+        });
+    } catch (e) {
+        return Promise.reject(e);
+    }
 };

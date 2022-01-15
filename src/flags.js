@@ -11,6 +11,4 @@ const minimist = require("minimist");
 
 exports.argv = minimist(process.argv.slice(2));
 
-exports.isRealHardware = function() {
-    return !!exports.argv["real"];
-}
+exports.isRealHardware = !!exports.argv["real"];

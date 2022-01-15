@@ -9,8 +9,8 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-const electron = require("electron");
 const path = require("path");
+const electron = require("electron");
 
 var flags = require("./flags");
 var system = require("./system");
@@ -21,7 +21,7 @@ electron.app.on("ready", function() {
         var window = new electron.BrowserWindow({
             width: resolution.width,
             height: resolution.height,
-            fullscreen: flags.isRealHardware(),
+            fullscreen: flags.isRealHardware,
             webPreferences: {
                 preload: path.join(__dirname, "../shell/preload.js")
             }
@@ -29,7 +29,7 @@ electron.app.on("ready", function() {
     
         window.setMenuBarVisibility(false);
 
-        if (flags.isRealHardware()) {
+        if (flags.isRealHardware) {
             window.setPosition(0, 0);
             window.webContents.setZoomFactor(5);
         }

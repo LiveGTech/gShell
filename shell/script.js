@@ -29,7 +29,7 @@ window.addEventListener("load", function() {
                 return;
             }
     
-            document.querySelector("#batteryStatus") = `Battery: ${response.state}, ${response.level}%`;
+            document.querySelector("#batteryStatus").textContent = `Battery: ${response.state}, ${response.level}%`;
         });
     }
 

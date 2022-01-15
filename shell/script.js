@@ -8,7 +8,8 @@
 */
 
 window.addEventListener("load", function() {
-    document.getElementById("#shutDownButton").addEventListener("click", function() {
+    document.querySelector("#shutDownButton").addEventListener("click", function() {
+        console.log("Nice");
         gShell.call("power_shutDown");
     });
 });

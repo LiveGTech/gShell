@@ -26,6 +26,7 @@ electron.app.on("ready", function() {
 
         if (flags.isRealHardware()) {
             window.setPosition(0, 0);
+            window.webContents.setZoomFactor(5);
         }
     
         window.loadFile("shell/index.html");

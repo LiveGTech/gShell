@@ -68,8 +68,8 @@ exports.getPowerState = function() {
                 "Discharging": "discharging",
                 "Not charging": "notCharging",
                 "Full": "full"
-            }[fs.readFileSync("/sys/class/power_supply/cw2015-battery/status").split("\n")[0]] || null,
-            level: Number(fs.readFileSync("/sys/class/power_supply/cw2015-battery/capacity"))
+            }[fs.readFileSync("/sys/class/power_supply/axp20x-battery/status").split("\n")[0]] || null,
+            level: parseInt(fs.readFileSync("/sys/class/power_supply/axp20x-battery/capacity").split("\n")[0])
         });
     } catch (e) {
         return Promise.reject(e);

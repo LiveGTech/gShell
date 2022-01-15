@@ -13,10 +13,6 @@ var system = require("./system");
 
 var ipcMain = electron.ipcMain;
 
-ipcMain.on("power", function(event, data) {
-    if (data.shutDown) {
-        system.shutDown();
-
-        return;
-    }
+ipcMain.on("power_shutDown", function(event, data) {
+    system.shutDown();
 });

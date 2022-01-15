@@ -9,8 +9,8 @@
 
 const electron = require("electron");
 
-electron.contextBridge.exposeInMainWorld("gshell", {
-    call: function(command, data) {
+electron.contextBridge.exposeInMainWorld("gShell", {
+    call: function(command, data = {}) {
         return electron.ipcRenderer.send(command, data);
     }
 });

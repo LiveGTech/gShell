@@ -10,16 +10,21 @@
 */
 
 const electron = require("electron");
+const path = require("path");
 
 var flags = require("./flags");
 var system = require("./system");
+var ipc = require("./ipc");
 
 electron.app.on("ready", function() {
     system.getScreenResolution().then(function(resolution) {
         var window = new electron.BrowserWindow({
             width: resolution.width,
             height: resolution.height,
-            fullscreen: flags.isRealHardware()
+            fullscreen: flags.isRealHardware(),
+            webPreferences: {
+                preload: path.join(__dirname, "../shell/preload.js")
+            }
         });
     
         window.setMenuBarVisibility(false);
@@ -30,11 +35,5 @@ electron.app.on("ready", function() {
         }
     
         window.loadFile("shell/index.html");
-    
-        getScreenResolution().then(function(data) {
-            console.log(data);
-        }).catch(function(stderr) {
-            console.log(stderr);
-        });
     });
 });

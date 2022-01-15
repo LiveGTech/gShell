@@ -9,21 +9,31 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-const minimist = require("minimist");
 const electron = require("electron");
 
-var argv = minimist(process.argv.slice(2));
-
-console.log(argv);
+var flags = require("./flags");
+var system = require("./system");
 
 electron.app.on("ready", function() {
-    var window = new electron.BrowserWindow({
-        width: 360,
-        height: 720,
-        fullscreen: !!argv["real"]
+    system.getScreenResolution().then(function(resolution) {
+        var window = new electron.BrowserWindow({
+            width: resolution.width,
+            height: resolution.height,
+            fullscreen: flags.isRealHardware()
+        });
+    
+        window.setMenuBarVisibility(false);
+
+        if (flags.isRealHardware()) {
+            window.setPosition(0, 0);
+        }
+    
+        window.loadFile("shell/index.html");
+    
+        getScreenResolution().then(function(data) {
+            console.log(data);
+        }).catch(function(stderr) {
+            console.log(stderr);
+        });
     });
-
-    window.setMenuBarVisibility(false);
-
-    window.loadFile("shell/index.html");
 });

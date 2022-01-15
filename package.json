@@ -1,0 +1,14 @@
+{
+    "name": "gshell",
+    "version": "0.1.0",
+    "description": "Interactive graphical desktop environment for LiveG OS.",
+    "main": "src/main.js",
+    "author": "LiveG Technologies",
+    "scripts": {
+        "gshell": "electron ."
+    },
+    "dependencies": {
+        "electron": "^16.0.7",
+        "minimist": "^1.2.5"
+    }
+}

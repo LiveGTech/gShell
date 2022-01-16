@@ -27,7 +27,8 @@ electron.app.on("ready", function() {
             fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
-                preload: path.join(__dirname, "../shell/preload.js")
+                preload: path.join(__dirname, "../shell/preload.js"),
+                webviewTag: true
             }
         });
     

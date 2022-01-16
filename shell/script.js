@@ -15,7 +15,7 @@ window.addEventListener("load", function() {
 
     setTimeout(function() {
         gShell.call("gshell_loaded");
-    });
+    }, 500);
 
     gShell.call("system_getFlags").then(function(flags) {
         if (flags.isRealHardware) {

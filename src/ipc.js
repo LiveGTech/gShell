@@ -18,6 +18,12 @@ ipcMain.handle("system_getFlags", function(event, data) {
     return system.getFlags();
 });
 
+ipcMain.handle("dev_restart", function(event, data) {
+    system.devRestart();
+
+    return Promise.resolve();
+});
+
 ipcMain.handle("power_shutDown", function(event, data) {
     system.shutDown();
 

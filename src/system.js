@@ -13,9 +13,9 @@ const electron = require("electron");
 
 var flags = require("./flags");
 
-exports.executeCommand = function(command) {
+exports.executeCommand = function(command, args = []) {
     return new Promise(function(resolve, reject) {
-        child_process.exec(command, function(error, stdout, stderr) {
+        child_process.execFile(command, args, function(error, stdout, stderr) {
             if (error) {
                 reject({stdout, stderr});
 
@@ -25,6 +25,14 @@ exports.executeCommand = function(command) {
             resolve({stdout, stderr});
         });
     });
+};
+
+exports.executeDetached = function(command, args = []) {
+    var subprocess = child_process.spawn(command, args, {detached: true, stdio: "ignore"});
+
+    subprocess.unref();
+
+    return Promise.resolve();
 };
 
 exports.getFlags = function() {
@@ -50,7 +58,7 @@ exports.shutDown = function() {
         return Promise.resolve();
     }
 
-    return exports.executeCommand("sudo shutdown -h now");
+    return exports.executeCommand("sudo", ["shutdown", "-h", "now"]);
 };
 
 exports.getPowerState = function() {
@@ -74,4 +82,17 @@ exports.getPowerState = function() {
     } catch (e) {
         return Promise.reject(e);
     }
+};
+
+exports.devRestart = function() {
+    if(!flags.isRealHardware) {
+        electron.app.relaunch();
+        electron.app.exit();
+
+        return Promise.resolve();
+    }
+
+    exports.executeDetached("/system/scripts/devrestart");
+
+    return Promise.resolve();
 };

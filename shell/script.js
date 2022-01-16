@@ -9,8 +9,11 @@
 
 window.addEventListener("load", function() {
     document.querySelector("#shutDownButton").addEventListener("click", function() {
-        console.log("Nice");
         gShell.call("power_shutDown");
+    });
+
+    document.querySelector("#devRestartButton").addEventListener("click", function() {
+        gShell.call("dev_restart");
     });
 
     gShell.call("system_getFlags").then(function(flags) {

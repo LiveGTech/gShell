@@ -14,10 +14,6 @@ var system = require("./system");
 
 var ipcMain = electron.ipcMain;
 
-ipcMain.handle("gshell_loaded", function() {
-    main.window.show();
-});
-
 ipcMain.handle("system_getFlags", function(event, data) {
     return system.getFlags();
 });

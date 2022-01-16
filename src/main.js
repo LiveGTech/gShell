@@ -31,6 +31,7 @@ electron.app.on("ready", function() {
         });
     
         exports.window.setMenuBarVisibility(false);
+        exports.window.setBackgroundColor("#000000");
 
         if (flags.isRealHardware) {
             exports.window.setPosition(0, 0);
@@ -38,5 +39,7 @@ electron.app.on("ready", function() {
         }
     
         exports.window.loadFile("shell/index.html");
+
+        exports.window.show();
     });
 });

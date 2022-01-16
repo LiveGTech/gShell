@@ -28,7 +28,8 @@ electron.app.on("ready", function() {
             backgroundColor: "#000000",
             webPreferences: {
                 preload: path.join(__dirname, "../shell/preload.js"),
-                webviewTag: true
+                webviewTag: true,
+                sandbox: true
             }
         });
     

@@ -25,21 +25,24 @@ electron.app.on("ready", function() {
             height: resolution.height,
             show: false,
             fullscreen: flags.isRealHardware,
+            backgroundColor: "#000000",
             webPreferences: {
                 preload: path.join(__dirname, "../shell/preload.js")
             }
         });
     
         exports.window.setMenuBarVisibility(false);
-        exports.window.setBackgroundColor("#000000");
 
         if (flags.isRealHardware) {
             exports.window.setPosition(0, 0);
             exports.window.webContents.setZoomFactor(5);
         }
+
+        exports.window.once("ready-to-show", function() {
+            exports.window.show();
+            exports.window.focus();
+        });
     
         exports.window.loadFile("shell/index.html");
-
-        exports.window.show();
     });
 });

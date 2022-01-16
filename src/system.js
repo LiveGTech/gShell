@@ -27,14 +27,6 @@ exports.executeCommand = function(command, args = []) {
     });
 };
 
-exports.executeDetached = function(command, args = []) {
-    var subprocess = child_process.spawn(command, args, {detached: true, stdio: "ignore"});
-
-    subprocess.unref();
-
-    return Promise.resolve();
-};
-
 exports.getFlags = function() {
     return Promise.resolve(flags);
 };
@@ -87,12 +79,9 @@ exports.getPowerState = function() {
 exports.devRestart = function() {
     if(!flags.isRealHardware) {
         electron.app.relaunch();
-        electron.app.exit();
-
-        return Promise.resolve();
     }
 
-    exports.executeDetached("/system/scripts/devrestart");
+    electron.app.exit();
 
     return Promise.resolve();
 };

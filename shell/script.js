@@ -13,6 +13,10 @@ window.addEventListener("load", function() {
         gShell.call("power_shutDown");
     });
 
+    setTimeout(function() {
+        gShell.call("gshell_loaded");
+    });
+
     gShell.call("system_getFlags").then(function(flags) {
         if (flags.isRealHardware) {
             document.querySelector("#flagInfo").textContent = "Running on real hardware!";

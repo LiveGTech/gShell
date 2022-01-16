@@ -16,24 +16,27 @@ var flags = require("./flags");
 var system = require("./system");
 var ipc = require("./ipc");
 
+exports.window = null;
+
 electron.app.on("ready", function() {
     system.getScreenResolution().then(function(resolution) {
-        var window = new electron.BrowserWindow({
+        exports.window = new electron.BrowserWindow({
             width: resolution.width,
             height: resolution.height,
+            show: false,
             fullscreen: flags.isRealHardware,
             webPreferences: {
                 preload: path.join(__dirname, "../shell/preload.js")
             }
         });
     
-        window.setMenuBarVisibility(false);
+        exports.window.setMenuBarVisibility(false);
 
         if (flags.isRealHardware) {
-            window.setPosition(0, 0);
-            window.webContents.setZoomFactor(5);
+            exports.window.setPosition(0, 0);
+            exports.window.webContents.setZoomFactor(5);
         }
     
-        window.loadFile("shell/index.html");
+        exports.window.loadFile("shell/index.html");
     });
 });

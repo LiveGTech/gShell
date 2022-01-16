@@ -5,7 +5,7 @@
     "main": "src/main.js",
     "author": "LiveG Technologies",
     "scripts": {
-        "gshell": "electron ."
+        "gshell": "electron . --disable-gpu"
     },
     "dependencies": {
         "electron": "^16.0.7",

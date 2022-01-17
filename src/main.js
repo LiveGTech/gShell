@@ -10,6 +10,7 @@
 */
 
 const path = require("path");
+const fs = require("fs");
 const electron = require("electron");
 
 var flags = require("./flags");
@@ -19,6 +20,14 @@ var ipc = require("./ipc");
 exports.window = null;
 
 electron.app.on("ready", function() {
+    if (!fs.existsSync(path.join("shell", "lib", "adaptui", "src", "adaptui.js"))) {
+        console.error("Missing required dependency: Adapt UI");
+        console.error("Please ensure that you clone the required submodules to install the dependencies.");
+        console.error("Read README.md for more information on how to do this.");
+
+        process.exit(1);
+    }
+
     system.getScreenResolution().then(function(resolution) {
         exports.window = new electron.BrowserWindow({
             width: resolution.width,

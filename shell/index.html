@@ -10,16 +10,35 @@
 <html>
     <head>
         <title>LiveG gShell Environment</title>
-        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+        <link rel="stylesheet" href="lib/adaptui/src/adaptui.css">
         <link rel="stylesheet" href="style.css">
         <script type="module" src="script.js"></script>
     </head>
     <body>
-        <h1>Hello, world!</h1>
-        <p id="flagInfo"></p>
-        <p id="batteryStatus">Checking...</p>
-        <button id="shutDownButton">Shut down</button>
-        <button id="devRestartButton">Restart shell and update</button>
-        <webview src="https://livegtech.github.io/TestApp"></webview>
+        <aui-screen id="main">
+            <header>
+                <button title="Open menu" aui-bind="aside" aria-label="Open menu">
+                    <img src="lib/adaptui/icons/menu.svg" alt="" aui-icon="light">
+                </button>
+                <span>LiveG OS Debug Environment</span>
+                <button title="Restart shell and update" aui-mode="action" aria-label="Restart shell and update" class="devRestartButton">
+                    <img src="lib/adaptui/icons/star.svg" alt="" aui-icon="light">
+                </button>
+            </header>
+            <aside>
+                <button id="shutDownButton">Shut down</button>
+                <button class="devRestartButton">Restart shell and update</button>
+            </aside>
+            <main>
+                <section>
+                    <h1>Hello, world!</h1>
+                    <p id="flagInfo"></p>
+                    <p id="batteryStatus">Checking...</p>
+                    <webview src="https://livegtech.github.io/TestApp"></webview>
+                </section>
+            </main>
+        </aui-screen>
     </body>
 </html>

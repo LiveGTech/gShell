@@ -3,23 +3,37 @@ Interactive graphical desktop environment for LiveG OS.
 
 Licenced by the [LiveG Open-Source Licence](LICENCE.md).
 
-## Run
-These instructions work on all platforms.
-Clone this repo:
+## Getting gShell
+gShell relies on git submodules to make use of various LiveG-developed libraries when a device is offline. To clone the gShell repository, use:
+
 ```bash
-git clone https://github.com/LiveGTech/gShell
-cd gShell
+git clone https://github.com/LiveGTech/gShell --recurse-submodules
 ```
-Install gShell and dependencies
+
+It is important that when you pull the repo to update libraries, you use:
+
 ```bash
-npm i
+git pull --recurse-submodules
 ```
-Run gShell on the local machine (in a simulated environment)
+
+When you don't need to update the libraries, you can omit the `--recurse-submodules` argument.
+
+## Running gShell
+Install gShell and its dependencies using npm:
+
 ```bash
-npm run gshell -- $@
+npm install
 ```
-Or if you're on Linux, use:
+
+Run gShell on the local machine (in a simulated environment on non-LiveG OS systems):
+
 ```bash
-chmod +x gshell
+# On LiveG OS:
+./gshell --real
+
+# On Linux:
 ./gshell
+
+# On other platforms:
+npm run gshell
 ```

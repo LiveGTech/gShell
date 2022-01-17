@@ -13,7 +13,7 @@ git clone https://github.com/LiveGTech/gShell --recurse-submodules
 It is important that when you pull the repo to update libraries, you use:
 
 ```bash
-git pull
+git pull --recurse-submodules
 git submodule update --remote
 ```
 

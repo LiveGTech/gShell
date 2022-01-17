@@ -40,4 +40,14 @@ $g.waitForLoad().then(function() {
 
     setInterval(checkStatus, 5_000);
     checkStatus();
+
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(event) {
+        $g.sel("#darkTheme").setValue(event.matches);
+    });
+
+    $g.sel("#darkTheme").on("change", function() {
+        gShell.call("shell_setColourScheme", {
+            scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
+    });
+    });
 });

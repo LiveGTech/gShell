@@ -18,10 +18,8 @@ ipcMain.handle("system_getFlags", function(event, data) {
     return system.getFlags();
 });
 
-ipcMain.handle("dev_restart", function(event, data) {
-    system.devRestart();
-
-    return Promise.resolve();
+ipcMain.handle("shell_setColourScheme", function(event, data) {
+    return system.setColourScheme(data.scheme);
 });
 
 ipcMain.handle("power_shutDown", function(event, data) {
@@ -32,4 +30,10 @@ ipcMain.handle("power_shutDown", function(event, data) {
 
 ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
+});
+
+ipcMain.handle("dev_restart", function(event, data) {
+    system.devRestart();
+
+    return Promise.resolve();
 });

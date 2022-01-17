@@ -44,6 +44,8 @@ electron.app.on("ready", function() {
     
         exports.window.setMenuBarVisibility(false);
 
+        electron.nativeTheme.themeSource = "light";
+
         if (flags.isRealHardware) {
             exports.window.setPosition(0, 0);
             exports.window.webContents.setZoomFactor(5);

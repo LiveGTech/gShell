@@ -76,6 +76,16 @@ exports.getPowerState = function() {
     }
 };
 
+exports.setColourScheme = function(scheme = "light") {
+    if (!["light", "dark"].includes(scheme)) {
+        return Promise.reject("Invalid colour scheme");
+    }
+
+    electron.nativeTheme.themeSource = scheme;
+
+    return Promise.resolve();
+};
+
 exports.devRestart = function() {
     if(!flags.isRealHardware) {
         electron.app.relaunch();

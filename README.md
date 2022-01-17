@@ -16,7 +16,7 @@ It is important that when you pull the repo to update libraries, you use:
 git pull --recurse-submodules
 ```
 
-When you don't need to update the libraries, you can omit the `--recurse-submodules` argument. However, if you have cloned this repository before we added submodules, you must run `git pull --recurse-submodules` and then `git submodules init` to clone the required submodules to run gShell.
+When you don't need to update the libraries, you can omit the `--recurse-submodules` argument. However, if you have cloned this repository before we added submodules, you must run `git pull --recurse-submodules` and then `git submodule init` (and then pull again) to clone the required submodules to run gShell.
 
 ## Running gShell
 Install gShell and its dependencies using npm:

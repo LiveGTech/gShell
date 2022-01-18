@@ -28,6 +28,14 @@ electron.app.on("ready", function() {
         process.exit(1);
     }
 
+    electron.protocol.registerFileProtocol("gshell", function(request, callback) {
+        var url = request.url.substring("gshell://".length);
+
+        console.log(`${__dirname}/shell/${url}`);
+
+        callback({path: path.normalize(`${__dirname}/../shell/${url}`)});
+    });
+
     system.getScreenResolution().then(function(resolution) {
         exports.window = new electron.BrowserWindow({
             width: resolution.width,
@@ -36,7 +44,7 @@ electron.app.on("ready", function() {
             fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
-                preload: path.join(__dirname, "../shell/preload.js"),
+                preload: path.normalize(`${__dirname}/../shell/preload.js`),
                 webviewTag: true,
                 sandbox: true
             }

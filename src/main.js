@@ -15,6 +15,7 @@ const electron = require("electron");
 
 var flags = require("./flags");
 var system = require("./system");
+var storage = require("./storage");
 var ipc = require("./ipc");
 
 exports.window = null;
@@ -31,12 +32,12 @@ electron.app.on("ready", function() {
     electron.protocol.registerFileProtocol("gshell", function(request, callback) {
         var url = request.url.substring("gshell://".length);
 
-        console.log(`${__dirname}/shell/${url}`);
-
         callback({path: path.normalize(`${__dirname}/../shell/${url}`)});
     });
 
-    system.getScreenResolution().then(function(resolution) {
+    storage.init().then(function() {
+        return system.getScreenResolution();
+    }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({
             width: resolution.width,
             height: resolution.height,

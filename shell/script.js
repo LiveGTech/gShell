@@ -9,7 +9,18 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as info from "gshell://info.js";
+import * as lockScreen from "gshell://lockscreen.js";
+
+window.$g = $g;
+
 $g.waitForLoad().then(function() {
+    $g.sel("#lockButton").on("click", function() {
+        $g.sel("#mainMenu").asideClose().then(function() {
+            $g.sel("#lockScreenMain").screenBack();
+        });
+    });
+
     $g.sel("#shutDownButton").on("click", function() {
         gShell.call("power_shutDown");
     });
@@ -48,6 +59,6 @@ $g.waitForLoad().then(function() {
     $g.sel("#darkTheme").on("change", function() {
         gShell.call("shell_setColourScheme", {
             scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
-    });
+        });
     });
 });

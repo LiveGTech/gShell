@@ -17,7 +17,21 @@
         <script type="module" src="gshell://script.js"></script>
     </head>
     <body>
-        <aui-screen id="main">
+        <aui-screen class="lockScreen" id="lockScreenMain">
+            <header class="infoBar infoBar_overlay">
+                <!-- TODO: Implement better battery montior -->
+                <span class="info_battery"></span>
+            </header>
+            <main>
+                <img src="gshell://media/wallpapers/world6.jpg" class="lockScreen_wallpaper" aria-hidden="true">
+                <section class="lockScreen_front">
+                    <h1 class="info_time"></h1>
+                    <p class="info_date"></p>
+                </section>
+                <button id="lockScreen_unlockButton">Unlock</button>
+            </main>
+        </aui-screen>
+        <aui-screen id="main" hidden>
             <header>
                 <button title="Open menu" aui-bind="aside" aria-label="Open menu">
                     <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="light">
@@ -27,7 +41,8 @@
                     <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
                 </button>
             </header>
-            <aside>
+            <aside id="mainMenu">
+                <button id="lockButton">Lock</button>
                 <button id="shutDownButton">Shut down</button>
                 <button class="devRestartButton">Restart shell and update</button>
             </aside>
@@ -40,7 +55,6 @@
                         <label for="darkTheme" aui-mode="switch">Dark theme</label>
                         <input type="checkbox" role="switch" id="darkTheme">
                     </div>
-                    <webview src="https://livegtech.github.io/TestApp"></webview>
                 </section>
             </main>
         </aui-screen>

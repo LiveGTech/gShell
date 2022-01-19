@@ -1,0 +1,66 @@
+/*
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+*/
+
+.lockScreen {
+    background-color: black;
+}
+
+.lockScreen main {
+    position: fixed;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.lockScreen_wallpaper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    margin: 0;
+    background-color: black;
+    object-fit: cover;
+    filter: brightness(0.6);
+    border-radius: 0;
+}
+
+.lockScreen_front {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: white;
+    text-align: center;
+}
+
+.lockScreen_front h1 {
+    margin-bottom: 0;
+    font-size: 5em;
+}
+
+.lockScreen_front p {
+    margin-top: 0;
+}
+
+#lockScreen_unlockButton {
+    position: fixed;
+    bottom: -4rem;
+    left: 2rem;
+    right: 2rem;
+    width: calc(100% - 4rem);
+    transition: 0.5s bottom;
+}
+
+#lockScreen_unlockButton:focus-visible {
+    bottom: 2rem;
+}

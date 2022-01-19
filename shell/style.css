@@ -7,10 +7,27 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-webview {
+@import url("gshell://lockscreen.css");
+
+.infoBar {
+    background: transparent;
+    height: 2.4rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.infoBar span:last-child {
+    text-align: end;
+}
+
+.infoBar.infoBar_overlay {
+    position: fixed;
+    top: 0;
     width: 100%;
-    height: 50vh;
-    margin-top: 10px;
-    border-radius: 10px;
-    overflow: hidden;
+    z-index: 1;
+}
+
+.infoBar.infoBar_overlay ~ main {
+    top: 0;
+    height: 100%;
 }

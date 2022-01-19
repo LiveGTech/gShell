@@ -8,6 +8,7 @@
 */
 
 const path = require("path");
+const fs = require("fs");
 const electron = require("electron");
 const mkdirp = require("mkdirp");
 
@@ -21,6 +22,8 @@ exports.getPath = function(location) {
     if (!absolutePath.startsWith(exports.storageFilesystemLocation)) {
         return exports.storageFilesystemLocation;
     }
+
+    console.log(absolutePath, exports.storageFilesystemLocation);
 
     return absolutePath;
 };
@@ -121,7 +124,7 @@ exports.newFolder = function(location, parentOnly = false) {
     }
 
     return new Promise(function(resolve, reject) {
-        mkdirp(exports.getPath(location.join("/")), function(error) {
+        mkdirp(exports.getPath(parts.join("/")), function(error) {
             if (error) {
                 reject(error);
 
@@ -129,6 +132,20 @@ exports.newFolder = function(location, parentOnly = false) {
             }
 
             resolve();
+        });
+    });
+};
+
+exports.listFolder = function(location) {
+    return new Promise(function(resolve, reject) {
+        fs.readdir(exports.getPath(location), function(error, data) {
+            if (error) {
+                reject(error);
+
+                return;
+            }
+
+            resolve(data);
         });
     });
 };

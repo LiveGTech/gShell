@@ -12,6 +12,7 @@ const electron = require("electron");
 var main = require("./main");
 var system = require("./system");
 var storage = require("./storage");
+var config = require("./config");
 
 var ipcMain = electron.ipcMain;
 
@@ -39,12 +40,24 @@ ipcMain.handle("storage_newFolder", function(event, data) {
     return storage.newFolder(data.location, data.parentOnly);
 });
 
+ipcMain.handle("storage_listFolder", function(event, data) {
+    return storage.listFolder(data.location);
+});
+
 ipcMain.handle("storage_stat", function(event, data) {
     return storage.stat(data.location);
 });
 
 ipcMain.handle("storage_exists", function(event, data) {
     return storage.exists(data.location);
+});
+
+ipcMain.handle("config_read", function(event, data) {
+    return config.read(data.location);
+});
+
+ipcMain.handle("config_write", function(event, data) {
+    return config.write(data.location, data.data);
 });
 
 ipcMain.handle("shell_setColourScheme", function(event, data) {

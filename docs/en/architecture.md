@@ -4,7 +4,7 @@ gShell uses web technologies to make development easier! It runs on top of the L
 - Linux Kernel
   - X11 Xsession
     - gShell (Electron runtime)
-      -  OOBS (Out-of-box setup)
+      - OOBS (Out-of-box setup)
         - Basic power menu
       - Lock screen
         - Notifications

@@ -24,24 +24,24 @@ function renderUnlockLift() {
     $g.sel(".lockScreen_front").get().style.opacity = `${Math.max(1 - (Math.abs(currentUnlockLift) / 100), 0)}`;
 }
 
-function touchStartEvent(event) {
+function touchStartEvent(touchY) {
     if (touchIsLocked) {
         return;
     }
 
     if (!touchIsDown) {
-        initialTouchPosition = event.pageY;
+        initialTouchPosition = touchY;
     }
 
     touchIsDown = true;
 }
 
-function touchMoveEvent(event) {
+function touchMoveEvent(touchY) {
     if (touchIsLocked || !touchIsDown) {
         return;
     }
 
-    currentUnlockLift = Math.max(initialTouchPosition - event.pageY, (initialTouchPosition - event.pageY) / 10);
+    currentUnlockLift = Math.max(initialTouchPosition - touchY, (initialTouchPosition - touchY) / 10);
 
     renderUnlockLift();
 }
@@ -102,11 +102,11 @@ export function unlock() {
 }
 
 $g.waitForLoad().then(function() {
-    $g.sel("#lockScreenMain").on("mousedown", touchStartEvent);
-    $g.sel("#lockScreenMain").on("touchstart", touchStartEvent);
+    $g.sel("#lockScreenMain").on("mousedown", (event) => touchStartEvent(event.pageY));
+    $g.sel("#lockScreenMain").on("touchstart", (event) => touchStartEvent(event.touches[0]));
 
-    $g.sel("#lockScreenMain").on("mousemove", touchMoveEvent);
-    $g.sel("#lockScreenMain").on("touchmove", touchMoveEvent);
+    $g.sel("#lockScreenMain").on("mousemove", (event) => touchMoveEvent(event.pageY));
+    $g.sel("#lockScreenMain").on("touchmove", (event) => touchMoveEvent(event.touches[0]));
 
     $g.sel("#lockScreenMain").on("mouseup", touchEndEvent);
     $g.sel("#lockScreenMain").on("touchend", touchEndEvent);

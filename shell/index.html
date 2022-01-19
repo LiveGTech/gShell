@@ -37,14 +37,14 @@
                     <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="light">
                 </button>
                 <span>LiveG OS Debug Environment</span>
-                <button title="Restart shell and update" aui-mode="action" aria-label="Restart shell and update" class="devRestartButton">
+                <button title="Go to other page" aui-mode="action" aria-label="Go to other page" id="otherPageButton">
                     <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
                 </button>
             </header>
             <aside id="mainMenu">
                 <button id="lockButton">Lock</button>
                 <button id="shutDownButton">Shut down</button>
-                <button class="devRestartButton">Restart shell and update</button>
+                <button id="devRestartButton">Restart shell and update</button>
             </aside>
             <main>
                 <section>
@@ -55,6 +55,19 @@
                         <label for="darkTheme" aui-mode="switch">Dark theme</label>
                         <input type="checkbox" role="switch" id="darkTheme">
                     </div>
+                </section>
+            </main>
+        </aui-screen>
+        <aui-screen hidden id="otherPage">
+            <header>
+                <button title="Back" aui-bind="back" aria-label="Back">
+                    <img src="gshell://lib/adaptui/icons/back.svg" alt="" aui-icon="light">
+                </button>
+                <span>Another page</span>
+            </header>
+            <main>
+                <section>
+                    <h1>This is another page</h1>
                 </section>
             </main>
         </aui-screen>

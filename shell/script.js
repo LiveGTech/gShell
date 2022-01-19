@@ -15,6 +15,10 @@ import * as lockScreen from "gshell://lockscreen.js";
 window.$g = $g;
 
 $g.waitForLoad().then(function() {
+    $g.sel("#otherPageButton").on("click", function() {
+        $g.sel("#otherPage").screenForward();
+    });
+
     $g.sel("#lockButton").on("click", function() {
         $g.sel("#mainMenu").asideClose().then(function() {
             $g.sel("#lockScreenMain").screenBack();
@@ -25,7 +29,7 @@ $g.waitForLoad().then(function() {
         gShell.call("power_shutDown");
     });
 
-    $g.sel(".devRestartButton").on("click", function() {
+    $g.sel("#devRestartButton").on("click", function() {
         gShell.call("dev_restart");
     });
 

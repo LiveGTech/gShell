@@ -103,10 +103,10 @@ export function unlock() {
 
 $g.waitForLoad().then(function() {
     $g.sel("#lockScreenMain").on("mousedown", (event) => touchStartEvent(event.pageY));
-    $g.sel("#lockScreenMain").on("touchstart", (event) => touchStartEvent(event.touches[0]));
+    $g.sel("#lockScreenMain").on("touchstart", (event) => touchStartEvent(event.touches[0].pageY));
 
     $g.sel("#lockScreenMain").on("mousemove", (event) => touchMoveEvent(event.pageY));
-    $g.sel("#lockScreenMain").on("touchmove", (event) => touchMoveEvent(event.touches[0]));
+    $g.sel("#lockScreenMain").on("touchmove", (event) => touchMoveEvent(event.touches[0].pageY));
 
     $g.sel("#lockScreenMain").on("mouseup", touchEndEvent);
     $g.sel("#lockScreenMain").on("touchend", touchEndEvent);

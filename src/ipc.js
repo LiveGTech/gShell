@@ -11,11 +11,40 @@ const electron = require("electron");
 
 var main = require("./main");
 var system = require("./system");
+var storage = require("./storage");
 
 var ipcMain = electron.ipcMain;
 
 ipcMain.handle("system_getFlags", function(event, data) {
     return system.getFlags();
+});
+
+ipcMain.handle("storage_read", function(event, data) {
+    return storage.read(data.location, data.encoding);
+});
+
+ipcMain.handle("storage_write", function(event, data) {
+    return storage.write(data.location, data.data, data.encoding, data.append);
+});
+
+ipcMain.handle("storage_delete", function(event, data) {
+    return storage.delete(data.location);
+});
+
+ipcMain.handle("storage_move", function(event, data) {
+    return storage.move(data.location, data.newLocation);
+});
+
+ipcMain.handle("storage_newFolder", function(event, data) {
+    return storage.newFolder(data.location, data.parentOnly);
+});
+
+ipcMain.handle("storage_stat", function(event, data) {
+    return storage.stat(data.location);
+});
+
+ipcMain.handle("storage_exists", function(event, data) {
+    return storage.exists(data.location);
 });
 
 ipcMain.handle("shell_setColourScheme", function(event, data) {

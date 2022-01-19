@@ -60,14 +60,20 @@ exports.read = function(location, encoding = "utf8") {
                 return;
             }
 
+            if (encoding == null) {
+                resolve(Uint8Array.from(data));
+
+                return;
+            }
+
             resolve(data);
         });
     });
 };
 
-exports.write = function(location, data, encoding = "utf8") {
+exports.write = function(location, data, encoding = "utf8", append = false) {
     return new Promise(function(resolve, reject) {
-        fs.writeFile(exports.getPath(location), data, {encoding}, function(error) {
+        (append ? fs.appendFile : fs.writeFile)(exports.getPath(location), data, {encoding}, function(error) {
             if (error) {
                 reject(error);
 
@@ -93,7 +99,7 @@ exports.delete = function(location) {
     });
 };
 
-exports.rename = function(location, newLocation) {
+exports.move = function(location, newLocation) {
     return new Promise(function(resolve, reject) {
         fs.rename(exports.getPath(location), exports.getPath(newLocation), function(error) {
             if (error) {
@@ -107,9 +113,15 @@ exports.rename = function(location, newLocation) {
     });
 };
 
-exports.newFolder = function(location) {
+exports.newFolder = function(location, parentOnly = false) {
+    var parts = location.split("/");
+
+    if (parentOnly) {
+        parts.pop();
+    }
+
     return new Promise(function(resolve, reject) {
-        mkdirp(exports.getPath(location), function(error) {
+        mkdirp(exports.getPath(location.join("/")), function(error) {
             if (error) {
                 reject(error);
 
@@ -121,6 +133,15 @@ exports.newFolder = function(location) {
     });
 };
 
+/*
+    The stats returned are described here:
+    https://nodejs.org/api/fs.html#fsstatpath-options-callback
+
+    * To get the size of a file, use the `size` property of the resolved object
+    * `atime` for when file was last accessed/read
+    * `mtime` for when file was last modified (excluding metadata changes)
+    * `ctime` for when metadata of file was last modified
+*/
 exports.stat = function(location) {
     return new Promise(function(resolve, reject) {
         fs.stat(exports.getPath(location), function(error, stats) {

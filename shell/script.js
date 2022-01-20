@@ -23,16 +23,10 @@ function enterSleep() {
 
     sleeping = true;
 
-    $g.sel("html").addClass("off");
-
-    setTimeout(function() {
-        gShell.call("power_sleep");        
-    }, 500);
+    gShell.call("power_sleep");
 
     setTimeout(function() {
         sleeping = false;
-
-        $g.sel("html").removeClass("off");
     }, 2_000);
 }
 

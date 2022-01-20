@@ -9,19 +9,6 @@
 
 @import url("gshell://lockscreen.css");
 
-html.off {
-    background-color: black;
-}
-
-html.off body {
-    opacity: 0;
-}
-
-body {
-    opacity: 1;
-    transition: 0.5s opacity;
-}
-
 .infoBar {
     background: transparent;
     height: 2.4rem;

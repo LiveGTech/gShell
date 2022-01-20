@@ -23,7 +23,9 @@ function enterSleep() {
 
     sleeping = true;
 
-    gShell.call("power_sleep");
+    $g.sel("#lockScreenMain").screenJump().then(function() {
+        gShell.call("power_sleep");
+    });
 
     setTimeout(function() {
         sleeping = false;

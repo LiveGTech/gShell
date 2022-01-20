@@ -95,7 +95,7 @@ export function unlock() {
 
     renderUnlockLift();
 
-    $g.sel("#main").screenForward().then(function() {
+    $g.sel("#main").screenFade().then(function() {
         hideFront = false;
 
         renderUnlockLift();

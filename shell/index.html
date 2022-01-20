@@ -31,6 +31,19 @@
                 <button id="lockScreen_unlockButton">Unlock</button>
             </main>
         </aui-screen>
+        <!-- TODO: Implement auth -->
+        <aui-screen hidden class="lockScreen" id="lockScreenAuth">
+            <header class="infoBar infoBar_overlay">
+                <!-- TODO: Implement better battery monitor -->
+                <span class="info_battery"></span>
+            </header>
+            <main>
+                <img src="gshell://media/wallpapers/world6.jpg" class="lockScreen_wallpaper" aria-hidden="true">
+                <section class="lockScreen_front">
+                    <p>Hello!</p>
+                </section>
+            </main>
+        </aui-screen>
         <aui-screen id="main" hidden>
             <header>
                 <button title="Open menu" aui-bind="aside" aria-label="Open menu">

@@ -21,7 +21,7 @@ $g.waitForLoad().then(function() {
 
     $g.sel("#lockButton").on("click", function() {
         $g.sel("#mainMenu").asideClose().then(function() {
-            $g.sel("#lockScreenMain").screenBack();
+            $g.sel("#lockScreenMain").screenFade();
         });
     });
 

@@ -17,9 +17,9 @@ window.$g = $g;
 function enterSleep() {
     $g.sel("html").addClass("off");
 
-    if (flags.isRealHardware) {
-        gShell.call("power_sleep");
-    }
+    setTimeout(function() {
+        gShell.call("power_sleep");        
+    }, 500);
 
     setTimeout(function() {
         $g.sel("html").removeClass("off");

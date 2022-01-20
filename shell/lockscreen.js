@@ -18,10 +18,11 @@ var touchIsLocked = false;
 var hideFront = false;
 
 function renderUnlockLift() {
-    $g.sel(".lockScreen_front").get().style.display = hideFront ? "none" : "block";
-
-    $g.sel(".lockScreen_front").get().style.top = `${-currentUnlockLift}px`;
-    $g.sel(".lockScreen_front").get().style.opacity = `${Math.max(1 - (Math.abs(currentUnlockLift) / 100), 0)}`;
+    $g.sel(".lockScreen_front").applyStyle({
+        display: hideFront ? "none" : "block",
+        top: `${-currentUnlockLift}px`,
+        opacity: `${Math.max(1 - (Math.abs(currentUnlockLift) / 100), 0)}`
+    });
 }
 
 function touchStartEvent(touchY) {

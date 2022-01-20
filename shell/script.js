@@ -20,20 +20,18 @@ function enterSleep() {
     if (sleeping) {
         sleeping = false;
 
-        $g.sel("html").removeClass("off");
+        $g.sel("#off").fadeOut();
 
         return;
     }
 
-    $g.sel("html").addClass("off");
-
-    setTimeout(function() {
+    $g.sel("#off").fadeIn().then(function() {
         $g.sel("#lockScreenMain").screenJump().then(function() {
             sleeping = true;
 
             gShell.call("power_sleep");
         });
-    }, 500);
+    });
 }
 
 $g.waitForLoad().then(function() {

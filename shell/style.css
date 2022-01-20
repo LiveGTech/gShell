@@ -9,14 +9,6 @@
 
 @import url("gshell://lockscreen.css");
 
-html {
-    transition: 0.5s filter;
-}
-
-html.off {
-    filter: brightness(0);
-}
-
 .infoBar {
     background: transparent;
     height: 2.4rem;
@@ -38,4 +30,17 @@ html.off {
 .infoBar.infoBar_overlay ~ main {
     top: 0;
     height: 100%;
+}
+
+#off {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    opacity: 0;
+    z-index: 2;
 }

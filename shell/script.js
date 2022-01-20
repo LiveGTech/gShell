@@ -14,7 +14,15 @@ import * as lockScreen from "gshell://lockscreen.js";
 
 window.$g = $g;
 
+var sleeping = false;
+
 function enterSleep() {
+    if (sleeping) {
+        return;
+    }
+
+    sleeping = true;
+
     $g.sel("html").addClass("off");
 
     setTimeout(function() {
@@ -22,6 +30,8 @@ function enterSleep() {
     }, 500);
 
     setTimeout(function() {
+        sleeping = false;
+
         $g.sel("html").removeClass("off");
     }, 2_000);
 }

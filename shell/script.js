@@ -18,6 +18,8 @@ var sleeping = false;
 
 function enterSleep() {
     if (sleeping) {
+        sleeping = false;
+
         return;
     }
 
@@ -26,10 +28,6 @@ function enterSleep() {
     $g.sel("#lockScreenMain").screenJump().then(function() {
         gShell.call("power_sleep");
     });
-
-    setTimeout(function() {
-        sleeping = false;
-    }, 2_000);
 }
 
 $g.waitForLoad().then(function() {

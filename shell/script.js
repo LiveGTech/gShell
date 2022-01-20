@@ -20,14 +20,20 @@ function enterSleep() {
     if (sleeping) {
         sleeping = false;
 
+        $g.sel("#body").removeClass("off");
+
         return;
     }
 
-    sleeping = true;
+    $g.sel("#body").addClass("off");
 
-    $g.sel("#lockScreenMain").screenJump().then(function() {
-        gShell.call("power_sleep");
-    });
+    setTimeout(function() {
+        $g.sel("#lockScreenMain").screenJump().then(function() {
+            sleeping = true;
+
+            gShell.call("power_sleep");
+        });
+    }, 500);
 }
 
 $g.waitForLoad().then(function() {

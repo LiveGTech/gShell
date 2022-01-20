@@ -9,6 +9,15 @@
 
 @import url("gshell://lockscreen.css");
 
+body {
+    filter: brightness(1);
+    transition: 0.5s filter;
+}
+
+body.off {
+    filter: brightness(0);
+}
+
 .infoBar {
     background: transparent;
     height: 2.4rem;

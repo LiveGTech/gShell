@@ -53,6 +53,14 @@ exports.shutDown = function() {
     return exports.executeCommand("sudo", ["shutdown", "-h", "now"]);
 };
 
+exports.sleep = function() {
+    if (!flags.isRealHardware) {
+        return Promise.resolve();
+    }
+
+    return exports.executeCommand("sudo", ["systemctl", "suspend"]);
+};
+
 exports.getPowerState = function() {
     if (!flags.isRealHardware) {
         return Promise.resolve({

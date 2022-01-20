@@ -70,6 +70,12 @@ ipcMain.handle("power_shutDown", function(event, data) {
     return Promise.resolve();
 });
 
+ipcMain.handle("power_sleep", function(event, data) {
+    system.sleep();
+
+    return Promise.resolve();
+});
+
 ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
 });

@@ -14,7 +14,27 @@ import * as lockScreen from "gshell://lockscreen.js";
 
 window.$g = $g;
 
+function enterSleep() {
+    $g.sel("html").addClass("off");
+
+    if (flags.isRealHardware) {
+        gShell.call("power_sleep");
+    }
+
+    setTimeout(function() {
+        $g.sel("html").removeClass("off");
+    }, 2_000);
+}
+
 $g.waitForLoad().then(function() {
+    $g.sel("body").on("keydown", function(event) {
+        switch (event.key) {
+            case "PowerOff":
+                enterSleep();
+                break;
+        }
+    });
+
     $g.sel("#otherPageButton").on("click", function() {
         $g.sel("#otherPage").screenForward();
     });

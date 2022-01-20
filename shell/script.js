@@ -10,39 +10,12 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as info from "gshell://info.js";
+import * as sleep from "gshell://sleep.js";
 import * as lockScreen from "gshell://lockscreen.js";
 
 window.$g = $g;
 
-var sleeping = false;
-
-function enterSleep() {
-    if (sleeping) {
-        sleeping = false;
-
-        $g.sel("#off").fadeOut();
-
-        return;
-    }
-
-    $g.sel("#off").fadeIn().then(function() {
-        $g.sel("#lockScreenMain").screenJump().then(function() {
-            sleeping = true;
-
-            gShell.call("power_sleep");
-        });
-    });
-}
-
 $g.waitForLoad().then(function() {
-    $g.sel("body").on("keydown", function(event) {
-        switch (event.key) {
-            case "PowerOff":
-                enterSleep();
-                break;
-        }
-    });
-
     $g.sel("#otherPageButton").on("click", function() {
         $g.sel("#otherPage").screenForward();
     });

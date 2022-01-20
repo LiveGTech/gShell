@@ -20,12 +20,12 @@ function enterSleep() {
     if (sleeping) {
         sleeping = false;
 
-        $g.sel("#body").removeClass("off");
+        $g.sel("html").removeClass("off");
 
         return;
     }
 
-    $g.sel("#body").addClass("off");
+    $g.sel("html").addClass("off");
 
     setTimeout(function() {
         $g.sel("#lockScreenMain").screenJump().then(function() {

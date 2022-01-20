@@ -9,12 +9,12 @@
 
 @import url("gshell://lockscreen.css");
 
-body {
+html {
     filter: brightness(1);
     transition: 0.5s filter;
 }
 
-body.off {
+html.off {
     filter: brightness(0);
 }
 

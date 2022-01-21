@@ -33,10 +33,6 @@ export function enter() {
 }
 
 export function toggle() {
-    if (transitioning) {
-        return;
-    }
-
     if (sleeping) {
         sleeping = false;
 

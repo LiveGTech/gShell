@@ -10,18 +10,33 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 export var sleeping = false;
+export var transitioning = false;
 
 export function enter() {
+    if (transitioning) {
+        return;
+    }
+
+    transitioning = true;
+
     $g.sel("#off").fadeIn().then(function() {
         $g.sel("#lockScreenMain").screenJump().then(function() {
             sleeping = true;
 
             gShell.call("power_sleep");
         });
+
+        setTimeout(function() {
+            transitioning = false;
+        }, 2_000);
     });
 }
 
 export function toggle() {
+    if (transitioning) {
+        return;
+    }
+
     if (sleeping) {
         sleeping = false;
 

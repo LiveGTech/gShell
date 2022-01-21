@@ -9,15 +9,13 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+const ENTER_SLEEP_TIME = 3_000;
+
 export var sleeping = false;
-export var transitioning = false;
+export var lastSleepTime = null;
 
 export function enter() {
-    if (transitioning) {
-        return;
-    }
-
-    transitioning = true;
+    lastSleepTime = new Date().getTime();
 
     $g.sel("#off").fadeIn().then(function() {
         $g.sel("#lockScreenMain").screenJump().then(function() {
@@ -25,14 +23,14 @@ export function enter() {
 
             gShell.call("power_sleep");
         });
-
-        setTimeout(function() {
-            transitioning = false;
-        }, 2_000);
     });
 }
 
 export function toggle() {
+    if (lastSleepTime != null && new Date().getTime() - lastSleepTime < ENTER_SLEEP_TIME) {
+        return;
+    }
+
     if (sleeping) {
         sleeping = false;
 

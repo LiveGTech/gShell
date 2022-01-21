@@ -9,7 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
-const ENTER_SLEEP_TIME = 3_000;
+const ENTER_SLEEP_TIME = 4_000;
 
 export var sleeping = false;
 export var lastSleepTime = null;

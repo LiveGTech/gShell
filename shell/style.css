@@ -7,30 +7,8 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-@import url("gshell://lockscreen.css");
-
-.infoBar {
-    background: transparent;
-    height: 2.4rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-}
-
-.infoBar span:last-child {
-    text-align: end;
-}
-
-.infoBar.infoBar_overlay {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1;
-}
-
-.infoBar.infoBar_overlay ~ main {
-    top: 0;
-    height: 100%;
-}
+@import url("gshell://global/infobar.css");
+@import url("gshell://auth/lockscreen.css");
 
 #off {
     position: fixed;

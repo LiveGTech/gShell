@@ -9,9 +9,9 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
-import * as info from "gshell://info.js";
-import * as sleep from "gshell://sleep.js";
-import * as lockScreen from "gshell://lockscreen.js";
+import * as info from "gshell://global/info.js";
+import * as sleep from "gshell://power/sleep.js";
+import * as lockScreen from "gshell://auth/lockscreen.js";
 
 window.$g = $g;
 

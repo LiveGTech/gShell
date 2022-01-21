@@ -1,0 +1,13 @@
+{
+    "localeCode": "en_GB",
+    "metadata": {
+        "name": "English (United Kingdom)",
+        "nameShort": "English",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "percentage": "{value}%",
+
+        "lockScreen_unlock": "Unlock"
+    }
+}

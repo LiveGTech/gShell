@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as l10n from "gshell://config/l10n.js";
 import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://power/sleep.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
@@ -16,6 +17,10 @@ import * as lockScreen from "gshell://auth/lockscreen.js";
 window.$g = $g;
 
 $g.waitForLoad().then(function() {
+    return l10n.apply();
+}).then(function() {
+    info.init();
+
     $g.sel("#otherPageButton").on("click", function() {
         $g.sel("#otherPage").screenForward();
     });

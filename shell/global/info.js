@@ -9,22 +9,36 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
-$g.waitForLoad().then(function() {
+export function applyDateTime() {
+    $g.sel(".info_date").setText(_format(new Date(), {weekday: "long", day: "numeric", month: "long"}));
+    $g.sel(".info_time").setText(_format(new Date(), {timeStyle: "short"}));
+}
+
+export function applyPower() {
+    gShell.call("power_getState").then(function(response) {
+        if (response.state == null) {
+            $g.sel(".info_batteryLevel").setText("");
+
+            return;
+        }
+
+        $g.sel(".info_batteryLevel").setText(_("percentage", {value: response.level}));
+    });
+}
+
+export function applyAll() {
+    applyDateTime();
+    applyPower();
+}
+
+export function init() {
+    applyAll();
+
     setInterval(function() {
-        // TODO: Use `l10n` to obtain these values
-        $g.sel(".info_date").setText(new Date().toLocaleString("en-GB", {weekday: "long", day: "numeric", month: "long"}));
-        $g.sel(".info_time").setText(new Date().toLocaleString("en-GB", {timeStyle: "short"}));
+        applyDateTime();
     });
 
     setInterval(function() {
-        gShell.call("power_getState").then(function(response) {
-            if (response.state == null) {
-                $g.sel(".info_battery").setText("");
-    
-                return;
-            }
-    
-            $g.sel(".info_battery").setText(`${response.level}%${response.state == "charging" ? "C": ""}`);
-        });
+        applyPower();
     }, 3_000);
-});
+}

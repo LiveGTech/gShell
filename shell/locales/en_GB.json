@@ -8,6 +8,10 @@
     "source": {
         "percentage": "{value}%",
 
+        "info_batteryIcon_charging": "Battery - charging",
+        "info_batteryIcon_discharging": "Battery - discharging",
+        "info_batteryIcon_unknown": "Battery - unknown",
+
         "lockScreen_unlock": "Unlock"
     }
 }

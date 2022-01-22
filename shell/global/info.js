@@ -19,10 +19,21 @@ export function applyPower() {
         if (response.state == null) {
             $g.sel(".info_batteryLevel").setText("");
 
+            $g.sel(".info_batteryIcon").setAttribute("src", "gshell://lib/adaptui/icons/battery-unknown.svg");
+            $g.sel(".info_batteryIcon").setAttribute("alt", _("info_batteryIcon_unknown"));
+
             return;
         }
 
         $g.sel(".info_batteryLevel").setText(_("percentage", {value: response.level}));
+
+        if (response.state == "charging") {
+            $g.sel(".info_batteryIcon").setAttribute("src", "gshell://lib/adaptui/icons/battery-charging.svg");
+        } else {
+            $g.sel(".info_batteryIcon").setAttribute("src", `gshell://lib/adaptui/icons/battery-${Math.round((response.level / 100) * 8)}.svg`);
+        }
+
+        $g.sel(".info_batteryIcon").setAttribute("alt", response.state == "charging" ? _("info_batteryIcon_charging") : _("info_batteryIcon_discharging"));
     });
 }
 

@@ -14,10 +14,6 @@
     padding-bottom: 0.5rem;
 }
 
-.infoBar span:last-child {
-    text-align: end;
-}
-
 .infoBar.infoBar_overlay {
     position: fixed;
     top: 0;

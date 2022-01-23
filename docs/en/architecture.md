@@ -24,7 +24,7 @@ gShell uses web technologies to make development easier! It runs on top of the L
             - (example) Phone
 
 ## Explanations
-**Linux Kernel** - The underlying system (Mobian in the case of the PinePhone build)
+**Linux Kernel** - The underlying system (Mobian in the case of the LiveG Prism build)
 
 **X11 Xsession** - Creates a graphical session to run gShell in
 

@@ -52,6 +52,33 @@
     margin-top: 0;
 }
 
+.lockScreen_auth {
+    position: absolute;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    color: white;
+    text-align: center;
+}
+
+.lockScreen_auth .lockScreen_auth_passcode {
+    background-color: transparent!important;
+    color: inherit!important;
+    font-size: 1.5rem!important;
+    text-align: center!important;
+}
+
+.lockScreen_auth .lockScreen_auth_passcodeButtons aui-buttons {
+    display: flex;
+}
+
+.lockScreen_auth .lockScreen_auth_passcodeButtons aui-buttons button {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 3rem;
+    font-size: 1.2rem!important;
+}
+
 #lockScreen_unlockButton {
     position: fixed;
     bottom: -4rem;

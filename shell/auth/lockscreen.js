@@ -9,6 +9,8 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as auth from "gshell://auth/auth.js";
+
 const LIFT_TO_UNLOCK_THRESHOLD = 80;
 
 var currentUnlockLift = 0;
@@ -18,7 +20,7 @@ var touchIsLocked = false;
 var hideFront = false;
 
 function renderUnlockLift() {
-    $g.sel(".lockScreen_front").applyStyle({
+    $g.sel("#lockScreenMain .lockScreen_front").applyStyle({
         display: hideFront ? "none" : "block",
         top: `${-currentUnlockLift}px`,
         opacity: `${Math.max(1 - (Math.abs(currentUnlockLift) / 100), 0)}`
@@ -95,7 +97,7 @@ export function unlock() {
 
     renderUnlockLift();
 
-    $g.sel("#main").screenFade().then(function() {
+    auth.start().then(function() {
         hideFront = false;
 
         renderUnlockLift();

@@ -24,10 +24,26 @@ export function build() {
                 ...row.map((button) => $g.create("button")
                     .setText(_format(button)) // Showing of "del" and "enter" is temporary atm
                     .on("click", function() {
+                        var input = $g.sel(".lockScreen_auth_passcode").get();
                         var currentPasscode = $g.sel(".lockScreen_auth_passcode").getValue();
+                        var selectionStart = input.selectionStart;
+                        var selectionEnd = input.selectionEnd;
 
                         if (button == "del") {
-                            $g.sel(".lockScreen_auth_passcode").setValue(currentPasscode.substring(0, currentPasscode.length - 1));
+                            if (selectionStart == 0 && selectionEnd == 0) {
+                                $g.sel(".lockScreen_auth_passcode").focus();
+
+                                input.selectionStart = selectionStart;
+                                input.selectionEnd = input.selectionStart;
+
+                                return;
+                            }
+
+                            $g.sel(".lockScreen_auth_passcode").setValue(currentPasscode.substring(0, selectionStart == selectionEnd ? selectionStart - 1 : selectionStart) + currentPasscode.substring(selectionEnd));
+                            $g.sel(".lockScreen_auth_passcode").focus();
+
+                            input.selectionStart = selectionStart == selectionEnd ? selectionStart - 1 : selectionStart;
+                            input.selectionEnd = input.selectionStart;
 
                             return;
                         }
@@ -40,7 +56,11 @@ export function build() {
                             return;
                         }
 
-                        $g.sel(".lockScreen_auth_passcode").setValue(currentPasscode + String(button));
+                        $g.sel(".lockScreen_auth_passcode").setValue(currentPasscode.substring(0, selectionStart) + String(button) + currentPasscode.substring(selectionEnd));
+                        $g.sel(".lockScreen_auth_passcode").focus();
+
+                        input.selectionStart = selectionStart + 1;
+                        input.selectionEnd = input.selectionStart;
                     })
                 )
             ))

@@ -7,7 +7,13 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+
+import * as a11y from "gshell://a11y/a11y.js";
+
 export function build() {
+    var delButtonHoldStart = null;
+
     $g.sel(".lockScreen_auth").clear();
 
     $g.sel(".lockScreen_auth").add(
@@ -34,16 +40,26 @@ export function build() {
                 .add(...row.map((button) => $g.create("button")
                     .choose(button,
                         "del", ($) => $
+                            .addClass("lockScreen_auth_passcodeButtons_del")
                             .add(
                                 $g.create("img")
-                                    .setAttribute("src", "gshell://lib/adaptui/icons/backspace.svg")
+                                    .setAttribute("src", "gshell://lib/adaptui/icons/back.svg")
                                     .setAttribute("aui-icon", "light")
                                     .setAttribute("alt", "")
                             )
                             .setAttribute("title", _("lockScreen_delete"))
                             .setAttribute("aria-label", _("lockScreen_delete"))
+                            .on("mousedown touchstart", function() {
+                                delButtonHoldStart = Date.now();
+                            })
+                            .on("mouseup touchend", function(event) {
+                                if (delButtonHoldStart != null && Date.now() - delButtonHoldStart >= a11y.holdDelay) {
+                                    cancel();
+                                }
+                            })
                         ,
                         "enter", ($) => $
+                            .addClass("lockScreen_auth_passcodeButtons_enter")
                             .add(
                                 $g.create("img")
                                     .setAttribute("src", "gshell://lib/adaptui/icons/checkmark.svg")
@@ -62,6 +78,12 @@ export function build() {
                         var selectionEnd = input.selectionEnd;
 
                         if (button == "del") {
+                            if (currentPasscode.length == 0) {
+                                cancel();
+
+                                return;
+                            }
+
                             if (selectionStart == 0 && selectionEnd == 0) {
                                 $g.sel(".lockScreen_auth_passcode").focus();
 
@@ -77,13 +99,15 @@ export function build() {
                             input.selectionStart = selectionStart == selectionEnd ? selectionStart - 1 : selectionStart;
                             input.selectionEnd = input.selectionStart;
 
+                            if ($g.sel(".lockScreen_auth_passcode").getValue().length == 0) {
+                                $g.sel(".lockScreen_auth_passcodeButtons_del img").setAttribute("src", "gshell://lib/adaptui/icons/back.svg");
+                            }
+
                             return;
                         }
 
                         if (button == "enter") {
-                            $g.sel("#main").screenFade().then(function() {
-                                $g.sel(".lockScreen_auth_passcode").setValue("");
-                            });
+                            unlock();
 
                             return;
                         }
@@ -93,6 +117,8 @@ export function build() {
 
                         input.selectionStart = selectionStart + 1;
                         input.selectionEnd = input.selectionStart;
+
+                        $g.sel(".lockScreen_auth_passcodeButtons_del img").setAttribute("src", "gshell://lib/adaptui/icons/backspace.svg");
                     })
                 )
             ))
@@ -107,5 +133,19 @@ export function start() {
         $g.sel(".lockScreen_auth_passcode").focus();
 
         return Promise.resolve();
+    });
+}
+
+export function unlock() {
+    // TODO: Check passcode is correct
+
+    $g.sel("#main").screenFade().then(function() {
+        $g.sel(".lockScreen_auth_passcode").setValue("");
+    });
+}
+
+export function cancel() {
+    $g.sel("#lockScreenMain").screenFade().then(function() {
+        $g.sel(".lockScreen_auth_passcode").setValue("");
     });
 }

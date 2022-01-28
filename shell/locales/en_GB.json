@@ -12,6 +12,8 @@
         "info_batteryIcon_discharging": "Battery - discharging",
         "info_batteryIcon_unknown": "Battery - unknown",
 
-        "lockScreen_unlock": "Unlock"
+        "lockScreen_unlock": "Unlock",
+        "lockScreen_enterPasscode": "Enter passcode",
+        "lockScreen_delete": "Delete"
     }
 }

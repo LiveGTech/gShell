@@ -27,6 +27,8 @@ export function apply(localeCode = "en_GB") {
 
         currentLocale = locale;
 
+        $g.l10n.translateApp(locale);
+
         info.applyAll();
 
         return Promise.resolve();

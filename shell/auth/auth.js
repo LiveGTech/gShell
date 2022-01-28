@@ -11,12 +11,13 @@ export function build() {
     $g.sel(".lockScreen_auth").clear();
 
     $g.sel(".lockScreen_auth").add(
-        $g.create("p").setText("Enter passcode"), // TODO: Translate
+        $g.create("p").setText(_("lockScreen_enterPasscode")),
         $g.create("div").add(
             $g.create("input")
                 .addClass("lockScreen_auth_passcode")
                 .setAttribute("type", "password")
-                .setAttribute("aria-label", "Enter passcode") // TODO: Translate
+                .setAttribute("dir", "ltr") // Passcode inputs are always LTR independent of locale
+                .setAttribute("aria-label", _("lockScreen_enterPasscode"))
                 .on("keydown", function(event) {
                     if (event.key == "Enter") {
                         $g.sel("#main").screenFade().then(function() {
@@ -28,8 +29,9 @@ export function build() {
         $g.create("div").addClass("lockScreen_auth_passcodeButtons").add(
             ...[
                 [1, 2, 3], [4, 5, 6], [7, 8, 9], ["del", 0, "enter"]
-            ].map((row) => $g.create("aui-buttons").add(
-                ...row.map((button) => $g.create("button")
+            ].map((row) => $g.create("aui-buttons")
+                .setAttribute("dir", "ltr")
+                .add(...row.map((button) => $g.create("button")
                     .choose(button,
                         "del", ($) => $
                             .add(
@@ -38,8 +40,8 @@ export function build() {
                                     .setAttribute("aui-icon", "light")
                                     .setAttribute("alt", "")
                             )
-                            .setAttribute("title", "Delete") // TODO: Translate
-                            .setAttribute("aria-label", "Delete") // TODO: Translate
+                            .setAttribute("title", _("lockScreen_delete"))
+                            .setAttribute("aria-label", _("lockScreen_delete"))
                         ,
                         "enter", ($) => $
                             .add(
@@ -48,8 +50,8 @@ export function build() {
                                     .setAttribute("aui-icon", "light")
                                     .setAttribute("alt", "")
                             )
-                            .setAttribute("title", "Unlock") // TODO: Translate
-                            .setAttribute("aria-label", "Unlock") // TODO: Translate
+                            .setAttribute("title", _("lockScreen_unlock"))
+                            .setAttribute("aria-label", _("lockScreen_unlock"))
                         ,
                         ($) => $.setText(_format(button))
                     )

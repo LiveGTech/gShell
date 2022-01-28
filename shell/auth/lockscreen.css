@@ -79,7 +79,7 @@
     height: 3rem;
     background-color: rgba(1, 1, 1, 0.2);
     font-size: 1.2rem!important;
-    transition: 1s background-color;
+    transition: 0.5s background-color;
 }
 
 html[aui-istouch="false"] .lockScreen_auth_passcodeButtons button:hover, .lockScreen_auth_passcodeButtons button:active {

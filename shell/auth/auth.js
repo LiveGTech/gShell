@@ -11,18 +11,48 @@ export function build() {
     $g.sel(".lockScreen_auth").clear();
 
     $g.sel(".lockScreen_auth").add(
+        $g.create("p").setText("Enter passcode"), // TODO: Translate
         $g.create("div").add(
             $g.create("input")
                 .addClass("lockScreen_auth_passcode")
                 .setAttribute("type", "password")
                 .setAttribute("aria-label", "Enter passcode") // TODO: Translate
+                .on("keydown", function(event) {
+                    if (event.key == "Enter") {
+                        $g.sel("#main").screenFade().then(function() {
+                            $g.sel(".lockScreen_auth_passcode").setValue("");
+                        });
+                    }
+                })
         ),
         $g.create("div").addClass("lockScreen_auth_passcodeButtons").add(
             ...[
                 [1, 2, 3], [4, 5, 6], [7, 8, 9], ["del", 0, "enter"]
             ].map((row) => $g.create("aui-buttons").add(
                 ...row.map((button) => $g.create("button")
-                    .setText(_format(button)) // Showing of "del" and "enter" is temporary atm
+                    .choose(button,
+                        "del", ($) => $
+                            .add(
+                                $g.create("img")
+                                    .setAttribute("src", "gshell://lib/adaptui/icons/backspace.svg")
+                                    .setAttribute("aui-icon", "light")
+                                    .setAttribute("alt", "")
+                            )
+                            .setAttribute("title", "Delete") // TODO: Translate
+                            .setAttribute("aria-label", "Delete") // TODO: Translate
+                        ,
+                        "enter", ($) => $
+                            .add(
+                                $g.create("img")
+                                    .setAttribute("src", "gshell://lib/adaptui/icons/checkmark.svg")
+                                    .setAttribute("aui-icon", "light")
+                                    .setAttribute("alt", "")
+                            )
+                            .setAttribute("title", "Unlock") // TODO: Translate
+                            .setAttribute("aria-label", "Unlock") // TODO: Translate
+                        ,
+                        ($) => $.setText(_format(button))
+                    )
                     .on("click", function() {
                         var input = $g.sel(".lockScreen_auth_passcode").get();
                         var currentPasscode = $g.sel(".lockScreen_auth_passcode").getValue();

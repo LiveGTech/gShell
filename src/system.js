@@ -10,6 +10,7 @@
 const child_process = require("child_process");
 const fs = require("fs");
 const electron = require("electron");
+const bcrypt = require("bcrypt");
 
 var flags = require("./flags");
 
@@ -92,6 +93,34 @@ exports.setColourScheme = function(scheme = "light") {
     electron.nativeTheme.themeSource = scheme;
 
     return Promise.resolve();
+};
+
+exports.bcryptHash = function(data, saltRounds) {
+    return new Promise(function(resolve, reject) {
+        bcrypt.hash(data, saltRounds, function(error, hash) {
+            if (error) {
+                reject(error);
+
+                return;
+            }
+
+            resolve(hash);
+        });
+    });
+};
+
+exports.bcryptCompare = function(data, hash) {
+    return new Promise(function(resolve, reject) {
+        bcrypt.compare(data, hash, function(error, result) {
+            if (error) {
+                reject(error);
+
+                return;
+            }
+
+            resolve(result);
+        });
+    });
 };
 
 exports.devRestart = function() {

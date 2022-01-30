@@ -11,6 +11,113 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
 
+export const DEFAULT_SALT_ROUNDS = 10;
+
+export const authMethodTypes = {
+    BASE: -1,
+    UNSECURE: 0,
+    PASSWORD: 1,
+    PASSCODE: 2
+};
+
+export class AuthMethod {
+    constructor(type) {
+        this.type = type;
+    }
+
+    verify() {
+        return Promise.reject("Authentication verification method not implemented");
+    }
+
+    static generate() {
+        return Promise.resolve(new this());
+    }
+
+    static deserialise(data) {
+        switch (data.type) {
+            case authMethodTypes.UNSECURE:
+                return new UnsecureAuthMethod();
+
+            case authMethodTypes.PASSWORD:
+                return new PasswordAuthMethod(data.hash, data.saltRounds);
+
+            case authMethodTypes.PASSCODE:
+                return new PasscodeAuthMethod(data.hash, data.saltRounds);
+
+            default:
+                return new this(authMethodTypes.BASE);
+        }
+    }
+
+    serialise() {
+        return {type: this.type};
+    }
+}
+
+export class UnsecureAuthMethod extends AuthMethod {
+    constructor() {
+        super(authMethodTypes.UNSECURE);
+    }
+
+    verify() {
+        return Promise.resolve(true);
+    }
+}
+
+export class PasswordAuthMethod extends AuthMethod {
+    constructor(hash, saltRounds) {
+        super(authMethodTypes.PASSWORD);
+
+        this.hash = hash;
+        this.saltRounds = saltRounds;
+    }
+
+    static generate(password, saltRounds = DEFAULT_SALT_ROUNDS) {
+        return gShell.call("auth_bcryptHash", {data: password, saltRounds}).then(function(hash) {
+            return Promise.resolve(new PasswordAuthMethod(hash, saltRounds));
+        });
+    }
+
+    verify(password) {
+        return gShell.call("auth_bcryptCompare", {data: password, saltRounds: this.saltRounds});
+    }
+
+    serialise() {
+        return {...super.serialise(), hash: this.hash, saltRounds: this.saltRounds};
+    }
+}
+
+export class PasscodeAuthMethod extends AuthMethod {
+    constructor(hash, saltRounds) {
+        super(hash, saltRounds);
+
+        this.type = authMethodTypes.PASSCODE;
+    }
+}
+
+export class UserAuthCredentials {
+    constructor(user) {
+        this.user = user;
+
+        this.loaded = false;
+        this.authMethods = [];
+    }
+
+    load() {
+        var thisScope;
+
+        return this.user.getAuthData().then(function(data) {
+            thisScope.authMethods = (data.methods || []).map(function(methodData) {
+                return AuthMethod.deserialise(methodData);
+            });
+
+            thisScope.loaded = true;
+
+            return Promise.resolve();
+        });
+    }
+}
+
 export function build() {
     var delButtonHoldStart = null;
 

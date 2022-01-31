@@ -133,6 +133,12 @@ function showLockScreen(authMethod) {
     var delButtonHoldStart = null;
 
     function verify() {
+        if ($g.sel(".lockScreen_auth_passcode").getValue() == "") {
+            $g.sel(".lockScreen_auth_passcode").focus();
+
+            return Promise.resolve();
+        }
+
         var controls = $g.sel(".lockScreen_auth_passcode, .lockScreen_auth_passcodeButtons button");
 
         controls.addAttribute("disabled");

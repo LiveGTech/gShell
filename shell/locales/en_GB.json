@@ -14,6 +14,7 @@
 
         "lockScreen_unlock": "Unlock",
         "lockScreen_enterPasscode": "Enter passcode",
+        "lockScreen_incorrectPasscode": "Incorrect passcode, try again",
         "lockScreen_delete": "Delete"
     }
 }

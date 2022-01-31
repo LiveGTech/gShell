@@ -33,7 +33,6 @@
                 <button id="lockScreen_unlockButton" translate>lockScreen_unlock</button>
             </main>
         </aui-screen>
-        <!-- TODO: Implement auth -->
         <aui-screen hidden class="lockScreen" id="lockScreenAuth" hidden>
             <header class="infoBar infoBar_overlay">
                 <span></span>
@@ -69,6 +68,11 @@
                         <label for="darkTheme" aui-mode="switch">Dark theme</label>
                         <input type="checkbox" role="switch" id="darkTheme">
                     </div>
+                    <div>
+                        <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
+                        <input type="checkbox" role="switch" id="passcodeAuth">
+                    </div>
+                    <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
                 </section>
             </main>
         </aui-screen>

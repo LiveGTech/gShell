@@ -97,4 +97,26 @@ $g.waitForLoad().then(function() {
             scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
         });
     });
+
+    users.get("test").then(function(user) {
+        var credentials = new auth.UserAuthCredentials(user);
+
+        credentials.load().then(function() {
+            $g.sel("#passcodeAuth").setValue(credentials.authMethods[0] instanceof auth.PasscodeAuthMethod);
+        });
+    });
+
+    $g.sel("#passcodeAuth").on("change", function() {
+        users.get("test").then(function(user) {
+            var credentials = new auth.UserAuthCredentials(user);
+
+            credentials.load().then(function() {
+                return $g.sel("#passcodeAuth").getValue() ? auth.PasscodeAuthMethod.generate("1234") : auth.UnsecureAuthMethod.generate();
+            }).then(function(authMethod) {
+                credentials.authMethods = [authMethod];
+
+                credentials.save();
+            });
+        });
+    });
 });

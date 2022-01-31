@@ -12,6 +12,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as a11y from "gshell://a11y/a11y.js";
 
 export const DEFAULT_SALT_ROUNDS = 10;
+export const UNAUTHENTICATED_TIMEOUT = 1_000; // 1 second, to mitigate brute-forcing authentication
 
 export const authMethodTypes = {
     BASE: -1,
@@ -75,13 +76,15 @@ export class PasswordAuthMethod extends AuthMethod {
     }
 
     static generate(password, saltRounds = DEFAULT_SALT_ROUNDS) {
+        var thisScope = this;
+
         return gShell.call("auth_bcryptHash", {data: password, saltRounds}).then(function(hash) {
-            return Promise.resolve(new PasswordAuthMethod(hash, saltRounds));
+            return Promise.resolve(new thisScope(hash, saltRounds));
         });
     }
 
     verify(password) {
-        return gShell.call("auth_bcryptCompare", {data: password, saltRounds: this.saltRounds});
+        return gShell.call("auth_bcryptCompare", {data: password, hash: this.hash});
     }
 
     serialise() {
@@ -126,13 +129,46 @@ export class UserAuthCredentials {
     }
 }
 
-export function build() {
+function showLockScreen(authMethod) {
     var delButtonHoldStart = null;
+
+    function verify() {
+        var controls = $g.sel(".lockScreen_auth_passcode, .lockScreen_auth_passcodeButtons button");
+
+        controls.addAttribute("disabled");
+
+        return authMethod.verify($g.sel(".lockScreen_auth_passcode").getValue()).then(function(authenticated) {
+            if (authenticated) {
+                return unlock().then(function() {
+                    controls.removeAttribute("disabled");
+
+                    $g.sel(".lockScreen_auth_passcode").setValue("");
+
+                    return Promise.resolve();
+                });
+            }
+
+            return new Promise(function(resolve, reject) {
+                setTimeout(function() {
+                    controls.removeAttribute("disabled");
+
+                    $g.sel(".lockScreen_auth_passcode").setValue("");
+                    $g.sel(".lockScreen_auth_message").setText(_("lockScreen_incorrectPasscode"));
+                    $g.sel(".lockScreen_auth_passcode").focus();
+
+                    resolve();
+                }, UNAUTHENTICATED_TIMEOUT);
+            });
+        });
+    }
 
     $g.sel(".lockScreen_auth").clear();
 
     $g.sel(".lockScreen_auth").add(
-        $g.create("p").setText(_("lockScreen_enterPasscode")),
+        $g.create("p")
+            .addClass("lockScreen_auth_message")
+            .setText(_("lockScreen_enterPasscode"))
+        ,
         $g.create("div").add(
             $g.create("input")
                 .addClass("lockScreen_auth_passcode")
@@ -141,9 +177,7 @@ export function build() {
                 .setAttribute("aria-label", _("lockScreen_enterPasscode"))
                 .on("keydown", function(event) {
                     if (event.key == "Enter") {
-                        $g.sel("#main").screenFade().then(function() {
-                            $g.sel(".lockScreen_auth_passcode").setValue("");
-                        });
+                        verify();
                     }
                 })
         ),
@@ -222,7 +256,7 @@ export function build() {
                         }
 
                         if (button == "enter") {
-                            unlock();
+                            verify();
 
                             return;
                         }
@@ -239,28 +273,36 @@ export function build() {
             ))
         )
     );
-}
 
-export function start(user) {
-    currentUserAuthCredentials = new UserAuthCredentials(user);
-
-    return currentUserAuthCredentials.load().then(function() {
-        build();        
-    }).then(function() {
-        return $g.sel("#lockScreenAuth").screenFade();
-    }).then(function() {
+    return $g.sel("#lockScreenAuth").screenFade().then(function() {
         $g.sel(".lockScreen_auth_passcode").focus();
 
         return Promise.resolve();
     });
 }
 
-export function unlock() {
-    // TODO: Check passcode is correct
+export function start(user) {
+    currentUserAuthCredentials = new UserAuthCredentials(user);
 
-    $g.sel("#main").screenFade().then(function() {
-        $g.sel(".lockScreen_auth_passcode").setValue("");
+    return currentUserAuthCredentials.load().then(function() {
+        if (currentUserAuthCredentials.authMethods.length == 0) {
+            return Promise.reject("No authentication methods are available");
+        }
+
+        var authMethod = currentUserAuthCredentials.authMethods[0]; // TODO: Allow switching between methods
+
+        if (authMethod instanceof PasscodeAuthMethod) {
+            return showLockScreen(authMethod);
+        }
+
+        return unlock().then(function() {
+            return Promise.resolve();
+        });
     });
+}
+
+export function unlock() {
+    return $g.sel("#main").screenFade();
 }
 
 export function cancel() {

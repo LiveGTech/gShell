@@ -30,7 +30,7 @@ gShell uses web technologies to make development easier! It runs on top of the L
 
 **gShell (Electron runtime)** - The gShell runtime that uses Electron and Node.js. All child layers are represented in HTML.
 
-**OOBS (Out-of-box setup)** - When the gShell user uses their phone for the first time, this is shown, and it lets the user set up their phone, including options such as setting the passcode, the user's personal details (like their name), the phone's name, WiFi connection details etc.
+**OOBS (Out-of-box setup)** - When the gShell user uses their phone for the first time, this is shown, and it lets the user set up their phone, including options such as setting the passcode, the user's personal details (like their name), the phone's name, Wi-Fi connection details etc.
 
 **Basic power menu** - A simple power menu that provides options to shutdown or restart the phone.
 

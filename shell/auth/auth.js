@@ -20,6 +20,8 @@ export const authMethodTypes = {
     PASSCODE: 2
 };
 
+export var currentUserAuthCredentials = null;
+
 export class AuthMethod {
     constructor(type) {
         this.type = type;
@@ -87,7 +89,7 @@ export class PasswordAuthMethod extends AuthMethod {
     }
 }
 
-export class PasscodeAuthMethod extends AuthMethod {
+export class PasscodeAuthMethod extends PasswordAuthMethod {
     constructor(hash, saltRounds) {
         super(hash, saltRounds);
 
@@ -104,7 +106,7 @@ export class UserAuthCredentials {
     }
 
     load() {
-        var thisScope;
+        var thisScope = this;
 
         return this.user.getAuthData().then(function(data) {
             thisScope.authMethods = (data.methods || []).map(function(methodData) {
@@ -114,6 +116,12 @@ export class UserAuthCredentials {
             thisScope.loaded = true;
 
             return Promise.resolve();
+        });
+    }
+
+    save() {
+        return this.user.setAuthData({
+            methods: this.authMethods.map((method) => method.serialise())
         });
     }
 }
@@ -233,10 +241,14 @@ export function build() {
     );
 }
 
-export function start() {
-    build();
+export function start(user) {
+    currentUserAuthCredentials = new UserAuthCredentials(user);
 
-    return $g.sel("#lockScreenAuth").screenFade().then(function() {
+    return currentUserAuthCredentials.load().then(function() {
+        build();        
+    }).then(function() {
+        return $g.sel("#lockScreenAuth").screenFade();
+    }).then(function() {
         $g.sel(".lockScreen_auth_passcode").focus();
 
         return Promise.resolve();

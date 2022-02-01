@@ -60,6 +60,14 @@ ipcMain.handle("config_write", function(event, data) {
     return config.write(data.location, data.data);
 });
 
+ipcMain.handle("auth_bcryptHash", function(event, data) {
+    return system.bcryptHash(data.data, data.saltRounds);
+});
+
+ipcMain.handle("auth_bcryptCompare", function(event, data) {
+    return system.bcryptCompare(data.data, data.hash);
+});
+
 ipcMain.handle("shell_setColourScheme", function(event, data) {
     return system.setColourScheme(data.scheme);
 });

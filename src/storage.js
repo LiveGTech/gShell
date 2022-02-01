@@ -23,8 +23,6 @@ exports.getPath = function(location) {
         return exports.storageFilesystemLocation;
     }
 
-    console.log(absolutePath, exports.storageFilesystemLocation);
-
     return absolutePath;
 };
 

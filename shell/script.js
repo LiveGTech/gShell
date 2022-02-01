@@ -10,16 +10,42 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as l10n from "gshell://config/l10n.js";
+import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://power/sleep.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
+import * as auth from "gshell://auth/auth.js";
 
 window.$g = $g;
 
 $g.waitForLoad().then(function() {
     return l10n.apply();
 }).then(function() {
+    return users.getList();
+}).then(function(userList) {
+    // TODO: Replace automatic user generation with OOBS
+
+    if (userList.length == 0) {
+        var credentials;
+
+        return users.create("test").then(function(user) {
+            credentials = new auth.UserAuthCredentials(user);
+
+            return auth.UnsecureAuthMethod.generate();
+        }).then(function(method) {
+            credentials.authMethods.push(method);
+
+            return credentials.save();
+        });
+    }
+
+    return Promise.resolve();
+}).then(function() {
+    return lockScreen.loadUsers();
+}).then(function() {
     info.init();
+
+    $g.sel("#lockScreenMain").screenFade();
 
     $g.sel("#otherPageButton").on("click", function() {
         $g.sel("#otherPage").screenForward();
@@ -69,6 +95,28 @@ $g.waitForLoad().then(function() {
     $g.sel("#darkTheme").on("change", function() {
         gShell.call("shell_setColourScheme", {
             scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
+        });
+    });
+
+    users.get("test").then(function(user) {
+        var credentials = new auth.UserAuthCredentials(user);
+
+        credentials.load().then(function() {
+            $g.sel("#passcodeAuth").setValue(credentials.authMethods[0] instanceof auth.PasscodeAuthMethod);
+        });
+    });
+
+    $g.sel("#passcodeAuth").on("change", function() {
+        users.get("test").then(function(user) {
+            var credentials = new auth.UserAuthCredentials(user);
+
+            credentials.load().then(function() {
+                return $g.sel("#passcodeAuth").getValue() ? auth.PasscodeAuthMethod.generate("1234") : auth.UnsecureAuthMethod.generate();
+            }).then(function(authMethod) {
+                credentials.authMethods = [authMethod];
+
+                credentials.save();
+            });
         });
     });
 });

@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
 
 const LIFT_TO_UNLOCK_THRESHOLD = 80;
@@ -18,6 +19,9 @@ var initialTouchPosition = 0;
 var touchIsDown = false;
 var touchIsLocked = false;
 var hideFront = false;
+
+export var userList = [];
+export var selectedUser = null;
 
 function renderUnlockLift() {
     $g.sel("#lockScreenMain .lockScreen_front").applyStyle({
@@ -77,8 +81,6 @@ function unlockButtonEvent() {
     var unlockAnimation = setInterval(function() {
         currentUnlockLift = currentUnlockLift * 1.2;
 
-        console.log(currentUnlockLift);
-
         renderUnlockLift();
 
         if (currentUnlockLift > 100) {
@@ -92,12 +94,25 @@ function unlockButtonEvent() {
     }, 10);
 }
 
+export function loadUsers() {
+    return users.getList().then(function(list) {
+        if (list.length == 0) {
+            return Promise.reject("No users to list on lock screen");
+        }
+
+        userList = list;
+        selectedUser = list[0];
+
+        return Promise.resolve();
+    });
+}
+
 export function unlock() {
     hideFront = true;
 
     renderUnlockLift();
 
-    auth.start().then(function() {
+    auth.start(selectedUser).then(function() {
         hideFront = false;
 
         renderUnlockLift();

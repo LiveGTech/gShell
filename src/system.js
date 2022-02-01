@@ -10,7 +10,7 @@
 const child_process = require("child_process");
 const fs = require("fs");
 const electron = require("electron");
-const bcrypt = require("bcrypt");
+const bcryptjs = require("bcryptjs");
 
 var flags = require("./flags");
 
@@ -97,7 +97,7 @@ exports.setColourScheme = function(scheme = "light") {
 
 exports.bcryptHash = function(data, saltRounds) {
     return new Promise(function(resolve, reject) {
-        bcrypt.hash(data, saltRounds, function(error, hash) {
+        bcryptjs.hash(data, saltRounds, function(error, hash) {
             if (error) {
                 reject(error);
 
@@ -111,7 +111,7 @@ exports.bcryptHash = function(data, saltRounds) {
 
 exports.bcryptCompare = function(data, hash) {
     return new Promise(function(resolve, reject) {
-        bcrypt.compare(data, hash, function(error, result) {
+        bcryptjs.compare(data, hash, function(error, result) {
             if (error) {
                 reject(error);
 

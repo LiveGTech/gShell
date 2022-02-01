@@ -34,7 +34,7 @@ gShell uses web technologies to make development easier! It runs on top of the L
 
 **Basic power menu** - A simple power menu that provides options to shutdown or restart the phone.
 
-**Lock screen** - A screen showing the current time above the user's wallpaper and notifications, amongst other things. It also checks the password before unlocking the phone and switching to the user environment.
+**Lock screen** - A screen showing the current time above the user's background and notifications, amongst other things. It also checks the password before unlocking the phone and switching to the user environment.
 
 **Notifications** - The notifications drawer that contains various settings (some of which are only accessible inside the user environment).
 
@@ -42,7 +42,7 @@ gShell uses web technologies to make development easier! It runs on top of the L
 
 **User-specific power menu** - a power menu that extends the basic power menu to include shortcuts to time-critical apps (e.g. to show the user's bus pass or pay for an item)
 
-**Home screen** - Lets the user launch apps. Its appearance can be customised (such as wallpaper, icons, and icon placement)
+**Home screen** - Lets the user launch apps. Its appearance can be customised (such as background, icons, and icon placement)
 
 **Incoming call screen** - When somebody is calling, this screen pops up to let the user answer the call, and then it handles the UI throughout the duration of the call.
 

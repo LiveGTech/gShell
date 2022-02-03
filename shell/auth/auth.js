@@ -182,8 +182,16 @@ function showLockScreen(authMethod) {
                 .setAttribute("dir", "ltr") // Passcode inputs are always LTR independent of locale
                 .setAttribute("aria-label", _("lockScreen_enterPasscode"))
                 .on("keydown", function(event) {
+                    if (event.key == "Escape") {
+                        cancel();
+
+                        return;
+                    }
+
                     if (event.key == "Enter") {
                         verify();
+
+                        return;
                     }
                 })
         ),

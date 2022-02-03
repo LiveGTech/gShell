@@ -44,37 +44,45 @@
                 <section class="lockScreen_auth"></section>
             </main>
         </aui-screen>
-        <aui-screen id="main" hidden>
-            <header>
-                <button title="Open menu" aui-bind="aside" aria-label="Open menu">
-                    <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="light">
-                </button>
-                <span>LiveG OS Debug Environment</span>
-                <button title="Go to other page" aui-mode="action" aria-label="Go to other page" id="otherPageButton">
-                    <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
-                </button>
-            </header>
-            <aside id="mainMenu">
-                <button id="lockButton">Lock</button>
-                <button id="shutDownButton">Shut down</button>
-                <button id="devRestartButton">Restart shell and update</button>
-            </aside>
-            <main>
-                <section>
-                    <h1>Hello, world!</h1>
-                    <p id="flagInfo"></p>
-                    <p id="batteryStatus">Checking...</p>
-                    <div>
-                        <label for="darkTheme" aui-mode="switch">Dark theme</label>
-                        <input type="checkbox" role="switch" id="darkTheme">
-                    </div>
-                    <div>
-                        <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
-                        <input type="checkbox" role="switch" id="passcodeAuth">
-                    </div>
-                    <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
-                </section>
-            </main>
+        <aui-screen class="hasSurfaces" id="main" hidden>
+            <div>
+                <header class="infoBar">
+                    <span></span>
+                    <img alt="" aui-icon="light" class="info_batteryIcon">
+                    <span aui-mode="part" class="info_batteryLevel"></span>
+                </header>
+            </div>
+            <div class="surface">
+                    <header>
+                        <button title="Open menu" aui-bind="aside" aria-label="Open menu">
+                            <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="light">
+                        </button>
+                        <span>LiveG OS Debug Environment</span>
+                        <button title="Go to other page" aui-mode="action" aria-label="Go to other page" id="otherPageButton">
+                            <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
+                        </button>
+                    </header>
+                <aside id="mainMenu">
+                    <button id="lockButton">Lock</button>
+                    <button id="shutDownButton">Shut down</button>
+                    <button id="devRestartButton">Restart shell and update</button>
+                </aside>
+                <main>
+                    <section>
+                        <h1>Hello, world!</h1>
+                        <p id="flagInfo"></p>
+                        <div>
+                            <label for="darkTheme" aui-mode="switch">Dark theme</label>
+                            <input type="checkbox" role="switch" id="darkTheme">
+                        </div>
+                        <div>
+                            <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
+                            <input type="checkbox" role="switch" id="passcodeAuth">
+                        </div>
+                        <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
+                    </section>
+                </main>
+            </div>
         </aui-screen>
         <aui-screen hidden id="otherPage">
             <header>

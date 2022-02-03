@@ -73,21 +73,6 @@ $g.waitForLoad().then(function() {
         }
     });
 
-    function checkStatus() {
-        gShell.call("power_getState").then(function(response) {
-            if (response.state == null) {
-                $g.sel("#batteryStatus").setText("No battery detected");
-    
-                return;
-            }
-    
-            $g.sel("#batteryStatus").setText(`Battery: ${response.state}, ${response.level}%`);
-        });
-    }
-
-    setInterval(checkStatus, 5_000);
-    checkStatus();
-
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(event) {
         $g.sel("#darkTheme").setValue(event.matches);
     });

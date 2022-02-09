@@ -12,6 +12,17 @@
     height: 2.4rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+    align-items: center;
+}
+
+aui-screen.hasSurfaces .infoBar {
+    height: 1.8rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+
+.infoBar img {
+    height: 100%;
 }
 
 .infoBar.infoBar_overlay {

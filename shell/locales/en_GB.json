@@ -12,6 +12,8 @@
         "info_batteryIcon_discharging": "Battery - discharging",
         "info_batteryIcon_unknown": "Battery - unknown",
 
+        "switcher_goHome": "Go home",
+
         "lockScreen_unlock": "Unlock",
         "lockScreen_enterPasscode": "Enter passcode",
         "lockScreen_incorrectPasscode": "Incorrect passcode, try again",

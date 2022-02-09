@@ -8,6 +8,7 @@
 */
 
 @import url("gshell://global/infobar.css");
+@import url("gshell://global/switcher.css");
 @import url("gshell://global/surfaces.css");
 @import url("gshell://auth/lockscreen.css");
 

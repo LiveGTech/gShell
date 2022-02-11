@@ -1,7 +1,7 @@
 # gShell
 Interactive graphical desktop environment for LiveG OS.
 
-Licenced by the [LiveG Open-Source Licence](LICENCE.md).
+Licensed by the [LiveG Open-Source Licence](LICENCE.md).
 
 ## Getting gShell
 gShell relies on git submodules to make use of various LiveG-developed libraries when a device is offline. To clone the gShell repository, use:

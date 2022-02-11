@@ -110,4 +110,8 @@ $g.waitForLoad().then(function() {
     $g.sel("#openSwitcher").on("click", function() {
         switcher.openApp();
     });
+
+    $g.sel("#closeAll").on("click", function() {
+        switcher.closeAll();
+    });
 });

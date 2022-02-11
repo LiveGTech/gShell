@@ -97,6 +97,10 @@ export function selectScreen(screenElement) {
     return Promise.resolve();
 }
 
+export function closeAll() {
+    $g.sel(".switcher").clear();
+}
+
 export function goHome() {
     return $g.sel("#main").screenFade();
 }

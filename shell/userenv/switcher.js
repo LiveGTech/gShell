@@ -71,7 +71,7 @@ export function openApp() {
     var screenElement = $g.create("div").addClass("switcher_screen").add(
         $g.create("div").addClass("switcher_app").add(
             $g.create("main").add(
-                $g.create("webview").setAttribute("src", "https://github.com/LiveGTech")
+                $g.create("webview").setAttribute("src", "https://livegtech.github.io/Adapt-UI/demos/all/")
             )
         )
     );

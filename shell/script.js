@@ -15,6 +15,7 @@ import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://power/sleep.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
+import * as switcher from "gshell://userenv/switcher.js";
 
 window.$g = $g;
 
@@ -44,6 +45,7 @@ $g.waitForLoad().then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
     info.init();
+    switcher.init();
 
     $g.sel("#lockScreenMain").screenFade();
 
@@ -103,5 +105,9 @@ $g.waitForLoad().then(function() {
                 credentials.save();
             });
         });
+    });
+
+    $g.sel("#openSwitcher").on("click", function() {
+        switcher.openApp();
     });
 });

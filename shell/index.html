@@ -82,16 +82,35 @@
                             <input type="checkbox" role="switch" id="passcodeAuth">
                         </div>
                         <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
+                        <button id="openSwitcher">Switcher</button>
                     </section>
                 </main>
             </div>
             <div class="switcherBar">
-                <button tl:aria-label="switcher_goHome">
+                <button tl:aria-label="switcher_goHome" class="switcher_home">
                     <img src="gshell://media/logo.svg" alt="">
                 </button>
             </div>
         </aui-screen>
-        <aui-screen hidden id="otherPage">
+        <aui-screen class="hasSurfaces" id="switcherView" hidden>
+            <div>
+                <header class="infoBar">
+                    <span class="info_time"></span>
+                    <span></span>
+                    <img alt="" aui-icon="light" class="info_batteryIcon">
+                    <span aui-mode="part" class="info_batteryLevel"></span>
+                </header>
+            </div>
+            <div class="surface">
+                <div class="switcher allowSelect"></div>
+            </div>
+            <div class="switcherBar">
+                <button tl:aria-label="switcher_goHome" class="switcher_home">
+                    <img src="gshell://media/logo.svg" alt="">
+                </button>
+            </div>
+        </aui-screen>
+        <aui-screen id="otherPage" hidden>
             <header>
                 <button title="Back" aui-bind="back" aria-label="Back">
                     <img src="gshell://lib/adaptui/icons/back.svg" alt="" aui-icon="light">

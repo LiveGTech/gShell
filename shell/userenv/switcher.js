@@ -12,6 +12,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 const SELECT_MOTION_TOLERANCE = 20;
 
 var initialTouchX = 0;
+var lastTouchX = 0;
 var initialScrollX = 0;
 var lastScrollX = 0;
 var targetScrollX = 0;
@@ -32,6 +33,69 @@ function getClosestScreen() {
     }).filter((element) => element != null)[0] || null;
 }
 
+function touchStartEvent(touchX, touchY) {
+    if (scrolling) {
+        return;
+    }
+
+    initialTouchX = touchX;
+    lastTouchX = touchX;
+    initialScrollX = $g.sel(".switcher").get().scrollLeft;
+    touchIsDown = true;
+    scrolling = true;
+}
+
+function touchMoveEvent(touchX, touchY) {
+    if (!touchIsDown) {
+        return;
+    }
+
+    var switcherElement = $g.sel(".switcher").get();
+
+    lastTouchX = touchX;
+    lastScrollX = switcherElement.scrollLeft;
+    switcherElement.scrollLeft = initialScrollX - (touchX - initialTouchX);
+}
+
+function touchEndEvent() {
+    var switcherElement = $g.sel(".switcher").get();
+
+    function snapScrolling() {
+        var closestScreen = getClosestScreen();
+
+        if (closestScreen != null) {
+            targetScrollX = closestScreen.get().offsetLeft;
+        }
+
+        scrolling = false;
+    }
+
+    var rate = switcherElement.scrollLeft - lastScrollX;
+    var multiplier = 1;
+
+    touchIsDown = false;
+
+    if (Math.abs(lastTouchX - initialTouchX) <= SELECT_MOTION_TOLERANCE) {
+        snapScrolling();
+
+        return;
+    }
+
+    requestAnimationFrame(function continueScrolling() {
+        switcherElement.scrollLeft += rate * multiplier;
+
+        multiplier *= 0.9;
+
+        if (multiplier > 0.1) {
+            requestAnimationFrame(continueScrolling);
+
+            return;
+        }
+
+        snapScrolling();
+    });
+}
+
 export function init() {
     $g.sel(".switcher_home").on("click", function() {
         goHome();
@@ -50,66 +114,14 @@ export function init() {
         }
     });
 
-    $g.sel(".switcher").on("pointerdown", function(event) {
-        if (scrolling) {
-            return;
-        }
+    $g.sel(".switcher").on("mousedown", (event) => touchStartEvent(event.pageX, event.pageY));
+    $g.sel(".switcher").on("touchstart", (event) => touchStartEvent(event.touches[0].pageX, event.touches[0].pageY));
 
-        initialTouchX = event.pageX;
-        initialScrollX = $g.sel(".switcher").get().scrollLeft;
-        touchIsDown = true;
-        scrolling = true;
-    });
+    $g.sel(".switcher").on("mousemove", (event) => touchMoveEvent(event.pageX, event.pageY));
+    $g.sel(".switcher").on("touchmove", (event) => touchMoveEvent(event.touches[0].pageX, event.touches[0].pageY));
 
-    $g.sel(".switcher").on("pointermove", function(event) {
-        if (!touchIsDown) {
-            return;
-        }
-
-        var switcherElement = $g.sel(".switcher").get();
-
-        lastScrollX = switcherElement.scrollLeft;
-        switcherElement.scrollLeft = initialScrollX - (event.pageX - initialTouchX);
-    });
-
-    $g.sel(".switcher").on("pointerup", function(event) {
-        var switcherElement = $g.sel(".switcher").get();
-
-        function snapScrolling() {
-            var closestScreen = getClosestScreen();
-    
-            if (closestScreen != null) {
-                targetScrollX = closestScreen.get().offsetLeft;
-            }
-
-            scrolling = false;
-        }
-
-        var rate = switcherElement.scrollLeft - lastScrollX;
-        var multiplier = 1;
-
-        touchIsDown = false;
-
-        if (Math.abs(event.pageX - initialTouchX) <= SELECT_MOTION_TOLERANCE) {
-            snapScrolling();
-
-            return;
-        }
-
-        requestAnimationFrame(function continueScrolling() {
-            switcherElement.scrollLeft += rate * multiplier;
-
-            multiplier *= 0.9;
-
-            if (multiplier > 0.1) {
-                requestAnimationFrame(continueScrolling);
-
-                return;
-            }
-
-            snapScrolling();
-        });
-    });
+    $g.sel(".switcher").on("mouseup", touchEndEvent);
+    $g.sel(".switcher").on("touchend", touchEndEvent);
 
     window.addEventListener("resize", function() {
         if ($g.sel(".switcher_screen.selected").getAll().length == 0) {

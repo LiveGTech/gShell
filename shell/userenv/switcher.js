@@ -72,10 +72,11 @@ function touchEndEvent() {
 
     var rate = switcherElement.scrollLeft - lastScrollX;
     var multiplier = 1;
+    var lastFrame = Date.now();
 
     touchIsDown = false;
 
-    if (Math.abs(lastTouchX - initialTouchX) <= SELECT_MOTION_TOLERANCE) {
+    if (Math.abs(rate) <= SELECT_MOTION_TOLERANCE) {
         snapScrolling();
 
         return;
@@ -83,8 +84,9 @@ function touchEndEvent() {
 
     requestAnimationFrame(function continueScrolling() {
         switcherElement.scrollLeft += rate * multiplier;
+        multiplier *= 0.9 ** ((Date.now() - lastFrame) / 20);
 
-        multiplier *= 0.9;
+        lastFrame = Date.now();
 
         if (multiplier > 0.1) {
             requestAnimationFrame(continueScrolling);

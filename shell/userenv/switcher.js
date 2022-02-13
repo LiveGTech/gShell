@@ -19,6 +19,7 @@ var targetScrollX = 0;
 var targetInstantaneous = false;
 var touchIsDown = false;
 var scrolling = false;
+var screenSelected = false;
 var cancelScrollDecel = false;
 
 function getClosestScreen() {
@@ -58,7 +59,7 @@ function touchMoveEvent(touchX, touchY) {
     switcherElement.scrollLeft = initialScrollX - (touchX - initialTouchX);
 }
 
-function touchEndEvent() {
+function touchEndEvent(target) {
     var switcherElement = $g.sel(".switcher").get();
 
     function snapScrolling() {
@@ -77,8 +78,21 @@ function touchEndEvent() {
 
     touchIsDown = false;
 
-    if (Math.abs(rate) <= SELECT_MOTION_TOLERANCE) {
-        snapScrolling();
+    if (screenSelected) {
+        screenSelected = false;
+
+        return;
+    }
+
+    if (Math.abs(initialTouchX - lastTouchX) <= SELECT_MOTION_TOLERANCE) {
+        scrolling = false;
+
+        if (
+            target.matches(".switcher_screen") &&
+            target.closest(".switcher").matches(".allowSelect")
+        ) {
+            selectScreen($g.sel(target));
+        }
 
         return;
     }
@@ -110,18 +124,18 @@ export function init() {
         goHome();
     });
 
-    $g.sel(".switcher").on("click", function(event) {
-        if (scrolling || Math.abs(event.pageX - initialTouchX) > SELECT_MOTION_TOLERANCE) {
-            return;
-        }
+    // $g.sel(".switcher").on("click", function(event) {
+    //     if (scrolling || Math.abs(event.pageX - initialTouchX) > SELECT_MOTION_TOLERANCE) {
+    //         return;
+    //     }
 
-        if (
-            event.target.matches(".switcher_screen") &&
-            event.target.closest(".switcher").matches(".allowSelect")
-        ) {
-            selectScreen($g.sel(event.target));
-        }
-    });
+    //     if (
+    //         event.target.matches(".switcher_screen") &&
+    //         event.target.closest(".switcher").matches(".allowSelect")
+    //     ) {
+    //         selectScreen($g.sel(event.target));
+    //     }
+    // });
 
     $g.sel(".switcher").on("mousedown", (event) => touchStartEvent(event.pageX, event.pageY));
     $g.sel(".switcher").on("touchstart", (event) => touchStartEvent(event.touches[0].pageX, event.touches[0].pageY));
@@ -129,8 +143,8 @@ export function init() {
     $g.sel(".switcher").on("mousemove", (event) => touchMoveEvent(event.pageX, event.pageY));
     $g.sel(".switcher").on("touchmove", (event) => touchMoveEvent(event.touches[0].pageX, event.touches[0].pageY));
 
-    $g.sel(".switcher").on("mouseup", touchEndEvent);
-    $g.sel(".switcher").on("touchend", touchEndEvent);
+    $g.sel(".switcher").on("mouseup", (event) => touchEndEvent(event.target));
+    $g.sel(".switcher").on("touchend", (event) => touchEndEvent(event.target));
 
     window.addEventListener("resize", function() {
         if ($g.sel(".switcher_screen.selected").getAll().length == 0) {

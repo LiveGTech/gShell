@@ -19,6 +19,7 @@ var targetScrollX = 0;
 var targetInstantaneous = false;
 var touchIsDown = false;
 var scrolling = false;
+var cancelScrollDecel = false;
 
 function getClosestScreen() {
     var switcherWidth = $g.sel(".switcher").get().clientWidth;
@@ -35,7 +36,7 @@ function getClosestScreen() {
 
 function touchStartEvent(touchX, touchY) {
     if (scrolling) {
-        return;
+        cancelScrollDecel = true;
     }
 
     initialTouchX = touchX;
@@ -83,6 +84,12 @@ function touchEndEvent() {
     }
 
     requestAnimationFrame(function continueScrolling() {
+        if (cancelScrollDecel) {
+            cancelScrollDecel = false;
+
+            return;
+        }
+
         switcherElement.scrollLeft += rate * multiplier;
         multiplier *= 0.9 ** ((Date.now() - lastFrame) / 20);
 

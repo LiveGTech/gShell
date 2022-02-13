@@ -50,7 +50,7 @@ export function init() {
         }
     });
 
-    $g.sel(".switcher").on("mousedown touchstart", function(event) {
+    $g.sel(".switcher").on("pointerdown", function(event) {
         if (scrolling) {
             return;
         }
@@ -61,7 +61,7 @@ export function init() {
         scrolling = true;
     });
 
-    $g.sel(".switcher").on("mousemove touchmove", function(event) {
+    $g.sel(".switcher").on("pointermove", function(event) {
         if (!touchIsDown) {
             return;
         }
@@ -72,7 +72,7 @@ export function init() {
         switcherElement.scrollLeft = initialScrollX - (event.pageX - initialTouchX);
     });
 
-    $g.sel(".switcher").on("mouseup touchend", function(event) {
+    $g.sel(".switcher").on("pointerup", function(event) {
         var switcherElement = $g.sel(".switcher").get();
 
         function snapScrolling() {

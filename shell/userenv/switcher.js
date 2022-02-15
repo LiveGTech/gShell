@@ -124,19 +124,6 @@ export function init() {
         goHome();
     });
 
-    // $g.sel(".switcher").on("click", function(event) {
-    //     if (scrolling || Math.abs(event.pageX - initialTouchX) > SELECT_MOTION_TOLERANCE) {
-    //         return;
-    //     }
-
-    //     if (
-    //         event.target.matches(".switcher_screen") &&
-    //         event.target.closest(".switcher").matches(".allowSelect")
-    //     ) {
-    //         selectScreen($g.sel(event.target));
-    //     }
-    // });
-
     $g.sel(".switcher").on("mousedown", (event) => touchStartEvent(event.pageX, event.pageY));
     $g.sel(".switcher").on("touchstart", (event) => touchStartEvent(event.touches[0].pageX, event.touches[0].pageY));
 

@@ -204,7 +204,7 @@ export function selectScreen(screenElement) {
 }
 
 export function closeAll() {
-    $g.sel(".switcher").clear();
+    $g.sel(".switcher_screen").remove();
 }
 
 export function goHome() {

@@ -44,13 +44,13 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
 }
 
 .switcher_screen {
+    position: relative;
     flex-shrink: 0;
     width: 100%;
     height: 100%;
     margin-inline-start: -12%;
     margin-inline-end: -12%;
-    border-radius: 10px;
-    overflow: hidden;
+    background-color: black;
     transform: scale(0.7);
     transition: 0.5s transform;
 }
@@ -68,23 +68,55 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
 }
 
 .switcher_screen.selected {
-    position: relative;
     transform: none;
     z-index: 1;
 }
 
+.switcher_screen.backgrounded * {
+    display: none;
+}
+
+.switcher_screenButton {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: calc(100% + 1rem);
+    height: calc(100% + 1rem);
+    margin: -0.5rem;
+    background-color: transparent!important;
+}
+
+.switcher_screen.selected .switcher_screenButton {
+    display: none;
+}
+
+.switcher_apps {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 0.5rem;
+}
+
 .switcher_app {
+    flex-grow: 1;
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: calc(10px / 0.7);
     overflow: hidden;
 }
 
 .switcher_app main {
     display: flex;
+    position: relative;
 }
 
 .switcher_app main webview {
     display: flex;
     flex-grow: 1;
+}
+
+.switcher_screen.selected .switcher_app {
+    border-radius: 10px;
 }

@@ -52,7 +52,7 @@ export class ScrollableScreen {
         }).filter((element) => element != null)[0] || null;
     }
 
-    selectScreen(screen) {
+    selectScreen(screenElement) {
         // Don't implement toggling variable; default behaviour is non-selectable screens
     }
 

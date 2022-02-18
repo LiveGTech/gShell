@@ -27,7 +27,7 @@ function getClosestScreen() {
     var switcherScrollLeft = $g.sel(".switcher").get().scrollLeft;
 
     return $g.sel(".switcher .switcher_screen").getAll().map(function(screenElement) {
-        if (Math.abs(screenElement.offsetLeft - switcherScrollLeft) < (switcherWidth * (1 - 0.12)) / 2) { // 0.12 being margin percentage for switcher screens
+        if (Math.abs(screenElement.offsetLeft - switcherScrollLeft) < (switcherWidth * 0.7) / 2) {
             return $g.sel(screenElement);
         }
 

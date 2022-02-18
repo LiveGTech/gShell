@@ -9,114 +9,33 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
-const SELECT_MOTION_TOLERANCE = 20;
+import * as screenScroll from "gshell://helpers/screenscroll.js";
 
-var initialTouchX = 0;
-var lastTouchX = 0;
-var initialScrollX = 0;
-var lastScrollX = 0;
-var targetScrollX = 0;
-var targetInstantaneous = false;
-var touchIsDown = false;
-var scrolling = false;
-var screenSelected = false;
-var cancelScrollDecel = false;
+export var main = null;
 
-function getClosestScreen() {
-    var switcherWidth = $g.sel(".switcher").get().clientWidth;
-    var switcherScrollLeft = $g.sel(".switcher").get().scrollLeft;
-
-    return $g.sel(".switcher .switcher_screen").getAll().map(function(screenElement) {
-        if (Math.abs(screenElement.offsetLeft - switcherScrollLeft) < (switcherWidth * 0.7) / 2) {
-            return $g.sel(screenElement);
-        }
-
-        return null;
-    }).filter((element) => element != null)[0] || null;
-}
-
-function touchStartEvent(touchX, touchY) {
-    if (scrolling) {
-        cancelScrollDecel = true;
+export class Switcher extends screenScroll.ScrollableScreen {
+    constructor(element) {
+        super(element);
     }
 
-    initialTouchX = touchX;
-    lastTouchX = touchX;
-    initialScrollX = $g.sel(".switcher").get().scrollLeft;
-    touchIsDown = true;
-    scrolling = true;
-}
+    selectScreen(screen) {
+        if (this.element.get().matches(".allowSelect")) {
+            this.element.removeClass("allowSelect");
+            this.element.find(":scope > *").removeClass("selected");
 
-function touchMoveEvent(touchX, touchY) {
-    if (!touchIsDown) {
-        return;
+            screen.addClass("selected");
+
+            this.screenSelected = true;
+            this.targetScrollX = screen.get().offsetLeft;
+        }
     }
 
-    var switcherElement = $g.sel(".switcher").get();
+    deselectScreen() {
+        this.screenSelected = false;
 
-    lastTouchX = touchX;
-    lastScrollX = switcherElement.scrollLeft;
-    switcherElement.scrollLeft = initialScrollX - (touchX - initialTouchX);
-}
-
-function touchEndEvent(target) {
-    var switcherElement = $g.sel(".switcher").get();
-
-    function snapScrolling() {
-        var closestScreen = getClosestScreen();
-
-        if (closestScreen != null) {
-            targetScrollX = closestScreen.get().offsetLeft;
-        }
-
-        scrolling = false;
+        this.element.addClass("allowSelect");
+        this.element.find(":scope > *").removeClass("selected");
     }
-
-    var rate = switcherElement.scrollLeft - lastScrollX;
-    var multiplier = 1;
-    var lastFrame = Date.now();
-
-    touchIsDown = false;
-
-    if (screenSelected) {
-        screenSelected = false;
-
-        return;
-    }
-
-    if (Math.abs(initialTouchX - lastTouchX) <= SELECT_MOTION_TOLERANCE) {
-        scrolling = false;
-
-        if (
-            target.matches(".switcher_screen") &&
-            target.closest(".switcher").matches(".allowSelect")
-        ) {
-            selectScreen($g.sel(target));
-        }
-
-        return;
-    }
-
-    requestAnimationFrame(function continueScrolling() {
-        if (cancelScrollDecel) {
-            cancelScrollDecel = false;
-
-            return;
-        }
-
-        switcherElement.scrollLeft += rate * multiplier;
-        multiplier *= 0.9 ** ((Date.now() - lastFrame) / 20);
-
-        lastFrame = Date.now();
-
-        if (multiplier > 0.1) {
-            requestAnimationFrame(continueScrolling);
-
-            return;
-        }
-
-        snapScrolling();
-    });
 }
 
 export function init() {
@@ -124,37 +43,7 @@ export function init() {
         goHome();
     });
 
-    $g.sel(".switcher").on("mousedown", (event) => touchStartEvent(event.pageX, event.pageY));
-    $g.sel(".switcher").on("touchstart", (event) => touchStartEvent(event.touches[0].pageX, event.touches[0].pageY));
-
-    $g.sel(".switcher").on("mousemove", (event) => touchMoveEvent(event.pageX, event.pageY));
-    $g.sel(".switcher").on("touchmove", (event) => touchMoveEvent(event.touches[0].pageX, event.touches[0].pageY));
-
-    $g.sel(".switcher").on("mouseup", (event) => touchEndEvent(event.target));
-    $g.sel(".switcher").on("touchend", (event) => touchEndEvent(event.target));
-
-    window.addEventListener("resize", function() {
-        if ($g.sel(".switcher_screen.selected").getAll().length == 0) {
-            return;
-        }
-
-        targetScrollX = $g.sel(".switcher_screen.selected").get().offsetLeft;
-        targetInstantaneous = true;
-    });
-
-    setInterval(function() {
-        if (!scrolling) {
-            var element = $g.sel(".switcher").get();
-            var change = (targetScrollX - element.scrollLeft) * 0.2;
-
-            if (targetInstantaneous || Math.abs(change) < 2) {
-                element.scrollLeft = targetScrollX;
-                targetInstantaneous = false;
-            } else {
-                element.scrollLeft += change;
-            }
-        }
-    }, 10);
+    main = new Switcher($g.sel(".switcher"));
 }
 
 // TODO: Accept URL to open a specific app
@@ -175,17 +64,11 @@ export function openApp() {
 }
 
 export function showList() {
-    $g.sel(".switcher").addClass("allowSelect");
-    $g.sel(".switcher_screen").removeClass("selected");
+    main.deselectScreen();
 }
 
 export function selectScreen(screenElement) {
-    $g.sel(".switcher").removeClass("allowSelect");
-    $g.sel(".switcher_screen").removeClass("selected");
-
-    screenElement.addClass("selected");
-
-    targetScrollX = screenElement.get().offsetLeft;
+    main.selectScreen(screenElement);
 
     return Promise.resolve();
 }

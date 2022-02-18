@@ -18,8 +18,12 @@ export class Switcher extends screenScroll.ScrollableScreen {
         super(element);
     }
 
+    get screenWidth() {
+        return this.element.find(":scope > *").get().clientWidth * 0.7; // 0.7 as the percentage used from the scale transform
+    }
+
     selectScreen(screen) {
-        if (this.element.get().matches(".allowSelect")) {
+        if (screen.get().matches(".switcher_screen") && this.element.get().matches(".allowSelect")) {
             this.element.removeClass("allowSelect");
             this.element.find(":scope > *").removeClass("selected");
 

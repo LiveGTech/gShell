@@ -14,7 +14,9 @@ export class ScrollableScreen {
         this.element = element;
 
         this.initialTouchX = 0;
+        this.initialTouchY = 0;
         this.lastTouchX = 0;
+        this.lastTouchY = 0;
         this.initialScrollX = 0;
         this.lastScrollX = 0;
         this.targetScrollX = 0;
@@ -66,7 +68,9 @@ export class ScrollableScreen {
         }
     
         this.initialTouchX = touchX;
+        this.initialTouchY = touchY;
         this.lastTouchX = touchX;
+        this.lastTouchY = touchY;
         this.initialScrollX = $g.sel(".switcher").get().scrollLeft;
         this.touchIsDown = true;
         this.scrolling = true;
@@ -78,6 +82,7 @@ export class ScrollableScreen {
         }
     
         this.lastTouchX = touchX;
+        this.lastTouchY = touchY;
         this.lastScrollX = this.element.get().scrollLeft;
         this.element.get().scrollLeft = this.initialScrollX - (touchX - this.initialTouchX);
     }
@@ -97,7 +102,10 @@ export class ScrollableScreen {
             return;
         }
 
-        if (Math.abs(this.initialTouchX - this.lastTouchX) <= SELECT_MOTION_TOLERANCE) {
+        if (
+            Math.abs(this.initialTouchX - this.lastTouchX) <= SELECT_MOTION_TOLERANCE &&
+            Math.abs(this.initialTouchY - this.lastTouchY) <= SELECT_MOTION_TOLERANCE
+        ) {
             this.scrolling = false;
 
             if (this.element.get().contains(target)) {

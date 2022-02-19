@@ -8,6 +8,7 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as screenScroll from "gshell://helpers/screenscroll.js";
@@ -99,6 +100,14 @@ export function openApp() {
     screenElement.find(".switcher_apps *").on("focus", function() {
         screenElement.find(".switcher_screenButton").focus();
     });
+
+    screenElement.on("dismiss", function() {
+        Promise.all([screenElement.collapse(false), screenElement.fadeOut()]).then(function() {
+            screenElement.remove();
+        });
+    });
+
+    screenElement.swipeToDismiss(dismiss.directions.UP);
 
     $g.sel("#switcherView .switcher").add(screenElement);
 

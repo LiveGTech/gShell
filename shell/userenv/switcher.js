@@ -85,7 +85,9 @@ export function openApp() {
             .addClass("switcher_screenButton")
             .setAttribute("aria-label", "Screen") // TODO: Find name of screen and use that as label
             .on("focus", function() {
-                main.targetScrollX = screenElement.get().offsetLeft;
+                if (!main.screenSelected) {
+                    main.targetScrollX = screenElement.get().offsetLeft;
+                }
             })
             .on("click", function() {
                 main.selectScreen(screenElement);

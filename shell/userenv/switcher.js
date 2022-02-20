@@ -102,6 +102,8 @@ export function openApp() {
     });
 
     screenElement.on("dismiss", function() {
+        screenElement.addClass("closing");
+
         Promise.all([screenElement.collapse(false), screenElement.fadeOut()]).then(function() {
             screenElement.remove();
         });

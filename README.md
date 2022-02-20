@@ -16,7 +16,7 @@ It is important that when you pull the repo to update libraries, you use:
 git pull --recurse-submodules
 ```
 
-When you don't need to update the libraries, you can omit the `--recurse-submodules` argument. However, it is recommended that you update the libraries locally to ensure compatibility with the latest version of gShell.
+When you don't need to update the libraries, you can emit the `--recurse-submodules` argument. However, it is recommended that you update the libraries locally to ensure compatibility with the latest version of gShell.
 
 ## Running gShell
 Install gShell and its dependencies using npm:

@@ -55,6 +55,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
     deselectScreen() {
         this.screenSelected = false;
+        this.scrolling = false;
 
         this.element.addClass("allowSelect");
         this.element.find(":scope > *").removeClass("backgrounded");

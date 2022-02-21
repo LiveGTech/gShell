@@ -63,6 +63,10 @@ export class ScrollableScreen {
     }
 
     _touchStartEvent(touchX, touchY) {
+        if (this.screenSelected) {
+            return;
+        }
+
         if (this.scrolling) {
             this.cancelScrollDecel = true;
         }
@@ -89,6 +93,10 @@ export class ScrollableScreen {
 
     _touchEndEvent(target) {
         var thisScope = this;
+
+        if (!this.touchIsDown) {
+            return;
+        }
 
         var rate = this.element.get().scrollLeft - this.lastScrollX;
         var multiplier = 1;

@@ -102,6 +102,12 @@ export function openApp() {
         screenElement.find(".switcher_screenButton").focus();
     });
 
+    screenElement.on("dismissintent", function(event) {
+        if (main.screenSelected) {
+            event.preventDefault();
+        }
+    });
+
     screenElement.on("dismiss", function() {
         screenElement.addClass("closing");
 

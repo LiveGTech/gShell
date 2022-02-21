@@ -49,14 +49,16 @@ $g.waitForLoad().then(function() {
 
     $g.sel("#lockScreenMain").screenFade();
 
+    $g.sel("#openMenuButton").on("click", function() {
+        $g.sel("#mainMenu").menuOpen();
+    });
+
     $g.sel("#otherPageButton").on("click", function() {
         $g.sel("#otherPage").screenForward();
     });
 
     $g.sel("#lockButton").on("click", function() {
-        $g.sel("#mainMenu").asideClose().then(function() {
-            $g.sel("#lockScreenMain").screenFade();
-        });
+        $g.sel("#lockScreenMain").screenFade();
     });
 
     $g.sel("#shutDownButton").on("click", function() {

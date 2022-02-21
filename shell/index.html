@@ -56,19 +56,14 @@
             </div>
             <div class="surface">
                 <header>
-                    <button title="Open menu" aui-bind="aside" aria-label="Open menu">
-                        <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="light">
-                    </button>
                     <span>LiveG OS Debug Environment</span>
+                    <button title="Open menu" aria-label="Open menu" id="openMenuButton">
+                        <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="light">
+                    </button>
                     <button title="Go to other page" aui-mode="action" aria-label="Go to other page" id="otherPageButton">
                         <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
                     </button>
                 </header>
-                <aside id="mainMenu">
-                    <button id="lockButton">Lock</button>
-                    <button id="shutDownButton">Shut down</button>
-                    <button id="devRestartButton">Restart shell and update</button>
-                </aside>
                 <main>
                     <section>
                         <h1>Hello, world!</h1>
@@ -126,6 +121,11 @@
                 </section>
             </main>
         </aui-screen>
+        <aui-menu id="mainMenu">
+            <button id="lockButton">Lock</button>
+            <button id="shutDownButton">Shut down</button>
+            <button id="devRestartButton">Restart shell and update</button>
+        </aui-menu>
         <div hidden id="off"></div>
     </body>
 </html>

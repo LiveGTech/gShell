@@ -9,7 +9,7 @@
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
-        "electron": "^16.0.8",
+        "electron": "^16.0.10",
         "minimist": "^1.2.5",
         "mkdirp": "^0.5.5"
     }

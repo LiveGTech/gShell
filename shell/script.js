@@ -53,8 +53,8 @@ $g.waitForLoad().then(function() {
         $g.sel("#mainMenu").menuOpen();
     });
 
-    $g.sel("#otherPageButton").on("click", function() {
-        $g.sel("#otherPage").screenForward();
+    $g.sel("#testPageButton").on("click", function() {
+        $g.sel("#testPage").screenForward();
     });
 
     $g.sel("#lockButton").on("click", function() {
@@ -115,5 +115,15 @@ $g.waitForLoad().then(function() {
 
     $g.sel("#closeAll").on("click", function() {
         switcher.closeAll();
+    });
+
+    $g.sel("#cameraTestButton").on("click", function() {
+        if ("mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices) {
+            navigator.mediaDevices.getUserMedia({video: true}).then(function(stream) {
+                $g.sel("#cameraTest").get().srcObject = stream;
+
+                $g.sel("#cameraTest").get().play();
+            });
+        }
     });
 });

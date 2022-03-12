@@ -60,7 +60,7 @@
                     <button title="Open menu" aria-label="Open menu" id="openMenuButton">
                         <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="light">
                     </button>
-                    <button title="Go to other page" aui-mode="action" aria-label="Go to other page" id="otherPageButton">
+                    <button title="Go to test page" aui-mode="action" aria-label="Go to other page" id="testPageButton">
                         <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
                     </button>
                 </header>
@@ -108,16 +108,20 @@
                 </button>
             </div>
         </aui-screen>
-        <aui-screen id="otherPage" hidden>
+        <aui-screen id="testPage" hidden>
             <header>
                 <button title="Back" aui-bind="back" aria-label="Back">
                     <img src="gshell://lib/adaptui/icons/back.svg" alt="" aui-icon="light">
                 </button>
-                <span>Another page</span>
+                <span>Test page</span>
             </header>
             <main>
                 <section>
-                    <h1>This is another page</h1>
+                    <h2>Camera</h2>
+                    <div>
+                        <video autoplay id="cameraTest"></video>
+                    </div>
+                    <button id="cameraTestButton">Start</button>
                 </section>
             </main>
         </aui-screen>

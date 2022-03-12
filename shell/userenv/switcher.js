@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
+import * as animations from "gshell://lib/adaptui/src/animations.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as screenScroll from "gshell://helpers/screenscroll.js";
@@ -71,21 +72,22 @@ export function init() {
     main = new Switcher($g.sel(".switcher"));
 }
 
-// TODO: Accept URL to open a specific app
-export function openApp() {
+export function openApp(url) {
     showList();
+
+    var webview = $g.create("webview");
 
     var screenElement = $g.create("div").addClass("switcher_screen").add(
         $g.create("div").addClass("switcher_apps").add(
             $g.create("div").addClass("switcher_app").add(
                 $g.create("main").add(
-                    $g.create("webview").setAttribute("src", "https://livegtech.github.io/Adapt-UI/demos/all/")
+                    webview.setAttribute("src", url)
                 )
             )
         ),
         $g.create("button")
             .addClass("switcher_screenButton")
-            .setAttribute("aria-label", "Screen") // TODO: Find name of screen and use that as label
+            .setAttribute("aria-label", "")
             .on("focus", function() {
                 if (!main.screenSelected) {
                     main.targetScrollX = screenElement.get().offsetLeft;
@@ -96,7 +98,40 @@ export function openApp() {
 
                 screenElement.find(".switcher_apps").focus();
             })
+        ,
+        $g.create("button")
+            .addClass("switcher_screenCloseButton")
+            .setAttribute("aria-label", "Close") // TODO: Translate
+            .on("click", function() {
+                screenElement.addClass("closing");
+
+                animations.easeStyleTransition(screenElement.get(), "opacity", 0).then(function() {
+                    return screenElement.collapse(false);
+                }).then(function() {
+                    screenElement.remove();
+                });
+            })
+            .add(
+                $g.create("img")
+                    .setAttribute("aui-icon", "light")
+                    .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
+                    .setAttribute("alt", "")
+            )
+        ,
+        $g.create("div").addClass("switcher_screenOptions").add(
+            $g.create("button")
+                .setText("Close all")
+                .on("click", function() {
+                    $g.sel(".switcher_screen").fadeOut().then(function() {
+                        closeAll();
+                    });
+                })
+        )
     );
+
+    webview.on("page-title-updated", function(event) {
+        screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
+    });
 
     screenElement.find(".switcher_apps *").on("focus", function() {
         screenElement.find(".switcher_screenButton").focus();
@@ -111,7 +146,10 @@ export function openApp() {
     screenElement.on("dismiss", function() {
         screenElement.addClass("closing");
 
-        Promise.all([screenElement.collapse(false), screenElement.fadeOut()]).then(function() {
+        Promise.all([
+            screenElement.collapse(false),
+            animations.easeStyleTransition(screenElement.get(), "opacity", 0)
+        ]).then(function() {
             screenElement.remove();
         });
     });

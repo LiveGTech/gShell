@@ -110,7 +110,7 @@ $g.waitForLoad().then(function() {
     });
 
     $g.sel("#openSwitcher").on("click", function() {
-        switcher.openApp();
+        switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
     });
 
     $g.sel("#closeAll").on("click", function() {

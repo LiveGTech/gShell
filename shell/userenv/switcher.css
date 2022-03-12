@@ -39,7 +39,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     overflow: hidden;
 }
 
-.switcher.allowSelect .switcher_screen * {
+.switcher.allowSelect .switcher_screen *:not(.switcher_screenOptions, .switcher_screenOptions *) {
     pointer-events: none!important;
 }
 
@@ -57,6 +57,11 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
 
 .switcher .switcher_screen:first-of-type {
     margin-inline-start: 0;
+}
+
+.switcher .switcher_screen.closing + .switcher_screen {
+    margin-inline-start: 0;
+    transition: 0.5s margin-inline-start;
 }
 
 .switcher .switcher_screen:last-of-type {
@@ -89,6 +94,50 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
 }
 
 .switcher_screen.selected .switcher_screenButton {
+    display: none;
+}
+
+.switcher_screenCloseButton {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.5)!important;
+    transition: 0.5s opacity;
+}
+
+.switcher_screenCloseButton:focus {
+    opacity: 1;
+}
+
+.switcher_screenCloseButton img {
+    width: 5rem;
+    height: 5rem;
+}
+
+.switcher_screen.selected .switcher_screenCloseButton {
+    display: none;
+}
+
+.switcher_screenOptions {
+    display: flex;
+    zoom: calc(1 / 0.7);
+}
+
+.switcher_screenOptions button {
+    flex-grow: 1;
+    margin: 0.5rem;
+    background-color: inherit;
+    color: inherit;
+}
+
+.switcher_screen.selected .switcher_screenOptions {
     display: none;
 }
 

@@ -120,12 +120,19 @@ export function openApp(url) {
         ,
         $g.create("div").addClass("switcher_screenOptions").add(
             $g.create("button")
-                .setText("Close all")
                 .on("click", function() {
                     $g.sel(".switcher_screen").fadeOut().then(function() {
                         closeAll();
                     });
                 })
+                .add(
+                    $g.create("img")
+                        .setAttribute("aui-icon", "light")
+                        .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
+                        .setAttribute("alt", "")
+                    ,
+                    $g.create("span").setText("Close all") // TODO: Translate
+                )
         )
     );
 

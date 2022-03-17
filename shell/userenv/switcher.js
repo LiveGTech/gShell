@@ -101,7 +101,7 @@ export function openApp(url) {
         ,
         $g.create("button")
             .addClass("switcher_screenCloseButton")
-            .setAttribute("aria-label", "Close") // TODO: Translate
+            .setAttribute("aria-label", _("switcher_close"))
             .on("click", function() {
                 screenElement.addClass("closing");
 
@@ -131,7 +131,7 @@ export function openApp(url) {
                         .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
                         .setAttribute("alt", "")
                     ,
-                    $g.create("span").setText("Close all") // TODO: Translate
+                    $g.create("span").setText(_("switcher_closeAll"))
                 )
         )
     );

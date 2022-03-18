@@ -15,6 +15,7 @@
         "switcher_goHome": "Go home",
         "switcher_close": "Close",
         "switcher_closeAll": "Close all",
+        "switcher_empty": "No open apps",
 
         "lockScreen_unlock": "Unlock",
         "lockScreen_enterPasscode": "Enter passcode",

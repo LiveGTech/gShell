@@ -43,6 +43,37 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     pointer-events: none!important;
 }
 
+.switcher:empty {
+    display: none;
+}
+
+.switcher_empty {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+}
+
+.switcher:not(:empty) ~ .switcher_empty {
+    display: none;
+}
+
+.switcher_empty > div {
+    width: 100%;
+    text-align: center;
+    opacity: 0.6;
+}
+
+.switcher_empty img {
+    height: 6rem;
+}
+
+.switcher_empty h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
 .switcher_screen {
     position: relative;
     flex-shrink: 0;

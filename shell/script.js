@@ -15,6 +15,7 @@ import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://power/sleep.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
+import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
 
 window.$g = $g;
@@ -45,6 +46,7 @@ $g.waitForLoad().then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
     info.init();
+    home.init();
     switcher.init();
 
     $g.sel("#lockScreenMain").screenFade();
@@ -111,10 +113,17 @@ $g.waitForLoad().then(function() {
 
     $g.sel("#openSwitcher").on("click", function() {
         switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
+        switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
+        switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
+        switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
     });
 
     $g.sel("#closeAll").on("click", function() {
         switcher.closeAll();
+    });
+
+    $g.sel(".home_app").on("click", function() {
+        $g.sel("#main").screenFade();
     });
 
     $g.sel("#cameraTestButton").on("click", function() {

@@ -75,7 +75,7 @@ export class ScrollableScreen {
         this.initialTouchY = touchY;
         this.lastTouchX = touchX;
         this.lastTouchY = touchY;
-        this.initialScrollX = $g.sel(".switcher").get().scrollLeft;
+        this.initialScrollX = this.element.get().scrollLeft;
         this.touchIsDown = true;
         this.scrolling = true;
     }
@@ -84,7 +84,7 @@ export class ScrollableScreen {
         if (!this.touchIsDown) {
             return;
         }
-    
+
         this.lastTouchX = touchX;
         this.lastTouchY = touchY;
         this.lastScrollX = this.element.get().scrollLeft;

@@ -183,5 +183,5 @@ export function closeAll() {
 }
 
 export function goHome() {
-    return $g.sel("#main").screenFade();
+    return $g.sel("#home").screenFade();
 }

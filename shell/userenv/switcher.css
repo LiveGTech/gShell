@@ -177,9 +177,9 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
 .switcher_screenOptions span {
     display: block;
     font-size: 0.8rem;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .switcher_screen.selected .switcher_screenOptions {

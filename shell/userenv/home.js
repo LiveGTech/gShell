@@ -19,4 +19,12 @@ export function init() {
     $g.sel(".home_button").on("click", function() {
         $g.sel("#switcherView").screenFade();
     });
+
+    $g.sel(".home").on("focusin", function(event) {
+        var target = $g.sel(event.target);
+
+        if (target.is(".home_page *")) {
+            scroller.targetScrollX = target.ancestor(".home_page").get().offsetLeft;
+        }
+    });
 }

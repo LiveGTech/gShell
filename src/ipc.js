@@ -93,3 +93,12 @@ ipcMain.handle("dev_restart", function(event, data) {
 
     return Promise.resolve();
 });
+
+// TODO: Testing only
+ipcMain.handle("dev_keyTest", function(event, data) {
+    electron.webContents.fromId(data.id).focus();
+    electron.webContents.fromId(data.id).sendInputEvent({keyCode: "g", type: "keyDown", modifiers: ["shift"]});
+    electron.webContents.fromId(data.id).sendInputEvent({keyCode: "g", type: "char", modifiers: ["shift"]});
+    electron.webContents.fromId(data.id).sendInputEvent({keyCode: "g", type: "keyUp", modifiers: ["shift"]});
+    electron.webContents.fromId(data.id).insertText("Test");
+});

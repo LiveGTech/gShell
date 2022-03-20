@@ -136,7 +136,7 @@ $g.waitForLoad().then(function() {
         }
     });
 
-    $g.sel("#keyTest").on("mousedown", function(event) {
+    $g.sel("#keyTest").on("mousedown touchstart", function(event) {
         event.preventDefault();
     })
 

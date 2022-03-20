@@ -136,10 +136,6 @@ $g.waitForLoad().then(function() {
         }
     });
 
-    $g.sel("#keyTest").on("mousedown touchstart", function(event) {
-        event.preventDefault();
-    })
-
     $g.sel("#keyTest").on("click", function() {
         gShell.call("dev_keyTest", {id: $g.sel("webview").get().getWebContentsId()});
         $g.sel("webview").focus();

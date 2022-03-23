@@ -17,6 +17,7 @@ import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
 import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
+import * as input from "gshell://input/input.js";
 
 window.$g = $g;
 
@@ -136,5 +137,13 @@ $g.waitForLoad().then(function() {
     $g.sel("#keyTest").on("click", function() {
         gShell.call("dev_keyTest", {id: $g.sel("webview").get().getWebContentsId()});
         $g.sel("webview").focus();
+    });
+
+    $g.sel("#keyboardTestShowButton").on("click", function() {
+        input.show();
+    });
+
+    $g.sel("#keyboardTestHideButton").on("click", function() {
+        input.hide();
     });
 });

@@ -12,6 +12,7 @@
 @import url("gshell://auth/lockscreen.css");
 @import url("gshell://userenv/home.css");
 @import url("gshell://userenv/switcher.css");
+@import url("gshell://input/input.css");
 
 #off {
     position: fixed;
@@ -23,7 +24,7 @@
     height: 100vh;
     background-color: black;
     opacity: 0;
-    z-index: 2;
+    z-index: 3;
 }
 
 #startup {

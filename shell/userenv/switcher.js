@@ -105,7 +105,7 @@ export function openApp(url) {
             .on("click", function() {
                 screenElement.addClass("closing");
 
-                animations.easeStyleTransition(screenElement.get(), "opacity", 0).then(function() {
+                screenElement.easeStyleTransition("opacity", 0).then(function() {
                     return screenElement.collapse(false);
                 }).then(function() {
                     screenElement.remove();
@@ -155,7 +155,7 @@ export function openApp(url) {
 
         Promise.all([
             screenElement.collapse(false),
-            animations.easeStyleTransition(screenElement.get(), "opacity", 0)
+            screenElement.easeStyleTransition("opacity", 0)
         ]).then(function() {
             screenElement.remove();
         });

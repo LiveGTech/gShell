@@ -184,7 +184,7 @@
                 <button tl:aria-label="switcher_goHome" class="switcher_home">
                     <img src="gshell://media/logo.svg" alt="">
                 </button>
-                <button id="keyTest">G</button>
+                <button id="keyTest">G</button> <!-- TODO: Remove when keyboard is finished -->
             </div>
         </aui-screen>
         <aui-screen id="testPage" hidden>
@@ -202,6 +202,10 @@
                     </div>
                     <button id="cameraTestButton">Start</button>
                 </section>
+                <section>
+                    <h2>Keyboard</h2>
+                    <button id="keyboardTestShowButton">Show</button>
+                </section>
             </main>
         </aui-screen>
         <aui-menu id="mainMenu">
@@ -209,6 +213,9 @@
             <button id="shutDownButton">Shut down</button>
             <button id="devRestartButton">Restart shell and update</button>
         </aui-menu>
+        <div class="input" hidden>
+            <button id="keyboardTestHideButton">Hide</button>
+        </div>
         <div hidden id="off"></div>
     </body>
 </html>

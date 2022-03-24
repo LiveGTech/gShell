@@ -20,6 +20,21 @@ var ipc = require("./ipc");
 
 exports.window = null;
 
+electron.protocol.registerSchemesAsPrivileged([
+    {
+        scheme: "gshell",
+        privileges: {
+            supportFetchAPI: true
+        }
+    },
+    {
+        scheme: "storage",
+        privileges: {
+            supportFetchAPI: true
+        }
+    }
+]);
+
 electron.app.on("ready", function() {
     if (!fs.existsSync(path.join("shell", "lib", "adaptui", "src", "adaptui.js"))) {
         console.error("Missing required dependency: Adapt UI");

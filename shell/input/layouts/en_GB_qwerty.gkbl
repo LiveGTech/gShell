@@ -1,0 +1,23 @@
+{
+    "localeCode": "en_GB",
+    "variant": "qwerty",
+    "metadata": {
+        "variantName": "QWERTY"
+    },
+    "states": {
+        "lowercase": [
+            "qwertyuiop",
+            "asdfghjkl",
+            "{.shift}zxcvbnm{.backspace}",
+            "{1#?:symbol}{.space}{.enter}"
+        ],
+        "uppercase": [
+            "QWERTYUIOP",
+            "ASDFGHJKL",
+            "{.shift}ZXCVBNM{.backspace}",
+            "{1#?:symbol}{.space}{.enter}"
+        ]
+    },
+    "defaultState": "lowercase",
+    "shiftState": "uppercase"
+}

@@ -13,11 +13,11 @@ import * as l10n from "gshell://config/l10n.js";
 import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://power/sleep.js";
+import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
 import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
-import * as input from "gshell://input/input.js";
 
 window.$g = $g;
 
@@ -47,6 +47,7 @@ $g.waitForLoad().then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
     info.init();
+    input.init();
     home.init();
     switcher.init();
 

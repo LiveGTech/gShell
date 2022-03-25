@@ -7,15 +7,21 @@
     "states": {
         "lowercase": [
             "qwertyuiop",
-            "asdfghjkl",
-            "{.shift}zxcvbnm{.backspace}",
-            "{1#?:symbol}{.space}{.enter}"
+            "{:0.5}asdfghjkl{:0.5}",
+            "{.shift:1.5}zxcvbnm{.backspace:1.5}",
+            "{1#?:symbol:1.5},{.space:5}.{.enter:1.5}"
         ],
         "uppercase": [
             "QWERTYUIOP",
-            "ASDFGHJKL",
-            "{.shift}ZXCVBNM{.backspace}",
-            "{1#?:symbol}{.space}{.enter}"
+            "{:0.5}ASDFGHJKL{:0.5}",
+            "{.shift:1.5}ZXCVBNM{.backspace:1.5}",
+            "{1#?:symbol:1.5}!{.space:5}?{.enter:1.5}"
+        ],
+        "symbol": [
+            "123",
+            "456",
+            "789",
+            "{abc:lowercase}0."
         ]
     },
     "defaultState": "lowercase",

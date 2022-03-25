@@ -9,6 +9,9 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+export var keyboardLayouts = [];
+export var currentKeyboardLayout = null;
+
 export class KeyboardLayout {
     constructor(localeCode, variant) {
         this.localeCode = localeCode;
@@ -23,8 +26,6 @@ export class KeyboardLayout {
 
     static deserialise(data) {
         var instance = new this(data.localeCode, data.variant);
-
-        console.log(data);
 
         instance.metadata = data.metadata || {};
         instance.states = data.states || {};
@@ -45,9 +46,15 @@ export class KeyboardLayout {
 
     toggleShift() {
         this.shiftActive = !this.shiftActive;
+
+        this.onStateUpdate();
     }
 
+    onStateUpdate() {}
+
     render() {
+        var thisScope = this;
+
         return $g.create("div")
             .addClass("input_keyboard_keys")
             .add(
@@ -69,10 +76,74 @@ export class KeyboardLayout {
                     }
 
                     while (row.length > 0) {
+                        if (matchesToken("{.*?}")) {
+                            var args = nextToken.substring(1, nextToken.length - 1).split(":");
+                            var keyType = args.shift();
+                            var key = $g.create("button");
+
+                            switch (keyType) {
+                                case ".shift":
+                                    key.setText("^"); // TODO: Add icon
+
+                                    key.on("click", function() {
+                                        thisScope.toggleShift();
+                                    });
+    
+
+                                    break;
+
+                                case ".backspace":
+                                    key.setText("Bksp"); // TODO: Add icon
+
+                                    // TODO: Implement key press events
+
+                                    break;
+
+                                case ".space":
+                                    key.setText("____"); // TODO: Add icon
+
+                                    // TODO: Implement key press events
+
+                                    break;
+
+                                case ".enter":
+                                    key.setText("Enter"); // TODO: Add icon
+
+                                    // TODO: Implement key press events
+
+                                    break;
+
+                                case "":
+                                    key = $g.create("span");
+
+                                    break;
+
+                                default:
+                                    key.setText(keyType);
+
+                                    var targetState = args.shift();
+
+                                    key.on("click", function() {
+                                        thisScope.currentState = targetState;
+
+                                        thisScope.onStateUpdate();
+                                    });
+                            }
+
+                            key.setStyle("width", `${(Number(args.shift()) || 1) * 100}%`);
+
+                            rowElement.add(key);
+
+                            continue;
+                        }
+
                         if (matchesToken("{\\.shift}")) {
                             rowElement.add(
                                 $g.create("button")
                                     .setText("^") // TODO: Properly implement
+                                    .on("click", function() {
+                                        thisScope.toggleShift();
+                                    })
                             );
 
                             continue;
@@ -126,8 +197,29 @@ export function init() {
     }).then(function(data) {
         var keyboard = KeyboardLayout.deserialise(data);
 
-        $g.sel(".input").add(keyboard.render());
+        keyboard.onStateUpdate = function() {
+            render();
+        };
+
+        keyboardLayouts.push(keyboard);
+
+        if (currentKeyboardLayout == null) {
+            currentKeyboardLayout = keyboard;
+        }
+
+        render();
     });
+}
+
+export function render() {
+    $g.sel(".input")
+        .clear()
+        .add(
+            $g.create("div").setStyle("height", "2.5rem"),
+            currentKeyboardLayout.render(),
+            $g.create("button").setText("Hide").on("click", hide)
+        )
+    ;
 }
 
 export function show() {

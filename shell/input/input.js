@@ -88,10 +88,15 @@ export class KeyboardLayout {
                     }
 
                     while (row.length > 0) {
+                        var key = $g.create("button");
+
+                        key.on("mousedown", function(event) {
+                            event.preventDefault();
+                        });
+
                         if (matchesToken("{.*?}")) {
                             var args = nextToken.substring(1, nextToken.length - 1).split(":");
                             var keyType = args.shift();
-                            var key = $g.create("button");
 
                             switch (keyType) {
                                 case ".shift":
@@ -156,7 +161,7 @@ export class KeyboardLayout {
 
                         if (matchesToken("{\\.shift}")) {
                             rowElement.add(
-                                $g.create("button")
+                                key
                                     .setText("^") // TODO: Properly implement
                                     .on("click", function() {
                                         thisScope.toggleShift();
@@ -168,7 +173,7 @@ export class KeyboardLayout {
 
                         if (matchesToken("{\\.backspace}")) {
                             rowElement.add(
-                                $g.create("button")
+                                key
                                     .setText("Bksp") // TODO: Properly implement
                             );
 
@@ -177,7 +182,7 @@ export class KeyboardLayout {
 
                         if (matchesToken("{\\.space}")) {
                             rowElement.add(
-                                $g.create("button")
+                                key
                                     .setText("___") // TODO: Properly implement
                             );
 
@@ -186,7 +191,7 @@ export class KeyboardLayout {
 
                         if (matchesToken("{\\.enter}")) {
                             rowElement.add(
-                                $g.create("button")
+                                key
                                     .setText("Enter") // TODO: Properly implement
                             );
 
@@ -196,7 +201,7 @@ export class KeyboardLayout {
                         matchesToken(".");
 
                         rowElement.add(
-                            $g.create("button")
+                            key
                                 .setText(nextToken)
                                 .on("click", keyEventFactory(nextToken, [], true))
                         );

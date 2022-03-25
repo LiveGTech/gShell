@@ -34,3 +34,7 @@
 #cameraTest {
     width: 100%;
 }
+
+#keyboardTestBuffer {
+    height: 50%;
+}

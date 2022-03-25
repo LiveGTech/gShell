@@ -75,6 +75,18 @@ export class KeyboardLayout {
                         return false;
                     }
 
+                    function keyEventFactory(keyCode, modifiers = [], interpretShift = false) {
+                        if (interpretShift && keyCode.toUpperCase() == keyCode) {
+                            modifiers.push("Shift");
+                        }
+
+                        return function() {
+                            ["keyDown", "char", "keyUp"].forEach(function(type) {
+                                gShell.call("io_input", {type, keyCode, modifiers});
+                            });
+                        };
+                    }
+
                     while (row.length > 0) {
                         if (matchesToken("{.*?}")) {
                             var args = nextToken.substring(1, nextToken.length - 1).split(":");
@@ -88,28 +100,27 @@ export class KeyboardLayout {
                                     key.on("click", function() {
                                         thisScope.toggleShift();
                                     });
-    
 
                                     break;
 
                                 case ".backspace":
                                     key.setText("Bksp"); // TODO: Add icon
 
-                                    // TODO: Implement key press events
+                                    key.on("click", keyEventFactory("Backspace"));
 
                                     break;
 
                                 case ".space":
-                                    key.setText("____"); // TODO: Add icon
+                                    key.setText("____"); // TODO: Add styling
 
-                                    // TODO: Implement key press events
+                                    key.on("click", keyEventFactory(" "));
 
                                     break;
 
                                 case ".enter":
                                     key.setText("Enter"); // TODO: Add icon
 
-                                    // TODO: Implement key press events
+                                    key.on("click", keyEventFactory("\n"));
 
                                     break;
 
@@ -121,12 +132,18 @@ export class KeyboardLayout {
                                 default:
                                     key.setText(keyType);
 
-                                    var targetState = args.shift();
+                                    var targetAction = args.shift();
 
                                     key.on("click", function() {
-                                        thisScope.currentState = targetState;
+                                        if (targetAction.startsWith("@")) {
+                                            thisScope.currentState = targetAction.substring(1);
 
-                                        thisScope.onStateUpdate();
+                                            thisScope.onStateUpdate();
+
+                                            return;
+                                        }
+
+                                        gShell.call("io_input", keyEventFactory(targetAction, [], true));
                                     });
                             }
 
@@ -181,6 +198,7 @@ export class KeyboardLayout {
                         rowElement.add(
                             $g.create("button")
                                 .setText(nextToken)
+                                .on("click", keyEventFactory(nextToken, [], true))
                         );
                     }
 

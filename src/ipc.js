@@ -10,6 +10,7 @@
 const electron = require("electron");
 
 var main = require("./main");
+var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 var config = require("./config");
@@ -86,6 +87,16 @@ ipcMain.handle("power_sleep", function(event, data) {
 
 ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
+});
+
+ipcMain.handle("io_input", function(event, data) {
+    var webContents = electron.webContents.getFocusedWebContents();
+
+    if (!flags.emulateTouch) { // To prevent having to double-click for each key (due to touch emulation quirk)
+        webContents.focus();
+    }
+
+    webContents.sendInputEvent(data);
 });
 
 ipcMain.handle("dev_restart", function(event, data) {

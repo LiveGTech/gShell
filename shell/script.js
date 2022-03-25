@@ -136,8 +136,7 @@ $g.waitForLoad().then(function() {
     });
 
     $g.sel("#keyTest").on("click", function() {
-        gShell.call("dev_keyTest", {id: $g.sel("webview").get().getWebContentsId()});
-        $g.sel("webview").focus();
+        input.show();
     });
 
     $g.sel("#keyboardTestShowButton").on("click", function() {

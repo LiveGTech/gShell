@@ -90,7 +90,7 @@ export class KeyboardLayout {
                     while (row.length > 0) {
                         var key = $g.create("button");
 
-                        key.on("mousedown", function(event) {
+                        key.on("mousedown touchstart", function(event) {
                             event.preventDefault();
                         });
 

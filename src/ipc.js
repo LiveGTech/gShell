@@ -90,26 +90,16 @@ ipcMain.handle("power_getState", function(event, data) {
 });
 
 ipcMain.handle("io_input", function(event, data) {
-    var webContents = electron.webContents.getFocusedWebContents();
+    var webContents = electron.webContents.fromId(data.webContentsId);
 
-    if (!flags.emulateTouch) { // To prevent having to double-click for each key (due to touch emulation quirk)
-        webContents.focus();
-    }
+    webContents.focus();
+    webContents.sendInputEvent(data.event);
 
-    webContents.sendInputEvent(data);
+    return Promise.resolve();
 });
 
 ipcMain.handle("dev_restart", function(event, data) {
     system.devRestart();
 
     return Promise.resolve();
-});
-
-// TODO: Testing only
-ipcMain.handle("dev_keyTest", function(event, data) {
-    electron.webContents.fromId(data.id).focus();
-    electron.webContents.fromId(data.id).sendInputEvent({keyCode: "g", type: "keyDown", modifiers: ["shift"]});
-    electron.webContents.fromId(data.id).sendInputEvent({keyCode: "g", type: "char", modifiers: ["shift"]});
-    electron.webContents.fromId(data.id).sendInputEvent({keyCode: "g", type: "keyUp", modifiers: ["shift"]});
-    electron.webContents.fromId(data.id).insertText("Test");
 });

@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 export var keyboardLayouts = [];
 export var currentKeyboardLayout = null;
+export var targetInputSurface = null;
 
 export class KeyboardLayout {
     constructor(localeCode, variant) {
@@ -81,19 +82,22 @@ export class KeyboardLayout {
                         }
 
                         return function() {
+                            var webContentsId = 1;
+
+                            if (targetInputSurface.matches("webview")) {
+                                webContentsId = targetInputSurface.getWebContentsId();
+                            }
+
                             ["keyDown", "char", "keyUp"].forEach(function(type) {
-                                gShell.call("io_input", {type, keyCode, modifiers});
+                                gShell.call("io_input", {webContentsId, event: {type, keyCode, modifiers}});
                             });
+
+                            targetInputSurface?.focus();
                         };
                     }
 
                     while (row.length > 0) {
                         var key = $g.create("button");
-
-                        // FIXME: Touch prevention
-                        key.on("mousedown touchstart", function(event) {
-                            event.preventDefault();
-                        });
 
                         if (matchesToken("{.*?}")) {
                             var args = nextToken.substring(1, nextToken.length - 1).split(":");
@@ -216,6 +220,12 @@ export class KeyboardLayout {
 }
 
 export function init() {
+    setInterval(function() {
+        if (!document.activeElement?.matches(".input *")) {
+            targetInputSurface = document.activeElement;
+        }
+    });
+
     fetch("gshell://input/layouts/en_GB_qwerty.gkbl").then(function(response) {
         return response.json();
     }).then(function(data) {

@@ -45,10 +45,10 @@
     transition: 0s background-color;
 }
 
-.input_keyboard_row button:hover {
+.input_keyboard_row button:hover:not(:active) {
     background-color: inherit!important;
 }
 
 .input_keyboard_row button:active {
-    background-color: rgba(0, 0, 0, 0.2); /* TODO: Find way of matching theme */
+    background-color: rgba(0, 0, 0, 0.2)!important; /* TODO: Find way of matching theme */
 }

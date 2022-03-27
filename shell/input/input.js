@@ -91,9 +91,9 @@ export class KeyboardLayout {
                         var key = $g.create("button");
 
                         // FIXME: Touch prevention
-                        // key.on("mousedown touchstart", function(event) {
-                        //     event.preventDefault();
-                        // });
+                        key.on("mousedown touchstart", function(event) {
+                            event.preventDefault();
+                        });
 
                         if (matchesToken("{.*?}")) {
                             var args = nextToken.substring(1, nextToken.length - 1).split(":");

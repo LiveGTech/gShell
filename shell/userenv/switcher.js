@@ -9,10 +9,10 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
-import * as animations from "gshell://lib/adaptui/src/animations.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as screenScroll from "gshell://helpers/screenscroll.js";
+import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export var main = null;
 
@@ -77,11 +77,15 @@ export function openApp(url) {
 
     var webview = $g.create("webview");
 
+    webviewComms.attach(webview);
+
     var screenElement = $g.create("div").addClass("switcher_screen").add(
         $g.create("div").addClass("switcher_apps").add(
             $g.create("div").addClass("switcher_app").add(
                 $g.create("main").add(
-                    webview.setAttribute("src", url)
+                    webview
+                        .setAttribute("src", url)
+                        .setAttribute("preload", "./webviewpreload.js")
                 )
             )
         ),

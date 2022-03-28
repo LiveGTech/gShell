@@ -134,16 +134,4 @@ $g.waitForLoad().then(function() {
             });
         }
     });
-
-    $g.sel("#keyTest").on("click", function() {
-        input.show();
-    });
-
-    $g.sel("#keyboardTestShowButton").on("click", function() {
-        input.show();
-    });
-
-    $g.sel("#keyboardTestHideButton").on("click", function() {
-        input.hide();
-    });
 });

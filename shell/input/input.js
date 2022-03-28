@@ -9,9 +9,30 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+// Also in `shell/webviewpreload.js`
+export const NON_TEXTUAL_INPUTS = [
+    "button",
+    "checkbox",
+    "color",
+    "date",
+    "datetime-local",
+    "file",
+    "hidden",
+    "image",
+    "month",
+    "radio",
+    "range",
+    "reset",
+    "submit",
+    "time",
+    "week"
+];
+
 export var keyboardLayouts = [];
 export var currentKeyboardLayout = null;
 export var targetInputSurface = null;
+
+var showingTransition = false;
 
 export class KeyboardLayout {
     constructor(localeCode, variant) {
@@ -224,6 +245,28 @@ export function init() {
         targetInputSurface = document.activeElement;
     });
 
+    $g.sel("body").on("focusin mousedown touchstart", function(event) {
+        if (event.target.matches("label, .input, .input *, .input_ignore, .input_ignore *")) {
+            return;
+        }
+
+        if (event.target.matches("input")) {
+            if (NON_TEXTUAL_INPUTS.includes((event.target.getAttribute("type") || "").toLowerCase())) {
+                hide();
+
+                return;
+            }
+
+            show();
+
+            return;
+        }
+
+        hide();
+
+        return;
+    });
+
     $g.sel(".input").on("mousedown", function(event) {
         if (event.target.matches("button")) {
             return;
@@ -291,15 +334,27 @@ export function render() {
 }
 
 export function show() {
+    showingTransition = true;
+
     return Promise.all([
         $g.sel(".input").fadeIn(250),
         $g.sel(".input").easeStyleTransition("bottom", 0, 250)
-    ]);
+    ]).then(function() {
+        showingTransition = false;
+    });
 }
 
 export function hide() {
+    if (showingTransition) {
+        return;
+    }
+
     return Promise.all([
         $g.sel(".input").fadeOut(250),
         $g.sel(".input").easeStyleTransition("bottom", -20, 250)
-    ]);
+    ]).then(function() {
+        if (showingTransition) {
+            $g.sel(".input").show();
+        }
+    });
 }

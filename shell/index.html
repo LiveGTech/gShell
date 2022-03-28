@@ -184,7 +184,6 @@
                 <button tl:aria-label="switcher_goHome" class="switcher_home">
                     <img src="gshell://media/logo.svg" alt="">
                 </button>
-                <button id="keyTest">KB</button> <!-- TODO: Remove when input focus detection is added -->
             </div>
         </aui-screen>
         <aui-screen id="testPage" hidden>
@@ -204,8 +203,7 @@
                 </section>
                 <section>
                     <h2>Keyboard</h2>
-                    <input>
-                    <button id="keyboardTestShowButton">Show</button>
+                    <input placeholder="Enter some text">
                 </section>
                 <div id="keyboardTestBuffer"></div>
             </main>
@@ -215,9 +213,7 @@
             <button id="shutDownButton">Shut down</button>
             <button id="devRestartButton">Restart shell and update</button>
         </aui-menu>
-        <div class="input" hidden>
-            <button id="keyboardTestHideButton">Hide</button>
-        </div>
+        <div class="input" hidden></div>
         <div hidden id="off"></div>
     </body>
 </html>

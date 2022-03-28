@@ -281,7 +281,7 @@ function showLockScreen(authMethod) {
                         input.selectionStart = selectionStart + 1;
                         input.selectionEnd = input.selectionStart;
 
-                        $g.sel(".lockScreen_auth_passcodeButtons_del img").setAttribute("src", "gshell://lib/adaptui/icons/backspace.svg");
+                        $g.sel(".lockScreen_auth_passcodeButtons_del img").setAttribute("src", "gshell://lib/adaptui/icons/key-backspace.svg");
                     })
                 )
             ))

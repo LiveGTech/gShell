@@ -12,14 +12,19 @@
         "info_batteryIcon_discharging": "Battery - discharging",
         "info_batteryIcon_unknown": "Battery - unknown",
 
-        "switcher_goHome": "Go home",
-        "switcher_close": "Close",
-        "switcher_closeAll": "Close all",
-        "switcher_empty": "No open apps",
+        "input_key_shift": "Shift",
+        "input_key_backspace": "Backspace",
+        "input_key_space": "Space",
+        "input_key_enter": "Enter",
 
         "lockScreen_unlock": "Unlock",
         "lockScreen_enterPasscode": "Enter passcode",
         "lockScreen_incorrectPasscode": "Incorrect passcode, try again",
-        "lockScreen_delete": "Delete"
+        "lockScreen_delete": "Delete",
+
+        "switcher_goHome": "Go home",
+        "switcher_close": "Close",
+        "switcher_closeAll": "Close all",
+        "switcher_empty": "No open apps"
     }
 }

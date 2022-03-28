@@ -29,11 +29,13 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    gap: 0.2rem;
 }
 
 .input_keyboard_row {
     display: flex;
     flex-grow: 1;
+    gap: 0.2rem;
 }
 
 .input_keyboard_row button {
@@ -49,6 +51,44 @@
     background-color: inherit!important;
 }
 
-.input_keyboard_row button:active {
+.input_keyboard_row button:active:not(.input_keyboard_spaceKey) {
     background-color: rgba(0, 0, 0, 0.2)!important; /* TODO: Find way of matching theme */
+}
+
+.input_keyboard_row .input_keyboard_spaceKey {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.input_keyboard_spaceKey:active {
+    background-color: inherit!important;
+}
+
+.input_keyboard_spaceKey div {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.input_keyboard_spaceKey:active div {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.input_keyboard_iconKey {
+    position: relative;
+}
+
+.input_keyboard_iconKey img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0.8rem;
+    object-fit: contain;
+    user-select: none;
 }

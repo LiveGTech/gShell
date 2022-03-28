@@ -105,30 +105,63 @@ export class KeyboardLayout {
 
                             switch (keyType) {
                                 case ".shift":
-                                    key.setText("^"); // TODO: Add icon
+                                    key.addClass("input_keyboard_iconKey");
+
+                                    key.add(
+                                        $g.create("img")
+                                            .setAttribute("aui-icon", "dark")
+                                            .setAttribute("src", "gshell://lib/adaptui/icons/key-shift.svg")
+                                            .setAttribute("alt", "")
+                                    );
+
+                                    key.setAttribute("aria-label", _("input_key_shift"));
 
                                     key.on("click", function() {
                                         thisScope.toggleShift();
+
+                                        targetInputSurface?.focus();
                                     });
 
                                     break;
 
                                 case ".backspace":
-                                    key.setText("Bksp"); // TODO: Add icon
+                                    key.addClass("input_keyboard_iconKey");
+
+                                    key.add(
+                                        $g.create("img")
+                                            .setAttribute("aui-icon", "dark")
+                                            .setAttribute("src", "gshell://lib/adaptui/icons/key-backspace.svg")
+                                            .setAttribute("alt", "")
+                                    );
+
+                                    key.setAttribute("aria-label", _("input_key_backspace"));
 
                                     key.on("click", keyEventFactory("Backspace"));
 
                                     break;
 
                                 case ".space":
-                                    key.setText("____"); // TODO: Add styling
+                                    key.addClass("input_keyboard_spaceKey");
+
+                                    key.add($g.create("div"));
+
+                                    key.setAttribute("aria-label", _("input_key_space"));
 
                                     key.on("click", keyEventFactory(" "));
 
                                     break;
 
                                 case ".enter":
-                                    key.setText("Enter"); // TODO: Add icon
+                                    key.addClass("input_keyboard_iconKey");
+
+                                    key.add(
+                                        $g.create("img")
+                                            .setAttribute("aui-icon", "dark")
+                                            .setAttribute("src", "gshell://lib/adaptui/icons/key-enter.svg")
+                                            .setAttribute("alt", "")
+                                    );
+
+                                    key.setAttribute("aria-label", _("input_key_enter"));
 
                                     key.on("click", keyEventFactory("\n"));
 
@@ -149,6 +182,8 @@ export class KeyboardLayout {
                                             thisScope.currentState = targetAction.substring(1);
 
                                             thisScope.onStateUpdate();
+
+                                            targetInputSurface?.focus();
 
                                             return;
                                         }

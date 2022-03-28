@@ -16,6 +16,8 @@
         "input_key_backspace": "Backspace",
         "input_key_space": "Space",
         "input_key_enter": "Enter",
+        "input_option_hide": "Hide keyboard",
+        "input_option_emoji": "Emoji",
 
         "lockScreen_unlock": "Unlock",
         "lockScreen_enterPasscode": "Enter passcode",

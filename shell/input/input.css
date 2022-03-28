@@ -34,8 +34,11 @@
 
 .input_keyboard_row {
     display: flex;
-    flex-grow: 1;
     gap: 0.2rem;
+}
+
+.input_keyboard_keys .input_keyboard_row {
+    flex-grow: 1;
 }
 
 .input_keyboard_row button {
@@ -91,4 +94,24 @@
     padding: 0.8rem;
     object-fit: contain;
     user-select: none;
+}
+
+.input_keyboard_options {
+    height: 2rem;
+}
+
+.input_keyboard_options button {
+    width: unset;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    flex-grow: 0;
+}
+
+.input_keyboard_options .input_keyboard_iconKey {
+    width: 2rem;
+    padding: 0;
+}
+
+.input_keyboard_options .input_keyboard_iconKey img {
+    padding: 0.4rem;
 }

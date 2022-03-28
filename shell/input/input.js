@@ -259,7 +259,33 @@ export function render() {
         .add(
             $g.create("div").setStyle("height", "2.5rem"),
             currentKeyboardLayout.render(),
-            $g.create("button").setText("Hide").on("click", hide)
+            $g.create("div")
+                .addClass("input_keyboard_row")
+                .addClass("input_keyboard_options")
+                .add(
+                    $g.create("button")
+                        .addClass("input_keyboard_iconKey")
+                        .setAttribute("title", _("input_option_hide"))
+                        .setAttribute("aria-label", _("input_option_hide"))
+                        .on("click", hide)
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "dark")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/hidekeyboard.svg")
+                                .setAttribute("alt", "")
+                        )
+                    ,
+                    $g.create("button") // TODO: Implement emoji
+                        .addClass("input_keyboard_iconKey")
+                        .setAttribute("title", _("input_option_emoji"))
+                        .setAttribute("aria-label", _("input_option_emoji"))
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "dark")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/emoji.svg")
+                                .setAttribute("alt", "")
+                        )
+                )
         )
     ;
 }

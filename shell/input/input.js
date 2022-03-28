@@ -144,7 +144,7 @@ export class KeyboardLayout {
 
                                     var targetAction = args.shift();
 
-                                    key.on("click", function() {
+                                    key.on("click", function(event) {
                                         if (targetAction.startsWith("@")) {
                                             thisScope.currentState = targetAction.substring(1);
 
@@ -153,52 +153,13 @@ export class KeyboardLayout {
                                             return;
                                         }
 
-                                        gShell.call("io_input", keyEventFactory(targetAction, [], true));
+                                        keyEventFactory(targetAction, [], true)(event);
                                     });
                             }
 
                             key.setStyle("width", `${(Number(args.shift()) || 1) * 100}%`);
 
                             rowElement.add(key);
-
-                            continue;
-                        }
-
-                        if (matchesToken("{\\.shift}")) {
-                            rowElement.add(
-                                key
-                                    .setText("^") // TODO: Properly implement
-                                    .on("click", function() {
-                                        thisScope.toggleShift();
-                                    })
-                            );
-
-                            continue;
-                        }
-
-                        if (matchesToken("{\\.backspace}")) {
-                            rowElement.add(
-                                key
-                                    .setText("Bksp") // TODO: Properly implement
-                            );
-
-                            continue;
-                        }
-
-                        if (matchesToken("{\\.space}")) {
-                            rowElement.add(
-                                key
-                                    .setText("___") // TODO: Properly implement
-                            );
-
-                            continue;
-                        }
-
-                        if (matchesToken("{\\.enter}")) {
-                            rowElement.add(
-                                key
-                                    .setText("Enter") // TODO: Properly implement
-                            );
 
                             continue;
                         }
@@ -221,9 +182,21 @@ export class KeyboardLayout {
 
 export function init() {
     setInterval(function() {
-        if (!document.activeElement?.matches(".input *")) {
-            targetInputSurface = document.activeElement;
+        if (document.activeElement?.matches(".input, .input *")) {
+            return;
         }
+
+        targetInputSurface = document.activeElement;
+    });
+
+    $g.sel(".input").on("mousedown", function(event) {
+        if (event.target.matches("button")) {
+            return;
+        }
+
+        targetInputSurface?.focus();
+
+        event.preventDefault();
     });
 
     fetch("gshell://input/layouts/en_GB_qwerty.gkbl").then(function(response) {

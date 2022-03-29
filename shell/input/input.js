@@ -264,6 +264,8 @@ export function init() {
                 return;
             }
 
+            event.target.focus();
+
             show();
 
             return;

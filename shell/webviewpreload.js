@@ -43,6 +43,8 @@ window.addEventListener("load", function() {
                 }
         
                 electron.ipcRenderer.sendToHost("input_show");
+
+                event.target.focus();
         
                 return;
             }

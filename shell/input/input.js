@@ -193,24 +193,31 @@ export class KeyboardLayout {
 
                                     break;
 
+                                case ".u":
+                                    keyType = String.fromCodePoint(args.shift().split(",").map((codePoint) => parseInt(codePoint, 16)));
+
+                                    // Continue to default behaviour since Unicode string has been assembled
+
                                 default:
                                     key.setText(keyType);
 
-                                    var targetAction = args.shift();
+                                    (function(targetAction) {
+                                        key.on("click", function(event) {
+                                            if (targetAction.startsWith("@")) {
+                                                thisScope.currentState = targetAction.substring(1);
+    
+                                                thisScope.onStateUpdate();
+    
+                                                targetInputSurface?.focus();
+    
+                                                return;
+                                            }
+    
+                                            keyEventFactory(targetAction, [], true)(event);
+                                        });
+                                    })(args.shift() || keyType);
 
-                                    key.on("click", function(event) {
-                                        if (targetAction.startsWith("@")) {
-                                            thisScope.currentState = targetAction.substring(1);
-
-                                            thisScope.onStateUpdate();
-
-                                            targetInputSurface?.focus();
-
-                                            return;
-                                        }
-
-                                        keyEventFactory(targetAction, [], true)(event);
-                                    });
+                                    break;
                             }
 
                             key.setStyle("width", `${(Number(args.shift()) || 1) * 100}%`);

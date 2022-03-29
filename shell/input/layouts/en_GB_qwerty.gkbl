@@ -9,19 +9,25 @@
             "qwertyuiop",
             "{:0.5}asdfghjkl{:0.5}",
             "{.shift:1.5}zxcvbnm{.backspace:1.5}",
-            "{1#?:@symbol:1.5},{.space:5}.{.enter:1.5}"
+            "{1#?:@symbol1:1.5},{.space:5}.{.enter:1.5}"
         ],
         "uppercase": [
             "QWERTYUIOP",
             "{:0.5}ASDFGHJKL{:0.5}",
             "{.shift:1.5}ZXCVBNM{.backspace:1.5}",
-            "{1#?:@symbol:1.5}!{.space:5}?{.enter:1.5}"
+            "{1#?:@symbol1:1.5}!{.space:5}?{.enter:1.5}"
         ],
-        "symbol": [
-            "123",
-            "456",
-            "789",
-            "{abc:@lowercase}0."
+        "symbol1": [
+            "1234567890",
+            "{:0.5}@£&_()*+-/{:0.5}",
+            "{=%>:@symbol2:1.5}#\"':;!?{.backspace:1.5}",
+            "{abc:@lowercase:1.5},{.space:5}.{.enter:1.5}"
+        ],
+        "symbol2": [
+            "|©®™×÷π±·✓",
+            "{:0.5}€$¢¥[]{.u:7b}{.u:7d}^¬{:0.5}",
+            "{1#?:@symbol1:1.5}~`\\<>=%{.backspace:1.5}",
+            "{abc:@lowercase:1.5},{.space:5}.{.enter:1.5}"
         ]
     },
     "defaultState": "lowercase",

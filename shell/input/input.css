@@ -7,6 +7,14 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+.input_keyboardShowing aui-screen {
+    height: calc(100vh - 18.5rem);
+}
+
+.input_keyboardShowing .switcherBar {
+    display: none;
+}
+
 .input {
     position: fixed;
     display: flex;
@@ -16,7 +24,7 @@
     height: 18rem;
     padding: 0.5rem;
     background-color: var(--secondaryBackground);
-    border-radius: 1rem;
+    border-radius: 0.8rem;
     opacity: 0;
     z-index: 2;
 }

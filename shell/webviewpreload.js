@@ -52,4 +52,8 @@ window.addEventListener("load", function() {
             return;
         });
     });
+
+    electron.ipcRenderer.on("scrollInputIntoView", function() {
+        document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
+    });
 });

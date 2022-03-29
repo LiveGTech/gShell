@@ -18,6 +18,6 @@
     display: block;
     flex-grow: 1;
     position: relative;
-    border-radius: 10px;
+    border-radius: 0.8rem;
     overflow: hidden;
 }

@@ -24,7 +24,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
         setInterval(function() {
             thisScope.element.find(".switcher_screen").getAll().forEach(function(screenElement) {
-                if (screenElement.querySelector(".switcher_apps").contains(document.activeElement) && !$g.sel(screenElement).hasClass("selected")) {
+                if (screenElement.querySelector(".switcher_apps").contains(document.activeElement) && !$g.sel(screenElement).hasClass("switcher_screen_selected")) {
                     $g.sel(screenElement).find(".switcher_screenButton").focus();
                 }
             });
@@ -40,9 +40,9 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
         if (screenElement.get().matches(".switcher_screen") && this.element.get().matches(".allowSelect")) {
             this.element.removeClass("allowSelect");
-            this.element.find(":scope > *").removeClass("selected");
+            this.element.find(":scope > *").removeClass("switcher_screen_selected");
 
-            screenElement.addClass("selected");
+            screenElement.addClass("switcher_screen_selected");
 
             this.screenSelected = true;
             this.targetScrollX = screenElement.get().offsetLeft;
@@ -60,7 +60,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
         this.element.addClass("allowSelect");
         this.element.find(":scope > *").removeClass("backgrounded");
-        this.element.find(":scope > *").removeClass("selected");
+        this.element.find(":scope > *").removeClass("switcher_screen_selected");
     }
 }
 

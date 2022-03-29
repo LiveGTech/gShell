@@ -103,7 +103,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     z-index: 1;
 }
 
-.switcher_screen.selected {
+.switcher_screen.switcher_screen_selected {
     transform: none;
     z-index: 1;
 }
@@ -124,7 +124,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     background-color: transparent!important;
 }
 
-.switcher_screen.selected .switcher_screenButton {
+.switcher_screen.switcher_screen_selected .switcher_screenButton {
     display: none;
 }
 
@@ -152,7 +152,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     height: 5rem;
 }
 
-.switcher_screen.selected .switcher_screenCloseButton {
+.switcher_screen.switcher_screen_selected .switcher_screenCloseButton {
     display: none;
 }
 
@@ -182,7 +182,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     white-space: nowrap;
 }
 
-.switcher_screen.selected .switcher_screenOptions {
+.switcher_screen.switcher_screen_selected .switcher_screenOptions {
     display: none;
 }
 
@@ -197,7 +197,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     flex-grow: 1;
     width: 100%;
     height: 100%;
-    border-radius: calc(10px / 0.7);
+    border-radius: calc(0.8rem / 0.7);
     overflow: hidden;
 }
 
@@ -211,6 +211,6 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     flex-grow: 1;
 }
 
-.switcher_screen.selected .switcher_app {
-    border-radius: 10px;
+.switcher_screen.switcher_screen_selected .switcher_app {
+    border-radius: 0.8rem;
 }

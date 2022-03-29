@@ -336,11 +336,19 @@ export function render() {
 export function show() {
     showingTransition = true;
 
+    $g.sel("body").addClass("input_keyboardShowing");
+
     return Promise.all([
         $g.sel(".input").fadeIn(250),
         $g.sel(".input").easeStyleTransition("bottom", 0, 250)
     ]).then(function() {
         showingTransition = false;
+
+        if (targetInputSurface?.matches("webview")) {
+            targetInputSurface.send("scrollInputIntoView");
+        } else {
+            document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
+        }
     });
 }
 
@@ -348,6 +356,8 @@ export function hide() {
     if (showingTransition) {
         return;
     }
+
+    $g.sel("body").removeClass("input_keyboardShowing");
 
     return Promise.all([
         $g.sel(".input").fadeOut(250),

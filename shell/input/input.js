@@ -246,7 +246,7 @@ export function init() {
     });
 
     $g.sel("body").on("focusin mousedown touchstart", function(event) {
-        if (event.target.matches("label, .input, .input *, .input_ignore, .input_ignore *")) {
+        if (event.target.matches("label, .input, .input *, [inputmode='none']")) { // TODO: Support `inputmode` and not just `type`
             return;
         }
 

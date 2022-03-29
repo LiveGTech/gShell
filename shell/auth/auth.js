@@ -178,9 +178,9 @@ function showLockScreen(authMethod) {
         $g.create("div").add(
             $g.create("input")
                 .addClass("lockScreen_auth_passcode")
-                .addClass("input_ignore")
                 .setAttribute("type", "password")
                 .setAttribute("dir", "ltr") // Passcode inputs are always LTR independent of locale
+                .setAttribute("inputmode", "none")
                 .setAttribute("aria-label", _("lockScreen_enterPasscode"))
                 .on("keydown", function(event) {
                     if (event.key == "Escape") {

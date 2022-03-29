@@ -130,7 +130,7 @@ export class KeyboardLayout {
 
                                     key.add(
                                         $g.create("img")
-                                            .setAttribute("aui-icon", "dark")
+                                            .setAttribute("aui-icon", "dark embedded")
                                             .setAttribute("src", "gshell://lib/adaptui/icons/key-shift.svg")
                                             .setAttribute("alt", "")
                                     );
@@ -150,7 +150,7 @@ export class KeyboardLayout {
 
                                     key.add(
                                         $g.create("img")
-                                            .setAttribute("aui-icon", "dark")
+                                            .setAttribute("aui-icon", "dark embedded")
                                             .setAttribute("src", "gshell://lib/adaptui/icons/key-backspace.svg")
                                             .setAttribute("alt", "")
                                     );
@@ -177,7 +177,7 @@ export class KeyboardLayout {
 
                                     key.add(
                                         $g.create("img")
-                                            .setAttribute("aui-icon", "dark")
+                                            .setAttribute("aui-icon", "dark embedded")
                                             .setAttribute("src", "gshell://lib/adaptui/icons/key-enter.svg")
                                             .setAttribute("alt", "")
                                     );
@@ -313,7 +313,7 @@ export function render() {
                         .on("click", hide)
                         .add(
                             $g.create("img")
-                                .setAttribute("aui-icon", "dark")
+                                .setAttribute("aui-icon", "dark embedded")
                                 .setAttribute("src", "gshell://lib/adaptui/icons/hidekeyboard.svg")
                                 .setAttribute("alt", "")
                         )
@@ -324,7 +324,7 @@ export function render() {
                         .setAttribute("aria-label", _("input_option_emoji"))
                         .add(
                             $g.create("img")
-                                .setAttribute("aui-icon", "dark")
+                                .setAttribute("aui-icon", "dark embedded")
                                 .setAttribute("src", "gshell://lib/adaptui/icons/emoji.svg")
                                 .setAttribute("alt", "")
                         )

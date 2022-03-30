@@ -7,17 +7,28 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-import * as $g from "gshell://lib/adaptui/src/adaptui.js";
-
 import * as config from "gshell://config/config.js";
-import * as input from "gshell://input/input.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export var options = {
     touch_holdDelay: 500, // 500 milliseconds
+
     switch_enabled: false,
-    switch_scanColour: "blue"
+    switch_scanColour: "blue",
+    switch_itemScanPeriod: 200 // 500 milliseconds
 };
+
+export var assistiveTechnologies = [];
+
+export class AssistiveTechnology {
+    init() {}
+
+    update() {}
+}
+
+export function registerAssistiveTechnology(tech) {
+    assistiveTechnologies.push(new tech());
+}
 
 export function setOption(optionName, value) {
     options[optionName] = value;
@@ -43,12 +54,6 @@ export function load() {
     });
 }
 
-export function update() {
-    $g.sel("body").setAttribute("liveg-a11y-scan", options.switch_enabled ? options.switch_scanColour : "");
-
-    webviewComms.update();
-}
-
 export function init() {
     gShell.call("system_getFlags").then(function(flags) {
         if (flags.enableA11ySwitch) {
@@ -58,13 +63,15 @@ export function init() {
         }
     });
 
-    // TODO: Implement better scan loop
-    setInterval(function() {
-        if (!options.switch_enabled) {
-            return;
-        }
+    import("gshell://a11y/switch.js").then(function() {
+        assistiveTechnologies.forEach((tech) => tech.init());
 
-        gShell.call("io_input", {webContentsId: input.getWebContentsId(), event: {type: "keyDown", keyCode: "tab", modifiers: []}});
-        gShell.call("io_input", {webContentsId: input.getWebContentsId(), event: {type: "keyUp", keyCode: "tab", modifiers: []}});
-    }, 500);
+        update();
+    });
+}
+
+export function update() {
+    assistiveTechnologies.forEach((tech) => tech.update());
+
+    webviewComms.update();
 }

@@ -109,11 +109,7 @@ export class KeyboardLayout {
                         }
 
                         return function() {
-                            var webContentsId = 1;
-
-                            if (targetInputSurface.matches("webview")) {
-                                webContentsId = targetInputSurface.getWebContentsId();
-                            }
+                            var webContentsId = getWebContentsId();
 
                             ["keyDown", "char", "keyUp"].forEach(function(type) {
                                 gShell.call("io_input", {webContentsId, event: {type, keyCode, modifiers}});
@@ -319,6 +315,16 @@ export function init() {
 
         render();
     });
+}
+
+export function getWebContentsId() {
+    var webContentsId = 1;
+
+    if (targetInputSurface.matches("webview")) {
+        webContentsId = targetInputSurface.getWebContentsId();
+    }
+
+    return webContentsId;
 }
 
 export function render() {

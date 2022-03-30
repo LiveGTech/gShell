@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+@import url("gshell://common.css");
 @import url("gshell://global/infobar.css");
 @import url("gshell://global/surfaces.css");
 @import url("gshell://auth/lockscreen.css");

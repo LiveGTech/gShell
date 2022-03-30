@@ -1,0 +1,32 @@
+/*
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+*/
+
+body[liveg-a11y-scan="red"] *:focus {
+    outline: 0.3rem ridge #ff0000!important;
+}
+
+body[liveg-a11y-scan="green"] *:focus {
+    outline: 0.3rem ridge #00ff00!important;
+}
+
+body[liveg-a11y-scan="blue"] *:focus {
+    outline: 0.3rem ridge #0000ff!important;
+}
+
+body[liveg-a11y-scan="yellow"] *:focus {
+    outline: 0.3rem ridge #ffff00!important;
+}
+
+body[liveg-a11y-scan="pink"] *:focus {
+    outline: 0.3rem ridge #ff00ff!important;
+}
+
+body[liveg-a11y-scan="aqua"] *:focus {
+    outline: 0.3rem ridge #00ffff!important;
+}

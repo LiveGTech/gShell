@@ -79,54 +79,44 @@ export function openApp(url) {
 
     webviewComms.attach(webview);
 
-    var screenElement = $g.create("div").addClass("switcher_screen").add(
-        $g.create("div").addClass("switcher_apps").add(
-            $g.create("div").addClass("switcher_app").add(
-                $g.create("main").add(
-                    webview
-                        .setAttribute("src", url)
-                        .setAttribute("preload", "./webviewpreload.js")
+    var screenElement = $g.create("div")
+        .addClass("switcher_screen")
+        .add(
+            $g.create("div")
+                .addClass("switcher_apps").add(
+                    $g.create("div").addClass("switcher_app").add(
+                        $g.create("main").add(
+                            webview
+                                .setAttribute("src", url)
+                                .setAttribute("preload", "./webviewpreload.js")
+                        )
+                    )
                 )
-            )
-        ),
-        $g.create("button")
-            .addClass("switcher_screenButton")
-            .setAttribute("aria-label", "")
-            .on("focus", function() {
-                if (!main.screenSelected) {
-                    main.targetScrollX = screenElement.get().offsetLeft;
-                }
-            })
-            .on("click", function() {
-                main.selectScreen(screenElement);
-
-                screenElement.find(".switcher_apps").focus();
-            })
-        ,
-        $g.create("button")
-            .addClass("switcher_screenCloseButton")
-            .setAttribute("aria-label", _("switcher_close"))
-            .on("click", function() {
-                screenElement.addClass("closing");
-
-                screenElement.easeStyleTransition("opacity", 0).then(function() {
-                    return screenElement.collapse(false);
-                }).then(function() {
-                    screenElement.remove();
-                });
-            })
-            .add(
-                $g.create("img")
-                    .setAttribute("aui-icon", "light")
-                    .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
-                    .setAttribute("alt", "")
-            )
-        ,
-        $g.create("div").addClass("switcher_screenOptions").add(
+            ,
             $g.create("button")
+                .addClass("switcher_screenButton")
+                .setAttribute("aria-label", "")
+                .on("focus", function() {
+                    if (!main.screenSelected) {
+                        main.targetScrollX = screenElement.get().offsetLeft;
+                    }
+                })
                 .on("click", function() {
-                    $g.sel(".switcher_screen").fadeOut().then(function() {
-                        closeAll();
+                    main.selectScreen(screenElement);
+
+                    screenElement.find(".switcher_apps").focus();
+                })
+            ,
+            $g.create("button")
+                .addClass("switcher_screenCloseButton")
+                .setAttribute("aria-label", _("switcher_close"))
+                .on("click", function() {
+                    screenElement.addClass("closing");
+
+                    screenElement.easeStyleTransition("opacity", 0).then(function() {
+                        return screenElement.collapse(false);
+                    }).then(function() {
+                        screenElement.remove();
                     });
                 })
                 .add(
@@ -134,11 +124,37 @@ export function openApp(url) {
                         .setAttribute("aui-icon", "light")
                         .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
                         .setAttribute("alt", "")
-                    ,
-                    $g.create("span").setText(_("switcher_closeAll"))
+                )
+            ,
+            $g.create("div")
+                .addClass("switcher_screenOptions").add(
+                    $g.create("button")
+                        .on("click", function() {
+                            $g.sel(".switcher_screen").fadeOut().then(function() {
+                                closeAll();
+                            });
+                        })
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "light")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
+                                .setAttribute("alt", "")
+                            ,
+                            $g.create("span").setText(_("switcher_closeAll"))
+                        )
                 )
         )
-    );
+    ;
+
+    webview.on("dom-ready", function() {
+        webviewComms.update(webview);
+
+        fetch("gshell://common.css").then(function(response) {
+            return response.text();
+        }).then(function(styleCode) {
+            webview.get().insertCSS(styleCode);
+        });
+    });
 
     webview.on("page-title-updated", function(event) {
         screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);

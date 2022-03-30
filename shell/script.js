@@ -49,6 +49,7 @@ $g.waitForLoad().then(function() {
 }).then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
+    a11y.init();
     info.init();
     sleep.init();
     input.init();

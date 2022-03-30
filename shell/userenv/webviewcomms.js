@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
 
 export function attach(webview) {
@@ -20,5 +21,13 @@ export function attach(webview) {
                 input.hide();
                 break;
         }
+    });
+}
+
+export function update(webview = $g.sel("webview")) {
+    webview.getAll().forEach(function(element) {
+        element.send("update", {
+            a11y_options: a11y.options
+        });
     });
 }

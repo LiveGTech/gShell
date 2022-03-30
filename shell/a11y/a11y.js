@@ -15,7 +15,7 @@ export var options = {
 
     switch_enabled: false,
     switch_scanColour: "blue",
-    switch_itemScanPeriod: 200 // 500 milliseconds
+    switch_itemScanPeriod: 500 // 500 milliseconds
 };
 
 export var assistiveTechnologies = [];

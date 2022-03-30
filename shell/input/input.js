@@ -44,6 +44,7 @@ export class KeyboardLayout {
         this.defaultState = null;
         this.shiftState = null;
         this.currentState = null;
+        this.capsLockActive = false;
     }
 
     static deserialise(data) {
@@ -66,8 +67,13 @@ export class KeyboardLayout {
         this.currentState = value ? this.shiftState : this.defaultState;
     }
 
-    toggleShift() {
-        this.shiftActive = !this.shiftActive;
+    toggleShift(includeCapsLock = false) {
+        if (includeCapsLock && this.shiftActive && !this.capsLockActive) {
+            this.capsLockActive = true;
+        } else {
+            this.shiftActive = !this.shiftActive;
+            this.capsLockActive = false;
+        }
 
         this.onStateUpdate();
     }
@@ -113,6 +119,12 @@ export class KeyboardLayout {
                                 gShell.call("io_input", {webContentsId, event: {type, keyCode, modifiers}});
                             });
 
+                            if (thisScope.shiftActive && !thisScope.capsLockActive) {
+                                thisScope.shiftActive = false;
+
+                                thisScope.onStateUpdate();
+                            }
+
                             targetInputSurface?.focus();
                         };
                     }
@@ -131,14 +143,18 @@ export class KeyboardLayout {
                                     key.add(
                                         $g.create("img")
                                             .setAttribute("aui-icon", "dark embedded")
-                                            .setAttribute("src", "gshell://lib/adaptui/icons/key-shift.svg")
+                                            .setAttribute("src", 
+                                                thisScope.capsLockActive ?
+                                                "gshell://lib/adaptui/icons/key-capslock.svg" :
+                                                "gshell://lib/adaptui/icons/key-shift.svg"
+                                            )
                                             .setAttribute("alt", "")
                                     );
 
                                     key.setAttribute("aria-label", _("input_key_shift"));
 
                                     key.on("click", function() {
-                                        thisScope.toggleShift();
+                                        thisScope.toggleShift(true);
 
                                         targetInputSurface?.focus();
                                     });

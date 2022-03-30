@@ -51,6 +51,6 @@ export function create(uid) {
 
         return Promise.resolve(data);
     }).then(function() {
-        return userToCreate;
+        return Promise.resolve(userToCreate);
     });
 }

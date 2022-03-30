@@ -10,6 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as l10n from "gshell://config/l10n.js";
+import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://power/sleep.js";
@@ -23,6 +24,8 @@ window.$g = $g;
 
 $g.waitForLoad().then(function() {
     return l10n.apply();
+}).then(function() {
+    return a11y.load();
 }).then(function() {
     return users.getList();
 }).then(function(userList) {
@@ -47,6 +50,7 @@ $g.waitForLoad().then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
     info.init();
+    sleep.init();
     input.init();
     home.init();
     switcher.init();

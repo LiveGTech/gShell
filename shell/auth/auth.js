@@ -217,7 +217,7 @@ function showLockScreen(authMethod) {
                                 delButtonHoldStart = Date.now();
                             })
                             .on("mouseup touchend", function(event) {
-                                if (delButtonHoldStart != null && Date.now() - delButtonHoldStart >= a11y.holdDelay) {
+                                if (delButtonHoldStart != null && Date.now() - delButtonHoldStart >= a11y.options.touch_holdDelay) {
                                     cancel();
                                 }
                             })

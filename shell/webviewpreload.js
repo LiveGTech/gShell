@@ -55,6 +55,18 @@ window.addEventListener("load", function() {
         });
     });
 
+    window.addEventListener("keydown", function(event) {
+        var eventObject = {};
+
+        for (var key in event) {
+            if (["string", "number", "boolean", "bigint"].includes(typeof(event[key])) || event[key] == null) {
+                eventObject[key] = event[key];
+            }
+        }
+
+        electron.ipcRenderer.sendToHost("eventPropagation", "keydown", eventObject);
+    });
+
     electron.ipcRenderer.on("update", function(event, data) {
         document.querySelector("body").setAttribute("liveg-a11y-scan", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
     });

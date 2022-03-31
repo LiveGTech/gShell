@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
+import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export class SwitchNavigation extends a11y.AssistiveTechnology {
     constructor() {
@@ -21,6 +22,17 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
     init() {
         var thisScope = this;
+
+        function keydownCallback(event) {
+            switch (event.code) {
+                case "Space":
+                    thisScope.itemScanNextAt = Date.now() + a11y.options.switch_itemScanAfterConfirmPeriod;
+                    break;
+            }
+        }
+
+        $g.sel("body").on("keydown", keydownCallback);
+        webviewComms.onEvent("keydown", keydownCallback);
 
         setInterval(function() {
             if (!a11y.options.switch_enabled) {

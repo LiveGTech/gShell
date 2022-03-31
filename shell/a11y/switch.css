@@ -1,0 +1,28 @@
+/*
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+*/
+
+.a11y_switch_openMainMenuButton {
+    position: fixed;
+    top: -4rem;
+    left: calc(50% - 3rem);
+    right: calc(50% - 3rem);
+    width: 6rem;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    z-index: 1;
+    transition: 0.5s top;
+}
+
+.a11y_switch_openMainMenuButton:focus-visible {
+    top: -0.3rem;
+}
+
+[liveg-a11y-switch="false"] .a11y_switch_openMainMenuButton {
+    display: none;
+}

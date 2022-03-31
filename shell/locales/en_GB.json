@@ -27,6 +27,8 @@
         "switcher_goHome": "Go home",
         "switcher_close": "Close",
         "switcher_closeAll": "Close all",
-        "switcher_empty": "No open apps"
+        "switcher_empty": "No open apps",
+
+        "a11y_switch_openMainMenu": "Menu"
     }
 }

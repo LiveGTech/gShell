@@ -129,7 +129,7 @@ $g.waitForLoad().then(function() {
     $g.sel("#lockScreenMain").on("mouseup", touchEndEvent);
     $g.sel("#lockScreenMain").on("touchend", touchEndEvent);
 
-    $g.sel("#lockScreen_unlockButton").on("click", unlockButtonEvent);
+    $g.sel(".lockScreen_unlockButton").on("click", unlockButtonEvent);
 
     $g.sel("body").on("keydown", function(event) {
         if (touchIsLocked || $g.sel("#lockScreenMain").get().hidden) {

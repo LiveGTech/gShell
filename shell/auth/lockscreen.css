@@ -114,3 +114,7 @@ html[aui-istouch="false"] .lockScreen_auth_passcodeButtons button:hover, .lockSc
 .lockScreen_unlockButton:focus-visible {
     bottom: 2rem;
 }
+
+[liveg-a11y-switch="true"] .lockScreen_unlockButton {
+    transition: none;
+}

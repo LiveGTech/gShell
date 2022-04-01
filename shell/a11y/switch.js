@@ -16,7 +16,8 @@ import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export var menus = {
     NONE: 0,
-    MAIN: 1
+    MAIN: 1,
+    QUICK_SETTINGS: 2
 };
 
 export class SwitchNavigation extends a11y.AssistiveTechnology {
@@ -92,11 +93,7 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         function createMenuItem(text, icon, action = function() {}) {
             return $g.create("button")
                 .setAttribute("aria-label", text)
-                .on("click", function() {
-                    thisScope.currentMenu = menus.NONE;
-
-                    action();
-                })
+                .on("click", action)
                 .add(
                     $g.create("img")
                         .setAttribute("aui-icon", "dark embedded")
@@ -125,24 +122,42 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
             $g.sel(".a11y_switch_menu").add(row);
         }
 
+        function closeMenu() {
+            thisScope.currentMenu = menus.NONE;
+        }
+
         switch (this._currentMenu) {
             case menus.MAIN:
                 setMenuItems([
-                    createMenuItem(_("a11y_switch_switchToPointScan"), "star", function() {
+                    createMenuItem(_("a11y_switch_switchToPointScan"), "point", function() {
                         console.log("Hi!");
+
+                        closeMenu();
                     }),
-                    createMenuItem(_("a11y_switch_switchToPointScan"), "star", function() {
-                        console.log("Hi!");
-                    }),
-                    createMenuItem(_("a11y_switch_switchToPointScan"), "star", function() {
-                        console.log("Hi!");
-                    }),
-                    createMenuItem(_("a11y_switch_switchToPointScan"), "star", function() {
-                        console.log("Hi!");
-                    }),
-                    createMenuItem(_("a11y_switch_switchToPointScan"), "star", function() {
-                        console.log("Hi!");
+                    createMenuItem(_("a11y_switch_quickSettings"), "quicksettings", function() {
+                        thisScope.currentMenu = menus.QUICK_SETTINGS;
                     })
+                ]);
+
+                break;
+
+            case menus.QUICK_SETTINGS:
+                setMenuItems([
+                    createMenuItem(_("a11y_switch_scanSlower"), "remove", function() {
+                        if (a11y.options.switch_itemScanPeriod + 100 > 1_000) {
+                            return;
+                        }
+
+                        a11y.setOption("switch_itemScanPeriod", a11y.options.switch_itemScanPeriod + 100);
+                    }),
+                    createMenuItem(_("a11y_switch_scanFaster"), "add", function() {
+                        if (a11y.options.switch_itemScanPeriod - 100 < 100) {
+                            return;
+                        }
+
+                        a11y.setOption("switch_itemScanPeriod", a11y.options.switch_itemScanPeriod - 100);
+                    }),
+                    createMenuItem(_("a11y_switch_done"), "checkmark", closeMenu)
                 ]);
 
                 break;
@@ -155,7 +170,7 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
         $g.sel(".a11y_switch_menu").show();
 
-        $g.sel(".a11y_switch_menu button:first-of-type").focus();
+        $g.sel(".a11y_switch_menu button").first().focus();
 
         aui_a11y.setFocusTrap($g.sel(".a11y_switch_menu").get());
     }

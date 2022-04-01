@@ -31,6 +31,10 @@
 
         "a11y_switch_openMainMenu": "Menu",
         "a11y_switch_switchToItemScan": "Item scan",
-        "a11y_switch_switchToPointScan": "Point scan"
+        "a11y_switch_switchToPointScan": "Point scan",
+        "a11y_switch_quickSettings": "Quick settings",
+        "a11y_switch_scanSlower": "Scan slower",
+        "a11y_switch_scanFaster": "Scan faster",
+        "a11y_switch_done": "Done"
     }
 }

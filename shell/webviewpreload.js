@@ -68,7 +68,7 @@ window.addEventListener("load", function() {
     });
 
     electron.ipcRenderer.on("update", function(event, data) {
-        document.querySelector("body").setAttribute("liveg-a11y-scan", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
+        document.querySelector("body").setAttribute("liveg-a11y-scancolour", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
     });
 
     electron.ipcRenderer.on("scrollInputIntoView", function() {

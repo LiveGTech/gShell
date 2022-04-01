@@ -70,6 +70,89 @@
     overflow: hidden;
 }
 
+.a11y_switch_pointScanRefiner {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+}
+
+.a11y_switch_pointScanRefiner[a11y-pointscanaxis="x"] {
+    width: calc(10vh + 0.3rem);
+    height: 100%;
+    border-top: none!important;
+    border-bottom: none!important;
+}
+
+.a11y_switch_pointScanRefiner[a11y-pointscanaxis="y"] {
+    width: 100%;
+    height: calc(10vw + 0.3rem);
+    border-left: none!important;
+    border-right: none!important;
+}
+
+.a11y_switch_pointScanAxis[a11y-pointscanaxis="y"] {
+    width: 100%;
+    height: 0;
+    border-left: none!important;
+}
+
+.a11y_switch_pointScanAxis {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-bottom: none!important;
+    border-right: none!important;
+    z-index: 3;
+}
+
+.a11y_switch_pointScanAxis[a11y-pointscanaxis="x"] {
+    width: 0;
+    height: 100%;
+    border-top: none!important;
+
+}
+
+.a11y_switch_pointScanAxis[a11y-pointscanaxis="y"] {
+    width: 100%;
+    height: 0;
+    border-left: none!important;
+}
+
+body[liveg-a11y-scancolour="red"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+    border: 0.3rem ridge #ff0000;
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+body[liveg-a11y-scancolour="green"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+    border: 0.3rem ridge #00ff00;
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+body[liveg-a11y-scancolour="blue"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+    border: 0.3rem ridge #0000ff;
+    background-color: rgba(0, 0, 255, 0.3);
+}
+
+body[liveg-a11y-scancolour="yellow"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+    border: 0.3rem ridge #ffff00;
+    background-color: rgba(255, 255, 0, 0.3);
+}
+
+body[liveg-a11y-scancolour="pink"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+    border: 0.3rem ridge #ff00ff;
+    background-color: rgba(255, 0, 255, 0.3);
+}
+
+body[liveg-a11y-scancolour="aqua"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+    border: 0.3rem ridge #00ffff;
+    background-color: rgba(0, 255, 255, 0.3);
+}
+
 @media (max-width: 20rem) {
     .a11y_switch_menu {
         width: calc(100% - 4rem);

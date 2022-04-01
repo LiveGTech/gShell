@@ -7,26 +7,26 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-body[liveg-a11y-scan="red"] *:focus {
+body[liveg-a11y-scancolour="red"] *:focus {
     outline: 0.3rem ridge #ff0000!important;
 }
 
-body[liveg-a11y-scan="green"] *:focus {
+body[liveg-a11y-scancolour="green"] *:focus {
     outline: 0.3rem ridge #00ff00!important;
 }
 
-body[liveg-a11y-scan="blue"] *:focus {
+body[liveg-a11y-scancolour="blue"] *:focus {
     outline: 0.3rem ridge #0000ff!important;
 }
 
-body[liveg-a11y-scan="yellow"] *:focus {
+body[liveg-a11y-scancolour="yellow"] *:focus {
     outline: 0.3rem ridge #ffff00!important;
 }
 
-body[liveg-a11y-scan="pink"] *:focus {
+body[liveg-a11y-scancolour="pink"] *:focus {
     outline: 0.3rem ridge #ff00ff!important;
 }
 
-body[liveg-a11y-scan="aqua"] *:focus {
+body[liveg-a11y-scancolour="aqua"] *:focus {
     outline: 0.3rem ridge #00ffff!important;
 }

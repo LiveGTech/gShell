@@ -146,6 +146,10 @@ export function openApp(url) {
         )
     ;
 
+    webview.on("click", function() {
+        webview.focus();
+    });
+
     webview.on("dom-ready", function() {
         webviewComms.update(webview);
 

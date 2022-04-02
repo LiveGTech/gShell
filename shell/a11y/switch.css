@@ -59,7 +59,8 @@
 
 .a11y_switch_menu button img {
     display: block;
-    width: 100%;
+    width: 80%;
+    margin: auto;
 }
 
 .a11y_switch_menu button span {
@@ -121,6 +122,20 @@
     width: 100%;
     height: 0;
     border-left: none!important;
+}
+
+.a11y_switch_pointMarker {
+    position: fixed;
+    width: 2rem;
+    height: 2rem;
+    margin-top: -1rem;
+    margin-left: -1rem;
+    background-color: black;
+    border: 0.3rem solid white;
+    border-radius: 50%;
+    opacity: 0.6;
+    z-index: 3;
+    pointer-events: none;
 }
 
 body[liveg-a11y-scancolour="red"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {

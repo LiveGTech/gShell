@@ -22,7 +22,8 @@ export var modes = {
 export var menus = {
     NONE: 0,
     MAIN: 1,
-    QUICK_SETTINGS: 2
+    QUICK_SETTINGS: 2,
+    POINT_SCAN: 3
 };
 
 export class SwitchNavigation extends a11y.AssistiveTechnology {
@@ -80,9 +81,12 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                             thisScope.pointScanRefinementY = thisScope.pointScanY;
                             thisScope.pointScanY = 0;
                         } else { // Selecting Y
-                            // TODO: Implement performing an action
+                            $g.sel(".a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner").hide();
+
+                            thisScope.showPointMarker();
 
                             thisScope.currentMode = modes.ITEM_SCAN;
+                            thisScope.currentMenu = menus.POINT_SCAN;
                         }
                     }
 
@@ -178,6 +182,25 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         $g.sel("body").setAttribute("liveg-a11y-scancolour", a11y.options.switch_enabled ? a11y.options.switch_scanColour : "");
     }
 
+    startPointScan() {
+        this.currentMode = modes.POINT_SCAN;
+        this.pointScanX = 0;
+        this.pointScanY = 0;
+        this.pointScanRefinementX = 0;
+        this.pointScanRefinementY = 0;
+        this.pointScanAxisIsY = false;
+        this.pointScanAdvancingNegative = false;
+        this.pointScanRefining = true;
+        this.pointScanRefiningIsY = false;
+
+        setTimeout(function() {
+            gShell.call("io_getFocus").then(function() {
+                $g.sel(document.activeElement).blur();
+                $g.sel("body").focus();
+            });
+        });
+    }
+
     renderMenu() {
         var thisScope = this;
 
@@ -225,21 +248,15 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
             thisScope.currentMenu = menus.NONE;
         }
 
+        this.itemScanNextAt = Date.now() + a11y.options.switch_itemScanAfterConfirmPeriod;
+
         switch (this._currentMenu) {
             case menus.MAIN:
                 setMenuItems([
                     createMenuItem(_("a11y_switch_switchToPointScan"), "point", function() {
-                        thisScope.currentMode = modes.POINT_SCAN;
-                        thisScope.pointScanX = 0;
-                        thisScope.pointScanY = 0;
-                        thisScope.pointScanRefinementX = 0;
-                        thisScope.pointScanRefinementY = 0;
-                        thisScope.pointScanAxisIsY = false;
-                        thisScope.pointScanAdvancingNegative = false;
-                        thisScope.pointScanRefining = true;
-                        thisScope.pointScanRefiningIsY = false;
-
                         closeMenu();
+
+                        thisScope.startPointScan();
                     }),
                     createMenuItem(_("a11y_switch_quickSettings"), "quicksettings", function() {
                         thisScope.currentMenu = menus.QUICK_SETTINGS;
@@ -269,6 +286,89 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
                 break;
 
+            case menus.POINT_SCAN:
+                setMenuItems([
+                    createMenuItem(_("a11y_switch_click"), "gesture", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+
+                        var targetSurface = document.body;
+                        var targetWebContentsId = 1;
+
+                        $g.sel("webview").getAll().forEach(function(element) {
+                            if (getComputedStyle(element).pointerEvents == "none") {
+                                return;
+                            }
+
+                            var surfaceRect = element.getBoundingClientRect();
+
+                            if (
+                                surfaceRect.left <= thisScope.pointScanTargetX &&
+                                surfaceRect.right > thisScope.pointScanTargetX &&
+                                surfaceRect.top <= thisScope.pointScanTargetY &&
+                                surfaceRect.bottom > thisScope.pointScanTargetY
+                            ) {
+                                targetSurface = element;
+                                targetWebContentsId = element.getWebContentsId();
+                            }
+                        });
+
+                        var promiseChain = Promise.resolve();
+
+                        ["mouseDown", "mouseUp"].forEach(function(type) {
+                            var surfaceRect = targetSurface.getBoundingClientRect();
+
+                            $g.sel(targetSurface).focus();
+
+                            promiseChain = promiseChain.then(function() {
+                                return gShell.call("io_input", {webContentsId: targetWebContentsId, returnFocus: true, event: {
+                                    type,
+                                    x: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
+                                    y: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
+                                    button: "left"
+                                }});
+                            });
+                        });
+
+                        promiseChain = promiseChain.then(function() {
+                            thisScope.startPointScan();
+                        });
+                    }),
+                    createMenuItem(_("a11y_switch_switchToItemScan"), "objects", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+                    }),
+                    createMenuItem(_("a11y_switch_swipe"), "swipe", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+                    }),
+                    createMenuItem(_("a11y_switch_pinch"), "pinch", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+                    }),
+                    createMenuItem(_("a11y_switch_rotate"), "rotate", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+                    }),
+                    createMenuItem(_("a11y_switch_doubleClick"), "doubleclick", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+                    }),
+                    createMenuItem(_("a11y_switch_mouseButtons"), "mouse", function() {
+                        thisScope.hidePointMarker();
+
+                        closeMenu();
+                    })
+                ]);
+
+                break;
+
             default:
                 setMenuItems([]);
 
@@ -280,6 +380,17 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         $g.sel(".a11y_switch_menu button").first().focus();
 
         aui_a11y.setFocusTrap($g.sel(".a11y_switch_menu").get());
+    }
+
+    showPointMarker() {
+        $g.sel(".a11y_switch_pointMarker").setStyle("left", `${this.pointScanTargetX}px`);
+        $g.sel(".a11y_switch_pointMarker").setStyle("top", `${this.pointScanTargetY}px`);
+
+        $g.sel(".a11y_switch_pointMarker").show();
+    }
+
+    hidePointMarker() {
+        $g.sel(".a11y_switch_pointMarker").hide();
     }
 }
 

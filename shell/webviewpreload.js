@@ -55,16 +55,18 @@ window.addEventListener("load", function() {
         });
     });
 
-    window.addEventListener("keydown", function(event) {
-        var eventObject = {};
-
-        for (var key in event) {
-            if (["string", "number", "boolean", "bigint"].includes(typeof(event[key])) || event[key] == null) {
-                eventObject[key] = event[key];
+    ["keyup", "keydown", "mouseup", "mousedown", "touchstart", "touchend"].forEach(function(type) {
+        window.addEventListener(type, function(event) {
+            var eventObject = {};
+    
+            for (var key in event) {
+                if (["string", "number", "boolean", "bigint"].includes(typeof(event[key])) || event[key] == null) {
+                    eventObject[key] = event[key];
+                }
             }
-        }
-
-        electron.ipcRenderer.sendToHost("eventPropagation", "keydown", eventObject);
+    
+            electron.ipcRenderer.sendToHost("eventPropagation", type, eventObject);
+        });
     });
 
     electron.ipcRenderer.on("update", function(event, data) {

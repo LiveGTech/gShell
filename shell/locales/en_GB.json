@@ -35,6 +35,12 @@
         "a11y_switch_quickSettings": "Quick settings",
         "a11y_switch_scanSlower": "Scan slower",
         "a11y_switch_scanFaster": "Scan faster",
-        "a11y_switch_done": "Done"
+        "a11y_switch_done": "Done",
+        "a11y_switch_click": "Click",
+        "a11y_switch_swipe": "Swipe",
+        "a11y_switch_pinch": "Pinch",
+        "a11y_switch_rotate": "Rotate",
+        "a11y_switch_doubleClick": "Double click",
+        "a11y_switch_mouseButtons": "Mouse buttons"
     }
 }

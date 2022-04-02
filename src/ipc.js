@@ -98,6 +98,15 @@ ipcMain.handle("io_input", function(event, data) {
     return Promise.resolve();
 });
 
+ipcMain.handle("io_getFocus", function(event, data) {
+    main.window.focus();
+    main.window.webContents.focus();
+
+    setTimeout(function() {
+        return Promise.resolve();        
+    });
+});
+
 ipcMain.handle("dev_restart", function(event, data) {
     system.devRestart();
 

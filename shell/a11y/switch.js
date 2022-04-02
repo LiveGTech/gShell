@@ -39,6 +39,8 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         this.pointScanY = 0;
         this.pointScanRefinementX = 0;
         this.pointScanRefinementY = 0;
+        this.pointScanTargetX = 0;
+        this.pointScanTargetY = 0;
         this.pointScanAxisIsY = false;
         this.pointScanAdvancingNegative = false;
         this.pointScanRefining = true;
@@ -78,7 +80,7 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                             thisScope.pointScanRefinementY = thisScope.pointScanY;
                             thisScope.pointScanY = 0;
                         } else { // Selecting Y
-                            // TODO: Implement finding coordinates and performing an action
+                            // TODO: Implement performing an action
 
                             thisScope.currentMode = modes.ITEM_SCAN;
                         }
@@ -136,14 +138,16 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                 var refinementPositionX = (thisScope.pointScanRefining && !thisScope.pointScanAxisIsY) ? thisScope.pointScanX : thisScope.pointScanRefinementX;
                 var refinementPositionY = thisScope.pointScanRefining ? thisScope.pointScanY : thisScope.pointScanRefinementY;
 
+                thisScope.pointScanTargetX = refinementPositionX + ((thisScope.pointScanX / window.innerWidth) * 0.1 * window.innerHeight);
+                thisScope.pointScanTargetY = refinementPositionY + ((thisScope.pointScanY / window.innerHeight) * 0.1 * window.innerWidth);
+
                 $g.sel(".a11y_switch_pointScanRefiner[a11y-pointscanaxis='x']").setStyle("left", `${refinementPositionX}px`);
                 $g.sel(".a11y_switch_pointScanRefiner[a11y-pointscanaxis='y']").setStyle("top", `${refinementPositionY}px`);
 
-                $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='x']").setStyle("left", `${refinementPositionX + ((thisScope.pointScanX / window.innerWidth) * 0.1 * window.innerHeight)}px`);
-                $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='y']").setStyle("top", `${refinementPositionY + ((thisScope.pointScanY / window.innerHeight) * 0.1 * window.innerWidth)}px`);
+                $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='x']").setStyle("left", `${thisScope.pointScanTargetX}px`);
+                $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='y']").setStyle("top", `${thisScope.pointScanTargetY}px`);
 
-                $g.sel(".a11y_switch_pointScanRefiner[a11y-pointscanaxis='x']").hide();
-                $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='x']").hide();
+                $g.sel(".a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner").hide();
 
                 if (!thisScope.pointScanAxisIsY) {
                     $g.sel(".a11y_switch_pointScanRefiner[a11y-pointscanaxis='x']").show();
@@ -152,9 +156,6 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                         $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='x']").show();
                     }
                 }
-
-                $g.sel(".a11y_switch_pointScanRefiner[a11y-pointscanaxis='y']").hide();
-                $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='y']").hide();
 
                 if (thisScope.pointScanAxisIsY) {
                     $g.sel(".a11y_switch_pointScanAxis[a11y-pointscanaxis='x']").show();

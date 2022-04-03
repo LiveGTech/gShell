@@ -96,6 +96,12 @@ $g.waitForLoad().then(function() {
         });
     });
 
+    $g.sel("#switchNavigation").setValue(a11y.options.switch_enabled);
+
+    $g.sel("#switchNavigation").on("change", function() {
+        a11y.setOption("switch_enabled", $g.sel("#switchNavigation").getValue());
+    });
+
     users.get("test").then(function(user) {
         var credentials = new auth.UserAuthCredentials(user);
 

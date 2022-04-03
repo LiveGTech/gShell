@@ -198,6 +198,7 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
     startPointScan() {
         this.currentMode = modes.POINT_SCAN;
+        this.lastPointScanAdvance = Date.now();
         this.pointScanX = 0;
         this.pointScanY = 0;
         this.pointScanRefinementX = 0;

@@ -57,6 +57,10 @@
     color: inherit;
 }
 
+.a11y_switch_menu button:hover, .a11y_switch_menu button:active {
+    background-color: inherit!important;
+}
+
 .a11y_switch_menu button img {
     display: block;
     width: 80%;

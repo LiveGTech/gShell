@@ -335,12 +335,11 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                         });
 
                         var promiseChain = Promise.resolve();
+                        var surfaceRect = targetSurface.getBoundingClientRect();
+
+                        $g.sel(targetSurface).focus();
 
                         ["mouseDown", "mouseUp"].forEach(function(type) {
-                            var surfaceRect = targetSurface.getBoundingClientRect();
-
-                            $g.sel(targetSurface).focus();
-
                             promiseChain = promiseChain.then(function() {
                                 return gShell.call("io_input", {webContentsId: targetWebContentsId, event: {
                                     type,

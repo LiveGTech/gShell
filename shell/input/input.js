@@ -39,6 +39,7 @@ export var targetInputSurface = null;
 
 var targetInput = null;
 var showingTransition = false;
+var lastInputScrollLeft = 0;
 
 export class KeyboardLayout {
     constructor(localeCode, variant) {
@@ -282,6 +283,8 @@ export class KeyboardLayout {
 
 export function init() {
     setInterval(function() {
+        lastInputScrollLeft = document.activeElement.scrollLeft;
+
         if (document.activeElement?.matches(".input, .input *")) {
             return;
         }
@@ -319,6 +322,12 @@ export function init() {
         hide();
 
         return;
+    });
+
+    $g.sel("body").on("focusout", function(event) {
+        if (isTextualInput($g.sel(event.target))) {
+            event.target.scrollLeft = lastInputScrollLeft;
+        }
     });
 
     $g.sel("body").on("click", function(event) {
@@ -463,6 +472,10 @@ export function hide() {
     showing = false;
 
     targetInput?.focus();
+
+    if (targetInput?.matches("input")) {
+        targetInput.scrollLeft = 0;
+    }
 
     targetInput = null;
 

@@ -8,6 +8,10 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
+
+import * as a11y from "gshell://a11y/a11y.js";
+import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 // Also in `shell/webviewpreload.js`
 export const NON_TEXTUAL_INPUTS = [
@@ -30,8 +34,10 @@ export const NON_TEXTUAL_INPUTS = [
 
 export var keyboardLayouts = [];
 export var currentKeyboardLayout = null;
+export var showing = false;
 export var targetInputSurface = null;
 
+var targetInput = null;
 var showingTransition = false;
 
 export class KeyboardLayout {
@@ -78,6 +84,19 @@ export class KeyboardLayout {
         this.onStateUpdate();
     }
 
+    returnToTargetInput() {
+        var lastInputFocus = $g.sel(document.activeElement);
+
+        targetInput?.focus();
+
+        if (a11y.options.switch_enabled) {
+            setTimeout(function() {
+                $g.sel(document.activeElement).blur();
+                lastInputFocus.focus();
+            }, 100);
+        }
+    }
+
     onStateUpdate() {}
 
     render() {
@@ -120,13 +139,23 @@ export class KeyboardLayout {
 
                                 thisScope.onStateUpdate();
                             }
-
-                            targetInputSurface?.focus();
                         };
                     }
 
                     while (row.length > 0) {
                         var key = $g.create("button");
+
+                        function setKeyAction(callback) {
+                            key.on("click", function(event) {
+                                if (!a11y.options.switch_enabled) {
+                                    targetInput?.focus();
+                                }
+
+                                callback(event);
+
+                                thisScope.returnToTargetInput();
+                            });
+                        }
 
                         if (matchesToken("{.*?}")) {
                             var args = nextToken.substring(1, nextToken.length - 1).split(":");
@@ -149,10 +178,8 @@ export class KeyboardLayout {
 
                                     key.setAttribute("aria-label", _("input_key_shift"));
 
-                                    key.on("click", function() {
+                                    setKeyAction(function() {
                                         thisScope.toggleShift(true);
-
-                                        targetInputSurface?.focus();
                                     });
 
                                     break;
@@ -169,7 +196,7 @@ export class KeyboardLayout {
 
                                     key.setAttribute("aria-label", _("input_key_backspace"));
 
-                                    key.on("click", keyEventFactory("Backspace"));
+                                    setKeyAction(keyEventFactory("Backspace"));
 
                                     break;
 
@@ -180,7 +207,7 @@ export class KeyboardLayout {
 
                                     key.setAttribute("aria-label", _("input_key_space"));
 
-                                    key.on("click", keyEventFactory(" "));
+                                    setKeyAction(keyEventFactory(" "));
 
                                     break;
 
@@ -196,7 +223,7 @@ export class KeyboardLayout {
 
                                     key.setAttribute("aria-label", _("input_key_enter"));
 
-                                    key.on("click", keyEventFactory("\n"));
+                                    setKeyAction(keyEventFactory("\n"));
 
                                     break;
 
@@ -214,13 +241,11 @@ export class KeyboardLayout {
                                     key.setText(keyType);
 
                                     (function(targetAction) {
-                                        key.on("click", function(event) {
+                                        setKeyAction(function(event) {
                                             if (targetAction.startsWith("@")) {
                                                 thisScope.currentState = targetAction.substring(1);
     
                                                 thisScope.onStateUpdate();
-    
-                                                targetInputSurface?.focus();
     
                                                 return;
                                             }
@@ -241,10 +266,11 @@ export class KeyboardLayout {
 
                         matchesToken(".");
 
+                        setKeyAction(keyEventFactory(nextToken, [], true));
+
                         rowElement.add(
                             key
                                 .setText(nextToken)
-                                .on("click", keyEventFactory(nextToken, [], true))
                         );
                     }
 
@@ -264,13 +290,21 @@ export function init() {
         targetInputSurface = document.activeElement;
     });
 
-    $g.sel("body").on("focusin mousedown touchstart", function(event) {
+    $g.sel("body").on("focusin click", function(event) {
+        if (a11y.options.switch_enabled) {
+            return;
+        }
+
+        if (!event.target.matches("body *")) { // Elements removed from DOM won't match to `.input *` etc.
+            return;
+        }
+
         if (event.target.matches("label, .input, .input *, [inputmode='none']")) { // TODO: Support `inputmode` and not just `type`
             return;
         }
 
         if (event.target.matches("input")) {
-            if (NON_TEXTUAL_INPUTS.includes((event.target.getAttribute("type") || "").toLowerCase())) {
+            if (!isTextualInput($g.sel(event.target))) {
                 hide();
 
                 return;
@@ -288,7 +322,21 @@ export function init() {
         return;
     });
 
-    $g.sel(".input").on("mousedown", function(event) {
+    $g.sel("body").on("click", function(event) {
+        if (isTextualInput($g.sel(event.target)) && a11y.options.switch_enabled) {
+            event.target.focus();
+
+            setTimeout(function() {
+                show();
+
+                setTimeout(function() {
+                    event.target.focus();
+                });
+            });
+        }
+    });
+
+    $g.sel(".input").on("click", function(event) {
         if (event.target.matches("button")) {
             return;
         }
@@ -305,6 +353,8 @@ export function init() {
 
         keyboard.onStateUpdate = function() {
             render();
+
+            $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
         };
 
         keyboardLayouts.push(keyboard);
@@ -325,6 +375,10 @@ export function getWebContentsId() {
     }
 
     return webContentsId;
+}
+
+export function isTextualInput(element) {
+    return element.is("input") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
 
 export function render() {
@@ -365,9 +419,26 @@ export function render() {
 }
 
 export function show() {
+    targetInput = document.activeElement;
+
+    showing = true;
     showingTransition = true;
 
     $g.sel("body").addClass("input_keyboardShowing");
+
+    webviewComms.update();
+
+    if (a11y.options.switch_enabled) {
+        a11y.assistiveTechnologies.filter((tech) => tech instanceof a11y.modules.switch?.SwitchNavigation).forEach(function(tech) {
+            tech.startItemScan();
+        });
+
+        $g.sel(".input").removeAttribute("hidden");
+
+        $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
+
+        aui_a11y.setFocusTrap($g.sel(".input").get());
+    }
 
     return Promise.all([
         $g.sel(".input").fadeIn(250),
@@ -376,9 +447,9 @@ export function show() {
         showingTransition = false;
 
         if (targetInputSurface?.matches("webview")) {
-            targetInputSurface.send("scrollInputIntoView");
+            targetInputSurface.send("input_scrollIntoView");
         } else {
-            document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
+            targetInput.scrollIntoView({block: "nearest", inline: "nearest"});
         }
     });
 }
@@ -388,7 +459,17 @@ export function hide() {
         return;
     }
 
+    aui_a11y.clearFocusTrap();
+
+    showing = false;
+
+    targetInput?.focus();
+
+    targetInput = null;
+
     $g.sel("body").removeClass("input_keyboardShowing");
+
+    webviewComms.update();
 
     return Promise.all([
         $g.sel(".input").fadeOut(250),

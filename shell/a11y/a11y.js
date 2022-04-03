@@ -19,6 +19,8 @@ export var options = {
     switch_itemScanAfterConfirmPeriod: 1_000 // 1 second
 };
 
+export var modules = {};
+
 export var assistiveTechnologies = [];
 
 export class AssistiveTechnology {
@@ -64,7 +66,13 @@ export function init() {
         }
     });
 
-    import("gshell://a11y/switch.js").then(function() {
+    Promise.all([
+        import("gshell://a11y/switch.js")
+    ]).then(function(loadedModules) {
+        loadedModules.forEach(function(module) {
+            modules[module.NAME] = module;
+        });
+
         assistiveTechnologies.forEach((tech) => tech.init());
 
         update();

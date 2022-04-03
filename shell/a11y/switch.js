@@ -14,6 +14,8 @@ import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
+export const NAME = "switch";
+
 export var modes = {
     ITEM_SCAN: 0,
     POINT_SCAN: 1
@@ -62,8 +64,22 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         var thisScope = this;
 
         function keydownCallback(event) {
+            if (input.showing) {
+                if (event.key == " ") {
+                    thisScope.itemScanNextAt = Date.now() + a11y.options.switch_itemScanAfterConfirmPeriod;
+                }
+
+                return;
+            }
+
             switch (event.key) {
                 case " ":
+                    if (input.isTextualInput($g.sel(document.activeElement))) {
+                        event.preventDefault();
+
+                        input.show();
+                    }
+
                     if (thisScope.currentMode == modes.ITEM_SCAN) {
                         thisScope.itemScanNextAt = Date.now() + a11y.options.switch_itemScanAfterConfirmPeriod;
                     }
@@ -110,9 +126,9 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                 if (Date.now() - thisScope.itemScanNextAt < a11y.options.switch_itemScanPeriod) {
                     return;
                 }
-        
-                gShell.call("io_input", {webContentsId: input.getWebContentsId(), event: {type: "keyDown", keyCode: "tab", modifiers: []}});
-                gShell.call("io_input", {webContentsId: input.getWebContentsId(), event: {type: "keyUp", keyCode: "tab", modifiers: []}});
+
+                gShell.call("io_input", {webContentsId: input.showing ? 1 : input.getWebContentsId(), event: {type: "keyDown", keyCode: "tab", modifiers: []}});
+                gShell.call("io_input", {webContentsId: input.showing ? 1 : input.getWebContentsId(), event: {type: "keyUp", keyCode: "tab", modifiers: []}});
 
                 thisScope.itemScanNextAt = Date.now() + a11y.options.switch_itemScanPeriod;
             }
@@ -194,11 +210,17 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         this.pointScanRefiningIsY = false;
 
         setTimeout(function() {
-            gShell.call("io_getFocus").then(function() {
+            gShell.call("io_focus", {webContentsId: 1}).then(function() {
                 $g.sel(document.activeElement).blur();
                 $g.sel("body").focus();
             });
         });
+    }
+
+    startItemScan() {
+        this.currentMode = modes.ITEM_SCAN;
+
+        $g.sel(".a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner").hide();
     }
 
     renderMenu() {
@@ -322,7 +344,7 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                             $g.sel(targetSurface).focus();
 
                             promiseChain = promiseChain.then(function() {
-                                return gShell.call("io_input", {webContentsId: targetWebContentsId, returnFocus: true, event: {
+                                return gShell.call("io_input", {webContentsId: targetWebContentsId, event: {
                                     type,
                                     x: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
                                     y: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
@@ -332,6 +354,10 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                         });
 
                         promiseChain = promiseChain.then(function() {
+                            if (input.showing) {
+                                return;
+                            }
+
                             thisScope.startPointScan();
                         });
                     }),

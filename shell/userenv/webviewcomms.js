@@ -49,7 +49,8 @@ export function attach(webview) {
 export function update(webview = $g.sel("webview")) {
     webview.getAll().forEach(function(element) {
         element.send("update", {
-            a11y_options: a11y.options
+            a11y_options: a11y.options,
+            input_showing: input.showing
         });
     });
 }

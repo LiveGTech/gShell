@@ -98,9 +98,9 @@ ipcMain.handle("io_input", function(event, data) {
     return Promise.resolve();
 });
 
-ipcMain.handle("io_getFocus", function(event, data) {
+ipcMain.handle("io_focus", function(event, data) {
     main.window.focus();
-    main.window.webContents.focus();
+    electron.webContents.fromId(data.webContentsId).focus();
 
     setTimeout(function() {
         return Promise.resolve();        

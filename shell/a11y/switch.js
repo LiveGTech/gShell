@@ -343,10 +343,8 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                             promiseChain = promiseChain.then(function() {
                                 return gShell.call("io_input", {webContentsId: targetWebContentsId, event: {
                                     type,
-                                    x: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
-                                    y: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
-                                    globalX: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
-                                    globalY: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
+                                    x: Math.round(thisScope.pointScanTargetX - surfaceRect.left) * window.devicePixelRatio,
+                                    y: Math.round(thisScope.pointScanTargetY - surfaceRect.top) * window.devicePixelRatio,
                                     button: "left",
                                     clickCount: 1
                                 }});

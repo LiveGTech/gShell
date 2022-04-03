@@ -134,14 +134,12 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
             }
 
             if (thisScope.currentMode == modes.POINT_SCAN) {
-                if (Date.now() - thisScope.lastPointScanAdvance < 2) {
-                    return;
-                }
+                var advanceRate = thisScope.lastPointScanAdvance == -Infinity ? 0 : (Date.now() - thisScope.lastPointScanAdvance) * 0.25;
 
                 if (thisScope.pointScanAxisIsY) {
-                    thisScope.pointScanY += thisScope.pointScanAdvancingNegative ? -1 : 1;
+                    thisScope.pointScanY += (thisScope.pointScanAdvancingNegative ? -1 : 1) * advanceRate;
                 } else {
-                    thisScope.pointScanX += thisScope.pointScanAdvancingNegative ? -1 : 1;
+                    thisScope.pointScanX += (thisScope.pointScanAdvancingNegative ? -1 : 1) * advanceRate;
                 }
 
                 if (thisScope.pointScanX < 0 || thisScope.pointScanY < 0) {
@@ -348,7 +346,8 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                                     type,
                                     x: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
                                     y: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
-                                    button: "left"
+                                    button: "left",
+                                    clickCount: 1
                                 }});
                             });
                         });

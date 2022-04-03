@@ -269,8 +269,7 @@ export class KeyboardLayout {
                         setKeyAction(keyEventFactory(nextToken, [], true));
 
                         rowElement.add(
-                            key
-                                .setText(nextToken)
+                            key.setText(nextToken)
                         );
                     }
 

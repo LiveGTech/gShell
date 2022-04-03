@@ -346,6 +346,8 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                                     type,
                                     x: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
                                     y: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
+                                    globalX: Math.round(thisScope.pointScanTargetX - surfaceRect.left),
+                                    globalY: Math.round(thisScope.pointScanTargetY - surfaceRect.top),
                                     button: "left",
                                     clickCount: 1
                                 }});

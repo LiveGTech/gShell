@@ -12,6 +12,7 @@ import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as screenScroll from "gshell://helpers/screenscroll.js";
+import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export var main = null;
@@ -72,7 +73,7 @@ export function init() {
     main = new Switcher($g.sel(".switcher"));
 }
 
-export function openApp(url) {
+export function openWindow(windowContents, appName = null) {
     showList();
 
     var webview = $g.create("webview");
@@ -84,13 +85,7 @@ export function openApp(url) {
         .add(
             $g.create("div")
                 .addClass("switcher_apps").add(
-                    $g.create("div").addClass("switcher_app").add(
-                        $g.create("main").add(
-                            webview
-                                .setAttribute("src", url)
-                                .setAttribute("preload", "./webviewpreload.js")
-                        )
-                    )
+                    $g.create("div").addClass("switcher_app").add(...windowContents)
                 )
             ,
             $g.create("button")
@@ -146,23 +141,13 @@ export function openApp(url) {
         )
     ;
 
-    webview.on("click", function() {
-        webview.focus();
-    });
-
-    webview.on("dom-ready", function() {
-        webviewComms.update(webview);
-
-        fetch("gshell://common.css").then(function(response) {
-            return response.text();
-        }).then(function(styleCode) {
-            webview.get().insertCSS(styleCode);
+    if (appName == null) {
+        webview.on("page-title-updated", function(event) {
+            screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
         });
-    });
-
-    webview.on("page-title-updated", function(event) {
-        screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
-    });
+    } else {
+        screenElement.find(".switcher_screenButton").setAttribute("aria-label", appName);
+    }
 
     screenElement.find(".switcher_apps *").on("focus", function() {
         screenElement.find(".switcher_screenButton").focus();
@@ -190,6 +175,10 @@ export function openApp(url) {
     $g.sel("#switcherView .switcher").add(screenElement);
 
     return $g.sel("#switcherView").screenFade();
+}
+
+export function openApp(url) {
+    return openWindow([$g.create("main").add(webviewManager.spawn(url))]);
 }
 
 export function showList() {

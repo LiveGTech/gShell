@@ -19,6 +19,7 @@ import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
 import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
+import * as sphere from "gshell://sphere/sphere.js";
 
 window.$g = $g;
 
@@ -55,6 +56,7 @@ $g.waitForLoad().then(function() {
     input.init();
     home.init();
     switcher.init();
+    sphere.init();
 
     $g.sel("#lockScreenMain").screenFade();
 
@@ -128,8 +130,8 @@ $g.waitForLoad().then(function() {
         switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
     });
 
-    $g.sel("#closeAll").on("click", function() {
-        switcher.closeAll();
+    $g.sel("#sphere").on("click", function() {
+        sphere.openBrowser();
     });
 
     $g.sel(".home_app").on("click", function() {

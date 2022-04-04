@@ -132,6 +132,10 @@ export class KeyboardLayout {
                             var webContentsId = getWebContentsId();
 
                             ["keyDown", "char", "keyUp"].forEach(function(type) {
+                                if (type == "char" && ["Enter"].includes(keyCode)) {
+                                    return;
+                                }
+
                                 gShell.call("io_input", {webContentsId, event: {type, keyCode, modifiers}});
                             });
 
@@ -224,7 +228,7 @@ export class KeyboardLayout {
 
                                     key.setAttribute("aria-label", _("input_key_enter"));
 
-                                    setKeyAction(keyEventFactory("\n"));
+                                    setKeyAction(keyEventFactory("Enter"));
 
                                     break;
 
@@ -389,6 +393,10 @@ export function isTextualInput(element) {
     return element.is("input") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
 
+export function removeTargetInput() {
+    targetInput = null;
+}
+
 export function render() {
     $g.sel(".input")
         .clear()
@@ -462,8 +470,8 @@ export function show() {
     });
 }
 
-export function hide() {
-    if (showingTransition) {
+export function hide(force = false) {
+    if (!force && showingTransition) {
         return;
     }
 

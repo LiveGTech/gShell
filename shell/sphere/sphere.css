@@ -1,0 +1,38 @@
+/*
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+*/
+
+.sphere_addressInput {
+    max-width: unset!important;
+}
+
+.sphere_tabButton {
+    flex-shrink: 0;
+    width: 2rem;
+    padding-top: 0.15rem;
+    border: 0.2rem solid var(--primaryUIText);
+}
+
+.sphere_main {
+    top: 0;
+}
+
+.sphere_tabs {
+    width: 100%;
+    height: 100%;
+}
+
+.sphere_tab {
+    width: 100%;
+    height: 100%;
+}
+
+.sphere_tab webview {
+    width: 100%;
+    height: 100%;
+}

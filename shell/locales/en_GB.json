@@ -29,6 +29,9 @@
         "switcher_closeAll": "Close all",
         "switcher_empty": "No open apps",
 
+        "sphere_back": "Back",
+        "sphere_menu": "Menu",
+
         "a11y_switch_openMainMenu": "Menu",
         "a11y_switch_switchToItemScan": "Item scan",
         "a11y_switch_switchToPointScan": "Point scan",

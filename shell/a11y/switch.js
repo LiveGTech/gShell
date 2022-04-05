@@ -210,6 +210,10 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
         setTimeout(function() {
             gShell.call("io_focus", {webContentsId: 1}).then(function() {
+                if (input.showing) {
+                    return;
+                }
+
                 $g.sel(document.activeElement).blur();
                 $g.sel("body").focus();
             });

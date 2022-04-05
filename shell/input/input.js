@@ -340,10 +340,6 @@ export function init() {
 
             setTimeout(function() {
                 show();
-
-                setTimeout(function() {
-                    event.target.focus();
-                });
             });
         }
     });

@@ -85,13 +85,20 @@ export class KeyboardLayout {
         this.onStateUpdate();
     }
 
-    returnToTargetInput() {
+    returnToTargetInput(returnToKeyWhenSwitchEnabled = false) {
+        var lastInputFocus = $g.sel(document.activeElement);
+
         targetInput?.focus();
 
         if (a11y.options.switch_enabled) {
             setTimeout(function() {
                 $g.sel(document.activeElement).blur();
-                $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
+
+                if (returnToKeyWhenSwitchEnabled) {
+                    lastInputFocus.focus();
+                } else {
+                    $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
+                }
             }, 100);
         }
     }
@@ -105,11 +112,7 @@ export class KeyboardLayout {
             .addClass("input_keyboard_keys")
             .add(
                 ...(this.states[this.currentState] || []).map(function(row) {
-                    var rowElement = $g.create("div")
-                        .addClass("input_keyboard_row")
-                        .setAttribute("aria-role", "group")
-                    ;
-
+                    var rowElement = $g.create("div").addClass("input_keyboard_row");
                     var nextToken = "";
 
                     function matchesToken(token) {
@@ -152,7 +155,7 @@ export class KeyboardLayout {
                     while (row.length > 0) {
                         var key = $g.create("button");
 
-                        function setKeyAction(callback) {
+                        function setKeyAction(callback, returnToKeyWhenSwitchEnabled) {
                             key.on("click", function(event) {
                                 if (!a11y.options.switch_enabled) {
                                     targetInput?.focus();
@@ -160,8 +163,60 @@ export class KeyboardLayout {
 
                                 callback(event);
 
-                                thisScope.returnToTargetInput();
+                                thisScope.returnToTargetInput(returnToKeyWhenSwitchEnabled);
                             });
+                        }
+
+                        if (matchesToken("{\\.lm}")) {
+                            key.addClass("input_keyboard_landmark");
+
+                            (function(key) {
+                                function getLandmarkedKeys() {
+                                    var landmarkedKeys = [];
+                                    var currentLandmarkedKey = key;
+    
+                                    do {
+                                        currentLandmarkedKey = currentLandmarkedKey.next("button");
+    
+                                        landmarkedKeys.push(currentLandmarkedKey);
+                                    } while (currentLandmarkedKey.getAll().length > 0 && currentLandmarkedKey.is("button:not(.input_keyboard_landmark"))
+
+                                    landmarkedKeys.pop(); // The next landmark
+    
+                                    return landmarkedKeys;
+                                }
+    
+                                key.on("focus", function() {
+                                    var landmarkedKeys = getLandmarkedKeys();
+    
+                                    if (landmarkedKeys.length == 0) {
+                                        return;
+                                    }
+    
+                                    var originRect = rowElement.get().getBoundingClientRect();
+                                    var firstLandmarkedKeyRect = landmarkedKeys[0].get().getBoundingClientRect();
+                                    var lastLandmarkedKeyRect = landmarkedKeys[landmarkedKeys.length - 1].get().getBoundingClientRect();
+    
+                                    key.setStyle("top", `${firstLandmarkedKeyRect.top - originRect.top}px`);
+                                    key.setStyle("left", `${firstLandmarkedKeyRect.left - originRect.left}px`);
+                                    key.setStyle("width", `${lastLandmarkedKeyRect.right - firstLandmarkedKeyRect.left}px`);
+                                    key.setStyle("height", `${lastLandmarkedKeyRect.bottom - firstLandmarkedKeyRect.top}px`);
+
+                                    landmarkedKeys.forEach((key) => key.setAttribute("tabindex", "-1"));
+                                });
+
+                                key.on("click", function() {
+                                    var landmarkedKeys = getLandmarkedKeys();
+
+                                    landmarkedKeys.forEach((key) => key.removeAttribute("tabindex"));
+
+                                    landmarkedKeys[0]?.focus();
+                                });
+                            })(key);
+
+                            rowElement.add(key);
+
+                            continue;
                         }
 
                         if (matchesToken("{.*?}")) {
@@ -203,7 +258,7 @@ export class KeyboardLayout {
 
                                     key.setAttribute("aria-label", _("input_key_backspace"));
 
-                                    setKeyAction(keyEventFactory("Backspace"));
+                                    setKeyAction(keyEventFactory("Backspace"), true);
 
                                     break;
 

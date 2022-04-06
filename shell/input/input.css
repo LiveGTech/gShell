@@ -41,6 +41,7 @@
 }
 
 .input_keyboard_row {
+    position: relative;
     display: flex;
     gap: 0.2rem;
 }
@@ -102,6 +103,10 @@
     padding: 0.8rem;
     object-fit: contain;
     user-select: none;
+}
+
+.input_keyboard_landmark {
+    position: absolute;
 }
 
 .input_keyboard_options {

@@ -86,14 +86,12 @@ export class KeyboardLayout {
     }
 
     returnToTargetInput() {
-        var lastInputFocus = $g.sel(document.activeElement);
-
         targetInput?.focus();
 
         if (a11y.options.switch_enabled) {
             setTimeout(function() {
                 $g.sel(document.activeElement).blur();
-                lastInputFocus.focus();
+                $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
             }, 100);
         }
     }
@@ -107,7 +105,11 @@ export class KeyboardLayout {
             .addClass("input_keyboard_keys")
             .add(
                 ...(this.states[this.currentState] || []).map(function(row) {
-                    var rowElement = $g.create("div").addClass("input_keyboard_row");
+                    var rowElement = $g.create("div")
+                        .addClass("input_keyboard_row")
+                        .setAttribute("aria-role", "group")
+                    ;
+
                     var nextToken = "";
 
                     function matchesToken(token) {

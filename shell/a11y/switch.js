@@ -64,6 +64,10 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
         var thisScope = this;
 
         function keydownCallback(event) {
+            if (!a11y.options.switch_enabled) {
+                return;
+            }
+
             if (input.showing) {
                 if (event.key == " ") {
                     thisScope.itemScanNextAt = Date.now() + a11y.options.switch_itemScanAfterConfirmPeriod;
@@ -117,10 +121,32 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
             thisScope.currentMenu = menus.MAIN;
         });
 
-        setInterval(function() {
+        $g.sel("body").on("keydown", function(event) {
             if (!a11y.options.switch_enabled) {
                 return;
             }
+
+            if (event.target.matches("[aria-role='group']")) {
+                if (event.key == "Tab") {
+                    $g.sel(event.target).find("*").setAttribute("tabindex", "-1");
+                }
+
+                if (event.key == " ") {
+                    $g.sel(event.target).find("*").removeAttribute("tabindex");
+
+                    event.target.querySelector(aui_a11y.FOCUSABLES)?.focus();
+                }
+            }
+        });
+
+        setInterval(function() {
+            if (!a11y.options.switch_enabled) {
+                $g.sel("[aria-role='group']").removeAttribute("tabindex");
+
+                return;
+            }
+
+            $g.sel("[aria-role='group']").setAttribute("tabindex", "0");
 
             if (thisScope.currentMode == modes.ITEM_SCAN) {
                 if (Date.now() - thisScope.itemScanNextAt < a11y.options.switch_itemScanPeriod) {

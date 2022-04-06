@@ -9,6 +9,8 @@
 
 const electron = require("electron");
 
+const FOCUSABLES = "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href]:not(:disabled), [tabindex]:not([tabindex=\"-1\"]):not(:disabled)";
+
 // From `shell/input/input.js`
 const NON_TEXTUAL_INPUTS = [
     "button",
@@ -106,6 +108,24 @@ window.addEventListener("load", function() {
             event.preventDefault();
 
             electron.ipcRenderer.sendToHost("input_show");
+        }
+    });
+
+    window.addEventListener("keydown", function(event) {
+        if (!mainState.a11y_options.switch_enabled) {
+            return;
+        }
+
+        if (event.target.matches("[aria-role='group']")) {
+            if (event.key == "Tab") {
+                event.target.querySelectorAll("*").forEach((element) => element.setAttribute("tabindex", "-1"));
+            }
+
+            if (event.key == " ") {
+                event.target.querySelectorAll("*").forEach((element) => element.removeAttribute("tabindex"));
+
+                event.target.querySelector(FOCUSABLES)?.focus();
+            }
         }
     });
 

@@ -7,37 +7,37 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-::-webkit-scrollbar {
+*:not(input) ::-webkit-scrollbar {
     width: 16px;
     height: 16px;
 }
 
-::-webkit-scrollbar-button {
+*:not(input) ::-webkit-scrollbar-button {
     width: 0px;
     height: 0px;
 }
 
-::-webkit-scrollbar-thumb {
+*:not(input) ::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.5);
     border: 4px solid transparent;
     border-radius: 8px;
     background-clip: content-box;
 }
 
-::-webkit-scrollbar-thumb:active {
+*:not(input) ::-webkit-scrollbar-thumb:active {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
-::-webkit-scrollbar-track {
+*:not(input) ::-webkit-scrollbar-track {
     background-color: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
-    ::-webkit-scrollbar-thumb {
+    *:not(input) ::-webkit-scrollbar-thumb {
         background-color: rgba(255, 255, 255, 0.5);
     }
     
-    ::-webkit-scrollbar-thumb:active {
+    *:not(input) ::-webkit-scrollbar-thumb:active {
         background-color: rgba(255, 255, 255, 0.8);
     }
 }

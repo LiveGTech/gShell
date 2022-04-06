@@ -107,6 +107,7 @@
 
 .input_keyboard_landmark {
     position: absolute;
+    pointer-events: none;
 }
 
 .input_keyboard_options {

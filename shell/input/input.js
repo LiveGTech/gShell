@@ -353,7 +353,7 @@ export function init() {
         targetInputSurface = document.activeElement;
     });
 
-    $g.sel("body").on("focusin click", function(event) {
+    $g.sel("body").on("click", function(event) {
         if (a11y.options.switch_enabled) {
             return;
         }

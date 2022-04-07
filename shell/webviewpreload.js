@@ -42,34 +42,32 @@ window.addEventListener("load", function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
     });
 
-    ["focusin", "mousedown", "touchstart"].forEach(function(eventName) {
-        window.addEventListener(eventName, function(event) {
-            if (mainState.a11y_options.switch_enabled) {
-                return;
-            }
-
-            if (event.target.matches("label")) {
-                return;
-            }
-
-            if (event.target.matches("input")) {
-                if (!isTextualInput(event.target)) {
-                    electron.ipcRenderer.sendToHost("input_hide");
-        
-                    return;
-                }
-        
-                electron.ipcRenderer.sendToHost("input_show");
-
-                event.target.focus();
-        
-                return;
-            }
-        
-            electron.ipcRenderer.sendToHost("input_hide");
-        
+    window.addEventListener("click", function(event) {
+        if (mainState.a11y_options.switch_enabled) {
             return;
-        });
+        }
+
+        if (event.target.matches("label")) {
+            return;
+        }
+
+        if (event.target.matches("input")) {
+            if (!isTextualInput(event.target)) {
+                electron.ipcRenderer.sendToHost("input_hide");
+    
+                return;
+            }
+    
+            electron.ipcRenderer.sendToHost("input_show");
+
+            event.target.focus();
+    
+            return;
+        }
+    
+        electron.ipcRenderer.sendToHost("input_hide");
+    
+        return;
     });
 
     ["keyup", "keydown", "click"].forEach(function(type) {

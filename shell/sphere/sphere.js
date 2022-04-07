@@ -89,6 +89,9 @@ export class Browser {
             $g.create("input")
                 .addClass("sphere_addressInput")
                 .setAttribute("type", "url")
+                .on("click", function() {
+                    $g.sel(".sphere_addressInput").get().select();
+                })
                 .on("keydown", function(event) {
                     if (event.key == "Enter") {
                         thisScope.visitUrl($g.sel(".sphere_addressInput").getValue());

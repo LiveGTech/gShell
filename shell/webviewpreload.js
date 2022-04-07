@@ -43,7 +43,7 @@ window.addEventListener("load", function() {
     });
 
     window.addEventListener("click", function(event) {
-        if (mainState.a11y_options.switch_enabled) {
+        if (mainState.a11y_options?.switch_enabled) {
             return;
         }
 
@@ -91,7 +91,7 @@ window.addEventListener("load", function() {
     });
 
     window.addEventListener("focusout", function(event) {
-        if (mainState.a11y_options.switch_enabled && isTextualInput(event.target)) {
+        if (mainState.a11y_options?.switch_enabled && isTextualInput(event.target)) {
             event.target.scrollLeft = lastInputScrollLeft;
         }
     });
@@ -100,7 +100,7 @@ window.addEventListener("load", function() {
         if (
             event.key == " " &&
             isTextualInput(document.activeElement) &&
-            mainState.a11y_options.switch_enabled &&
+            mainState.a11y_options?.switch_enabled &&
             !mainState.input_showing
         ) {
             event.preventDefault();
@@ -110,7 +110,7 @@ window.addEventListener("load", function() {
     });
 
     window.addEventListener("keydown", function(event) {
-        if (!mainState.a11y_options.switch_enabled) {
+        if (!mainState.a11y_options?.switch_enabled) {
             return;
         }
 

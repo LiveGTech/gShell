@@ -15,7 +15,7 @@ function uaFor(renderer) {
     return navigator.userAgent.match(new RegExp(`(${renderer}\\/[0-9.]+)`))[1];
 }
 
-export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS 0.1.0) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} ${uaFor("Safari")} Sphere/0.1.0`;
+export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS 0.1.0) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} Mobile ${uaFor("Safari")} Sphere/0.1.0`;
 
 export function spawn(url) {
     var webview = $g.create("webview");

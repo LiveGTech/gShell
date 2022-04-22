@@ -1,0 +1,2 @@
+# gShell
+gShell is our interactive desktop environment for LiveG OS, which lets users operate and interact with their devices, such as the LiveG Prism. gShell incorporates the necessary features to launch apps, browse the web and control their device's hardware via a simple user interface that's built on [Adapt UI](https://docs.liveg.tech/?product=adaptui&page=index.md) and other web technologies.

@@ -1,0 +1,12 @@
+{
+    "Get started": {
+        "Welcome": "index.md"
+    },
+    "Technical details": {
+        "Architecture": "architecture.md",
+        "Filesystem": "filesystem.md",
+        "Authentication mechanism": "auth.md",
+        "Accessibility (a11y)": "a11y.md",
+        "Input Method Editor": "input.md"
+    }
+}

@@ -15,4 +15,4 @@ Some authentication methods may include an _unauthenticated timeout_ — a timeo
 |----------------------|---------------|---------------|---------------------------------|----------------|
 | `UnsecureAuthMethod` | Public access | ❌ No         | ∅ (empty set)                   | Not applicable |
 | `PasswordAuthMethod` | Secret-based  | ✔️ Yes        | {regular expression `/[^\n]+/`} |       1,000 ms |
-| `PasscodeAuthMethod` | Secret-based  | ✔️ Yes        | {regular expression `/d+/`}     |       1,000 ms |
+| `PasscodeAuthMethod` | Secret-based  | ✔️ Yes        | {regular expression `/\d+/`}     |       1,000 ms |

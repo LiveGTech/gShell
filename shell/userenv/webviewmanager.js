@@ -40,6 +40,13 @@ export function spawn(url) {
             webview.get().insertCSS(styleCode, {cssOrigin: "user"});
         });
 
+        // Apply the Author Stylesheet (AS)
+        fetch("gshell://userenv/webviewas.css").then(function(response) {
+            return response.text();
+        }).then(function(styleCode) {
+            webview.get().insertCSS(styleCode, {cssOrigin: "author"});
+        });
+
         fetch("gshell://common.css").then(function(response) {
             return response.text();
         }).then(function(styleCode) {

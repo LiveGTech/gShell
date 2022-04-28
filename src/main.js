@@ -20,6 +20,8 @@ var ipc = require("./ipc");
 
 exports.window = null;
 
+electron.app.commandLine.appendSwitch("disable-features", "CrossOriginOpenerPolicy");
+
 electron.protocol.registerSchemesAsPrivileged([
     {
         scheme: "gshell",

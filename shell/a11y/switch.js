@@ -170,11 +170,9 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
                 if (thisScope.pointScanX < 0 || thisScope.pointScanY < 0) {
                     thisScope.pointScanAdvancingNegative = false;
-                }
-
-                if (
-                    thisScope.pointScanX > window.innerWidth - (thisScope.pointScanRefining ? (0.1 * window.innerHeight) : 0) ||
-                    thisScope.pointScanY > window.innerHeight - (thisScope.pointScanRefining ? (0.1 * window.innerWidth) : 0)
+                } else if (
+                    (!thisScope.pointScanAxisIsY && thisScope.pointScanX > window.innerWidth - (thisScope.pointScanRefining ? (0.1 * window.innerHeight) : 0)) ||
+                    (thisScope.pointScanAxisIsY && thisScope.pointScanY > window.innerHeight - (thisScope.pointScanRefining ? (0.1 * window.innerWidth) : 0))
                 ) {
                     thisScope.pointScanAdvancingNegative = true;
                 }

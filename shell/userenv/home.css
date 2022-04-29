@@ -46,6 +46,7 @@
     margin: 0;
     padding: 0.5rem;
     background-color: transparent;
+    transition: 0.5s opacity;
 }
 
 .home_app:hover, .home_app:active {
@@ -53,9 +54,8 @@
 }
 
 .home_app img {
-    width: 100%;
     max-height: calc(100% - 2rem);
-    object-fit: contain;
+    border-radius: 0.8rem;
 }
 
 .home_app span {
@@ -65,4 +65,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.home_app:active {
+    opacity: 0.6;
 }

@@ -110,7 +110,7 @@ ipcMain.handle("io_focus", function(event, data) {
 ipcMain.handle("webview_attach", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 
-    webContents.setVisualZoomLevelLimits(0, 8);
+    webContents.setVisualZoomLevelLimits(1, 5);
 
     webContents.debugger.attach();
 

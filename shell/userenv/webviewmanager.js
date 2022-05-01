@@ -17,6 +17,35 @@ function uaFor(renderer) {
 
 export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS 0.1.0) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} Mobile ${uaFor("Safari")} Sphere/0.1.0`;
 
+export const USER_AGENT_METADATA = {
+    platform: "LiveG OS",
+    platformVersion: "0.1.0",
+    model: "Prism",
+    architecture: "aarch64",
+    bitness: "64",
+    mobile: true,
+    brands: [
+        {
+            brand: "Chromium",
+            version: uaFor("Chrome").split("/")[1].split(".")[0]
+        },
+        {
+            brand: "Sphere",
+            version: "0"
+        }
+    ],
+    fullVersionList: [
+        {
+            brand: "Chromium",
+            version: uaFor("Chrome").split("/")[1]
+        },
+        {
+            brand: "Sphere",
+            version: "0.1.0"
+        }
+    ]
+};
+
 export function spawn(url) {
     var webview = $g.create("webview");
 

@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
 
@@ -25,7 +26,11 @@ export function onEvent(eventName, callback) {
 export function attach(webview) {
     webview.getAll().forEach(function(element) {
         element.addEventListener("did-attach", function() {
-            gShell.call("webview_attach", {webContentsId: element.getWebContentsId()});
+            gShell.call("webview_attach", {
+                webContentsId: element.getWebContentsId(),
+                userAgent: webviewManager.USER_AGENT,
+                userAgentMetadata: webviewManager.USER_AGENT_METADATA
+            });
         });
     });
 

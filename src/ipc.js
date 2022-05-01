@@ -119,9 +119,16 @@ ipcMain.handle("webview_attach", function(event, data) {
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,
         height: 0,
-        deviceScaleFactor: 0,
-        scale: flags.isRealHardware ? 1.2 : undefined,
+        deviceScaleFactor: 5,
+        scale: flags.isRealHardware ? 2 : undefined,
         mobile: true
+    }).then(function() {
+        return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
+            userAgent: data.userAgent,
+            userAgentMetadata: data.userAgentMetadata
+        });
+    }).then(function() {
+        return Promise.resolve();
     });
 });
 

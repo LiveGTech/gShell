@@ -120,7 +120,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         width: 0,
         height: 0,
         deviceScaleFactor: 5,
-        scale: flags.isRealHardware ? (1.2 ** 5) : undefined,
+        scale: flags.isRealHardware ? (1.2 ** 4) : undefined,
         mobile: true
     }).then(function() {
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {

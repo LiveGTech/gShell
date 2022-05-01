@@ -116,6 +116,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         width: 0,
         height: 0,
         deviceScaleFactor: 5,
+        dontSetVisibleSize: true,
         mobile: true
     });
 });

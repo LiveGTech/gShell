@@ -110,13 +110,15 @@ ipcMain.handle("io_focus", function(event, data) {
 ipcMain.handle("webview_attach", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 
+    if (flags.isRealHardware) {
+        webContents.setZoomFactor(5);
+    }
+
     webContents.debugger.attach();
 
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,
         height: 0,
-        deviceScaleFactor: 5,
-        dontSetVisibleSize: true,
         mobile: true
     });
 });

@@ -138,6 +138,10 @@ $g.waitForLoad().then(function() {
         $g.sel("#main").screenFade();
     });
 
+    $g.sel("#settingsHomeApp").on("click", function() {
+        switcher.openApp("gshell://apps/settings/index.html");
+    });
+
     $g.sel("#cameraTestButton").on("click", function() {
         if ("mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices) {
             navigator.mediaDevices.getUserMedia({video: true}).then(function(stream) {

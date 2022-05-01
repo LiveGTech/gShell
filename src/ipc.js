@@ -120,6 +120,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         width: 0,
         height: 0,
         deviceScaleFactor: 0,
+        scale: flags.isRealHardware ? 1.2 : undefined,
         mobile: true
     });
 });

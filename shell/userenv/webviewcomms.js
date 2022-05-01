@@ -23,6 +23,12 @@ export function onEvent(eventName, callback) {
 }
 
 export function attach(webview) {
+    webview.getAll().forEach(function(element) {
+        element.addEventListener("did-attach", function() {
+            gShell.call("webview_attach", {webContentsId: element.getWebContentsId()});
+        });
+    });
+
     webview.on("ipc-message", function(event) {
         switch (event.channel) {
             case "eventPropagation":

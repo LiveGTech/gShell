@@ -30,7 +30,7 @@ export function spawn(url) {
         webview.focus();
     });
 
-    webview.on("dom-ready", function() {
+    webview.on("did-start-loading dom-ready", function() {
         webviewComms.update(webview);
 
         // Apply the User Agent Stylesheet (UAS)

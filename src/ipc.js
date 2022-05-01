@@ -119,6 +119,7 @@ ipcMain.handle("webview_attach", function(event, data) {
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,
         height: 0,
+        deviceScaleFactor: 0,
         mobile: true
     });
 });

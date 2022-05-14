@@ -17,6 +17,28 @@ import * as webviewComms from "gshell://userenv/webviewcomms.js";
 export class Browser {
     constructor() {}
 
+    static normaliseUrl(url) {
+        if (url.match(/^localhost:\d+/)) {
+            return `http://${url}`;
+        }
+
+        if (url.match(/^[a-zA-Z][a-zA-Z.+-]*:.*/)) {
+            return url;
+        }
+
+        return `http://${url}`;
+    }
+
+    static getUrlPreview(url, mode = "domain") {
+        switch (mode) {
+            case "domain":
+                return url.match(/^[a-z.+-]+:\/*([^\/]+)/)?.[1] || url;
+
+            default:
+                return url;
+        }
+    }
+
     get tabCount() {
         return this.uiMain.find(".sphere_tabs .sphere_tab").getAll().length;
     }
@@ -29,13 +51,13 @@ export class Browser {
         this.uiChrome.find(".sphere_tabButton").setText(this.tabCount > 99 ? ":)" : this.tabCount); // EASTEREGG: In a similar vein to mobile Chromium...
 
         if (this.selectedTab.find("webview").is(".sphere_ready") && document.activeElement !== this.uiChrome.find(".sphere_addressInput").get()) {
-            this.uiChrome.find(".sphere_addressInput").setValue(this.selectedTab.find("webview").get()?.getURL());
+            this.uiChrome.find(".sphere_addressInput").setValue(this.constructor.getUrlPreview(this.selectedTab.find("webview").get()?.getURL()));
         }
     }
 
     newTab(url) {
         var thisScope = this;
-        var webview = webviewManager.spawn(url);
+        var webview = webviewManager.spawn(this.constructor.normaliseUrl(url));
 
         webview.on("dom-ready", function() {
             webview.addClass("sphere_ready");
@@ -47,8 +69,11 @@ export class Browser {
             thisScope.updateChrome();
         });
 
-        webview.on("click", function() {
+        webview.on("click focus", function() {
             thisScope.uiChrome.find(".sphere_addressInput").blur();
+            webview.focus();
+
+            thisScope.updateChrome();
         });
 
         this.uiMain.find(".sphere_tabs").add(
@@ -66,7 +91,7 @@ export class Browser {
     }
 
     visitUrl(url, tab = this.selectedTab) {
-        tab.find("webview").get()?.loadURL(url);
+        tab.find("webview").get()?.loadURL(this.constructor.normaliseUrl(url));
     }
 
     render() {
@@ -90,6 +115,8 @@ export class Browser {
                 .addClass("sphere_addressInput")
                 .setAttribute("type", "url")
                 .on("click", function() {
+                    $g.sel(".sphere_addressInput").setValue(thisScope.selectedTab.find("webview").get()?.getURL());
+
                     $g.sel(".sphere_addressInput").get().select();
                 })
                 .on("keydown", function(event) {

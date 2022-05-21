@@ -13,6 +13,7 @@ const electron = require("electron");
 const bcryptjs = require("bcryptjs");
 
 var flags = require("./flags");
+var device = require("./device");
 
 exports.executeCommand = function(command, args = []) {
     return new Promise(function(resolve, reject) {
@@ -30,6 +31,10 @@ exports.executeCommand = function(command, args = []) {
 
 exports.getFlags = function() {
     return Promise.resolve(flags);
+};
+
+exports.getDevice = function() {
+    return Promise.resolve(device.data);
 };
 
 exports.getScreenResolution = function() {
@@ -63,7 +68,13 @@ exports.sleep = function() {
 };
 
 exports.getPowerState = function() {
-    if (!flags.isRealHardware) {
+    if (!(
+        typeof(device.data?.hardware?.batteryStateReporter) == "string" &&
+        typeof(device.data?.hardware?.batteryStateMapping) == "object" &&
+        typeof(device.data?.hardware?.batteryLevelReporter) == "string"
+    )
+    ) {
+        // Invalid device description for battery
         return Promise.resolve({
             state: null,
             level: 100
@@ -72,13 +83,8 @@ exports.getPowerState = function() {
 
     try {
         return Promise.resolve({
-            state: {
-                "Charging": "charging",
-                "Discharging": "discharging",
-                "Not charging": "notCharging",
-                "Full": "full"
-            }[fs.readFileSync("/sys/class/power_supply/axp20x-battery/status", "utf8").split("\n")[0]] || null,
-            level: parseInt(fs.readFileSync("/sys/class/power_supply/axp20x-battery/capacity", "utf8").split("\n")[0])
+            state: device.data?.hardware?.batteryStateMapping?.[fs.readFileSync(String(device.data?.hardware.batteryStateReporter), "utf8").split("\n")[0]] || null,
+            level: parseInt(fs.readFileSync(String(device.data?.hardware.batteryLevelReporter), "utf8").split("\n")[0])
         });
     } catch (e) {
         return Promise.reject(e);

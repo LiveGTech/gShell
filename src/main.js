@@ -16,6 +16,7 @@ const electron = require("electron");
 var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
+var device = require("./device");
 var ipc = require("./ipc");
 
 exports.window = null;
@@ -53,6 +54,8 @@ electron.app.on("ready", function() {
     });
 
     storage.init().then(function() {
+        return device.init(flags.deviceDescriptionLocation || undefined);
+    }).then(function() {
         return system.getScreenResolution();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({

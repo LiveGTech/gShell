@@ -13,5 +13,6 @@ exports.argv = minimist(process.argv.slice(2));
 
 exports.isRealHardware = !!exports.argv["real"];
 exports.emulateTouch = !exports.isRealHardware && exports.argv["touch-emulation"] != false;
+exports.deviceDescriptionLocation = exports.argv["device-desc-location"] || null;
 
 exports.enableA11ySwitch = !!exports.argv["enable-a11y-switch"];

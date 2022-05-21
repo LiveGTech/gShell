@@ -21,6 +21,10 @@ ipcMain.handle("system_getFlags", function(event, data) {
     return system.getFlags();
 });
 
+ipcMain.handle("system_getDevice", function(event, data) {
+    return system.getDevice();
+});
+
 ipcMain.handle("storage_read", function(event, data) {
     return storage.read(data.location, data.encoding);
 });

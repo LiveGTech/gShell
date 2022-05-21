@@ -32,6 +32,7 @@ const NON_TEXTUAL_INPUTS = [
 
 var mainState = {};
 var lastInputScrollLeft = 0;
+var shouldSkipNextInputShow = false;
 
 function isTextualInput(element) {
     return element.matches("input") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
@@ -90,7 +91,19 @@ window.addEventListener("load", function() {
         }
     });
 
+    window.addEventListener("focusin", function(event) {
+        if (!mainState.a11y_options?.switch_enabled && isTextualInput(event.target) && !shouldSkipNextInputShow) {
+            electron.ipcRenderer.sendToHost("input_show");
+        }
+
+        shouldSkipNextInputShow = false;
+    });
+
     window.addEventListener("focusout", function(event) {
+        if (isTextualInput(document.activeElement)) {
+            shouldSkipNextInputShow = true;
+        }
+
         if (mainState.a11y_options?.switch_enabled && isTextualInput(event.target)) {
             event.target.scrollLeft = lastInputScrollLeft;
         }

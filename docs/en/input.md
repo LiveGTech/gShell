@@ -8,5 +8,5 @@ Layout files are written in the JSON text format. Comprehensive examples of layo
 
 * `localeCode`: the locale code associated with the keyboard layout (for example, `en_GB`)
 * `variant`: the keyboard layout variant (for example, `qwerty`)
-* `metadata/variantName`: the display name of the layout variant (for example, `QWERTY`)
+* `metadata.variantName`: the display name of the layout variant (for example, `QWERTY`)
 * `states`: an object containing the various keyboard states

@@ -26,7 +26,12 @@ exports.init = function(location = "device.gsc") {
 
         exports.data.hardware ||= {};
         exports.data.hardware.batteryStateReporter ||= null;
-        exports.data.hardware.batteryStateMapping ||= {};
+        exports.data.hardware.batteryStateMapping ||= {
+            "charging": "charging",
+            "discharging": "discharging",
+            "notCharging": "notCharging",
+            "full": "full"
+        };
         exports.data.hardware.batteryLevelReporter ||= null;
 
         return Promise.resolve();

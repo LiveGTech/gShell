@@ -49,7 +49,7 @@ The codename of the target device. For example, for the LiveG Prism, its codenam
 ### `model.serial`
 The serial number of the target device, which is typically unique for every instance for the device. This serial number may also match that printed on the actual hardware itself. It is a string and can contain any symbol — not just numeric digits.
 
-We recommend choosing any of the characters `A`-`Z`, `0`-`9`, ` `, `.` and `-`, and having the serial string all uppercase.
+We recommend choosing any of the characters `A`-`Z`, `0`-`9`, `.` and `-`, and having the serial string all uppercase.
 
 ### `model.fallbackLocale`
 The fallback locale code to use for the device model's user-facing details (such as the name of the model and its manufacturer) in the case where the user chooses a different locale in gShell to one that is listed for the model name/manufaturer details.

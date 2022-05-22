@@ -8,6 +8,7 @@
 */
 
 @import url("gshell://common.css");
+@import url("gshell://global/displays.css");
 @import url("gshell://global/infobar.css");
 @import url("gshell://global/surfaces.css");
 @import url("gshell://a11y/switch.css");
@@ -18,7 +19,10 @@
 @import url("gshell://sphere/sphere.css");
 
 html, body {
+    width: 100vw;
+    height: 100vh;
     background-color: black;
+    overflow: hidden;
 }
 
 #off {

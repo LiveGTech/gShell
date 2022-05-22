@@ -15,7 +15,7 @@
     align-items: center;
 }
 
-aui-screen.hasSurfaces .infoBar {
+.hasSurfaces .infoBar {
     height: 1.8rem;
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
@@ -26,7 +26,7 @@ aui-screen.hasSurfaces .infoBar {
 }
 
 .infoBar.infoBar_overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
     width: 100%;
     z-index: 1;

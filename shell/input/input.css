@@ -7,8 +7,8 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-.input_keyboardShowing aui-screen {
-    height: calc(100vh - 18.5rem);
+.input_keyboardShowing .display:first-child {
+    padding-bottom: 18.5rem;
 }
 
 .input_keyboardShowing .switcherBar {
@@ -16,7 +16,7 @@
 }
 
 .input {
-    position: fixed;
+    position: absolute;
     display: flex;
     flex-direction: column;
     bottom: -20px;

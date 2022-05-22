@@ -20,197 +20,222 @@
     <body>
         <aui-screen id="startup"></aui-screen>
         <aui-screen class="lockScreen" id="lockScreenMain" hidden>
-            <header class="infoBar infoBar_overlay">
-                <span></span>
-                <img alt="" aui-icon="light" class="info_batteryIcon">
-                <span aui-mode="part" class="info_batteryLevel"></span>
-            </header>
-            <main>
-                <img src="gshell://media/backgrounds/world6.jpg" class="lockScreen_background" aria-hidden="true">
-                <section class="lockScreen_front">
-                    <h1 class="info_time"></h1>
-                    <p class="info_date"></p>
-                </section>
-                <button class="lockScreen_unlockButton" translate>lockScreen_unlock</button>
-            </main>
+            <div class="displays">
+                <div class="display">
+                    <header class="infoBar infoBar_overlay">
+                        <span></span>
+                        <img alt="" aui-icon="light" class="info_batteryIcon">
+                        <span aui-mode="part" class="info_batteryLevel"></span>
+                    </header>
+                    <main>
+                        <img src="gshell://media/backgrounds/world6.jpg" class="lockScreen_background" aria-hidden="true">
+                        <section class="lockScreen_front">
+                            <h1 class="info_time"></h1>
+                            <p class="info_date"></p>
+                        </section>
+                        <button class="lockScreen_unlockButton" translate>lockScreen_unlock</button>
+                    </main>
+                </div>
+                <div class="display"></div>
+            </div>
         </aui-screen>
         <aui-screen hidden class="lockScreen" id="lockScreenAuth" hidden>
-            <header class="infoBar infoBar_overlay">
-                <span></span>
-                <img alt="" aui-icon="light" class="info_batteryIcon">
-                <span aui-mode="part" class="info_batteryLevel"></span>
-            </header>
-            <main>
-                <img src="gshell://media/backgrounds/world6.jpg" class="lockScreen_background" aria-hidden="true">
-                <section class="lockScreen_auth"></section>
-            </main>
-        </aui-screen>
-        <aui-screen class="hasSurfaces" id="main" hidden>
-            <div>
-                <header class="infoBar">
-                    <span class="info_time"></span>
-                    <span></span>
-                    <img alt="" aui-icon="light" class="info_batteryIcon">
-                    <span aui-mode="part" class="info_batteryLevel"></span>
-                </header>
-            </div>
-            <div class="surface">
-                <header>
-                    <span>LiveG OS Debug Environment</span>
-                    <button title="Open menu" aria-label="Open menu" id="openMenuButton">
-                        <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="light">
-                    </button>
-                    <button title="Go to test page" aui-mode="action" aria-label="Go to other page" id="testPageButton">
-                        <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
-                    </button>
-                </header>
-                <main>
-                    <section>
-                        <h1>Hello, world!</h1>
-                        <p id="flagInfo"></p>
-                        <div>
-                            <label for="darkTheme" aui-mode="switch">Dark theme</label>
-                            <input type="checkbox" role="switch" id="darkTheme">
-                        </div>
-                        <div>
-                            <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
-                            <input type="checkbox" role="switch" id="passcodeAuth">
-                        </div>
-                        <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
-                        <div>
-                            <label for="switchNavigation" aui-mode="switch">Switch Navigation</label>
-                            <input type="checkbox" role="switch" id="switchNavigation">
-                        </div>
-                        <aui-buttons>
-                            <button id="openSwitcher">Switcher</button>
-                            <button aui-mode="secondary" id="sphere">Sphere</button>
-                        </aui-buttons>
-                    </section>
-                </main>
-            </div>
-            <div class="switcherBar">
-                <button tl:aria-label="switcher_goHome" class="switcher_home">
-                    <img src="gshell://media/logo.svg" alt="">
-                </button>
-            </div>
-        </aui-screen>
-        <aui-screen class="hasSurfaces" id="home" hidden>
-            <div>
-                <header class="infoBar">
-                    <span class="info_time"></span>
-                    <span></span>
-                    <img alt="" aui-icon="light" class="info_batteryIcon">
-                    <span aui-mode="part" class="info_batteryLevel"></span>
-                </header>
-            </div>
-            <div class="surface">
-                <img src="gshell://media/backgrounds/world7.jpg" class="home_background" aria-hidden="true">
-                <div class="home">
-                    <div class="home_page">
-                        <button class="home_app" id="settingsHomeApp">
-                            <img src="gshell://apps/settings/icon.svg">
-                            <span>Settings</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                    </div>
-                    <div class="home_page">
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                        <button class="home_app">
-                            <img src="gshell://media/logo.svg">
-                            <span>Debug</span>
-                        </button>
-                    </div>
+            <div class="displays">
+                <div class="display">
+                    <header class="infoBar infoBar_overlay">
+                        <span></span>
+                        <img alt="" aui-icon="light" class="info_batteryIcon">
+                        <span aui-mode="part" class="info_batteryLevel"></span>
+                    </header>
+                    <main>
+                        <img src="gshell://media/backgrounds/world6.jpg" class="lockScreen_background" aria-hidden="true">
+                        <section class="lockScreen_auth"></section>
+                    </main>
                 </div>
             </div>
-            <div class="switcherBar">
-                <button tl:aria-label="switcher_goHome" class="home_button">
-                    <img src="gshell://media/logo.svg" alt="">
-                </button>
-            </div>
         </aui-screen>
-        <aui-screen class="hasSurfaces" id="switcherView" hidden>
-            <div>
-                <header class="infoBar">
-                    <span class="info_time"></span>
-                    <span></span>
-                    <img alt="" aui-icon="light" class="info_batteryIcon">
-                    <span aui-mode="part" class="info_batteryLevel"></span>
-                </header>
-            </div>
-            <div class="surface">
-                <div class="switcher allowSelect"></div>
-                <div class="switcher_empty">
+        <aui-screen id="main" hidden>
+            <div class="displays">
+                <div class="display hasSurfaces">
                     <div>
-                        <img aui-icon="light" src="gshell://lib/adaptui/icons/carousel.svg" alt="">
-                        <h2 translate>switcher_empty</h2>
+                        <header class="infoBar">
+                            <span class="info_time"></span>
+                            <span></span>
+                            <img alt="" aui-icon="light" class="info_batteryIcon">
+                            <span aui-mode="part" class="info_batteryLevel"></span>
+                        </header>
+                    </div>
+                    <div class="surface">
+                        <header>
+                            <span>LiveG OS Debug Environment</span>
+                            <button title="Open menu" aria-label="Open menu" id="openMenuButton">
+                                <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="light">
+                            </button>
+                            <button title="Go to test page" aui-mode="action" aria-label="Go to other page" id="testPageButton">
+                                <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
+                            </button>
+                        </header>
+                        <main>
+                            <section>
+                                <h1>Hello, world!</h1>
+                                <p id="flagInfo"></p>
+                                <div>
+                                    <label for="darkTheme" aui-mode="switch">Dark theme</label>
+                                    <input type="checkbox" role="switch" id="darkTheme">
+                                </div>
+                                <div>
+                                    <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
+                                    <input type="checkbox" role="switch" id="passcodeAuth">
+                                </div>
+                                <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
+                                <div>
+                                    <label for="switchNavigation" aui-mode="switch">Switch Navigation</label>
+                                    <input type="checkbox" role="switch" id="switchNavigation">
+                                </div>
+                                <aui-buttons>
+                                    <button id="openSwitcher">Switcher</button>
+                                    <button aui-mode="secondary" id="sphere">Sphere</button>
+                                </aui-buttons>
+                            </section>
+                        </main>
+                    </div>
+                    <div class="switcherBar">
+                        <button tl:aria-label="switcher_goHome" class="switcher_home">
+                            <img src="gshell://media/logo.svg" alt="">
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="switcherBar">
-                <button tl:aria-label="switcher_goHome" class="switcher_home">
-                    <img src="gshell://media/logo.svg" alt="">
-                </button>
+        </aui-screen>
+        <aui-screen id="home" hidden>
+            <div class="displays">
+                <div class="display hasSurfaces">
+                    <div>
+                        <header class="infoBar">
+                            <span class="info_time"></span>
+                            <span></span>
+                            <img alt="" aui-icon="light" class="info_batteryIcon">
+                            <span aui-mode="part" class="info_batteryLevel"></span>
+                        </header>
+                    </div>
+                    <div class="surface">
+                        <img src="gshell://media/backgrounds/world7.jpg" class="home_background" aria-hidden="true">
+                        <div class="home">
+                            <div class="home_page">
+                                <button class="home_app" id="settingsHomeApp">
+                                    <img src="gshell://apps/settings/icon.svg">
+                                    <span>Settings</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                            </div>
+                            <div class="home_page">
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                                <button class="home_app">
+                                    <img src="gshell://media/logo.svg">
+                                    <span>Debug</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switcherBar">
+                        <button tl:aria-label="switcher_goHome" class="home_button">
+                            <img src="gshell://media/logo.svg" alt="">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aui-screen>
+        <aui-screen id="switcherView" hidden>
+            <div class="displays">
+                <div class="display hasSurfaces">
+                    <div>
+                        <header class="infoBar">
+                            <span class="info_time"></span>
+                            <span></span>
+                            <img alt="" aui-icon="light" class="info_batteryIcon">
+                            <span aui-mode="part" class="info_batteryLevel"></span>
+                        </header>
+                    </div>
+                    <div class="surface">
+                        <div class="switcher allowSelect"></div>
+                        <div class="switcher_empty">
+                            <div>
+                                <img aui-icon="light" src="gshell://lib/adaptui/icons/carousel.svg" alt="">
+                                <h2 translate>switcher_empty</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switcherBar">
+                        <button tl:aria-label="switcher_goHome" class="switcher_home">
+                            <img src="gshell://media/logo.svg" alt="">
+                        </button>
+                    </div>
+                </div>
             </div>
         </aui-screen>
         <aui-screen id="testPage" hidden>
-            <header>
-                <button title="Back" aui-bind="back" aria-label="Back">
-                    <img src="gshell://lib/adaptui/icons/back.svg" alt="" aui-icon="light">
-                </button>
-                <span>Test page</span>
-            </header>
-            <main>
-                <section>
-                    <h2>Camera</h2>
-                    <div>
-                        <video autoplay id="cameraTest"></video>
-                    </div>
-                    <button id="cameraTestButton">Start</button>
-                </section>
-                <section>
-                    <h2>Keyboard</h2>
-                    <input placeholder="Enter some text">
-                </section>
-                <div id="keyboardTestBuffer"></div>
-            </main>
+            <div class="displays">
+                <div class="display">
+                    <header>
+                        <button title="Back" aui-bind="back" aria-label="Back">
+                            <img src="gshell://lib/adaptui/icons/back.svg" alt="" aui-icon="light">
+                        </button>
+                        <span>Test page</span>
+                    </header>
+                    <main>
+                        <section>
+                            <h2>Camera</h2>
+                            <div>
+                                <video autoplay id="cameraTest"></video>
+                            </div>
+                            <button id="cameraTestButton">Start</button>
+                        </section>
+                        <section>
+                            <h2>Keyboard</h2>
+                            <input placeholder="Enter some text">
+                        </section>
+                        <div id="keyboardTestBuffer"></div>
+                    </main>
+                </div>
+            </div>
         </aui-screen>
         <aui-menu id="mainMenu">
             <button id="lockButton">Lock</button>

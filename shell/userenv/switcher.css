@@ -124,7 +124,6 @@ body[device-type="desktop"] .switcher_screen {
     margin-top: -20%;
     background-color: transparent;
     border-radius: calc(0.8rem / 0.7);
-    overflow: hidden;
     transform: scale(0.45);
 }
 
@@ -243,6 +242,10 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
     display: flex;
     zoom: calc(1 / 0.7);
     overflow: hidden;
+}
+
+body[device-type="desktop"] .switcher_screenOptions {
+    display: none;
 }
 
 .switcher_screenOptions button {

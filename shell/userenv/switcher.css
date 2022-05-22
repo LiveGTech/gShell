@@ -11,6 +11,10 @@
     text-align: center;
 }
 
+body:not([device-type="mobile"]) .switcherBar {
+    display: none;
+}
+
 .switcherBar button {
     height: 2.4rem;
     margin-left: 0;
@@ -37,6 +41,25 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+body[device-type="desktop"] .switcher {
+    display: block;
+    padding-left: 5%;
+    padding-right: 5%;
+    overflow: auto;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
+    position: absolute!important;
+    top: 0;
+    left: 0;
+    margin: 0;
+    transform: none;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions {
+    display: none;
 }
 
 .switcher.allowSelect .switcher_screen *:not(.switcher_screenOptions, .switcher_screenOptions *) {
@@ -86,13 +109,37 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     transition: 0.5s transform;
 }
 
-.switcher .switcher_screen:first-of-type {
+body[device-type="desktop"] .switcher_screen {
+    display: inline-block;
+    width: 50%;
+    height: unset;
+    aspect-ratio: 8 / 5;
+    margin-inline-start: -11%;
+    margin-inline-end: -15%;
+    margin-top: -20%;
+    transform: scale(0.45);
+}
+
+body:not([device-type="desktop"]) .switcher .switcher_screen:first-of-type {
     margin-inline-start: 0;
 }
 
+body[device-type="desktop"] .switcher_screen:first-of-type, body[device-type="desktop"] .switcher_screen:first-of-type.closing + .switcher_screen {
+    margin-top: 0;
+}
+
+body[device-type="desktop"] .switcher_screen:last-of-type {
+    margin-inline-end: -15%;
+}
+
 .switcher .switcher_screen.closing + .switcher_screen {
-    margin-inline-start: 0;
+    margin-inline-start: -11%;
     transition: 0.5s margin-inline-start;
+}
+
+body[device-type="desktop"] .switcher .switcher_screen.closing {
+    opacity: 0;
+    height: unset!important;
 }
 
 .switcher .switcher_screen:last-of-type {
@@ -103,12 +150,12 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     z-index: 1;
 }
 
-.switcher_screen.switcher_screen_selected {
+.switcher_screen.switcher_screen_selected, body[device-type="desktop"] .switcher_screen.switcher_screen_selected {
     transform: none;
     z-index: 1;
 }
 
-.switcher_screen.backgrounded * {
+body:not([device-type="desktop"]) .switcher_screen.backgrounded * {
     display: none;
 }
 
@@ -140,6 +187,7 @@ html[aui-istouch="false"] .switcherBar button:hover, .switcherBar button:active 
     padding: 0;
     opacity: 0;
     background-color: rgba(0, 0, 0, 0.5)!important;
+    pointer-events: none;
     transition: 0.5s opacity;
 }
 

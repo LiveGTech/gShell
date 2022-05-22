@@ -5,7 +5,7 @@
     "Technical details": {
         "Architecture": "architecture.md",
         "Filesystem": "filesystem.md",
-        "Device Description File": "device.md",
+        "Device description file": "device.md",
         "Authentication mechanism": "auth.md",
         "Accessibility (a11y)": "a11y.md",
         "Input Method Editor": "input.md"

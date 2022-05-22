@@ -21,6 +21,10 @@
     padding-bottom: 0.2rem;
 }
 
+body:not([device-type="mobile"]) .hasSurfaces .infoBar {
+    display: none;
+}
+
 .infoBar img {
     height: 100%;
 }

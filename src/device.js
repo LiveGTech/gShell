@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+var flags = require("./flags");
 var config = require("./config");
 
 exports.data = null;
@@ -15,7 +16,7 @@ exports.init = function(location = "device.gsc") {
     return config.read(location).then(function(data) {
         exports.data = data;
 
-        exports.data.type ||= "mobile";
+        exports.data.type = flags.deviceType || exports.data.type || "mobile";
 
         exports.data.model ||= {};
         exports.data.model.codename ||= "generic";

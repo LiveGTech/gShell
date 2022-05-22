@@ -8,12 +8,13 @@
 */
 
 @import url("gshell://common.css");
-@import url("gshell://global/displays.css");
+@import url("gshell://system/displays.css");
 @import url("gshell://global/infobar.css");
 @import url("gshell://global/surfaces.css");
 @import url("gshell://a11y/switch.css");
 @import url("gshell://auth/lockscreen.css");
 @import url("gshell://input/input.css");
+@import url("gshell://userenv/desktop.css");
 @import url("gshell://userenv/home.css");
 @import url("gshell://userenv/switcher.css");
 @import url("gshell://sphere/sphere.css");

@@ -70,6 +70,10 @@ export function init() {
         goHome();
     });
 
+    $g.sel(".switcher_showList").on("click", function() {
+        showList();
+    });
+
     main = new Switcher($g.sel(".switcher"));
 }
 

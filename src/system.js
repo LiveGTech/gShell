@@ -39,7 +39,9 @@ exports.getDevice = function() {
 
 exports.getScreenResolution = function() {
     if (!flags.isRealHardware) {
-        return Promise.resolve({width: 360, height: 720});
+        return Promise.resolve({
+            "desktop": {width: 1024, height: 768}
+        }[device.data?.type] || {width: 360, height: 720});
     }
 
     return exports.executeCommand("xdpyinfo").then(function(output) {

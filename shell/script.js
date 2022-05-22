@@ -9,11 +9,12 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as device from "gshell://system/device.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
-import * as sleep from "gshell://power/sleep.js";
+import * as sleep from "gshell://system/sleep.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
@@ -24,6 +25,8 @@ import * as sphere from "gshell://sphere/sphere.js";
 window.$g = $g;
 
 $g.waitForLoad().then(function() {
+    return device.init();
+}).then(function() {
     return l10n.apply();
 }).then(function() {
     return a11y.load();
@@ -141,6 +144,8 @@ $g.waitForLoad().then(function() {
     $g.sel("#settingsHomeApp").on("click", function() {
         switcher.openApp("gshell://apps/settings/index.html");
     });
+
+    $g.sel("#deviceInfoTest").setText(JSON.stringify(device.data));
 
     $g.sel("#cameraTestButton").on("click", function() {
         if ("mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices) {

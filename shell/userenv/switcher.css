@@ -121,7 +121,7 @@ body[device-type="desktop"] .switcher_screen {
     aspect-ratio: 8 / 5;
     margin-inline-start: -11%;
     margin-inline-end: -15%;
-    margin-top: -20%;
+    margin-top: -15%;
     background-color: transparent;
     border-radius: calc(0.8rem / 0.7);
     transform: scale(0.45);

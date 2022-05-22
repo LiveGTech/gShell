@@ -168,9 +168,9 @@ function showLockScreen(authMethod) {
         });
     }
 
-    $g.sel(".lockScreen_auth").clear();
+    $g.sel(".lockScreen_auth_container").clear();
 
-    $g.sel(".lockScreen_auth").add(
+    $g.sel(".lockScreen_auth_container").add(
         $g.create("p")
             .addClass("lockScreen_auth_message")
             .setText(_("lockScreen_enterPasscode"))

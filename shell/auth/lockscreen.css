@@ -35,6 +35,9 @@
 
 .lockScreen_front {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
     top: 0;
     bottom: 0;
     left: 0;
@@ -54,6 +57,9 @@
 
 .lockScreen_auth {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     bottom: 2rem;
     left: 0;
     right: 0;
@@ -61,7 +67,12 @@
     text-align: center;
 }
 
+.lockScreen_auth_container {
+    max-width: 30rem;
+}
+
 .lockScreen_auth_passcode {
+    min-width: 0!important;
     margin-bottom: 1rem;
     background-color: transparent!important;
     color: inherit!important;
@@ -117,4 +128,28 @@ html[aui-istouch="false"] .lockScreen_auth_passcodeButtons button:hover, .lockSc
 
 [liveg-a11y-switch="true"] .lockScreen_unlockButton {
     transition: none;
+}
+
+@media (min-width: 1000px) {
+    .lockScreen_front {
+        justify-content: center;
+        padding-inline-start: 70vw!important;
+        padding-inline-end: 5vw!important;
+    }
+
+    .lockScreen_front h1 {
+        margin-top: 0;
+    }
+
+    .lockScreen_front p {
+        margin-bottom: 2rem;
+    }
+
+    .lockScreen_auth {
+        justify-content: center;
+        top: 0;
+        bottom: 0;
+        padding-inline-start: 70vw!important;
+        padding-inline-end: 5vw!important;
+    }
 }

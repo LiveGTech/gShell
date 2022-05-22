@@ -25,7 +25,7 @@ export var selectedUser = null;
 
 function renderUnlockLift() {
     $g.sel("#lockScreenMain .lockScreen_front").applyStyle({
-        display: hideFront ? "none" : "block",
+        display: hideFront ? "none" : "flex",
         top: `${-currentUnlockLift}px`,
         opacity: `${Math.max(1 - (Math.abs(currentUnlockLift) / 100), 0)}`
     });

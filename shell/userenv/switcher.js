@@ -11,11 +11,14 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
+import * as device from "gshell://system/device.js";
 import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export var main = null;
+
+var topmostZIndex = 1;
 
 export class Switcher extends screenScroll.ScrollableScreen {
     constructor(element) {
@@ -39,7 +42,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
     selectScreen(screenElement) {
         var thisScope = this;
 
-        if (screenElement.get().matches(".switcher_screen") && this.element.get().matches(".allowSelect")) {
+        if (screenElement.get().matches(".switcher_screen") && (this.element.get().matches(".allowSelect") || device.data?.type == "desktop")) {
             this.element.removeClass("allowSelect");
             this.element.find(":scope > *").removeClass("switcher_screen_selected");
 
@@ -47,6 +50,10 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
             this.screenSelected = true;
             this.targetScrollX = screenElement.get().offsetLeft;
+
+            if (device.data?.type == "desktop") {
+                screenElement.setStyle("z-index", topmostZIndex++);
+            }
 
             setTimeout(function() {
                 thisScope.element.find(":scope > *").addClass("backgrounded");
@@ -62,6 +69,10 @@ export class Switcher extends screenScroll.ScrollableScreen {
         this.element.addClass("allowSelect");
         this.element.find(":scope > *").removeClass("backgrounded");
         this.element.find(":scope > *").removeClass("switcher_screen_selected");
+
+        this.element.find(":scope > *").setStyle("position", null);
+        this.element.find(":scope > *").setStyle("top", null);
+        this.element.find(":scope > *").setStyle("left", null);
     }
 }
 
@@ -82,13 +93,48 @@ export function openWindow(windowContents, appName = null) {
 
     var webview = $g.create("webview");
 
+    var initialX = 0;
+    var initialY = 0;
+    var pointerDown = false;
+    var pointerStartX = 0;
+    var pointerStartY = 0;
+
     webviewComms.attach(webview);
+
+    $g.sel("body").on("pointerup", function(event) {
+        screenElement.removeClass("manipulating");
+
+        pointerDown = false;
+    });
+
+    $g.sel("body").on("pointermove", function(event) {
+        if (pointerDown) {
+            screenElement.setStyle("left", `${initialX + (event.pageX - pointerStartX)}px`);
+            screenElement.setStyle("top", `${initialY + (event.pageY - pointerStartY)}px`);
+        }
+    });
 
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
         .add(
             $g.create("div")
-                .addClass("switcher_apps").add(
+                .addClass("switcher_titleBar")
+                .on("pointerdown", function(event) {
+                    screenElement.addClass("manipulating");
+
+                    initialX = screenElement.get().offsetLeft;
+                    initialY = screenElement.get().offsetTop;
+                    pointerDown = true;
+                    pointerStartX = event.pageX;
+                    pointerStartY = event.pageY;
+                })
+                .add(
+                    $g.create("span").setText("App")
+                )
+            ,
+            $g.create("div")
+                .addClass("switcher_apps")
+                .add(
                     $g.create("div").addClass("switcher_app").add(...windowContents)
                 )
             ,
@@ -101,6 +147,7 @@ export function openWindow(windowContents, appName = null) {
                     }
                 })
                 .on("click", function() {
+                    console.log("selscr");
                     main.selectScreen(screenElement);
 
                     screenElement.find(".switcher_apps").focus();

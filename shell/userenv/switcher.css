@@ -62,7 +62,11 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     display: none;
 }
 
-.switcher.allowSelect .switcher_screen *:not(.switcher_screenOptions, .switcher_screenOptions *) {
+.switcher.allowSelect .switcher_screen *:not(.switcher_screenButton, .switcher_screenOptions, .switcher_screenOptions *) {
+    pointer-events: none!important;
+}
+
+.switcher_screen.manipulating *:not(.switcher_titleBar) {
     pointer-events: none!important;
 }
 
@@ -104,12 +108,14 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     height: 100%;
     margin-inline-start: -12%;
     margin-inline-end: -12%;
-    background-color: black;
+    border-radius: calc(0.8rem / 0.7);
     transform: scale(0.7);
+    overflow: hidden;
     transition: 0.5s transform;
 }
 
 body[device-type="desktop"] .switcher_screen {
+    position: static;
     display: inline-block;
     width: 50%;
     height: unset;
@@ -159,6 +165,22 @@ body:not([device-type="desktop"]) .switcher_screen.backgrounded * {
     display: none;
 }
 
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
+    display: flex;
+    flex-direction: column;
+    background-color: lightgrey;
+    color: black;
+    border-radius: 0.6rem;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_apps {
+    margin: 0.2rem;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
+    border-radius: 0.6rem;
+}
+
 .switcher_screenButton {
     position: absolute;
     top: 0;
@@ -201,6 +223,17 @@ body:not([device-type="desktop"]) .switcher_screen.backgrounded * {
 }
 
 .switcher_screen.switcher_screen_selected .switcher_screenCloseButton {
+    display: none;
+}
+
+.switcher_titleBar {
+    display: flex;
+    height: 2rem;
+    align-items: center;
+    z-index: 1;
+}
+
+.switcher.allowSelect .switcher_titleBar, body:not([device-type="desktop"]) .switcher_titleBar {
     display: none;
 }
 
@@ -259,6 +292,6 @@ body:not([device-type="desktop"]) .switcher_screen.backgrounded * {
     flex-grow: 1;
 }
 
-.switcher_screen.switcher_screen_selected .switcher_app {
+.switcher:not(.allowSelect) .switcher_app {
     border-radius: 0.8rem;
 }

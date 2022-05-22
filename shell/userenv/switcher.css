@@ -108,9 +108,8 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     height: 100%;
     margin-inline-start: -12%;
     margin-inline-end: -12%;
-    border-radius: calc(0.8rem / 0.7);
+    background-color: black;
     transform: scale(0.7);
-    overflow: hidden;
     transition: 0.5s transform;
 }
 
@@ -123,6 +122,9 @@ body[device-type="desktop"] .switcher_screen {
     margin-inline-start: -11%;
     margin-inline-end: -15%;
     margin-top: -20%;
+    background-color: transparent;
+    border-radius: calc(0.8rem / 0.7);
+    overflow: hidden;
     transform: scale(0.45);
 }
 

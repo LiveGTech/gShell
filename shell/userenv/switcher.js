@@ -147,7 +147,6 @@ export function openWindow(windowContents, appName = null) {
                     }
                 })
                 .on("click", function() {
-                    console.log("selscr");
                     main.selectScreen(screenElement);
 
                     screenElement.find(".switcher_apps").focus();

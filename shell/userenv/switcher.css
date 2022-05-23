@@ -109,6 +109,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     margin-inline-start: -12%;
     margin-inline-end: -12%;
     background-color: black;
+    vertical-align: bottom;
     transform: scale(0.7);
     transition: 0.5s transform;
 }

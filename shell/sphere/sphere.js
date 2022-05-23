@@ -115,13 +115,13 @@ export class Browser {
                 .addClass("sphere_addressInput")
                 .setAttribute("type", "url")
                 .on("click", function() {
-                    $g.sel(".sphere_addressInput").setValue(thisScope.selectedTab.find("webview").get()?.getURL());
+                    thisScope.uiChrome.find(".sphere_addressInput").setValue(thisScope.selectedTab.find("webview").get()?.getURL());
 
-                    $g.sel(".sphere_addressInput").get().select();
+                    thisScope.uiChrome.find(".sphere_addressInput").get().select();
                 })
                 .on("keydown", function(event) {
                     if (event.key == "Enter") {
-                        thisScope.visitUrl($g.sel(".sphere_addressInput").getValue());
+                        thisScope.visitUrl(thisScope.uiChrome.find(".sphere_addressInput").getValue());
                     }
                 })
             ,

@@ -7,6 +7,12 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+body[device-type="desktop"] #switcherView .surface {
+    border-radius: 0;
+    -webkit-mask-image: -webkit-linear-gradient(90deg, transparent 0%, black 0.5rem);
+    mask-image: linear-gradient(90deg, transparent 0%, black 0.5rem);
+}
+
 .switcherBar {
     text-align: center;
 }
@@ -48,6 +54,12 @@ body[device-type="desktop"] .switcher {
     padding-left: 5%;
     padding-right: 5%;
     overflow: auto;
+    animation: 0.5s switcher_desktopShowSelect;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) {
+    overflow: visible;
+    animation: 0.5s switcher_desktopHideSelect;
 }
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
@@ -66,7 +78,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     pointer-events: none!important;
 }
 
-.switcher_screen.manipulating *:not(.switcher_titleBar) {
+.switcher.manipulating *:not(.switcher_titleBar) {
     pointer-events: none!important;
 }
 
@@ -110,6 +122,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     margin-inline-end: -12%;
     background-color: black;
     vertical-align: bottom;
+    touch-action: none;
     transform: scale(0.7);
     transition: 0.5s transform;
 }
@@ -126,6 +139,7 @@ body[device-type="desktop"] .switcher_screen {
     background-color: transparent;
     border-radius: calc(0.8rem / 0.7);
     transform: scale(0.45);
+    transition: none;
 }
 
 body:not([device-type="desktop"]) .switcher .switcher_screen:first-of-type {
@@ -175,14 +189,6 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
     border-radius: 0.6rem;
 }
 
-body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_apps {
-    margin: 0.2rem;
-}
-
-body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
-    border-radius: 0.6rem;
-}
-
 .switcher_screenButton {
     position: absolute;
     top: 0;
@@ -196,6 +202,10 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
 }
 
 .switcher_screen.switcher_screen_selected .switcher_screenButton {
+    display: none;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenButton {
     display: none;
 }
 
@@ -231,6 +241,8 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
 .switcher_titleBar {
     display: flex;
     height: 2rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     align-items: center;
     z-index: 1;
 }
@@ -280,6 +292,10 @@ body[device-type="desktop"] .switcher_screenOptions {
     gap: 0.5rem;
 }
 
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_apps {
+    margin: 0.2rem;
+}
+
 .switcher_app {
     flex-grow: 1;
     width: 100%;
@@ -300,4 +316,32 @@ body[device-type="desktop"] .switcher_screenOptions {
 
 .switcher:not(.allowSelect) .switcher_app {
     border-radius: 0.8rem;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
+    border-radius: 0.5rem;
+}
+
+@keyframes switcher_desktopShowSelect {
+    0% {
+       transform: scale(1.5);
+       opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+       opacity: 1;
+    }
+}
+
+@keyframes switcher_desktopHideSelect {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

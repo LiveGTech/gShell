@@ -51,6 +51,8 @@ export class Switcher extends screenScroll.ScrollableScreen {
             this.screenSelected = true;
             this.targetScrollX = screenElement.get().offsetLeft;
 
+            thisScope.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+
             if (device.data?.type == "desktop") {
                 screenElement.setStyle("z-index", topmostZIndex++);
             }
@@ -88,29 +90,48 @@ export function init() {
     main = new Switcher($g.sel(".switcher"));
 }
 
+export function getWindowGeometry(element) {
+    if (element.hasAttribute("data-geometry")) {
+        return JSON.parse(element.getAttribute("data-geometry"));
+    }
+
+    return {};
+}
+
+export function setWindowGeometry(element, geometry = getWindowGeometry(element)) {
+    if (device.data?.type != "desktop") {
+        return;
+    }
+
+    element.setAttribute("data-geometry", JSON.stringify(geometry));
+
+    element.setStyle("left", `${geometry.x || 0}px`);
+    element.setStyle("top", `${geometry.y || 0}px`);
+}
+
 export function openWindow(windowContents, appName = null) {
     showList();
-
-    var webview = $g.create("webview");
 
     var initialX = 0;
     var initialY = 0;
     var pointerDown = false;
     var pointerStartX = 0;
     var pointerStartY = 0;
-
-    webviewComms.attach(webview);
+    var shouldSelectScreen = false;
 
     $g.sel("body").on("pointerup", function(event) {
-        screenElement.removeClass("manipulating");
+        $g.sel("#switcherView .switcher").removeClass("manipulating");
 
         pointerDown = false;
     });
 
     $g.sel("body").on("pointermove", function(event) {
         if (pointerDown) {
-            screenElement.setStyle("left", `${initialX + (event.pageX - pointerStartX)}px`);
-            screenElement.setStyle("top", `${initialY + (event.pageY - pointerStartY)}px`);
+            setWindowGeometry(screenElement, {
+                ...getWindowGeometry(screenElement),
+                x: initialX + (event.pageX - pointerStartX),
+                y: initialY + (event.pageY - pointerStartY)
+            });
         }
     });
 
@@ -120,7 +141,7 @@ export function openWindow(windowContents, appName = null) {
             $g.create("div")
                 .addClass("switcher_titleBar")
                 .on("pointerdown", function(event) {
-                    screenElement.addClass("manipulating");
+                    $g.sel("#switcherView .switcher").addClass("manipulating");
 
                     initialX = screenElement.get().offsetLeft;
                     initialY = screenElement.get().offsetTop;
@@ -147,9 +168,7 @@ export function openWindow(windowContents, appName = null) {
                     }
                 })
                 .on("click", function() {
-                    main.selectScreen(screenElement);
-
-                    screenElement.find(".switcher_apps").focus();
+                    shouldSelectScreen = true;
                 })
             ,
             $g.create("button")
@@ -192,7 +211,7 @@ export function openWindow(windowContents, appName = null) {
     ;
 
     if (appName == null) {
-        webview.on("page-title-updated", function(event) {
+        screenElement.on("page-title-updated", function(event) {
             screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
         });
     } else {
@@ -202,6 +221,22 @@ export function openWindow(windowContents, appName = null) {
     screenElement.find(".switcher_apps *").on("focus", function() {
         screenElement.find(".switcher_screenButton").focus();
     });
+
+    if (device.data?.type == "desktop") {
+        screenElement.on("pointerdown", function(event) {
+            if ($g.sel(event.target).is(".switcher_screenButton, .switcher_screenCloseButton, .switcher_screenOptions")) {
+                return;
+            }
+
+            main.selectScreen(screenElement);
+        });
+
+        screenElement.on("webviewevent", function(event) {
+            if (event.detail.type == "pointerdown") {
+                main.selectScreen(screenElement);
+            }
+        });
+    }
 
     screenElement.on("dismissintent", function(event) {
         if (main.screenSelected) {
@@ -220,7 +255,17 @@ export function openWindow(windowContents, appName = null) {
         });
     });
 
-    screenElement.swipeToDismiss(dismiss.directions.UP);
+    screenElement.on("dismissreturnend", function(event) {
+        if (shouldSelectScreen && !screenElement.is(".closing")) {
+            main.selectScreen(screenElement);
+
+            screenElement.find(".switcher_apps").focus();
+        }
+
+        shouldSelectScreen = false;
+    });
+
+    screenElement.swipeToDismiss(device.data?.type == "desktop" ? dismiss.directions.VERTICAL : dismiss.directions.UP);
 
     $g.sel("#switcherView .switcher").add(screenElement);
 

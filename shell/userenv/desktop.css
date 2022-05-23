@@ -7,6 +7,29 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+.desktop_background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: black;
+    object-fit: cover;
+    border-radius: 0;
+}
+
+body:not([device-type="desktop"]) .desktop_background {
+    display: none;
+}
+
+.desktop_appBar {
+    z-index: 1;
+}
+
 body:not([device-type="desktop"]) .desktop_appBar {
     display: none;
 }

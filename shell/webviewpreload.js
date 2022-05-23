@@ -71,7 +71,7 @@ window.addEventListener("load", function() {
         return;
     });
 
-    ["keyup", "keydown", "click"].forEach(function(type) {
+    ["keyup", "keydown", "click", "pointerup", "pointerdown"].forEach(function(type) {
         window.addEventListener(type, function(event) {
             var eventObject = {};
     

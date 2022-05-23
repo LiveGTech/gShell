@@ -37,6 +37,8 @@ export function attach(webview) {
     webview.on("ipc-message", function(event) {
         switch (event.channel) {
             case "eventPropagation":
+                webview.get().dispatchEvent(new CustomEvent("webviewevent", {detail: event.args[1], bubbles: true}));
+
                 webviewEvents
                     .filter((webviewEvent) => webviewEvent.eventName == event.args[0])
                     .forEach(function(webviewEvent) {

@@ -170,6 +170,15 @@ export function openWindow(windowContents, appName = null) {
                 .on("click", function() {
                     shouldSelectScreen = true;
                 })
+                .on("keydown", function(event) {
+                    if (event.key == " ") {
+                        main.selectScreen(screenElement);
+
+                        screenElement.find(".switcher_apps").focus();
+
+                        shouldSelectScreen = false;
+                    }
+                })
             ,
             $g.create("button")
                 .addClass("switcher_screenCloseButton")

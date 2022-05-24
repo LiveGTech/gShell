@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
+import * as device from "gshell://system/device.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 // Also in `shell/webviewpreload.js`
@@ -32,6 +33,12 @@ export const NON_TEXTUAL_INPUTS = [
     "week"
 ];
 
+export const inputModes = {
+    NONE: 0,
+    FULL_KEYBOARD: 1,
+    IME_ONLY: 2
+};
+
 export var keyboardLayouts = [];
 export var currentKeyboardLayout = null;
 export var showing = false;
@@ -40,6 +47,10 @@ export var targetInputSurface = null;
 var targetInput = null;
 var showingTransition = false;
 var lastInputScrollLeft = 0;
+var lastInputTop = 0;
+var lastInputLeft = 0;
+var lastInputWidth = 0;
+var lastInputHeight = 0;
 
 export class KeyboardLayout {
     constructor(localeCode, variant) {
@@ -401,6 +412,15 @@ export function init() {
         }
     });
 
+    webviewComms.onEvent("focusin click", function(event) {
+        var webviewRect = event.targetWebview.getBoundingClientRect();
+
+        lastInputTop = webviewRect.top + event.targetTop;
+        lastInputLeft = webviewRect.left + event.targetLeft;
+        lastInputWidth = event.targetWidth;
+        lastInputHeight = event.targetHeight;
+    });
+
     $g.sel(".input").on("click", function(event) {
         if (event.target.matches("button")) {
             return;
@@ -454,7 +474,15 @@ export function render() {
     $g.sel(".input")
         .clear()
         .add(
-            $g.create("div").setStyle("height", "2.5rem"),
+            $g.create("div")
+                .addClass("input_keyboard_row")
+                .addClass("input_ime")
+                .add( // TODO: Implement working IME based on typed input, as well as text entry on button press
+                    $g.create("button").setText("The"),
+                    $g.create("button").setText("I"),
+                    $g.create("button").setText("We")
+                )
+            ,
             currentKeyboardLayout.render(),
             $g.create("div")
                 .addClass("input_keyboard_row")
@@ -487,13 +515,39 @@ export function render() {
     ;
 }
 
-export function show() {
+export function getBestInputMode() {
+    return device.touchActive ? inputModes.FULL_KEYBOARD : inputModes.IME_ONLY;
+}
+
+export function show(mode = getBestInputMode()) {
+    if (mode == inputModes.NONE) {
+        return;
+    }
+
     targetInput = document.activeElement;
 
     showing = true;
     showingTransition = true;
 
-    $g.sel("body").addClass("input_keyboardShowing");
+    if (mode != inputModes.IME_ONLY) {
+        $g.sel(".input").removeClass("imeOnly");
+        $g.sel("body").addClass("input_keyboardShowing");
+    } else {
+        $g.sel(".input").addClass("imeOnly");
+        $g.sel(".input").setStyle("bottom", null);
+
+        if (!$g.sel(document.activeElement).is("webview")) {
+            var elementRect = document.activeElement.getBoundingClientRect();
+
+            lastInputTop = elementRect.top;
+            lastInputLeft = elementRect.left;
+            lastInputWidth = elementRect.width;
+            lastInputHeight = elementRect.height;
+        }
+
+        $g.sel(".input").setStyle("top", `${lastInputTop + lastInputHeight + 5}px`);
+        $g.sel(".input").setStyle("left", `${lastInputLeft}px`);
+    }
 
     webviewComms.update();
 
@@ -511,7 +565,7 @@ export function show() {
 
     return Promise.all([
         $g.sel(".input").fadeIn(250),
-        $g.sel(".input").easeStyleTransition("bottom", 0, 250)
+        ...(mode != inputModes.IME_ONLY ? [$g.sel(".input").easeStyleTransition("bottom", 0, 250)] : [])
     ]).then(function() {
         showingTransition = false;
 
@@ -546,10 +600,12 @@ export function hide(force = false) {
 
     return Promise.all([
         $g.sel(".input").fadeOut(250),
-        $g.sel(".input").easeStyleTransition("bottom", -20, 250)
+        ...(!$g.sel(".input").hasClass("imeOnly") ? [$g.sel(".input").easeStyleTransition("bottom", -20, 250)] : [])
     ]).then(function() {
         if (showingTransition) {
             $g.sel(".input").show();
+        } else {
+            $g.sel(".input").removeClass("imeOnly");
         }
     });
 }

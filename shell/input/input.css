@@ -29,8 +29,36 @@
     z-index: 2;
 }
 
+.input.imeOnly {
+    width: unset;
+    height: 2.5rem;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    bottom: unset;
+}
+
 .input[hidden] {
     display: none;
+}
+
+.input_ime {
+    height: 2.5rem;
+    justify-content: center;
+}
+
+.input.imeOnly .input_ime {
+    height: 100%;
+}
+
+.input_ime.input_keyboard_row button {
+    max-width: 33.3%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.input.imeOnly .input_ime.input_keyboard_row button {
+    width: unset;
+    max-width: unset;
 }
 
 .input_keyboard_keys {
@@ -38,6 +66,10 @@
     flex-direction: column;
     flex-grow: 1;
     gap: 0.2rem;
+}
+
+.input.imeOnly .input_keyboard_keys {
+    display: none;
 }
 
 .input_keyboard_row {
@@ -112,6 +144,10 @@
 
 .input_keyboard_options {
     height: 2rem;
+}
+
+.input.imeOnly .input_keyboard_options {
+    display: none;
 }
 
 .input_keyboard_options button {

@@ -71,7 +71,7 @@ window.addEventListener("load", function() {
         return;
     });
 
-    ["keyup", "keydown", "click", "pointerup", "pointerdown"].forEach(function(type) {
+    ["keyup", "keydown", "click", "pointerup", "pointerdown", "focusin", "focusout"].forEach(function(type) {
         window.addEventListener(type, function(event) {
             var eventObject = {};
     
@@ -80,6 +80,13 @@ window.addEventListener("load", function() {
                     eventObject[key] = event[key];
                 }
             }
+
+            var targetRect = event.target.getBoundingClientRect();
+
+            eventObject.targetTop = targetRect.top;
+            eventObject.targetLeft = targetRect.left;
+            eventObject.targetWidth = targetRect.width;
+            eventObject.targetHeight = targetRect.height;
     
             electron.ipcRenderer.sendToHost("eventPropagation", type, eventObject);
         });

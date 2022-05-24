@@ -19,8 +19,8 @@ export class WebviewEvent {
     }
 }
 
-export function onEvent(eventName, callback) {
-    webviewEvents.push({eventName, callback});
+export function onEvent(eventNames, callback) {
+    eventNames.split(" ").forEach((eventName) => webviewEvents.push({eventName, callback}));
 }
 
 export function attach(webview) {

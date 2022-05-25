@@ -1,7 +1,7 @@
 # Device description file
 A device description file (DDF) tells gShell what kind of device it is running on, and contains details on how LiveG OS can communicate with applicable hardware through its system abstraction layer (`src/system.js`). It's conceptually similar to a device tree overlay file in Linux.
 
-The default path for the DDF is `system://device.gsc`, though this can be overridden through using the `--device-desc-location` flag (with the path excluding the `system://` prefix).
+The default path for the DDF is `storage://device.gsc`, though this can be overridden through using the `--device-desc-location` flag (with the path excluding the `storage://` prefix).
 
 The DDF is not required to run gShell; gShell will instead use generic values, which may disable some features (such as battery reporting) due to the lack of the required description properties that are needed to communicate with battery hardware. If a DDF is used, properties that are not relevant to the device can be excluded — if a device does not rely on the use of a battery, then the `hardware.batteryStateReporter`, `hardware.batteryStateMapping` and `hardware.batteryLevelReporter` properties can be omitted.
 

@@ -20,10 +20,15 @@
     background-color: black;
     object-fit: cover;
     border-radius: 0;
+    transition: 0.5s filter;
 }
 
 body:not([device-type="desktop"]) .desktop_background {
     display: none;
+}
+
+#switcherView.switcherOpen .desktop_background {
+    filter: brightness(0.6);
 }
 
 .desktop_appBar {

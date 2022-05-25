@@ -82,6 +82,18 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     pointer-events: none!important;
 }
 
+.switcher::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+html[aui-istouch="false"] ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
 .switcher:empty {
     display: none;
 }
@@ -172,7 +184,7 @@ body[device-type="desktop"] .switcher .switcher_screen.closing {
     z-index: 1;
 }
 
-.switcher_screen.switcher_screen_selected, body[device-type="desktop"] .switcher_screen.switcher_screen_selected {
+.switcher_screen.selected, body[device-type="desktop"] .switcher_screen.selected {
     transform: none;
     z-index: 1;
 }
@@ -184,9 +196,14 @@ body:not([device-type="desktop"]) .switcher_screen.backgrounded * {
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
     display: flex;
     flex-direction: column;
-    background-color: lightgrey;
-    color: black;
+    background-color: rgb(229, 229, 229);
+    color: var(--secondaryText);
     border-radius: 0.6rem;
+    transition: 0.5s background-color;
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selected {
+    background-color: rgb(206, 206, 206);
 }
 
 .switcher_screenButton {
@@ -201,7 +218,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
     background-color: transparent!important;
 }
 
-.switcher_screen.switcher_screen_selected .switcher_screenButton {
+.switcher_screen.selected .switcher_screenButton {
     display: none;
 }
 
@@ -234,7 +251,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenButton {
     height: 5rem;
 }
 
-.switcher_screen.switcher_screen_selected .switcher_screenCloseButton {
+.switcher_screen.selected .switcher_screenCloseButton {
     display: none;
 }
 
@@ -281,7 +298,7 @@ body[device-type="desktop"] .switcher_screenOptions {
     white-space: nowrap;
 }
 
-.switcher_screen.switcher_screen_selected .switcher_screenOptions {
+.switcher_screen.selected .switcher_screenOptions {
     display: none;
 }
 
@@ -343,5 +360,15 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
     100% {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
+        background-color: rgb(26, 26, 26);
+    }
+    
+    body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selected {
+        background-color: rgb(49, 49, 49);
     }
 }

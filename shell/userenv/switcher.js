@@ -32,6 +32,14 @@ export class Switcher extends screenScroll.ScrollableScreen {
                 }
             });
         });
+
+        if (device.data?.type == "desktop") {
+            this.element.on("pointerdown", function(event) {
+                if (!thisScope.element.is(".allowSelect") && event.target == thisScope.element.get()) {
+                    thisScope.selectDesktop();
+                }
+            });
+        }
     }
 
     get screenWidth() {
@@ -41,7 +49,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
     selectScreen(screenElement) {
         var thisScope = this;
 
-        if (screenElement.get().matches(".switcher_screen") && (this.element.get().matches(".allowSelect") || device.data?.type == "desktop")) {
+        if (screenElement.get().matches(".switcher_screen") && (this.element.is(".allowSelect") || device.data?.type == "desktop")) {
             $g.sel("#switcherView").removeClass("switcherOpen");
 
             this.element.removeClass("allowSelect");
@@ -79,6 +87,20 @@ export class Switcher extends screenScroll.ScrollableScreen {
         this.element.find(":scope > *").setStyle("top", null);
         this.element.find(":scope > *").setStyle("left", null);
     }
+
+    selectDesktop() {
+        if (device.data?.type != "desktop") {
+            return;
+        }
+
+        $g.sel("#switcherView").removeClass("switcherOpen");
+
+        this.element.removeClass("allowSelect");
+        this.element.find(":scope > *").addClass("backgrounded");
+        this.element.find(":scope > *").removeClass("selected");
+
+        this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+    }
 }
 
 export function init() {
@@ -88,6 +110,10 @@ export function init() {
 
     $g.sel(".switcher_showList").on("click", function() {
         showList();
+    });
+
+    $g.sel(".switcher_toggleList").on("click", function() {
+        toggleList();
     });
 
     main = new Switcher($g.sel(".switcher"));
@@ -264,6 +290,10 @@ export function openWindow(windowContents, appName = null) {
             screenElement.easeStyleTransition("opacity", 0)
         ]).then(function() {
             screenElement.remove();
+
+            if ($g.sel("#switcherView .switcher *").getAll().length == 0) {
+                main.selectDesktop();
+            }
         });
     });
 
@@ -296,6 +326,14 @@ export function selectScreen(screenElement) {
     main.selectScreen(screenElement);
 
     return Promise.resolve();
+}
+
+export function toggleList() {
+    if ($g.sel("#switcherView .switcher").is(".allowSelect")) {
+        main.selectDesktop();
+    } else {
+        main.deselectScreen();
+    }
 }
 
 export function closeAll() {

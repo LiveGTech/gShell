@@ -25,6 +25,7 @@
         "lockScreen_delete": "Delete",
 
         "switcher_goHome": "Go home",
+        "switcher_toggleList": "Toggle app switcher",
         "switcher_close": "Close",
         "switcher_closeAll": "Close all",
         "switcher_empty": "No open apps",

@@ -516,6 +516,7 @@ export function render() {
 }
 
 export function getBestInputMode() {
+    // FIXME: `FULL_KEYBOARD` doesn't actually show on mobile
     return device.touchActive ? inputModes.FULL_KEYBOARD : inputModes.IME_ONLY;
 }
 

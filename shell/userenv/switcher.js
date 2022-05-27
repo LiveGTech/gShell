@@ -10,14 +10,42 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
+import * as calc from "gshell://lib/adaptui/src/calc.js";
 
 import * as device from "gshell://system/device.js";
 import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 
+export const WINDOW_RESIZE_BORDER_THICKNESS = calc.getRemSize(0.6);
+export const DESKTOP_MIN_WINDOW_WIDTH = calc.getRemSize(20);
+export const DESKTOP_MIN_WINDOW_HEIGHT = calc.getRemSize(15);
+export const DESKTOP_DEFAULT_WINDOW_WIDTH = calc.getRemSize(40);
+export const DESKTOP_DEFAULT_WINDOW_HEIGHT = calc.getRemSize(30);
+
 export var main = null;
 
 var topmostZIndex = 1;
+
+export class WindowMoveResizeMode {
+    constructor() {
+        this.resizeNorth = false;
+        this.resizeSouth = false;
+        this.resizeEast = false;
+        this.resizeWest = false;
+    }
+
+    get moveOnly() {
+        return !(this.resizeNorth || this.resizeSouth || this.resizeEast || this.resizeWest);
+    }
+
+    get resizeHorizontal() {
+        return this.resizeEast || this.resizeWest;
+    }
+
+    get resizeVertical() {
+        return this.resizeNorth || this.resizeSouth;
+    }
+}
 
 export class Switcher extends screenScroll.ScrollableScreen {
     constructor(element) {
@@ -124,7 +152,14 @@ export function getWindowGeometry(element) {
         return JSON.parse(element.getAttribute("data-geometry"));
     }
 
-    return {};
+    var rect = element.get().getBoundingClientRect();
+
+    return {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height
+    };
 }
 
 export function setWindowGeometry(element, geometry = getWindowGeometry(element)) {
@@ -136,48 +171,69 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
 
     element.setStyle("left", `${geometry.x || 0}px`);
     element.setStyle("top", `${geometry.y || 0}px`);
+    element.setStyle("width", `${geometry.width || 0}px`);
+    element.setStyle("height", `${geometry.height || 0}px`);
 }
 
 export function openWindow(windowContents, appName = null) {
     showList();
 
-    var initialX = 0;
-    var initialY = 0;
+    var initialGeometry = null;
+    var previousGeometry = null;
     var pointerDown = false;
+    var moveResizeMode = new WindowMoveResizeMode();
     var pointerStartX = 0;
     var pointerStartY = 0;
+    var cursor = null;
     var shouldSelectScreen = false;
-
-    $g.sel("body").on("pointerup", function(event) {
-        $g.sel("#switcherView .switcher").removeClass("manipulating");
-
-        pointerDown = false;
-    });
-
-    $g.sel("body").on("pointermove", function(event) {
-        if (pointerDown) {
-            setWindowGeometry(screenElement, {
-                ...getWindowGeometry(screenElement),
-                x: initialX + (event.pageX - pointerStartX),
-                y: initialY + (event.pageY - pointerStartY)
-            });
-        }
-    });
 
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
+        .on("pointermove", function(event) {
+            if (device.data?.type != "desktop") {
+                return;
+            }
+
+            var screenRect = screenElement.get().getBoundingClientRect();
+            var pointerRelativeX = event.clientX - screenRect.left;
+            var pointerRelativeY = event.clientY - screenRect.top;
+
+            moveResizeMode = new WindowMoveResizeMode();
+
+            moveResizeMode.resizeWest = pointerRelativeX <= WINDOW_RESIZE_BORDER_THICKNESS;
+            moveResizeMode.resizeEast = pointerRelativeX > screenRect.width - WINDOW_RESIZE_BORDER_THICKNESS;
+            moveResizeMode.resizeNorth = pointerRelativeY <= WINDOW_RESIZE_BORDER_THICKNESS;
+            moveResizeMode.resizeSouth = pointerRelativeY > screenRect.height - WINDOW_RESIZE_BORDER_THICKNESS;
+
+            cursor = null;
+
+            if ((moveResizeMode.resizeNorth && moveResizeMode.resizeWest) || (moveResizeMode.resizeSouth && moveResizeMode.resizeEast)) {
+                cursor = "nwse-resize";
+            } else if ((moveResizeMode.resizeNorth && moveResizeMode.resizeEast) || (moveResizeMode.resizeSouth && moveResizeMode.resizeWest)) {
+                cursor = "nesw-resize";
+            } else if (moveResizeMode.resizeHorizontal) {
+                cursor = "ew-resize";
+            } else if (moveResizeMode.resizeVertical) {
+                cursor = "ns-resize";
+            }
+
+            screenElement.setStyle("cursor", cursor);
+        })
+        .on("pointerdown", function(event) {
+            if ($g.sel(event.target).is(".switcher_screen, .switcher_titleBar")) {
+                $g.sel("#switcherView .switcher").addClass("manipulating");
+
+                initialGeometry = getWindowGeometry(screenElement);
+                pointerDown = true;
+                pointerStartX = event.clientX;
+                pointerStartY = event.clientY;
+
+                $g.sel("#switcherView .switcher").setStyle("cursor", cursor);
+            }
+        })
         .add(
             $g.create("div")
                 .addClass("switcher_titleBar")
-                .on("pointerdown", function(event) {
-                    $g.sel("#switcherView .switcher").addClass("manipulating");
-
-                    initialX = screenElement.get().offsetLeft;
-                    initialY = screenElement.get().offsetTop;
-                    pointerDown = true;
-                    pointerStartX = event.pageX;
-                    pointerStartY = event.pageY;
-                })
                 .add(
                     $g.create("span").setText("App")
                 )
@@ -247,6 +303,82 @@ export function openWindow(windowContents, appName = null) {
                 )
         )
     ;
+
+    // TODO: Set initial X/Y values relative to screen size and with stacking effect
+
+    initialGeometry = {
+        x: 10,
+        y: 10,
+        width: DESKTOP_DEFAULT_WINDOW_WIDTH,
+        height: DESKTOP_DEFAULT_WINDOW_HEIGHT
+    };
+
+    previousGeometry = initialGeometry;
+
+    setWindowGeometry(screenElement, initialGeometry);
+
+    $g.sel("body").on("pointermove", function(event) {
+        if (!pointerDown) {
+            return;
+        }
+
+        var newGeometry = getWindowGeometry(screenElement);
+        var pointerDeltaX = event.clientX - pointerStartX;
+        var pointerDeltaY = event.clientY - pointerStartY;
+        var shouldSetPreviousGeometry = true;
+
+        // FIXME: Reverting geometry is a bit janky if attempting to quickly resize window (north/west) below minimum size
+
+        if (moveResizeMode.moveOnly || moveResizeMode.resizeWest) {
+            newGeometry.x = initialGeometry.x + pointerDeltaX;
+        }
+
+        if (moveResizeMode.moveOnly || moveResizeMode.resizeNorth) {
+            newGeometry.y = initialGeometry.y + pointerDeltaY;
+        }
+
+        if (moveResizeMode.resizeWest) {
+            newGeometry.width = initialGeometry.width - pointerDeltaX;
+        }
+
+        if (moveResizeMode.resizeEast) {
+            newGeometry.width = initialGeometry.width + pointerDeltaX;
+        }
+
+        if (moveResizeMode.resizeNorth) {
+            newGeometry.height = initialGeometry.height - pointerDeltaY;
+        }
+
+        if (moveResizeMode.resizeSouth) {
+            newGeometry.height = initialGeometry.height + pointerDeltaY;
+        }
+
+        if (newGeometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
+            newGeometry.x = previousGeometry.x;
+            newGeometry.width = DESKTOP_MIN_WINDOW_WIDTH;
+            shouldSetPreviousGeometry = false;
+        }
+
+        if (newGeometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
+            newGeometry.y = previousGeometry.y;
+            newGeometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
+            shouldSetPreviousGeometry = false;
+        }
+
+        if (shouldSetPreviousGeometry) {
+            previousGeometry = newGeometry;
+        }
+
+        setWindowGeometry(screenElement, newGeometry);
+    });
+
+    $g.sel("body").on("pointerup", function() {
+        pointerDown = false;
+        cursor = null;
+
+        $g.sel("#switcherView .switcher").removeClass("manipulating");
+        $g.sel("#switcherView .switcher").setStyle("cursor", null);
+    });
 
     if (appName == null) {
         screenElement.on("page-title-updated", function(event) {

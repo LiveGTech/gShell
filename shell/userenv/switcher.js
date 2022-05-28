@@ -179,7 +179,6 @@ export function openWindow(windowContents, appName = null) {
     showList();
 
     var initialGeometry = null;
-    var previousGeometry = null;
     var pointerDown = false;
     var moveResizeMode = new WindowMoveResizeMode();
     var pointerStartX = 0;
@@ -313,8 +312,6 @@ export function openWindow(windowContents, appName = null) {
         height: DESKTOP_DEFAULT_WINDOW_HEIGHT
     };
 
-    previousGeometry = initialGeometry;
-
     setWindowGeometry(screenElement, initialGeometry);
 
     $g.sel("body").on("pointermove", function(event) {
@@ -325,49 +322,55 @@ export function openWindow(windowContents, appName = null) {
         var newGeometry = getWindowGeometry(screenElement);
         var pointerDeltaX = event.clientX - pointerStartX;
         var pointerDeltaY = event.clientY - pointerStartY;
-        var shouldSetPreviousGeometry = true;
 
-        // FIXME: Reverting geometry is a bit janky if attempting to quickly resize window (north/west) below minimum size
+        function handleHorizontal() {
+            if (moveResizeMode.resizeWest) {
+                newGeometry.width = initialGeometry.width - pointerDeltaX;
+            }
+    
+            if (moveResizeMode.resizeEast) {
+                newGeometry.width = initialGeometry.width + pointerDeltaX;
+            }
 
-        if (moveResizeMode.moveOnly || moveResizeMode.resizeWest) {
-            newGeometry.x = initialGeometry.x + pointerDeltaX;
+            if (newGeometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
+                var distance = DESKTOP_MIN_WINDOW_WIDTH - newGeometry.width;
+
+                newGeometry.width = DESKTOP_MIN_WINDOW_WIDTH;
+                newGeometry.x = initialGeometry.x + pointerDeltaX - distance;
+
+                return;
+            }
+
+            if (moveResizeMode.moveOnly || moveResizeMode.resizeWest) {
+                newGeometry.x = initialGeometry.x + pointerDeltaX;
+            }
         }
 
-        if (moveResizeMode.moveOnly || moveResizeMode.resizeNorth) {
-            newGeometry.y = initialGeometry.y + pointerDeltaY;
+        function handleVertical() {
+            if (moveResizeMode.resizeNorth) {
+                newGeometry.height = initialGeometry.height - pointerDeltaY;
+            }
+
+            if (moveResizeMode.resizeSouth) {
+                newGeometry.height = initialGeometry.height + pointerDeltaY;
+            }
+
+            if (newGeometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
+                var distance = DESKTOP_MIN_WINDOW_HEIGHT - newGeometry.height;
+
+                newGeometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
+                newGeometry.y = initialGeometry.y + pointerDeltaY - distance;
+
+                return;
+            }
+
+            if (moveResizeMode.moveOnly || moveResizeMode.resizeNorth) {
+                newGeometry.y = initialGeometry.y + pointerDeltaY;
+            }
         }
 
-        if (moveResizeMode.resizeWest) {
-            newGeometry.width = initialGeometry.width - pointerDeltaX;
-        }
-
-        if (moveResizeMode.resizeEast) {
-            newGeometry.width = initialGeometry.width + pointerDeltaX;
-        }
-
-        if (moveResizeMode.resizeNorth) {
-            newGeometry.height = initialGeometry.height - pointerDeltaY;
-        }
-
-        if (moveResizeMode.resizeSouth) {
-            newGeometry.height = initialGeometry.height + pointerDeltaY;
-        }
-
-        if (newGeometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
-            newGeometry.x = previousGeometry.x;
-            newGeometry.width = DESKTOP_MIN_WINDOW_WIDTH;
-            shouldSetPreviousGeometry = false;
-        }
-
-        if (newGeometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
-            newGeometry.y = previousGeometry.y;
-            newGeometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
-            shouldSetPreviousGeometry = false;
-        }
-
-        if (shouldSetPreviousGeometry) {
-            previousGeometry = newGeometry;
-        }
+        handleVertical();
+        handleHorizontal();
 
         setWindowGeometry(screenElement, newGeometry);
     });

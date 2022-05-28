@@ -24,7 +24,10 @@ export const DESKTOP_DEFAULT_WINDOW_HEIGHT = calc.getRemSize(30);
 
 export var main = null;
 
+const WINDOW_STACK_WRAPAROUND = 10;
+
 var topmostZIndex = 1;
+var windowStackStep = 0;
 
 export class WindowMoveResizeMode {
     constructor() {
@@ -169,6 +172,10 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
 
     element.setAttribute("data-geometry", JSON.stringify(geometry));
 
+    if ($g.sel("#switcherView .switcher").is(".allowSelect")) {
+        return;
+    }
+
     element.setStyle("left", `${geometry.x || 0}px`);
     element.setStyle("top", `${geometry.y || 0}px`);
     element.setStyle("width", `${geometry.width || 0}px`);
@@ -303,14 +310,14 @@ export function openWindow(windowContents, appName = null) {
         )
     ;
 
-    // TODO: Set initial X/Y values relative to screen size and with stacking effect
-
     initialGeometry = {
-        x: 10,
-        y: 10,
+        x: ((window.innerWidth - DESKTOP_DEFAULT_WINDOW_WIDTH) / (WINDOW_STACK_WRAPAROUND + 2)) * (windowStackStep + 1),
+        y: ((window.innerHeight - DESKTOP_DEFAULT_WINDOW_HEIGHT) / (WINDOW_STACK_WRAPAROUND + 2)) * (windowStackStep + 1),
         width: DESKTOP_DEFAULT_WINDOW_WIDTH,
         height: DESKTOP_DEFAULT_WINDOW_HEIGHT
     };
+
+    windowStackStep = (windowStackStep + 1) % WINDOW_STACK_WRAPAROUND;
 
     setWindowGeometry(screenElement, initialGeometry);
 

@@ -214,7 +214,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selecte
     background-color: rgb(206, 206, 206);
 }
 
-body[device-type="desktop"] .switcher.allowSelect .switcher_screen {
+body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing) {
     width: 50%!important;
     height: unset!important;
 }

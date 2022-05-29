@@ -247,7 +247,7 @@ export function openWindow(windowContents, appName = null) {
             $g.create("div")
                 .addClass("switcher_apps")
                 .add(
-                    $g.create("div").addClass("switcher_app").add(...windowContents)
+                    windowContents.addClass("switcher_app")
                 )
             ,
             $g.create("button")
@@ -463,7 +463,9 @@ export function openWindow(windowContents, appName = null) {
 }
 
 export function openApp(url) {
-    return openWindow([$g.create("main").add(webviewManager.spawn(url))]);
+    return openWindow($g.create("div").add(
+        $g.create("main").add(webviewManager.spawn(url))
+    ));
 }
 
 export function showList() {

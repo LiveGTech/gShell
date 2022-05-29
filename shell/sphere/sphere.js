@@ -8,11 +8,14 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as calc from "gshell://lib/adaptui/src/calc.js";
 
 import * as input from "gshell://input/input.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
+
+export const FULL_CHROME_MIN_WIDTH = calc.getRemSize(30);
 
 export class Browser {
     constructor() {}
@@ -90,12 +93,18 @@ export class Browser {
         tab.find("webview").get()?.goBack();
     }
 
+    goForward(tab = this.selectedTab) {
+        tab.find("webview").get()?.goForward();
+    }
+
     visitUrl(url, tab = this.selectedTab) {
         tab.find("webview").get()?.loadURL(this.constructor.normaliseUrl(url));
     }
 
     render() {
         var thisScope = this;
+
+        this.uiContainer = $g.create("div").addClass("sphere");
 
         // UI chrome, not to be confused with the Google Chrome browser
         this.uiChrome = $g.create("header").add(
@@ -106,8 +115,21 @@ export class Browser {
                 })
                 .add(
                     $g.create("img")
-                        .setAttribute("aui-icon", "light")
+                        .setAttribute("aui-icon", "dark embedded")
                         .setAttribute("src", "gshell://lib/adaptui/icons/back.svg")
+                        .setAttribute("alt", "")
+                )
+            ,
+            $g.create("button")
+                .addClass("sphere_fullChromeOnly")
+                .setAttribute("aria-label", _("sphere_forward"))
+                .on("click", function() {
+                    thisScope.goForward();
+                })
+                .add(
+                    $g.create("img")
+                        .setAttribute("aui-icon", "dark embedded")
+                        .setAttribute("src", "gshell://lib/adaptui/icons/forward.svg")
                         .setAttribute("alt", "")
                 )
             ,
@@ -133,22 +155,27 @@ export class Browser {
                 .setAttribute("aria-label", _("sphere_menu"))
                 .add(
                     $g.create("img")
-                        .setAttribute("aui-icon", "light")
+                        .setAttribute("aui-icon", "dark embedded")
                         .setAttribute("src", "gshell://lib/adaptui/icons/menu.svg")
                         .setAttribute("alt", "")
                 )
         );
 
-        this.uiMain = $g.create("main")
-            .addClass("sphere_main")
-            .add(
-                $g.create("div").addClass("sphere_tabs")
-            )
-        ;
+        this.uiMain = $g.create("main").add(
+            $g.create("div").addClass("sphere_tabs")
+        );
 
         this.newTab("https://github.com/LiveGTech/gShell");
 
-        return [this.uiChrome, this.uiMain];
+        new ResizeObserver(function() {
+            if (thisScope.uiContainer.get().clientWidth >= FULL_CHROME_MIN_WIDTH) {
+                thisScope.uiContainer.addClass("fullChrome");
+            } else {
+                thisScope.uiContainer.removeClass("fullChrome");
+            }
+        }).observe(this.uiContainer.get());
+
+        return this.uiContainer.add(this.uiChrome, this.uiMain);
     }
 }
 

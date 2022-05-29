@@ -7,6 +7,18 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+.sphere header {
+    --primaryUI: rgb(229, 229, 229);
+    --primaryUIText: black;
+    --primaryUIPress: rgb(200, 200, 200);
+    --secondaryBackground: white;
+    --secondaryText: black;
+}
+
+.sphere main {
+    top: 0;
+}
+
 .sphere_addressInput {
     min-width: unset!important;
     max-width: unset!important;
@@ -17,10 +29,6 @@
     width: 2rem;
     padding-top: 0.15rem;
     border: 0.2rem solid var(--primaryUIText);
-}
-
-.sphere_main {
-    top: 0;
 }
 
 .sphere_tabs {
@@ -36,4 +44,19 @@
 .sphere_tab webview {
     width: 100%;
     height: 100%;
+}
+
+.sphere:not(.fullChrome) .sphere_fullChromeOnly {
+    display: none;
+}
+
+.sphere.fullChrome .sphere_notFullChromeOnly {
+    display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    .sphere_chrome {
+        --primaryUI: rgb(64, 64, 64);
+        --primaryUIText: black;
+    }
 }

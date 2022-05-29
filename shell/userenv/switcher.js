@@ -343,7 +343,10 @@ export function openWindow(windowContents, appName = null) {
                 var distance = DESKTOP_MIN_WINDOW_WIDTH - newGeometry.width;
 
                 newGeometry.width = DESKTOP_MIN_WINDOW_WIDTH;
-                newGeometry.x = initialGeometry.x + pointerDeltaX - distance;
+
+                if (moveResizeMode.resizeWest) {
+                    newGeometry.x = initialGeometry.x + pointerDeltaX - distance;
+                }
 
                 return;
             }
@@ -366,7 +369,10 @@ export function openWindow(windowContents, appName = null) {
                 var distance = DESKTOP_MIN_WINDOW_HEIGHT - newGeometry.height;
 
                 newGeometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
-                newGeometry.y = initialGeometry.y + pointerDeltaY - distance;
+
+                if (moveResizeMode.resizeNorth) {
+                    newGeometry.y = initialGeometry.y + pointerDeltaY - distance;
+                }
 
                 return;
             }

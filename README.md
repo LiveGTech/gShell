@@ -25,7 +25,7 @@ Install gShell and its dependencies using npm:
 npm install
 ```
 
-Run gShell on the local machine (in a simulated environment on non-LiveG OS systems):
+Run gShell on the local machine (in a simulated environment on non-LiveG OS systems), alongside any added arguments:
 
 ```bash
 # On LiveG OS:

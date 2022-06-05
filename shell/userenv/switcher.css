@@ -166,7 +166,7 @@ body:not([device-type="desktop"]) .switcher .switcher_screen:first-of-type {
     margin-inline-start: 0;
 }
 
-body[device-type="desktop"] .switcher_screen:first-of-type, body[device-type="desktop"] .switcher_screen:first-of-type.closing + .switcher_screen {
+body[device-type="desktop"] .switcher_screen:first-of-type, body[device-type="desktop"] .switcher.allowSelect .switcher_screen:first-of-type.closing + .switcher_screen {
     margin-top: 0;
 }
 
@@ -174,22 +174,18 @@ body[device-type="desktop"] .switcher_screen:last-of-type {
     margin-inline-end: -15%;
 }
 
-.switcher .switcher_screen.closing + .switcher_screen {
+.switcher.allowSelect .switcher_screen.closing + .switcher_screen {
     margin-inline-start: -11%;
     transition: 0.5s margin-inline-start;
 }
 
-body[device-type="desktop"] .switcher .switcher_screen.closing {
+body[device-type="desktop"] .switcher.allowSelect .switcher_screen.closing {
     opacity: 0;
     height: unset!important;
 }
 
 .switcher .switcher_screen:last-of-type {
     margin-inline-end: 0;
-}
-
-.switcher_screen.transitioning {
-    z-index: 1;
 }
 
 .switcher_screen.selected, body[device-type="desktop"] .switcher_screen.selected {
@@ -212,6 +208,12 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selected {
     background-color: rgb(206, 206, 206);
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.closing {
+    opacity: 0!important;
+    transform: scale(0.8);
+    transition: 0.5s opacity, 0.5s transform;
 }
 
 body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing) {
@@ -271,14 +273,38 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenButton {
 .switcher_titleBar {
     display: flex;
     height: 2rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-top: 0.2rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
     align-items: center;
     z-index: 1;
 }
 
 .switcher.allowSelect .switcher_titleBar, body:not([device-type="desktop"]) .switcher_titleBar {
     display: none;
+}
+
+.switcher_titleBar span {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.switcher_titleBar button {
+    height: 100%;
+    margin: 0;
+    padding: 0.2rem;
+    background-color: transparent;
+}
+
+html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar button:active {
+    background-color: var(--secondarySelected);
+}
+
+.switcher_titleBar button img {
+    height: 100%;
 }
 
 .switcher_screenOptions {

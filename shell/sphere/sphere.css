@@ -55,8 +55,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .sphere_chrome {
+    .sphere header {
         --primaryUI: rgb(64, 64, 64);
-        --primaryUIText: black;
+        --primaryUIText: white;
+        --primaryUIPress: rgb(55, 55, 55);
+        --secondaryBackground: black;
+        --secondaryText: white;
     }
 }

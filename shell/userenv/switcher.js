@@ -195,6 +195,7 @@ export function openWindow(windowContents, appName = null) {
 
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
+        .addClass("transitioning")
         .on("pointermove", function(event) {
             if (device.data?.type != "desktop") {
                 return;
@@ -241,7 +242,18 @@ export function openWindow(windowContents, appName = null) {
             $g.create("div")
                 .addClass("switcher_titleBar")
                 .add(
-                    $g.create("span").setText("App")
+                    $g.create("span").setText("App"),
+                    $g.create("button")
+                        .setAttribute("title", "Close") // TODO: Translate
+                        .setAttribute("aria-label", "Close") // TODO: Translate
+                        .on("click", function() {
+                            closeWindow(screenElement);
+                        })
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "dark embedded")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
+                        )
                 )
             ,
             $g.create("div")
@@ -437,15 +449,11 @@ export function openWindow(windowContents, appName = null) {
             screenElement.collapse(false),
             screenElement.easeStyleTransition("opacity", 0)
         ]).then(function() {
-            screenElement.remove();
-
-            if ($g.sel("#switcherView .switcher *").getAll().length == 0) {
-                main.selectDesktop();
-            }
+            closeWindow(screenElement, false);
         });
     });
 
-    screenElement.on("dismissreturnend", function(event) {
+    screenElement.on("dismissreturnend", function() {
         if (shouldSelectScreen && !screenElement.is(".closing")) {
             main.selectScreen(screenElement);
 
@@ -460,6 +468,22 @@ export function openWindow(windowContents, appName = null) {
     $g.sel("#switcherView .switcher").add(screenElement);
 
     return $g.sel("#switcherView").screenFade();
+}
+
+export function closeWindow(element, animate = true) {
+    return new Promise(function(resolve, reject) {
+        element.addClass("closing");
+
+        setTimeout(function() {
+            element.remove();
+
+            if ($g.sel("#switcherView .switcher *").getAll().length == 0) {
+                main.selectDesktop();
+            }
+
+            resolve();
+        }, (a11y.prefersReducedMotion() || !animate) ? 0 : 500);
+    });
 }
 
 export function openApp(url) {

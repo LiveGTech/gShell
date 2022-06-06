@@ -244,8 +244,8 @@ export function openWindow(windowContents, appName = null) {
                 .add(
                     $g.create("span").setText("App"),
                     $g.create("button")
-                        .setAttribute("title", "Close") // TODO: Translate
-                        .setAttribute("aria-label", "Close") // TODO: Translate
+                        .setAttribute("title", _("switcher_close"))
+                        .setAttribute("aria-label", _("switcher_close"))
                         .on("click", function() {
                             closeWindow(screenElement);
                         })

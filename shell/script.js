@@ -137,7 +137,7 @@ $g.waitForLoad().then(function() {
         sphere.openBrowser();
     });
 
-    $g.sel(".home_app").on("click", function() {
+    $g.sel(".home_app:not(#settingsHomeApp)").on("click", function() {
         $g.sel("#main").screenFade();
     });
 

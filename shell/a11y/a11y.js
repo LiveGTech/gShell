@@ -12,6 +12,7 @@ import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export var options = {
     touch_holdDelay: 500, // 500 milliseconds
+    touch_doublePressDelay: 500, // 500 milliseconds
 
     switch_enabled: false,
     switch_scanColour: "blue",

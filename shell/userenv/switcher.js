@@ -9,10 +9,11 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
-import * as a11y from "gshell://lib/adaptui/src/a11y.js";
+import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import * as calc from "gshell://lib/adaptui/src/calc.js";
 
 import * as device from "gshell://system/device.js";
+import * as a11y from "gshell://a11y/a11y.js";
 import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 
@@ -80,7 +81,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
     selectScreen(screenElement) {
         var thisScope = this;
 
-        if (screenElement.get().matches(".switcher_screen") && (this.element.is(".allowSelect") || device.data?.type == "desktop")) {
+        if (screenElement.get().matches(".switcher_screen")) {
             $g.sel("#switcherView").removeClass("switcherOpen");
 
             this.element.removeClass("allowSelect");
@@ -89,18 +90,22 @@ export class Switcher extends screenScroll.ScrollableScreen {
             screenElement.addClass("selected");
 
             this.screenSelected = true;
-            this.targetScrollX = screenElement.get().offsetLeft;
 
-            thisScope.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+            this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
 
             if (device.data?.type == "desktop") {
                 screenElement.setStyle("z-index", topmostZIndex++);
             }
 
             setTimeout(function() {
+                thisScope.targetInstantaneous = true;
+                thisScope.targetScrollX = screenElement.get().offsetLeft;
+            });
+
+            setTimeout(function() {
                 thisScope.element.find(":scope > *").addClass("backgrounded");
                 screenElement.removeClass("backgrounded");
-            }, a11y.prefersReducedMotion() ? 0 : 500);
+            }, aui_a11y.prefersReducedMotion() ? 0 : 500);
         }
     }
 
@@ -117,6 +122,8 @@ export class Switcher extends screenScroll.ScrollableScreen {
         this.element.find(":scope > *").setStyle("position", null);
         this.element.find(":scope > *").setStyle("top", null);
         this.element.find(":scope > *").setStyle("left", null);
+        this.element.find(":scope > *").setStyle("width", null);
+        this.element.find(":scope > *").setStyle("height", null);
     }
 
     selectDesktop() {
@@ -135,8 +142,28 @@ export class Switcher extends screenScroll.ScrollableScreen {
 }
 
 export function init() {
+    var pressedOnce = false;
+
     $g.sel(".switcher_home").on("click", function() {
-        goHome();
+        if (pressedOnce) {
+            showList();
+
+            pressedOnce = false;
+
+            return;
+        }
+
+        setTimeout(function() {
+            if (!pressedOnce) {
+                return;
+            }
+
+            goHome();
+
+            pressedOnce = false;
+        }, a11y.options.touch_doublePressDelay);
+
+        pressedOnce = true;
     });
 
     $g.sel(".switcher_showList").on("click", function() {
@@ -183,8 +210,6 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
 }
 
 export function openWindow(windowContents, appName = null) {
-    showList();
-
     var initialGeometry = null;
     var pointerDown = false;
     var moveResizeMode = new WindowMoveResizeMode();
@@ -195,7 +220,6 @@ export function openWindow(windowContents, appName = null) {
 
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
-        .addClass("transitioning")
         .on("pointermove", function(event) {
             if (device.data?.type != "desktop") {
                 return;
@@ -467,6 +491,8 @@ export function openWindow(windowContents, appName = null) {
 
     $g.sel("#switcherView .switcher").add(screenElement);
 
+    main.selectScreen(screenElement);
+
     return $g.sel("#switcherView").screenFade();
 }
 
@@ -482,7 +508,7 @@ export function closeWindow(element, animate = true) {
             }
 
             resolve();
-        }, (a11y.prefersReducedMotion() || !animate) ? 0 : 500);
+        }, (aui_a11y.prefersReducedMotion() || !animate) ? 0 : 500);
     });
 }
 

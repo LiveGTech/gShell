@@ -166,7 +166,7 @@ body:not([device-type="desktop"]) .switcher .switcher_screen:first-of-type {
     margin-inline-start: 0;
 }
 
-body[device-type="desktop"] .switcher_screen:first-of-type, body[device-type="desktop"] .switcher.allowSelect .switcher_screen:first-of-type.closing + .switcher_screen {
+body[device-type="desktop"] .switcher_screen:first-of-type:not(.closing), body[device-type="desktop"] .switcher .switcher_screen:first-of-type.closing + .switcher_screen {
     margin-top: 0;
 }
 
@@ -174,7 +174,7 @@ body[device-type="desktop"] .switcher_screen:last-of-type {
     margin-inline-end: -15%;
 }
 
-.switcher.allowSelect .switcher_screen.closing + .switcher_screen {
+.switcher .switcher_screen.closing + .switcher_screen {
     margin-inline-start: -11%;
     transition: 0.5s margin-inline-start;
 }

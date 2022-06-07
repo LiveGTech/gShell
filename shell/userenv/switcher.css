@@ -58,6 +58,7 @@ body[device-type="desktop"] .switcher {
 }
 
 body[device-type="desktop"] .switcher:not(.allowSelect) {
+    padding: 0;
     overflow: visible;
     animation: 0.5s switcher_desktopHideSelect;
 }
@@ -208,6 +209,15 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen {
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selected {
     background-color: rgb(206, 206, 206);
+}
+
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximised {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
 }
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.closing {

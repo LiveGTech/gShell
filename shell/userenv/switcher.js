@@ -175,6 +175,18 @@ export function init() {
     });
 
     main = new Switcher($g.sel(".switcher"));
+
+    if (device.data?.type == "desktop") {
+        // TODO: Add styling for maximised window inside switcher view
+
+        setInterval(function() {
+            if ($g.sel("#switcherView .switcher .switcher_screen.maximised").getAll().length > 0) {
+                $g.sel("#switcherView").addClass("hasMaximisedWindow");
+            } else {   
+                $g.sel("#switcherView").removeClass("hasMaximisedWindow");
+            }
+        });
+    }
 }
 
 export function getWindowGeometry(element) {
@@ -203,10 +215,17 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
         return;
     }
 
-    element.setStyle("left", `${geometry.x || 0}px`);
-    element.setStyle("top", `${geometry.y || 0}px`);
-    element.setStyle("width", `${geometry.width || 0}px`);
-    element.setStyle("height", `${geometry.height || 0}px`);
+    if (element.is(".maximised")) {
+        element.setStyle("left", null);
+        element.setStyle("top", null);
+        element.setStyle("width", null);
+        element.setStyle("height", null);
+    } else {
+        element.setStyle("left", `${geometry.x || 0}px`);
+        element.setStyle("top", `${geometry.y || 0}px`);
+        element.setStyle("width", `${geometry.width || 0}px`);
+        element.setStyle("height", `${geometry.height || 0}px`);
+    }
 }
 
 export function openWindow(windowContents, appName = null) {
@@ -494,6 +513,16 @@ export function openWindow(windowContents, appName = null) {
     main.selectScreen(screenElement);
 
     return $g.sel("#switcherView").screenFade();
+}
+
+export function maximiseWindow(element) {
+    element.addClass("maximised");
+    setWindowGeometry(element);
+}
+
+export function restoreWindow(element) {
+    element.removeClass("maximised");
+    setWindowGeometry(element);
 }
 
 export function closeWindow(element, animate = true) {

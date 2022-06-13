@@ -39,6 +39,10 @@ body:not([device-type="desktop"]) .desktop_appBar {
     display: none;
 }
 
+#switcherView.hasMaximisedWindow .desktop_appBar {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 .desktop_appBar button {
     height: 2.4rem;
     margin-left: 0;

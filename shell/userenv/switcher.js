@@ -257,14 +257,16 @@ export function openWindow(windowContents, appName = null) {
 
             cursor = null;
 
-            if ((moveResizeMode.resizeNorth && moveResizeMode.resizeWest) || (moveResizeMode.resizeSouth && moveResizeMode.resizeEast)) {
-                cursor = "nwse-resize";
-            } else if ((moveResizeMode.resizeNorth && moveResizeMode.resizeEast) || (moveResizeMode.resizeSouth && moveResizeMode.resizeWest)) {
-                cursor = "nesw-resize";
-            } else if (moveResizeMode.resizeHorizontal) {
-                cursor = "ew-resize";
-            } else if (moveResizeMode.resizeVertical) {
-                cursor = "ns-resize";
+            if (!screenElement.hasClass("maximised")) {
+                if ((moveResizeMode.resizeNorth && moveResizeMode.resizeWest) || (moveResizeMode.resizeSouth && moveResizeMode.resizeEast)) {
+                    cursor = "nwse-resize";
+                } else if ((moveResizeMode.resizeNorth && moveResizeMode.resizeEast) || (moveResizeMode.resizeSouth && moveResizeMode.resizeWest)) {
+                    cursor = "nesw-resize";
+                } else if (moveResizeMode.resizeHorizontal) {
+                    cursor = "ew-resize";
+                } else if (moveResizeMode.resizeVertical) {
+                    cursor = "ns-resize";
+                }
             }
 
             screenElement.setStyle("cursor", cursor);
@@ -286,6 +288,18 @@ export function openWindow(windowContents, appName = null) {
                 .addClass("switcher_titleBar")
                 .add(
                     $g.create("span").setText("App"),
+                    $g.create("button")
+                        .setAttribute("title", _("switcher_maximise"))
+                        .setAttribute("aria-label", _("switcher_close"))
+                        .on("click", function() {
+                            maximiseWindow(screenElement);
+                        })
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "dark embedded")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen.svg")
+                        )
+                    ,
                     $g.create("button")
                         .setAttribute("title", _("switcher_close"))
                         .setAttribute("aria-label", _("switcher_close"))

@@ -26,7 +26,9 @@
 
         "switcher_goHome": "Go home",
         "switcher_toggleList": "Toggle app switcher",
+        "switcher_minimise": "Minimise",
         "switcher_maximise": "Maximise",
+        "switcher_restore": "Restore",
         "switcher_close": "Close",
         "switcher_closeAll": "Close all",
         "switcher_empty": "No open apps",

@@ -78,6 +78,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
         return this.element.find(":scope > *").get().clientWidth * 0.7; // 0.7 as the percentage used from the scale transform
     }
 
+    // TODO: Show any minimised windows
     selectScreen(screenElement) {
         var thisScope = this;
 
@@ -236,6 +237,7 @@ export function openWindow(windowContents, appName = null) {
     var pointerStartY = 0;
     var cursor = null;
     var shouldSelectScreen = false;
+    var lastTitleBarPress = null;
 
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
@@ -286,11 +288,36 @@ export function openWindow(windowContents, appName = null) {
         .add(
             $g.create("div")
                 .addClass("switcher_titleBar")
+                .on("pointerdown", function() {
+                    if (lastTitleBarPress != null && Date.now() - lastTitleBarPress <= a11y.options.touch_doublePressDelay) {
+                        if (!screenElement.hasClass("maximised")) {
+                            maximiseWindow(screenElement);
+                        } else {
+                            restoreWindow(screenElement);
+                        }
+                    }
+
+                    lastTitleBarPress = Date.now();
+                })
                 .add(
                     $g.create("span").setText("App"),
                     $g.create("button")
+                        .addClass("switcher_minimiseButton")
+                        .setAttribute("title", _("switcher_minimise"))
+                        .setAttribute("aria-label", _("switcher_minimise"))
+                        .on("click", function() {
+                            minimiseWindow(screenElement);
+                        })
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "dark embedded")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/dropdown.svg")
+                        )
+                    ,
+                    $g.create("button")
+                        .addClass("switcher_maximiseButton")
                         .setAttribute("title", _("switcher_maximise"))
-                        .setAttribute("aria-label", _("switcher_close"))
+                        .setAttribute("aria-label", _("switcher_maximise"))
                         .on("click", function() {
                             maximiseWindow(screenElement);
                         })
@@ -298,6 +325,19 @@ export function openWindow(windowContents, appName = null) {
                             $g.create("img")
                                 .setAttribute("aui-icon", "dark embedded")
                                 .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen.svg")
+                        )
+                    ,
+                    $g.create("button")
+                        .addClass("switcher_restoreButton")
+                        .setAttribute("title", _("switcher_restore"))
+                        .setAttribute("aria-label", _("switcher_restore"))
+                        .on("click", function() {
+                            restoreWindow(screenElement);
+                        })
+                        .add(
+                            $g.create("img")
+                                .setAttribute("aui-icon", "dark embedded")
+                                .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen-exit.svg")
                         )
                     ,
                     $g.create("button")
@@ -529,14 +569,34 @@ export function openWindow(windowContents, appName = null) {
     return $g.sel("#switcherView").screenFade();
 }
 
-export function maximiseWindow(element) {
-    element.addClass("maximised");
+export function minimiseWindow(element) {
+    element.addClass("minimised");
     setWindowGeometry(element);
 }
 
+export function showWindow(element) {
+    element.removeClass("minimised");
+    setWindowGeometry(element);
+}
+
+export function maximiseWindow(element) {
+    element.addClass("transitioning");
+    element.addClass("maximised");
+    setWindowGeometry(element);
+
+    setTimeout(function() {
+        element.removeClass("transitioning");
+    }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+}
+
 export function restoreWindow(element) {
+    element.addClass("transitioning");
     element.removeClass("maximised");
     setWindowGeometry(element);
+
+    setTimeout(function() {
+        element.removeClass("transitioning");
+    }, aui_a11y.prefersReducedMotion() ? 0 : 500);
 }
 
 export function closeWindow(element, animate = true) {

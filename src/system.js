@@ -206,8 +206,7 @@ exports.networkScanWifi = function() {
                 channel: parseInt(data[1]),
                 bandwidth: parseInt(data[2]),
                 signal: parseInt(data[3]),
-                security: data[4].split(" ").map((data) => ({
-                    "--": "open",
+                security: data[4].split(" ").filter((data) => data != "").map((data) => ({
                     "WEP": "wep",
                     "WPA1": "wpa1",
                     "WPA2": "wpa2"

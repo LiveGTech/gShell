@@ -1,0 +1,29 @@
+{
+    "localeCode": "en_GB",
+    "metadata": {
+        "name": "English (United Kingdom)",
+        "nameShort": "English",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "settings": "Settings",
+
+        "back": "Back",
+
+        "network": "Network",
+
+        "network_summary": "Wi-Fi, Ethernet",
+        "network_summaryConnected": "Connected",
+        "network_summaryConnectedWifi": "Connected to {name}",
+        "network_summaryConnectedEthernet": "Connected via Ethernet",
+        "network_summaryDisconnected": "Disconnected",
+
+        "network_connected": "Connected",
+
+        "network_wifiNetworks": "Wi-Fi networks",
+        "network_wifiScanResultDetails": "{details} ({bandwidth} Mb/s)",
+        "network_wifiSecurityType_open": "Open",
+        "network_wifiSecurityType_secured": "Secured",
+        "network_wifiSecurityType_unknown": "Unknown security"
+    }
+}

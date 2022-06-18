@@ -76,7 +76,7 @@ export function connectSummary(summary) {
         var wifiConnection = genericConnection.filter((result) => result.type == "wifi");
         var ethernetConnection = genericConnection.filter((result) => result.type == "ethernet");
 
-        if (wifiConnection) {
+        if (wifiConnection && typeof(wifiConnection[0]?.name) == "string") {
             summary.setText(_("network_summaryConnectedWifi", {name: wifiConnection[0]?.name}));
         } else if (ethernetConnection) {
             summary.setText(_("network_summaryConnectedEthernet"));

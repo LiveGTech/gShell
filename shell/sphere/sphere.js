@@ -196,5 +196,8 @@ export function init() {
 export function openBrowser() {
     var browser = new Browser();
 
-    return switcher.openWindow(browser.render());
+    return switcher.openWindow(browser.render(), {
+        name: _("sphere"),
+        icon: "gshell://sphere/icon.svg"
+    });
 }

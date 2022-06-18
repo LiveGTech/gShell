@@ -332,6 +332,16 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
     height: 100%;
 }
 
+.switcher_windowIcon {
+    width: 1.8rem;
+    height: 1.8rem;
+    margin-inline-end: 0.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    object-fit: contain;
+    pointer-events: none;
+}
+
 .switcher_screen.maximised .switcher_maximiseButton {
     display: none;
 }

@@ -78,7 +78,6 @@ export class Switcher extends screenScroll.ScrollableScreen {
         return this.element.find(":scope > *").get().clientWidth * 0.7; // 0.7 as the percentage used from the scale transform
     }
 
-    // TODO: Show any minimised windows
     selectScreen(screenElement) {
         var thisScope = this;
 
@@ -97,6 +96,8 @@ export class Switcher extends screenScroll.ScrollableScreen {
             if (device.data?.type == "desktop") {
                 screenElement.setStyle("z-index", topmostZIndex++);
             }
+
+            showWindow(screenElement);
 
             setTimeout(function() {
                 thisScope.targetInstantaneous = true;
@@ -229,7 +230,7 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
     }
 }
 
-export function openWindow(windowContents, appName = null) {
+export function openWindow(windowContents, appDetails = null) {
     var initialGeometry = null;
     var pointerDown = false;
     var moveResizeMode = new WindowMoveResizeMode();
@@ -300,7 +301,15 @@ export function openWindow(windowContents, appName = null) {
                     lastTitleBarPress = Date.now();
                 })
                 .add(
-                    $g.create("span").setText("App"),
+                    $g.create("img")
+                        .addClass("switcher_windowIcon")
+                        .on("error", function() {
+                            screenElement.find(".switcher_windowIcon").setAttribute("src", "gshell://media/appdefault.svg")
+                        })
+                    ,
+                    $g.create("span")
+                        .addClass("switcher_windowTitle")
+                    ,
                     $g.create("button")
                         .addClass("switcher_minimiseButton")
                         .setAttribute("title", _("switcher_minimise"))
@@ -505,12 +514,19 @@ export function openWindow(windowContents, appName = null) {
         $g.sel("#switcherView .switcher").setStyle("cursor", null);
     });
 
-    if (appName == null) {
-        screenElement.on("page-title-updated", function(event) {
+    if (appDetails == null) {
+        screenElement.find("webview").on("page-title-updated", function(event) {
             screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
+            screenElement.find(".switcher_windowTitle").setText(event.title);
+        });
+
+        screenElement.find("webview").on("page-favicon-updated", function(event) {
+            screenElement.find(".switcher_windowIcon").setAttribute("src", event.favicons[0]);
         });
     } else {
-        screenElement.find(".switcher_screenButton").setAttribute("aria-label", appName);
+        screenElement.find(".switcher_screenButton").setAttribute("aria-label", appDetails.name);
+        screenElement.find(".switcher_windowTitle").setText(appDetails.name);
+        screenElement.find(".switcher_windowIcon").setAttribute("src", appDetails.icon);
     }
 
     screenElement.find(".switcher_apps *").on("focus", function() {

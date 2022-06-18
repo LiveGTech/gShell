@@ -633,7 +633,7 @@ export function closeWindow(element, animate = true) {
 
 export function openApp(url) {
     return openWindow($g.create("div").add(
-        $g.create("main").add(webviewManager.spawn(url))
+        $g.create("main").add(webviewManager.spawn(url, url.startsWith("gshell://")))
     ));
 }
 

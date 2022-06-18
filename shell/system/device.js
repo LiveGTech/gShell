@@ -9,6 +9,8 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
+
 export var data = {};
 export var touchActive = false;
 
@@ -34,6 +36,8 @@ export function init() {
         $g.sel("body").setAttribute("device-type", data?.type);
 
         touchActive = data?.type != "desktop";
+
+        privilegedInterface.setData("device_data", data);
 
         return Promise.resolve();
     });

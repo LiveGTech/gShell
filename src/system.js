@@ -37,6 +37,42 @@ exports.getDevice = function() {
     return Promise.resolve(device.data);
 };
 
+exports.parseNmcliLine = function(line) {
+    var data = [];
+    var field = "";
+    var escaping = false;
+
+    for (var i = 0; i < line.length; i++) {
+        if (escaping) {
+            field += line[i];
+            escaping = false;
+
+            continue;
+        }
+
+        switch (line[i]) {
+            case "\\":
+                escaping = true;
+                break;
+
+            case ":":
+                data.push(field);
+
+                field = "";
+
+                break;
+
+            default:
+                field += line[i];
+                break;
+        }
+    }
+
+    data.push(field);
+
+    return data;
+};
+
 exports.getScreenResolution = function() {
     if (!flags.isRealHardware) {
         return Promise.resolve({
@@ -131,8 +167,58 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
+exports.networkList = function() {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve([]);
+    }
+
+    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "name,type,active", "connection"]).then(function(output) {
+        var lines = output.stdout.split("\n").filter((line) => line != "");
+
+        return lines.map(function(line) {
+            var data = exports.parseNmcliLine(line);
+
+            return {
+                name: data[0],
+                type: {
+                    "802-11-wireless": "wifi",
+                    "802-3-ethernet": "ethernet"
+                }[data[1]] || "unknown",
+                connected: data[2] == "yes"
+            };
+        });
+    });
+};
+
+exports.networkScanWifi = function() {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve([]);
+    }
+
+    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,chan,rate,signal,security", "device", "wifi", "list"]).then(function(output) {
+        var lines = output.stdout.split("\n").filter((line) => line != "");
+
+        return lines.map(function(line) {
+            var data = exports.parseNmcliLine(line);
+
+            return {
+                name: data[0],
+                channel: parseInt(data[1]),
+                bandwidth: parseInt(data[2]),
+                signal: parseInt(data[3]),
+                security: data[4].split(" ").map((data) => ({
+                    "--": "open",
+                    "WEP": "wep",
+                    "WPA1": "wpa1",
+                    "WPA2": "wpa2"
+                }[data] || "unknown"))
+            };
+        });
+    });
+};
+
 exports.devRestart = function() {
-    if(!flags.isRealHardware) {
+    if (!flags.isRealHardware) {
         electron.app.relaunch();
     }
 

@@ -48,10 +48,10 @@ export const USER_AGENT_METADATA = {
     ]
 };
 
-export function spawn(url) {
+export function spawn(url, privileged = false) {
     var webview = $g.create("webview");
 
-    webviewComms.attach(webview);
+    webviewComms.attach(webview, privileged);
 
     webview.setAttribute("src", url);
     webview.setAttribute("preload", "./webviewpreload.js");

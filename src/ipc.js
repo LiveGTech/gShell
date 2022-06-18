@@ -93,6 +93,14 @@ ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
 });
 
+ipcMain.handle("network_list", function(event, data) {
+    return system.networkList();
+});
+
+ipcMain.handle("network_scanWifi", function(event, data) {
+    return system.networkScanWifi();
+});
+
 ipcMain.handle("io_input", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 

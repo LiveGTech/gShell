@@ -31,12 +31,25 @@ const NON_TEXTUAL_INPUTS = [
 ];
 
 var mainState = {};
+var privilegedDataUpdateCallbacks = [];
 var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
 
 function isTextualInput(element) {
     return element.matches("input") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
+
+electron.contextBridge.exposeInMainWorld("_sphere", {
+    callPrivilegedCommand: function(command, data) {
+        electron.ipcRenderer.sendToHost("privilegedCommand", command, data);
+    },
+    getPrivilegedData: function() {
+        return mainState.privilegedData || null;
+    },
+    onPrivilegedDataUpdate: function(callback) {
+        privilegedDataUpdateCallbacks.push(callback);
+    }
+});
 
 window.addEventListener("load", function() {
     setInterval(function() {
@@ -151,6 +164,12 @@ window.addEventListener("load", function() {
         mainState = data;
 
         document.querySelector("body").setAttribute("liveg-a11y-scancolour", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
+
+        if (data.isPrivileged) {
+            privilegedDataUpdateCallbacks.forEach((callback) => callback(data.privilegedData));
+        } else {
+            mainState.privilegedData = null;
+        }
     });
 
     electron.ipcRenderer.on("input_scrollIntoView", function() {

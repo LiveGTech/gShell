@@ -8,6 +8,7 @@
 */
 
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
+import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
 
@@ -23,8 +24,10 @@ export function onEvent(eventNames, callback) {
     eventNames.split(" ").forEach((eventName) => webviewEvents.push({eventName, callback}));
 }
 
-export function attach(webview) {
+export function attach(webview, privileged) {
     webview.getAll().forEach(function(element) {
+        element.isPrivileged = !!privileged;
+
         element.addEventListener("did-attach", function() {
             gShell.call("webview_attach", {
                 webContentsId: element.getWebContentsId(),
@@ -48,6 +51,15 @@ export function attach(webview) {
 
                 break;
 
+            case "privilegedCommand":
+                if (!privileged) {
+                    break;
+                }
+
+                (privilegedInterface.commands[event.args[0]] || console.warn(`Invalid privileged command: ${event.args[0]}`))(event.args[1]);
+
+                break;
+
             case "input_show":
                 input.show();
                 break;
@@ -63,7 +75,9 @@ export function update(webview = $g.sel("body webview")) {
     webview.getAll().forEach(function(element) {
         element.send("update", {
             a11y_options: a11y.options,
-            input_showing: input.showing
+            input_showing: input.showing,
+            isPrivileged: element.isPrivileged,
+            privilegedData: element.isPrivileged ? privilegedInterface.data : null
         });
     });
 }

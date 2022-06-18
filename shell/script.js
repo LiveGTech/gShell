@@ -15,6 +15,7 @@ import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
 import * as sleep from "gshell://system/sleep.js";
+import * as network from "gshell://system/network.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
@@ -56,6 +57,7 @@ $g.waitForLoad().then(function() {
     a11y.init();
     info.init();
     sleep.init();
+    network.init();
     input.init();
     home.init();
     switcher.init();

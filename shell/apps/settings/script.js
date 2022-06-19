@@ -14,6 +14,10 @@ astronaut.unpack();
 
 import * as network from "./networkpage.js";
 
+export const PAGE_ICONS = {
+    network: "wifi"
+};
+
 export var pages = {};
 
 var pageMenuButtons = {};
@@ -54,6 +58,7 @@ $g.waitForLoad().then(function() {
                 var summary = TextFragment() (_(`${pageId}_summary`));
 
                 var button = ListButton (
+                    Icon(PAGE_ICONS[pageId], "dark embedded") (),
                     BoldTextFragment() (_(pageId)),
                     LineBreak() (),
                     summary

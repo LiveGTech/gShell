@@ -46,6 +46,7 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
                     }
 
                     return ListButton() (
+                        Icon(`wifi-${Math.round((result.signal / 100) * 2)}`, "dark embedded") (),
                         BoldTextFragment() (result.name),
                         LineBreak() (),
                         Text(_("network_wifiScanResultDetails", {

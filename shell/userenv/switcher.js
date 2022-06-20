@@ -585,6 +585,7 @@ export function openWindow(windowContents, appDetails = null) {
     return $g.sel("#switcherView").screenFade();
 }
 
+// FIXME: App bar colour is wrong when maximised window is minimised
 export function minimiseWindow(element) {
     element.addClass("minimised");
     setWindowGeometry(element);

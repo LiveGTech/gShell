@@ -24,6 +24,14 @@
         "network_wifiScanResultDetails": "{details} ({bandwidth} Mb/s)",
         "network_wifiSecurityType_open": "Open",
         "network_wifiSecurityType_secured": "Secured",
-        "network_wifiSecurityType_unknown": "Unknown security"
+        "network_wifiSecurityType_unknown": "Unknown security",
+
+        "network_wifiAp_channelDetails": "Channel details",
+        "network_wifiAp_channel": "Channel {channel}",
+        "network_wifiAp_bssid": "BSSID",
+        "network_wifiAp_signalStrength": "Signal strength",
+        "network_wifiAp_signalStrength_value": "{value}%",
+        "network_wifiAp_bandwidth": "Bandwidth",
+        "network_wifiAp_bandwidth_value": "{value} megabits/second"
     }
 }

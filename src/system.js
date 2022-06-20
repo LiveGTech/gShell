@@ -195,7 +195,7 @@ exports.networkScanWifi = function() {
         return Promise.resolve([]);
     }
 
-    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,chan,rate,signal,security", "device", "wifi", "list"]).then(function(output) {
+    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,bssid,chan,rate,signal,security", "device", "wifi", "list"]).then(function(output) {
         var lines = output.stdout.split("\n").filter((line) => line != "");
 
         return lines.map(function(line) {
@@ -203,10 +203,11 @@ exports.networkScanWifi = function() {
 
             return {
                 name: data[0],
-                channel: parseInt(data[1]),
-                bandwidth: parseInt(data[2]),
-                signal: parseInt(data[3]),
-                security: data[4].split(" ").filter((data) => data != "").map((data) => ({
+                bssid: data[1],
+                channel: parseInt(data[2]),
+                bandwidth: parseInt(data[3]),
+                signal: parseInt(data[4]),
+                security: data[5].split(" ").filter((data) => data != "").map((data) => ({
                     "WEP": "wep",
                     "WPA1": "wpa1",
                     "WPA2": "wpa2"

@@ -9,6 +9,8 @@
 
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
+import * as settings from "./script.js";
+
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
     var wifiScanResultsContainer = Container() ();
 
@@ -45,7 +47,7 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
                         details.push(_("network_wifiSecurityType_secured"));
                     }
 
-                    return ListButton() (
+                    var button = ListButton() (
                         Icon(`wifi-${Math.round((result.signal / 100) * 2)}`, "dark embedded") (),
                         BoldTextFragment() (result.name),
                         LineBreak() (),
@@ -53,7 +55,15 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
                             details: details.join(" · "),
                             bandwidth: result.bandwidth
                         }))
-                    )
+                    );
+
+                    button.on("click", function() {
+                        settings.visitInnerScreen(
+                            WifiApScreen({accessPoint: result}) ()
+                        );
+                    });
+
+                    return button;
                 })
         );
     }
@@ -67,6 +77,111 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
             wifiScanResultsContainer
         )
     );
+});
+
+export var WifiApScreen = astronaut.component("WifiApScreen", function(props, children) {
+    var active = true;
+
+    var iconContainer = Container() ();
+
+    var mainActions = ButtonRow({
+        styles: {
+            justifyContent: "center"
+        }
+    }) ();
+
+    var channelDetails = Container() ();
+
+    var screen = settings.InnerScreen({title: props.accessPoint.name}) (
+        Section({
+            attributes: {
+                "aui-justify": "middle"
+            }
+        }) (
+            iconContainer,
+            Heading({
+                level: 1,
+                styles: {
+                    marginTop: "0",
+                    marginBottom: "0.5rem",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                }
+            }) (props.accessPoint.name),
+            mainActions
+        ),
+        Section (
+            Accordion (
+                Text(_("network_wifiAp_channelDetails")),
+                channelDetails
+            )
+        )
+    );
+
+    screen.on("removed", function() {
+        active = false;
+    });
+
+    function updateData() {
+        if (!active) {
+            return;
+        }
+
+        var data = _sphere.getPrivilegedData();
+        var apResults = (data?.network_wifiScanResults || []).filter((result) => result.name == props.accessPoint.name);
+
+        var connected = (data?.network_listResults || [])
+            .filter((result) => result.name == props.accessPoint.name)
+            .filter((result) => result.type == "wifi")
+            .filter((result) => result.connected)
+            .length != 0
+        ;
+
+        if (apResults.length == 0) {
+            // TODO: Add not in range message
+
+            return;
+        }
+
+        iconContainer.clear().add(
+            Icon({
+                icon: `wifi-${Math.round((apResults.sort((a, b) => b.signal - a.signal)[0].signal / 100) * 2)}`,
+                type: "dark embedded",
+                styles: {
+                    height: "4rem"
+                }
+            }) ()
+        );
+
+        // TODO: Translate these
+        if (connected) {
+            mainActions.clear().add(
+                Button() ("Disconnect"),
+                Button("dangerous") ("Forget")
+            );
+        } else {
+            mainActions.clear().add(
+                Button() ("Connect")
+            );
+        }
+
+        channelDetails.clear().add(
+            ...apResults.sort((a, b) => a.channel - b.channel).map((accessPoint) => Container() (
+                Heading(3) (_("network_wifiAp_channel", {channel: accessPoint.channel})),
+                PropertyList() (
+                    Property() (_("network_wifiAp_bssid"), CodeSnippet() (accessPoint.bssid)),
+                    Property() (_("network_wifiAp_signalStrength"), _("network_wifiAp_signalStrength_value", {value: accessPoint.signal})),
+                    Property() (_("network_wifiAp_bandwidth"), _("network_wifiAp_bandwidth_value", {value: accessPoint.bandwidth}))
+                )
+            ))
+        );
+    }
+
+    _sphere.onPrivilegedDataUpdate(updateData);
+    updateData();
+
+    return screen;
 });
 
 export function connectSummary(summary) {

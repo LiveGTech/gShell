@@ -8,6 +8,7 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as screens from "gshell://lib/adaptui/src/screens.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 astronaut.unpack();
@@ -24,6 +25,7 @@ var pageMenuButtons = {};
 var homePageBackButton = null;
 var homePageMenuButton = null;
 var headerText = null;
+var root = Container() ();
 
 export function switchToPage(pageId) {
     pageMenuButtons[pageId].get().click();
@@ -36,6 +38,37 @@ export function goToHomePage() {
     homePageBackButton.hide();
     headerText.setText(_("settings"));
 }
+
+export function visitInnerScreen(screen) {
+    root.add(screen);
+
+    screen.screenForward();
+}
+
+export var InnerScreen = astronaut.component("InnerScreen", function(props, children, inter) {
+    var backButton = IconButton({icon: "back", alt: _("back")}) ();
+    var screen = Screen() (
+        Header (
+            backButton,
+            Text(props.title)
+        ),
+        Page(true) (...children)
+    );
+
+    inter.exit = function() {
+        screens.navigateBack().then(function() {
+            screen.remove();
+
+            screen.emit("removed");
+        });
+    };
+
+    backButton.on("click", function() {
+        inter.exit();
+    });
+
+    return screen;
+});
 
 $g.waitForLoad().then(function() {
     return $g.l10n.selectLocaleFromResources({
@@ -90,7 +123,7 @@ $g.waitForLoad().then(function() {
         goToHomePage();
     });
 
-    astronaut.render(
+    root.add(
         Screen(true) (
             Header (
                 homePageBackButton,
@@ -104,4 +137,6 @@ $g.waitForLoad().then(function() {
             ...Object.values(pages)
         )
     );
+
+    astronaut.render(root);
 });

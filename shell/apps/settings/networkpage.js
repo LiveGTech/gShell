@@ -47,14 +47,16 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
                         details.push(_("network_wifiSecurityType_secured"));
                     }
 
-                    var button = ListButton() (
+                    var button = IconListButton() (
                         Icon(`wifi-${Math.round((result.signal / 100) * 2)}`, "dark embedded") (),
-                        BoldTextFragment() (result.name),
-                        LineBreak() (),
-                        Text(_("network_wifiScanResultDetails", {
-                            details: details.join(" · "),
-                            bandwidth: result.bandwidth
-                        }))
+                        Container (
+                            BoldTextFragment() (result.name),
+                            LineBreak() (),
+                            Text(_("network_wifiScanResultDetails", {
+                                details: details.join(" · "),
+                                bandwidth: result.bandwidth
+                            }))
+                        )
                     );
 
                     button.on("click", function() {

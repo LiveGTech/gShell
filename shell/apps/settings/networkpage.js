@@ -71,7 +71,7 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
     _sphere.onPrivilegedDataUpdate(updateData);
     updateData();
 
-    return Page() (
+    return Page (
         Section (
             Heading(2) (_("network_wifiNetworks")),
             wifiScanResultsContainer
@@ -93,28 +93,30 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
     var channelDetails = Container() ();
 
     var screen = settings.InnerScreen({title: props.accessPoint.name}) (
-        Section({
-            attributes: {
-                "aui-justify": "middle"
-            }
-        }) (
-            iconContainer,
-            Heading({
-                level: 1,
-                styles: {
-                    marginTop: "0",
-                    marginBottom: "0.5rem",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
+        Page(true) (
+            Section({
+                attributes: {
+                    "aui-justify": "middle"
                 }
-            }) (props.accessPoint.name),
-            mainActions
-        ),
-        Section (
-            Accordion (
-                Text(_("network_wifiAp_channelDetails")),
-                channelDetails
+            }) (
+                iconContainer,
+                Heading({
+                    level: 1,
+                    styles: {
+                        marginTop: "0",
+                        marginBottom: "0.5rem",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
+                    }
+                }) (props.accessPoint.name),
+                mainActions
+            ),
+            Section (
+                Accordion (
+                    Text(_("network_wifiAp_channelDetails")),
+                    channelDetails
+                )
             )
         )
     );

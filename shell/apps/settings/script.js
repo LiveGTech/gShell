@@ -14,9 +14,11 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 astronaut.unpack();
 
 import * as network from "./networkpage.js";
+import * as a11y from "./a11ypage.js";
 
 export const PAGE_ICONS = {
-    network: "wifi"
+    network: "wifi",
+    a11y: "a11y"
 };
 
 export var pages = {};
@@ -80,6 +82,7 @@ $g.waitForLoad().then(function() {
     };
 
     pages.network = network.NetworkPage() ();
+    pages.a11y = a11y.A11yPage() ();
 
     Object.keys(pages).forEach(function(pageId) {
         pageMenuButtons[pageId] = PageMenuButton({page: pages[pageId]}) (_(pageId));
@@ -90,16 +93,22 @@ $g.waitForLoad().then(function() {
             ...Object.keys(pages).map(function(pageId) {
                 var summary = TextFragment() (_(`${pageId}_summary`));
 
-                var button = ListButton (
+                var button = IconListButton (
                     Icon(PAGE_ICONS[pageId], "dark embedded") (),
-                    BoldTextFragment() (_(pageId)),
-                    LineBreak() (),
-                    summary
+                    Container (
+                        BoldTextFragment() (_(pageId)),
+                        LineBreak() (),
+                        summary
+                    )
                 );
 
                 switch (pageId) {
                     case "network":
                         network.connectSummary(summary);
+                        break;
+
+                    case "a11y":
+                        summary.setText(_("a11y_summary"));
                         break;
                 }
 

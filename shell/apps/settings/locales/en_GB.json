@@ -32,6 +32,15 @@
         "network_wifiAp_signalStrength": "Signal strength",
         "network_wifiAp_signalStrength_value": "{value}%",
         "network_wifiAp_bandwidth": "Bandwidth",
-        "network_wifiAp_bandwidth_value": "{value} megabits/second"
+        "network_wifiAp_bandwidth_value": "{value} megabits/second",
+
+        "a11y": "Accessibility",
+
+        "a11y_summary": "Customise visual, auditory and navigatory access",
+
+        "a11y_switch": "Switch Navigation",
+        "a11y_switch_summary": "Full control and navigation with at least one switch",
+        "a11y_switch_description": "Switch Navigation allows you to access and navigate your device by using one or more switches — such as push buttons, foot pedals, sip-and-puff switches and more.",
+        "a11y_switch_enable": "Enable Switch Navigation"
     }
 }

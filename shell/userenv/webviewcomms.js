@@ -56,7 +56,11 @@ export function attach(webview, privileged) {
                     break;
                 }
 
-                (privilegedInterface.commands[event.args[0]] || console.warn(`Invalid privileged command: ${event.args[0]}`))(event.args[1]);
+                if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
+                    privilegedInterface.commands[event.args[0]](event.args[1]);
+                } else {
+                    console.warn(`Invalid privileged command: ${event.args[0]}`);
+                }
 
                 break;
 

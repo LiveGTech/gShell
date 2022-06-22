@@ -182,7 +182,7 @@ export function init() {
         // TODO: Add styling for maximised window inside switcher view
 
         setInterval(function() {
-            if ($g.sel("#switcherView .switcher .switcher_screen.maximised").getAll().length > 0) {
+            if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").getAll().length > 0) {
                 $g.sel("#switcherView").addClass("hasMaximisedWindow");
             } else {   
                 $g.sel("#switcherView").removeClass("hasMaximisedWindow");
@@ -585,7 +585,6 @@ export function openWindow(windowContents, appDetails = null) {
     return $g.sel("#switcherView").screenFade();
 }
 
-// FIXME: App bar colour is wrong when maximised window is minimised
 export function minimiseWindow(element) {
     element.addClass("minimised");
     setWindowGeometry(element);

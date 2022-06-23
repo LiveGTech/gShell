@@ -11,6 +11,8 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
+import * as about from "gshell://about.js";
+
 function uaFor(renderer) {
     return navigator.userAgent.match(new RegExp(`(${renderer}\\/[0-9.]+)`))[1];
 }
@@ -21,7 +23,7 @@ export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS 0.1.0) ${uaFor("AppleWeb
 
 export const USER_AGENT_METADATA = {
     platform: "LiveG OS",
-    platformVersion: "0.1.0",
+    platformVersion: about.VERSION,
     model: "Prism",
     architecture: "aarch64",
     bitness: "64",
@@ -43,7 +45,7 @@ export const USER_AGENT_METADATA = {
         },
         {
             brand: "Sphere",
-            version: "0.1.0"
+            version: about.VERSION
         }
     ]
 };

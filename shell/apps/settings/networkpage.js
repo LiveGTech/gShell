@@ -173,7 +173,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         channelDetails.clear().add(
             ...apResults.sort((a, b) => a.channel - b.channel).map((accessPoint) => Container() (
                 Heading(3) (_("network_wifiAp_channel", {channel: accessPoint.channel})),
-                PropertyList() (
+                PropertyList (
                     Property() (_("network_wifiAp_bssid"), CodeSnippet() (accessPoint.bssid)),
                     Property() (_("network_wifiAp_signalStrength"), _("network_wifiAp_signalStrength_value", {value: accessPoint.signal})),
                     Property() (_("network_wifiAp_bandwidth"), _("network_wifiAp_bandwidth_value", {value: accessPoint.bandwidth}))

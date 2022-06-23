@@ -41,6 +41,18 @@
         "a11y_switch": "Switch Navigation",
         "a11y_switch_summary": "Full control and navigation with at least one switch",
         "a11y_switch_description": "Switch Navigation allows you to access and navigate your device by using one or more switches — such as push buttons, foot pedals, sip-and-puff switches and more.",
-        "a11y_switch_enable": "Enable Switch Navigation"
+        "a11y_switch_enable": "Enable Switch Navigation",
+
+        "about": "About this device",
+        "about_summary": "View OS and hardware information",
+
+        "about_name": " LiveG OS",
+        "about_version": "Version {version}",
+        "about_copyright": "Copyright © LiveG. All Rights Reserved.",
+
+        "about_deviceInfo": "Device info",
+        "about_deviceInfo_name": "Product name",
+        "about_deviceInfo_manufacturer": "Manufacturer",
+        "about_deviceInfo_serial": "Serial number"
     }
 }

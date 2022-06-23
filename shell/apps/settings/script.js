@@ -15,10 +15,12 @@ astronaut.unpack();
 
 import * as network from "./networkpage.js";
 import * as a11y from "./a11ypage.js";
+import * as about from "./aboutpage.js";
 
 export const PAGE_ICONS = {
     network: "wifi",
-    a11y: "a11y"
+    a11y: "a11y",
+    about: "info"
 };
 
 export var pages = {};
@@ -83,6 +85,7 @@ $g.waitForLoad().then(function() {
 
     pages.network = network.NetworkPage() ();
     pages.a11y = a11y.A11yPage() ();
+    pages.about = about.AboutPage() ();
 
     Object.keys(pages).forEach(function(pageId) {
         pageMenuButtons[pageId] = PageMenuButton({page: pages[pageId]}) (_(pageId));
@@ -109,6 +112,10 @@ $g.waitForLoad().then(function() {
 
                     case "a11y":
                         summary.setText(_("a11y_summary"));
+                        break;
+
+                    case "about":
+                        summary.setText(_("about_summary"));
                         break;
                 }
 

@@ -32,7 +32,10 @@
         "network_wifiAp_signalStrength": "Signal strength",
         "network_wifiAp_signalStrength_value": "{value}%",
         "network_wifiAp_bandwidth": "Bandwidth",
-        "network_wifiAp_bandwidth_value": "{value} megabits/second",
+        "network_wifiAp_bandwidth_value": {
+            "{value} == 1": "{value} megabit/second",
+            "{value} != 1": "{value} megabits/second"
+        },
 
         "a11y": "Accessibility",
 

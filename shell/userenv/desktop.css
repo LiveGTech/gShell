@@ -32,6 +32,8 @@ body:not([device-type="desktop"]) .desktop_background {
 }
 
 .desktop_appBar {
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
     z-index: 1;
     transition: 0.5s background-color;
 }
@@ -49,10 +51,15 @@ body:not([device-type="desktop"]) .desktop_appBar {
     margin-left: 0;
     margin-right: 0;
     padding: 0.2rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
     background-color: transparent;
     transition: 0.5s opacity;
+}
+
+[aui-istouch="false"] .desktop_appBar button:hover, .desktop_appBar button:active {
+    background-color: transparent;
+    opacity: 0.8;
 }
 
 .desktop_appBar button img {

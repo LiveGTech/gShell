@@ -291,7 +291,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenButton {
     height: 5rem;
 }
 
-.switcher_screen.selected .switcher_screenCloseButton {
+.switcher_screen.selected .switcher_screenCloseButton, .switcher.allowSelect .switcher_screenCloseButton {
     display: none;
 }
 

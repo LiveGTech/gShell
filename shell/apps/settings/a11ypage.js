@@ -72,8 +72,6 @@ export var SwitchNavigationScreen = astronaut.component("SwitchNavigationScreen"
 
         var data = _sphere.getPrivilegedData();
 
-        console.log(data);
-
         enableSwitch.setValue(!!data?.a11y_options?.switch_enabled);
     }
 

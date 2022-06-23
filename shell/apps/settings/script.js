@@ -123,7 +123,7 @@ $g.waitForLoad().then(function() {
 
     homePageMenuButton = PageMenuButton({page: homePage}) ();
     homePageBackButton = IconButton({icon: "back", alt: _("back"), attributes: {"aui-display": "nonFull"}}) ();
-    headerText = TextFragment() (_("settings"));
+    headerText = TextFragment({attributes: {"aui-display": "nonFull"}}) (_("settings"));
 
     homePageMenuButton.setStyle("display", "none");
     homePageBackButton.hide();
@@ -136,6 +136,7 @@ $g.waitForLoad().then(function() {
         Screen(true) (
             Header (
                 homePageBackButton,
+                TextFragment({attributes: {"aui-display": "full"}}) (_("settings")),
                 headerText
             ),
             PageMenu (

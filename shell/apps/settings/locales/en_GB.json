@@ -26,6 +26,9 @@
         "network_wifiSecurityType_secured": "Secured",
         "network_wifiSecurityType_unknown": "Unknown security",
 
+        "network_wifiAp_connect": "Connect",
+        "network_wifiAp_disconnect": "Disconnect",
+        "network_wifiAp_forget": "Forget",
         "network_wifiAp_channelDetails": "Channel details",
         "network_wifiAp_channel": "Channel {channel}",
         "network_wifiAp_bssid": "BSSID",

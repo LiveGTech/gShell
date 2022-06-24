@@ -42,6 +42,8 @@ export var SwitchNavigationScreen = astronaut.component("SwitchNavigationScreen"
     var enableSwitch = SwitchInput() ();
 
     enableSwitch.on("change", function() {
+        // TODO: Add confirmation dialog when disabling Switch Navigation
+
         _sphere.callPrivilegedCommand("a11y_setOption", {
             name: "switch_enabled",
             value: !_sphere.getPrivilegedData()?.a11y_options?.switch_enabled

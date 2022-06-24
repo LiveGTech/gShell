@@ -158,15 +158,15 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             }) ()
         );
 
-        // TODO: Translate these
+        // TODO: Add functionality to these buttons
         if (connected) {
             mainActions.clear().add(
-                Button() ("Disconnect"),
-                Button("dangerous") ("Forget")
+                Button() (_("network_wifiAp_disconnect")),
+                Button("dangerous") (_("network_wifiAp_forget"))
             );
         } else {
             mainActions.clear().add(
-                Button() ("Connect")
+                Button() (_("network_wifiAp_connect"))
             );
         }
 

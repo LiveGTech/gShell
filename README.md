@@ -44,4 +44,5 @@ Here's a list of arguments that can be supplied to gShell:
 * `--no-touch-emulation`: Do not emulate a touchscreen as the touch input device. This is useful if the device that is running already has a touchscreen (emulation is not enabled when using the `--real` argument).
 * `--device-desc-location`: Set the location of the [device description file](docs/en/device.md) to be used to the path specified.
 * `--device-type`: Override the device description file's [`type` value](docs/en/device.md#type) with the value specified.
+* `--allow-host-control`: Allow gShell to configure the host system's hardware configuration (such as Wi-Fi connections).
 * `--enable-a11y-switch`: Force the [Switch Navigation](docs/en/a11y.md#switch-navigation-switchjs) accessibility feature to be enabled.

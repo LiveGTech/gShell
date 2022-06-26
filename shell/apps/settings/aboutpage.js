@@ -26,6 +26,7 @@ export var AboutPage = astronaut.component("AboutPage", function(props, children
                 return property[localeCode] || property[modelInfo.fallbackLocale]
             }
 
+            // TODO: Add checks for unknown info about device
             deviceInfoSection.clear().add(
                 Heading(2) (_("about_deviceInfo")),
                 PropertyList (

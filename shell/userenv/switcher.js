@@ -16,6 +16,7 @@ import * as device from "gshell://system/device.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
+import * as sphere from "gshell://sphere/sphere.js";
 
 export const WINDOW_RESIZE_BORDER_THICKNESS = calc.getRemSize(0.6);
 export const DESKTOP_MIN_WINDOW_WIDTH = calc.getRemSize(20);
@@ -147,6 +148,12 @@ export function init() {
     var pressedOnce = false;
 
     $g.sel(".switcher_home").on("click", function() {
+        if (device.data?.type == "desktop") {
+            $g.sel(".desktop_homeMenu").menuOpen();
+
+            return;
+        }
+
         if (pressedOnce) {
             showList();
 
@@ -582,6 +589,8 @@ export function openWindow(windowContents, appDetails = null) {
 
     main.selectScreen(screenElement);
 
+    $g.sel(".desktop_homeMenu").menuClose();
+
     return $g.sel("#switcherView").screenFade();
 }
 
@@ -632,6 +641,12 @@ export function closeWindow(element, animate = true) {
 }
 
 export function openApp(url) {
+    if (url == "gsspecial://sphere") {
+        sphere.openBrowser();
+
+        return;
+    }
+
     return openWindow($g.create("div").add(
         $g.create("main").add(webviewManager.spawn(url, url.startsWith("gshell://")))
     ));

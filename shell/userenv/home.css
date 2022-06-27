@@ -53,8 +53,9 @@
     background-color: transparent;
 }
 
-.home_app img {
+.home_app .home_icon {
     max-height: calc(100% - 2rem);
+    background-color: white;
     border-radius: 0.8rem;
 }
 

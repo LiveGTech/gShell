@@ -7,6 +7,8 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+
 export const SELECT_MOTION_TOLERANCE = 20;
 
 export class ScrollableScreen {
@@ -29,11 +31,11 @@ export class ScrollableScreen {
         this.element.on("mousedown", (event) => this._touchStartEvent(event.pageX, event.pageY));
         this.element.on("touchstart", (event) => this._touchStartEvent(event.touches[0].pageX, event.touches[0].pageY));
 
-        this.element.on("mousemove", (event) => this._touchMoveEvent(event.pageX, event.pageY));
-        this.element.on("touchmove", (event) => this._touchMoveEvent(event.touches[0].pageX, event.touches[0].pageY));
+        $g.sel("body").on("mousemove", (event) => this._touchMoveEvent(event.pageX, event.pageY));
+        $g.sel("body").on("touchmove", (event) => this._touchMoveEvent(event.touches[0].pageX, event.touches[0].pageY));
 
-        this.element.on("mouseup", (event) => this._touchEndEvent(event.target));
-        this.element.on("touchend", (event) => this._touchEndEvent(event.target));
+        $g.sel("body").on("mouseup", (event) => this._touchEndEvent(event.target));
+        $g.sel("body").on("touchend", (event) => this._touchEndEvent(event.target));
 
         setInterval(() => this._targetScroll(), 10);
     }

@@ -90,11 +90,11 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenOptions 
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-html[aui-istouch="false"] ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active {
+html[aui-istouch="false"] .switcher::-webkit-scrollbar-thumb:hover, .switcher::-webkit-scrollbar-thumb:active {
     background-color: rgba(255, 255, 255, 0.6);
 }
 
-::-webkit-scrollbar-thumb:active {
+.switcher::-webkit-scrollbar-thumb:active {
     background-color: rgba(255, 255, 255, 0.8);
 }
 

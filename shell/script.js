@@ -132,19 +132,7 @@ $g.waitForLoad().then(function() {
     });
 
     $g.sel("#openSwitcher").on("click", function() {
-        switcher.openApp("https://livegtech.github.io/Adapt-UI/demos/all/");
-    });
-
-    $g.sel("#sphere").on("click", function() {
-        sphere.openBrowser();
-    });
-
-    $g.sel(".home_app:not(#settingsHomeApp)").on("click", function() {
-        $g.sel("#main").screenFade();
-    });
-
-    $g.sel("#settingsHomeApp").on("click", function() {
-        switcher.openApp("gshell://apps/settings/index.html");
+        switcher.openApp("https://opensource.liveg.tech/Adapt-UI/demos/all/");
     });
 
     $g.sel("#deviceInfoTest").setText(JSON.stringify(device.data));

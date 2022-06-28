@@ -42,12 +42,12 @@ export function applyPower() {
 export function applyCurrentUser() {
     users.getCurrentUser().then(function(user) {
         if (user == null) {
-            $g.sel(".info_currentUserDisplayName").setText("");
+            $g.sel(".info_currentUserDisplayName").setText(_("unknown"));
 
             return;
         }
 
-        $g.sel(".info_currentUserDisplayName").setText(user.displayName);
+        $g.sel(".info_currentUserDisplayName").setText(user.displayName || _("unknown"));
 
         $g.sel(".info_currentUserProfilePicture").setAttribute("src", `storage://users/${user.uid}/profile.png`);
     });

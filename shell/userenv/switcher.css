@@ -215,6 +215,12 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selecte
     background-color: rgb(206, 206, 206);
 }
 
+body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.launching {
+    opacity: 0!important;
+    transform: scale(0.8);
+    transition: 0.5s opacity, 0.5s transform;
+}
+
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.transitioning {
     transition: 0.5s background-color, 0.5s transform, 0.5s opacity, 0.5s top, 0.5s bottom, 0.5s left, 0.5s right, 0.5s width, 0.5s height, 0.5s border-radius;
 }
@@ -291,7 +297,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenButton {
     height: 5rem;
 }
 
-.switcher_screen.selected .switcher_screenCloseButton, .switcher.allowSelect .switcher_screenCloseButton {
+.switcher_screen.selected .switcher_screenCloseButton, .switcher:not(.allowSelect) .switcher_screenCloseButton {
     display: none;
 }
 

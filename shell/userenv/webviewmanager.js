@@ -19,7 +19,7 @@ function uaFor(renderer) {
 
 // TODO: Store version number for LiveG OS and Sphere in central location so that it can be used in places like the user agent and elsewhere
 
-export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS 0.1.0) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} Mobile ${uaFor("Safari")} Sphere/0.1.0`;
+export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS ${about.VERSION}) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} Mobile ${uaFor("Safari")} Sphere/${about.VERSION}`;
 
 export const USER_AGENT_METADATA = {
     platform: "LiveG OS",

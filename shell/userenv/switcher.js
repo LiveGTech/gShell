@@ -18,6 +18,7 @@ import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as sphere from "gshell://sphere/sphere.js";
 
+export const MAX_WAIT_UNTIL_LAUNCH = 2 * 1_000; // 2 seconds
 export const WINDOW_RESIZE_BORDER_THICKNESS = calc.getRemSize(0.6);
 export const DESKTOP_MIN_WINDOW_WIDTH = calc.getRemSize(20);
 export const DESKTOP_MIN_WINDOW_HEIGHT = calc.getRemSize(15);
@@ -249,6 +250,7 @@ export function openWindow(windowContents, appDetails = null) {
 
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
+        .addClass("launching")
         .on("pointermove", function(event) {
             if (device.data?.type != "desktop") {
                 return;
@@ -553,6 +555,21 @@ export function openWindow(windowContents, appDetails = null) {
             if (event.detail.type == "pointerdown") {
                 main.selectScreen(screenElement);
             }
+        });
+    }
+
+    if (screenElement.find("webview").getAll().length > 0 && !appDetails?.instantLaunch) {
+        screenElement.find("webview").on("dom-ready", function() {
+            screenElement.removeClass("launching");
+        });
+
+        // If loading is taking too long, show the window anyway to prevent confusion
+        setTimeout(function() {
+            screenElement.removeClass("launching");
+        }, MAX_WAIT_UNTIL_LAUNCH);
+    } else {
+        setTimeout(function() {
+            screenElement.removeClass("launching");
         });
     }
 

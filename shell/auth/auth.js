@@ -10,6 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
+import * as info from "gshell://global/info.js";
 
 export const DEFAULT_SALT_ROUNDS = 10;
 export const UNAUTHENTICATED_TIMEOUT = 1_000; // 1 second, to mitigate brute-forcing authentication
@@ -311,6 +312,8 @@ export function start(user) {
         }
 
         return unlock().then(function() {
+            info.applyCurrentUser();
+
             return Promise.resolve();
         });
     });

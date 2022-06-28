@@ -9,6 +9,8 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as users from "gshell://config/users.js";
+
 export function applyDateTime() {
     $g.sel(".info_date").setText(_format(new Date(), {weekday: "long", day: "numeric", month: "long"}));
     $g.sel(".info_time").setText(_format(new Date(), {timeStyle: "short"}));
@@ -37,12 +39,31 @@ export function applyPower() {
     });
 }
 
+export function applyCurrentUser() {
+    users.getCurrentUser().then(function(user) {
+        if (user == null) {
+            $g.sel(".info_currentUserDisplayName").setText("");
+
+            return;
+        }
+
+        $g.sel(".info_currentUserDisplayName").setText(user.displayName);
+
+        $g.sel(".info_currentUserProfilePicture").setAttribute("src", `storage://users/${user.uid}/profile.png`);
+    });
+}
+
 export function applyAll() {
     applyDateTime();
     applyPower();
+    applyCurrentUser();
 }
 
 export function init() {
+    $g.sel(".info_currentUserProfilePicture").on("error", function(event) {
+        $g.sel(event.target).setAttribute("src", "gshell://media/userdefault.svg");
+    });
+
     applyAll();
 
     setInterval(function() {

@@ -39,7 +39,7 @@ $g.waitForLoad().then(function() {
     if (userList.length == 0) {
         var credentials;
 
-        return users.create("test").then(function(user) {
+        return users.create("test", {displayName: "Test User"}).then(function(user) {
             credentials = new auth.UserAuthCredentials(user);
 
             return auth.UnsecureAuthMethod.generate();

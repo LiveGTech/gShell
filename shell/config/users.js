@@ -8,6 +8,8 @@
 */
 
 import * as config from "gshell://config/config.js";
+import * as auth from "gshell://auth/auth.js";
+import * as info from "gshell://global/info.js";
 
 export class User {
     constructor(uid, data) {
@@ -21,6 +23,24 @@ export class User {
 
     setAuthData(data) {
         return config.write(`users/${this.uid}/auth.gsc`, data);
+    }
+
+    save() {
+        var thisScope = this;
+
+        return config.edit("users.gsc", function(allData) {
+            allData.users ||= {};
+
+            allData.users[thisScope.uid] = {
+                displayName: thisScope.displayName
+            };
+
+            return Promise.resolve(allData);
+        }).then(function() {
+            info.applyCurrentUser();
+
+            return Promise.resolve();
+        });
     }
 }
 
@@ -42,15 +62,14 @@ export function getList() {
     });
 }
 
-export function create(uid) {
-    var userToCreate = new User(uid, {});
+export function getCurrentUser() {
+    return Promise.resolve(auth.currentUserAuthCredentials?.user || null);
+}
 
-    return config.edit("users.gsc", function(data) {
-        data.users ||= {};
-        data.users[uid] = {};
+export function create(uid, data = {}) {
+    var user = new User(uid, data);
 
-        return Promise.resolve(data);
-    }).then(function() {
-        return Promise.resolve(userToCreate);
+    return user.save().then(function() {
+        return Promise.resolve(user);
     });
 }

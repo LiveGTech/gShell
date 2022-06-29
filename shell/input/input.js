@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
+import Fuse from "gshell://lib/fuse.esm.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
 import * as device from "gshell://system/device.js";
@@ -33,16 +34,32 @@ export const NON_TEXTUAL_INPUTS = [
     "week"
 ];
 
+export const TRAILING_PUNCTUATION = ["-", ",", ".", "!", "?", ":", ";", "<", ">"];
+
+export const MAX_INPUT_ENTRY_BUFFER_LENGTH = 128;
+export const N_GRAM_DICTIONARY_SEPARATOR = "\u241E";
+
 export const inputModes = {
     NONE: 0,
     FULL_KEYBOARD: 1,
     IME_ONLY: 2
 };
 
+export const candidateResultSources = {
+    WORD: 0,
+    N_GRAM: 1
+};
+
 export var keyboardLayouts = [];
 export var currentKeyboardLayout = null;
+export var currentInputMethod = null;
 export var showing = false;
 export var targetInputSurface = null;
+export var inputEntryBuffer = [];
+export var inputEntryWordLength = 0;
+export var inputCharsToEnter = 0;
+export var inputTrailingText = "";
+export var inputMethodEditorElement = null;
 
 var targetInput = null;
 var showingTransition = false;
@@ -96,24 +113,6 @@ export class KeyboardLayout {
         this.onStateUpdate();
     }
 
-    returnToTargetInput(returnToKeyWhenSwitchEnabled = false) {
-        var lastInputFocus = $g.sel(document.activeElement);
-
-        targetInput?.focus();
-
-        if (a11y.options.switch_enabled) {
-            setTimeout(function() {
-                $g.sel(document.activeElement).blur();
-
-                if (returnToKeyWhenSwitchEnabled) {
-                    lastInputFocus.focus();
-                } else {
-                    $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
-                }
-            }, 100);
-        }
-    }
-
     onStateUpdate() {}
 
     render() {
@@ -147,6 +146,10 @@ export class KeyboardLayout {
                         return function() {
                             var webContentsId = getWebContentsId();
 
+                            if (TRAILING_PUNCTUATION.includes(keyCode)) {
+                                removeTrailingText();
+                            }
+
                             ["keyDown", "char", "keyUp"].forEach(function(type) {
                                 if (type == "char" && ["Enter"].includes(keyCode)) {
                                     return;
@@ -174,7 +177,7 @@ export class KeyboardLayout {
 
                                 callback(event);
 
-                                thisScope.returnToTargetInput(returnToKeyWhenSwitchEnabled);
+                                returnToTargetInput(returnToKeyWhenSwitchEnabled);
                             });
                         }
 
@@ -353,7 +356,218 @@ export class KeyboardLayout {
     }
 }
 
+export class InputMethod {
+    constructor(localeCode, type = "default") {
+        this.localeCode = localeCode;
+        this.type = type;
+
+        this.wordSeparator = " "; // Set as `""` for ideographic languages since they don't have spaces
+        this.nGramLength = 4;
+        this.candidates = [];
+
+        // TODO: This is dummy data for now
+        this.nGramDictionary = {
+            "": [{"result": "the", "weighting": 0.5}, {"result": "I", "weighting": 0.5}, {"result": "we", "weighting": 0.5}],
+            "the\u241e": [{"result": "test", "weighting": 0.5}],
+            "the\u241ete": [{"result": "test", "weighting": 0.5}],
+            "the\u241etest\u241e": [{"result": "is", "weighting": 0.5}]
+        };
+
+        this.wordDictionary = [
+            {"input": "this", "result": "this", "weighting": 0.5},
+            {"input": "that", "result": "that", "weighting": 0.5}
+        ];
+
+        // this.nGramDictionary = {
+        //     "": [{"result": "我", "weighting": 0.5}],
+        //     "你\u241e": [{"result": "好", "weighting": 0.5}],
+        //     "你\u241e好\u241e": [{"result": "吗", "weighting": 0.5}],
+        //     "你\u241ema": [{"result": "吗", "weighting": 0.5}]
+        // };
+
+        // this.wordDictionary = [
+        //     {"input": "ni", "result": "你", "weighting": 0.5},
+        //     {"input": "hao", "result": "好", "weighting": 0.5},
+        //     {"input": "ma", "result": "吗", "weighting": 0.5},
+        //     {"input": "ma", "result": "妈", "weighting": 0.5}
+        // ];
+
+        this.wordFuse = new Fuse(this.wordDictionary, {
+            keys: ["input"],
+            includeScore: true
+        });
+    }
+
+    getInputWord(buffer = inputEntryBuffer, wordLength = inputEntryWordLength) {
+        return buffer.slice(Math.max(buffer.length - wordLength, 0)).join("");
+    }
+
+    getNGram(buffer = inputEntryBuffer, entryWordLength = inputEntryWordLength) {
+        var inputWord = this.getInputWord(buffer, entryWordLength);
+
+        if (this.wordSeparator == "") {
+            buffer = buffer.slice(0, Math.max(buffer.length - entryWordLength, 0));
+        }
+
+        var lastSentence = buffer.join("");
+
+        TRAILING_PUNCTUATION.forEach(function(char) {
+            var splitSentence = lastSentence.split(char);
+
+            lastSentence = splitSentence[splitSentence.length - 1];
+        });
+
+        lastSentence = lastSentence.trimStart();
+
+        var words = lastSentence.split(this.wordSeparator);
+        var nGram = words.slice(Math.max(words.length - this.nGramLength, 0), words.length).map((word) => word.toLocaleLowerCase());
+
+        if (this.wordSeparator == "") {
+            nGram.push(inputWord);
+        }
+
+        return nGram;
+    }
+
+    getCandidates() {
+        var nGramResults = this.nGramDictionary[this.getNGram().join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
+        var wordResults = this.wordFuse.search(this.getInputWord());
+        var allCandidates = [];
+
+        wordResults.forEach(function(result) {
+            result.item.score = result.item.weighting * (1 - result.score);
+            result.item.source = candidateResultSources.WORD;
+
+            allCandidates.push(result.item);
+        });
+
+        nGramResults.forEach(function(result) {
+            result.source = candidateResultSources.N_GRAM;
+            result.score = result.weighting;
+        });
+
+        allCandidates.push(...nGramResults);
+
+        if (allCandidates.length == 0) {
+            allCandidates.push(...(this.nGramDictionary[""] || []));
+        }
+
+        return Promise.resolve(allCandidates.sort((a, b) => b.score - a.score));
+    }
+
+    selectCandidate(candidate) {
+        var charsToDelete = inputEntryWordLength;
+
+        for (var i = 0; i < charsToDelete; i++) {
+            ["keyDown", "char", "keyUp"].forEach(function(type) {
+                gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: "Backspace"}});
+            });
+
+            inputEntryBuffer.pop();
+
+            inputCharsToEnter++;
+        }
+
+        [...candidate.result, this.wordSeparator].forEach(function(char) {
+            ["keyDown", "char", "keyUp"].forEach(function(type) {
+                if (type == "char" && ["Enter"].includes(char)) {
+                    return;
+                }
+    
+                gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: char}});
+
+                if (type == "keyDown") {
+                    inputEntryBuffer.push(char);
+
+                    inputCharsToEnter++;
+                }
+            });
+        });
+
+        returnToTargetInput();
+
+        inputEntryWordLength = 0;
+        inputTrailingText = this.wordSeparator;
+    }
+}
+
+export function updateInputMethodEditor() {
+    if (currentInputMethod == null) {
+        return;
+    }
+
+    return currentInputMethod.getCandidates().then(function(candidates) {
+        inputMethodEditorElement.clear().add(
+            ...candidates.slice(0, 3).map((candidate) => $g.create("button")
+                .setText(candidate.result)
+                .on("click", function() {
+                    currentInputMethod.selectCandidate(candidate);
+                    updateInputMethodEditor();
+                })
+            )
+        );
+
+        return Promise.resolve();
+    });
+}
+
+function keydownCallback(event) {
+    function reset() {
+        inputEntryBuffer = [];
+        inputEntryWordLength = 0;
+    }
+
+    if (inputCharsToEnter > 0) {
+        inputCharsToEnter--;
+
+        return;
+    }
+
+    if ([...event.key].length == 1) { // Printable key
+        while (inputEntryBuffer.length > MAX_INPUT_ENTRY_BUFFER_LENGTH) {
+            inputEntryBuffer.shift();
+        }
+
+        inputEntryBuffer.push(event.key);
+
+        if ([" ", ...TRAILING_PUNCTUATION].includes(event.key)) {
+            inputEntryWordLength = 0;
+        } else {
+            inputEntryWordLength++;
+        }
+
+        updateInputMethodEditor();
+
+        return;
+    }
+    
+    if (event.key == "Backspace") {
+        if (event.ctrlKey || event.altKey || event.shiftKey) {
+            reset();
+            updateInputMethodEditor();
+
+            return;
+        }
+
+        inputEntryBuffer.pop();
+
+        inputEntryWordLength = Math.max(inputEntryWordLength - 1, 0);
+
+        updateInputMethodEditor();
+
+        return;
+    }
+
+    reset();
+    updateInputMethodEditor();
+}
+
 export function init() {
+    inputMethodEditorElement = $g.create("div")
+        .addClass("input_keyboard_row")
+        .addClass("input_ime")
+    ;
+
     setInterval(function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
 
@@ -431,6 +645,11 @@ export function init() {
         event.preventDefault();
     });
 
+    $g.sel("body").on("keydown", keydownCallback);
+    webviewComms.onEvent("keydown", keydownCallback);
+
+    currentInputMethod = new InputMethod("en_GB");
+
     fetch("gshell://input/layouts/en_GB_qwerty.gkbl").then(function(response) {
         return response.json();
     }).then(function(data) {
@@ -470,19 +689,39 @@ export function removeTargetInput() {
     targetInput = null;
 }
 
+export function returnToTargetInput(returnToKeyWhenSwitchEnabled = false) {
+    var lastInputFocus = $g.sel(document.activeElement);
+
+    targetInput?.focus();
+
+    if (a11y.options.switch_enabled) {
+        setTimeout(function() {
+            $g.sel(document.activeElement).blur();
+
+            if (returnToKeyWhenSwitchEnabled) {
+                lastInputFocus.focus();
+            } else {
+                $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
+            }
+        }, 100);
+    }
+}
+
+export function removeTrailingText() {
+    for (var i = 0; i < inputTrailingText.length; i++) {
+        ["keyDown", "char", "keyUp"].forEach(function(type) {
+            gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: "Backspace"}});
+        });
+    }
+
+    inputTrailingText = "";
+}
+
 export function render() {
     $g.sel(".input")
         .clear()
         .add(
-            $g.create("div")
-                .addClass("input_keyboard_row")
-                .addClass("input_ime")
-                .add( // TODO: Implement working IME based on typed input, as well as text entry on button press
-                    $g.create("button").setText("The"),
-                    $g.create("button").setText("I"),
-                    $g.create("button").setText("We")
-                )
-            ,
+            inputMethodEditorElement,
             currentKeyboardLayout.render(),
             $g.create("div")
                 .addClass("input_keyboard_row")

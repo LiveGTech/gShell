@@ -1,0 +1,20 @@
+{
+    "localeCode": "en_GB",
+    "type": "default",
+    "metadata": {
+        "typeName": "default",
+        "wordSeparator": " ",
+        "nGramLength": 4,
+        "allowPartialWords": false
+    },
+    "nGramDictionary": {
+        "": [{"result": "the", "weighting": 0.5}, {"result": "I", "weighting": 0.5}, {"result": "we", "weighting": 0.5}],
+        "the\u241e": [{"result": "test", "weighting": 0.5}],
+        "the\u241ete": [{"result": "test", "weighting": 0.5}],
+        "the\u241etest\u241e": [{"result": "is", "weighting": 0.5}]
+    },
+    "wordDictionary": [
+        {"input": "this", "result": "this", "weighting": 0.5},
+        {"input": "that", "result": "that", "weighting": 0.5}
+    ]
+}

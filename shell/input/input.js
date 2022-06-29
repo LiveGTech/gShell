@@ -51,6 +51,7 @@ export const candidateResultSources = {
 };
 
 export var keyboardLayouts = [];
+export var inputMethods = [];
 export var currentKeyboardLayout = null;
 export var currentInputMethod = null;
 export var showing = false;
@@ -70,11 +71,11 @@ var lastInputWidth = 0;
 var lastInputHeight = 0;
 
 export class KeyboardLayout {
-    constructor(localeCode, variant) {
+    constructor(localeCode, variant, metadata) {
         this.localeCode = localeCode;
         this.variant = variant;
+        this.metadata = metadata;
 
-        this.metadata = {};
         this.states = {};
         this.defaultState = null;
         this.shiftState = null;
@@ -83,9 +84,8 @@ export class KeyboardLayout {
     }
 
     static deserialise(data) {
-        var instance = new this(data.localeCode, data.variant);
+        var instance = new this(data.localeCode, data.variant, data.metadata);
 
-        instance.metadata = data.metadata || {};
         instance.states = data.states || {};
         instance.defaultState = data.defaultState || null;
         instance.shiftState = data.shiftState || null;
@@ -357,42 +357,38 @@ export class KeyboardLayout {
 }
 
 export class InputMethod {
-    constructor(localeCode, type = "default") {
+    constructor(localeCode, type = "default", metadata = {}) {
         this.localeCode = localeCode;
         this.type = type;
+        this.metadata = metadata;
 
-        this.wordSeparator = ""; // Set as `""` for ideographic languages since they don't have spaces
-        this.nGramLength = 4;
-        this.allowPartialWords = true;
+        this.wordSeparator = metadata.wordSeparator || " "; // Set as `""` for ideographic languages since they don't have spaces
+        this.nGramLength = metadata.nGramLength || 4;
+        this.allowPartialWords = metadata.allowPartialWords || false;
+
         this.remainingWordPart = "";
 
-        // TODO: This is dummy data for now
-        // this.nGramDictionary = {
-        //     "": [{"result": "the", "weighting": 0.5}, {"result": "I", "weighting": 0.5}, {"result": "we", "weighting": 0.5}],
-        //     "the\u241e": [{"result": "test", "weighting": 0.5}],
-        //     "the\u241ete": [{"result": "test", "weighting": 0.5}],
-        //     "the\u241etest\u241e": [{"result": "is", "weighting": 0.5}]
-        // };
+        this.nGramDictionary = {};
+        this.wordDictionary = [];
 
-        // this.wordDictionary = [
-        //     {"input": "this", "result": "this", "weighting": 0.5},
-        //     {"input": "that", "result": "that", "weighting": 0.5}
-        // ];
+        this.wordInputs = [];
+        this.wordFuse = null;
 
-        this.nGramDictionary = {
-            "": [{"result": "我", "weighting": 0.5}],
-            "你\u241e": [{"result": "好", "weighting": 0.5}],
-            "你\u241e好\u241e": [{"result": "吗", "weighting": 0.5}],
-            "你\u241ema": [{"result": "吗", "weighting": 0.5}]
-        };
+        this.reindexDictionaries();
+    }
 
-        this.wordDictionary = [
-            {"input": "ni", "result": "你", "weighting": 0.5},
-            {"input": "hao", "result": "好", "weighting": 0.5},
-            {"input": "ma", "result": "吗", "weighting": 0.5},
-            {"input": "ma", "result": "妈", "weighting": 0.5}
-        ];
+    static deserialise(data) {
+        var instance = new this(data.localeCode, data.type, data.metadata);
 
+        instance.nGramDictionary = data.nGramDictionary || {};
+        instance.wordDictionary = data.wordDictionary || [];
+
+        instance.reindexDictionaries();
+
+        return instance;
+    }
+
+    reindexDictionaries() {
         this.wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
 
         this.wordFuse = new Fuse(this.wordDictionary, {
@@ -553,7 +549,9 @@ function keydownCallback(event) {
         return;
     }
 
-    if ([...event.key].length == 1) { // Printable key
+    inputTrailingText = "";
+
+    if ([...event.key].length == 1 && !event.ctrlKey && !event.altKey) { // Printable key
         while (inputEntryBuffer.length > MAX_INPUT_ENTRY_BUFFER_LENGTH) {
             inputEntryBuffer.shift();
         }
@@ -678,7 +676,19 @@ export function init() {
     $g.sel("body").on("keydown", keydownCallback);
     webviewComms.onEvent("keydown", keydownCallback);
 
-    currentInputMethod = new InputMethod("en_GB");
+    fetch("gshell://input/imedata/en_GB_default.gime").then(function(response) {
+        return response.json();
+    }).then(function(data) {
+        var inputMethod = InputMethod.deserialise(data);
+
+        inputMethods.push(inputMethod);
+
+        if (currentInputMethod == null) {
+            currentInputMethod = inputMethod;
+        }
+
+        updateInputMethodEditor();
+    });
 
     fetch("gshell://input/layouts/en_GB_qwerty.gkbl").then(function(response) {
         return response.json();

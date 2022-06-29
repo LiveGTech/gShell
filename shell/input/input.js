@@ -361,36 +361,39 @@ export class InputMethod {
         this.localeCode = localeCode;
         this.type = type;
 
-        this.wordSeparator = " "; // Set as `""` for ideographic languages since they don't have spaces
+        this.wordSeparator = ""; // Set as `""` for ideographic languages since they don't have spaces
         this.nGramLength = 4;
-        this.candidates = [];
+        this.allowPartialWords = true;
+        this.remainingWordPart = "";
 
         // TODO: This is dummy data for now
-        this.nGramDictionary = {
-            "": [{"result": "the", "weighting": 0.5}, {"result": "I", "weighting": 0.5}, {"result": "we", "weighting": 0.5}],
-            "the\u241e": [{"result": "test", "weighting": 0.5}],
-            "the\u241ete": [{"result": "test", "weighting": 0.5}],
-            "the\u241etest\u241e": [{"result": "is", "weighting": 0.5}]
-        };
-
-        this.wordDictionary = [
-            {"input": "this", "result": "this", "weighting": 0.5},
-            {"input": "that", "result": "that", "weighting": 0.5}
-        ];
-
         // this.nGramDictionary = {
-        //     "": [{"result": "我", "weighting": 0.5}],
-        //     "你\u241e": [{"result": "好", "weighting": 0.5}],
-        //     "你\u241e好\u241e": [{"result": "吗", "weighting": 0.5}],
-        //     "你\u241ema": [{"result": "吗", "weighting": 0.5}]
+        //     "": [{"result": "the", "weighting": 0.5}, {"result": "I", "weighting": 0.5}, {"result": "we", "weighting": 0.5}],
+        //     "the\u241e": [{"result": "test", "weighting": 0.5}],
+        //     "the\u241ete": [{"result": "test", "weighting": 0.5}],
+        //     "the\u241etest\u241e": [{"result": "is", "weighting": 0.5}]
         // };
 
         // this.wordDictionary = [
-        //     {"input": "ni", "result": "你", "weighting": 0.5},
-        //     {"input": "hao", "result": "好", "weighting": 0.5},
-        //     {"input": "ma", "result": "吗", "weighting": 0.5},
-        //     {"input": "ma", "result": "妈", "weighting": 0.5}
+        //     {"input": "this", "result": "this", "weighting": 0.5},
+        //     {"input": "that", "result": "that", "weighting": 0.5}
         // ];
+
+        this.nGramDictionary = {
+            "": [{"result": "我", "weighting": 0.5}],
+            "你\u241e": [{"result": "好", "weighting": 0.5}],
+            "你\u241e好\u241e": [{"result": "吗", "weighting": 0.5}],
+            "你\u241ema": [{"result": "吗", "weighting": 0.5}]
+        };
+
+        this.wordDictionary = [
+            {"input": "ni", "result": "你", "weighting": 0.5},
+            {"input": "hao", "result": "好", "weighting": 0.5},
+            {"input": "ma", "result": "吗", "weighting": 0.5},
+            {"input": "ma", "result": "妈", "weighting": 0.5}
+        ];
+
+        this.wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
 
         this.wordFuse = new Fuse(this.wordDictionary, {
             keys: ["input"],
@@ -402,8 +405,23 @@ export class InputMethod {
         return buffer.slice(Math.max(buffer.length - wordLength, 0)).join("");
     }
 
+    getPartialWord(fullWord) {
+        if (!this.allowPartialWords) {
+            return fullWord;
+        }
+
+        var startingInputs = this.wordInputs.filter((word) => fullWord.startsWith(word));
+
+        // Find the longest matching partial word first
+        return startingInputs.sort((a, b) => b.length - a.length)[0] || fullWord;
+    }
+
     getNGram(buffer = inputEntryBuffer, entryWordLength = inputEntryWordLength) {
         var inputWord = this.getInputWord(buffer, entryWordLength);
+        var partialWord = this.getPartialWord(inputWord);
+
+        this.remainingWordPart = inputWord.substring(partialWord.length);
+        inputWord = partialWord;
 
         if (this.wordSeparator == "") {
             buffer = buffer.slice(0, Math.max(buffer.length - entryWordLength, 0));
@@ -431,7 +449,7 @@ export class InputMethod {
 
     getCandidates() {
         var nGramResults = this.nGramDictionary[this.getNGram().join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
-        var wordResults = this.wordFuse.search(this.getInputWord());
+        var wordResults = this.wordFuse.search(this.getPartialWord(this.getInputWord()));
         var allCandidates = [];
 
         wordResults.forEach(function(result) {
@@ -470,7 +488,9 @@ export class InputMethod {
             inputCharsToEnter++;
         }
 
-        [...candidate.result, this.wordSeparator].forEach(function(char) {
+        inputCharsToEnter += [...candidate.result, ...this.wordSeparator].length;
+
+        [...candidate.result, ...this.wordSeparator, ...this.remainingWordPart].forEach(function(char) {
             ["keyDown", "char", "keyUp"].forEach(function(type) {
                 if (type == "char" && ["Enter"].includes(char)) {
                     return;
@@ -480,8 +500,6 @@ export class InputMethod {
 
                 if (type == "keyDown") {
                     inputEntryBuffer.push(char);
-
-                    inputCharsToEnter++;
                 }
             });
         });
@@ -520,8 +538,6 @@ function keydownCallback(event) {
         inputEntryBuffer = [];
         inputEntryWordLength = 0;
     }
-
-    console.log(event.key);
 
     if (event.key == "Tab") {
         return;

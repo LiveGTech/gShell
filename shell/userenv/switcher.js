@@ -664,9 +664,11 @@ export function openApp(url) {
         return;
     }
 
-    return openWindow($g.create("div").add(
-        $g.create("main").add(webviewManager.spawn(url, url.startsWith("gshell://")))
-    ));
+    return webviewManager.spawnAsUser(url, null, {privileged: url.startsWith("gshell://")}).then(function(webview) {
+        return openWindow($g.create("div").add(
+            $g.create("main").add(webview)
+        ));
+    });
 }
 
 export function showList() {

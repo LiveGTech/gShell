@@ -60,33 +60,34 @@ export class Browser {
 
     newTab(url) {
         var thisScope = this;
-        var webview = webviewManager.spawn(this.constructor.normaliseUrl(url));
 
-        webview.on("dom-ready", function() {
-            webview.addClass("sphere_ready");
-
+        return webviewManager.spawnAsUser(this.constructor.normaliseUrl(url)).then(function(webview) {
+            webview.on("dom-ready", function() {
+                webview.addClass("sphere_ready");
+    
+                thisScope.updateChrome();
+            });
+    
+            webview.on("did-navigate did-navigate-in-page", function() {
+                thisScope.updateChrome();
+            });
+    
+            webview.on("click focus", function() {
+                thisScope.uiChrome.find(".sphere_addressInput").blur();
+                webview.focus();
+    
+                thisScope.updateChrome();
+            });
+    
+            thisScope.uiMain.find(".sphere_tabs").add(
+                $g.create("div")
+                    .addClass("sphere_tab")
+                    .addClass("sphere_tab_selected")
+                    .add(webview)
+            );
+    
             thisScope.updateChrome();
         });
-
-        webview.on("did-navigate did-navigate-in-page", function() {
-            thisScope.updateChrome();
-        });
-
-        webview.on("click focus", function() {
-            thisScope.uiChrome.find(".sphere_addressInput").blur();
-            webview.focus();
-
-            thisScope.updateChrome();
-        });
-
-        this.uiMain.find(".sphere_tabs").add(
-            $g.create("div")
-                .addClass("sphere_tab")
-                .addClass("sphere_tab_selected")
-                .add(webview)
-        );
-
-        this.updateChrome();
     }
 
     goBack(tab = this.selectedTab) {

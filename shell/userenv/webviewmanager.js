@@ -10,7 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
-
+import * as users from "gshell://config/users.js";
 import * as about from "gshell://about.js";
 
 function uaFor(renderer) {
@@ -50,14 +50,22 @@ export const USER_AGENT_METADATA = {
     ]
 };
 
-export function spawn(url, privileged = false) {
+export function spawn(url, options = {}) {
     var webview = $g.create("webview");
 
-    webviewComms.attach(webview, privileged);
+    webviewComms.attach(webview, !!options.privileged);
+
+    if (options.private) {
+        options.partition = "private";
+    }
 
     webview.setAttribute("src", url);
     webview.setAttribute("preload", "./webviewpreload.js");
     webview.setAttribute("useragent", USER_AGENT);
+
+    if (!url.startsWith("gshell://")) {
+        webview.setAttribute("partition", options.partition || "private");
+    }
 
     webview.on("click", function() {
         webview.focus();
@@ -88,4 +96,16 @@ export function spawn(url, privileged = false) {
     });
 
     return webview;
+}
+
+export function spawnAsUser(url, user = null, options = {}) {
+    return (user == null ? users.getCurrentUser() : Promise.resolve(user)).then(function(user) {
+        if (typeof(user.uid) == "string") {
+            options.partition = `persist:${user.uid}`;
+        } else {
+            console.warn("User's UID was not available when attempting to spawn webview for user");
+        }
+
+        return Promise.resolve(spawn(url, options));
+    });
 }

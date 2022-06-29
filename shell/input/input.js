@@ -393,7 +393,8 @@ export class InputMethod {
 
         this.wordFuse = new Fuse(this.wordDictionary, {
             keys: ["input"],
-            includeScore: true
+            includeScore: true,
+            distance: 3
         });
     }
 
@@ -676,7 +677,7 @@ export function init() {
     $g.sel("body").on("keydown", keydownCallback);
     webviewComms.onEvent("keydown", keydownCallback);
 
-    fetch("gshell://input/imedata/en_GB_default.gime").then(function(response) {
+    fetch("gshell://input/imedata/test.gime").then(function(response) {
         return response.json();
     }).then(function(data) {
         var inputMethod = InputMethod.deserialise(data);

@@ -458,6 +458,8 @@ export class InputMethod {
     selectCandidate(candidate) {
         var charsToDelete = inputEntryWordLength;
 
+        targetInput?.focus();
+
         for (var i = 0; i < charsToDelete; i++) {
             ["keyDown", "char", "keyUp"].forEach(function(type) {
                 gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: "Backspace"}});
@@ -488,6 +490,8 @@ export class InputMethod {
 
         inputEntryWordLength = 0;
         inputTrailingText = this.wordSeparator;
+
+        updateInputMethodEditor();
     }
 }
 
@@ -500,7 +504,7 @@ export function updateInputMethodEditor() {
         inputMethodEditorElement.clear().add(
             ...candidates.slice(0, 3).map((candidate) => $g.create("button")
                 .setText(candidate.result)
-                .on("click", function() {
+                .on("click", function(event) {
                     currentInputMethod.selectCandidate(candidate);
                     updateInputMethodEditor();
                 })
@@ -515,6 +519,16 @@ function keydownCallback(event) {
     function reset() {
         inputEntryBuffer = [];
         inputEntryWordLength = 0;
+    }
+
+    console.log(event.key);
+
+    if (event.key == "Tab") {
+        return;
+    }
+
+    if (event.key == " " && $g.sel(document.activeElement).is(".input *")) {
+        return;
     }
 
     if (inputCharsToEnter > 0) {
@@ -715,6 +729,8 @@ export function removeTrailingText() {
     }
 
     inputTrailingText = "";
+
+    returnToTargetInput(true);
 }
 
 export function render() {

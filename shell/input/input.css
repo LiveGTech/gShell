@@ -61,6 +61,12 @@
     max-width: unset;
 }
 
+.input:not(.imeOnly) .input_ime.input_keyboard_row button {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .input_keyboard_keys {
     display: flex;
     flex-direction: column;

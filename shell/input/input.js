@@ -521,6 +521,7 @@ export function updateInputMethodEditor() {
 
             inputMethodEditorElement.clear().add(
                 ...[...candidates, ...baseCandidates.slice(0, Math.max(3 - candidates.length, 0))].map((candidate) => $g.create("button")
+                    .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
                     .setText(candidate.result)
                     .on("click", function() {
                         currentInputMethod.selectCandidate(candidate);

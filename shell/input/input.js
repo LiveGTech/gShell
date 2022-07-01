@@ -413,7 +413,7 @@ export class InputMethod {
         return startingInputs.sort((a, b) => b.length - a.length)[0] || fullWord;
     }
 
-    getNGram(buffer = inputEntryBuffer, entryWordLength = inputEntryWordLength) {
+    getNGram(buffer = inputEntryBuffer, entryWordLength = inputEntryWordLength, nGramLength = this.nGramLength) {
         var inputWord = this.getInputWord(buffer, entryWordLength);
         var partialWord = this.getPartialWord(inputWord);
 
@@ -435,7 +435,7 @@ export class InputMethod {
         lastSentence = lastSentence.trimStart();
 
         var words = lastSentence.split(this.wordSeparator);
-        var nGram = words.slice(Math.max(words.length - this.nGramLength, 0), words.length).map((word) => word.toLocaleLowerCase());
+        var nGram = words.slice(Math.max(words.length - nGramLength, 0), words.length).map((word) => word.toLocaleLowerCase());
 
         if (this.wordSeparator == "") {
             nGram.push(inputWord);
@@ -444,8 +444,8 @@ export class InputMethod {
         return nGram;
     }
 
-    getCandidates() {
-        var nGramResults = this.nGramDictionary[this.getNGram().join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
+    getCandidates(nGramLength = this.nGramLength) {
+        var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
         var wordResults = this.wordFuse.search(this.getPartialWord(this.getInputWord()));
         var allCandidates = [];
 
@@ -516,17 +516,21 @@ export function updateInputMethodEditor() {
     }
 
     return currentInputMethod.getCandidates().then(function(candidates) {
-        inputMethodEditorElement.clear().add(
-            ...candidates.slice(0, 3).map((candidate) => $g.create("button")
-                .setText(candidate.result)
-                .on("click", function(event) {
-                    currentInputMethod.selectCandidate(candidate);
-                    updateInputMethodEditor();
-                })
-            )
-        );
+        return currentInputMethod.getCandidates(2).then(function(baseCandidates) {
+            candidates = candidates.slice(0, 3);
 
-        return Promise.resolve();
+            inputMethodEditorElement.clear().add(
+                ...[...candidates, ...baseCandidates.slice(0, Math.max(3 - candidates.length, 0))].map((candidate) => $g.create("button")
+                    .setText(candidate.result)
+                    .on("click", function() {
+                        currentInputMethod.selectCandidate(candidate);
+                        updateInputMethodEditor();
+                    })
+                )
+            );
+    
+            return Promise.resolve();
+        });
     });
 }
 

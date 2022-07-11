@@ -166,7 +166,7 @@ export class Browser {
             $g.create("div").addClass("sphere_tabs")
         );
 
-        this.newTab("https://github.com/LiveGTech/gShell");
+        this.newTab("https://search.liveg.tech");
 
         new ResizeObserver(function() {
             if (thisScope.uiContainer.get().clientWidth >= FULL_CHROME_MIN_WIDTH) {

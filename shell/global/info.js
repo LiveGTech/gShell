@@ -23,6 +23,7 @@ export function applyPower() {
 
             $g.sel(".info_batteryIcon").setAttribute("src", "gshell://lib/adaptui/icons/battery-unknown.svg");
             $g.sel(".info_batteryIcon").setAttribute("alt", _("info_batteryIcon_unknown"));
+            $g.sel(".info_batteryIcon").setAttribute("title", _("info_batteryIcon_unknown"));
 
             return;
         }
@@ -35,7 +36,10 @@ export function applyPower() {
             $g.sel(".info_batteryIcon").setAttribute("src", `gshell://lib/adaptui/icons/battery-${Math.round((response.level / 100) * 7)}.svg`);
         }
 
-        $g.sel(".info_batteryIcon").setAttribute("alt", response.state == "charging" ? _("info_batteryIcon_charging") : _("info_batteryIcon_discharging"));
+        var alt = response.state == "charging" ? _("info_batteryIcon_charging") : _("info_batteryIcon_discharging");
+
+        $g.sel(".info_batteryIcon").setAttribute("alt", alt);
+        $g.sel(".info_batteryIcon").setAttribute("title", alt);
     });
 }
 

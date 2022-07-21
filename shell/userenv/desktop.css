@@ -32,8 +32,11 @@ body:not([device-type="desktop"]) .desktop_background {
 }
 
 .desktop_appBar {
+    display: flex;
+    height: 2.8rem;
     padding-left: 0.2rem;
     padding-right: 0.2rem;
+    align-items: center;
     z-index: 1;
     transition: 0.5s background-color;
 }
@@ -64,6 +67,20 @@ body:not([device-type="desktop"]) .desktop_appBar {
 
 .desktop_appBar button img {
     height: 100%;
+}
+
+.desktop_appBar span:not(:empty) {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.desktop_appBar img {
+    height: 60%;
+}
+
+.desktop_appList {
+    display: inline-block;
+    flex-grow: 1;
 }
 
 .desktop_homeMenu {

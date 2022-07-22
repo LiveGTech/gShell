@@ -1,0 +1,30 @@
+<!--
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+-->
+<div aui-stack="horizontal">
+    <div aui-display="full">
+        <img src="gshell://media/devices.svg" aria-hidden="true">
+    </div>
+    <div>
+        <div class="oobs_content">
+            <div>
+                <h1 translate>oobs_userProfile_title</h1>
+                <div>
+                    <label for="oobs_userProfile_displayName" translate>oobs_userProfile_displayNameLabel</label>
+                    <input id="oobs_userProfile_displayName">
+                </div>
+                <p translate>oobs_userProfile_displayNameHint</p>
+                <p class="oobs_userProfile_error"></p>
+            </div>
+        </div>
+        <aui-buttons aui-mode="end" class="oobs_options">
+            <button class="oobs_userProfile_next" translate>oobs_next</button>
+            <button aui-mode="secondary" oobs-choosestep="l10n" translate>oobs_previous</button>
+        </aui-buttons>
+    </div>
+</div>

@@ -7,6 +7,8 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+
 import * as config from "gshell://config/config.js";
 import * as auth from "gshell://auth/auth.js";
 import * as info from "gshell://global/info.js";
@@ -66,7 +68,7 @@ export function getCurrentUser() {
     return Promise.resolve(auth.currentUserAuthCredentials?.user || null);
 }
 
-export function create(uid, data = {}) {
+export function create(uid = $g.core.generateKey(), data = {}) {
     var user = new User(uid, data);
 
     return user.save().then(function() {

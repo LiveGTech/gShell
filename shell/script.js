@@ -21,11 +21,16 @@ import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
 import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
+import * as oobs from "gshell://oobs/oobs.js";
 import * as sphere from "gshell://sphere/sphere.js";
 
 window.$g = $g;
 
+var oobsActivated = false;
+
 $g.waitForLoad().then(function() {
+    return $g.templates.apply();
+}).then(function() {
     return device.init();
 }).then(function() {
     return l10n.apply();
@@ -34,24 +39,12 @@ $g.waitForLoad().then(function() {
 }).then(function() {
     return users.getList();
 }).then(function(userList) {
-    // TODO: Replace automatic user generation with OOBS
-
     if (userList.length == 0) {
-        var credentials;
+        oobsActivated = true;
 
-        return users.create("test", {displayName: "Test User"}).then(function(user) {
-            credentials = new auth.UserAuthCredentials(user);
-
-            return auth.UnsecureAuthMethod.generate();
-        }).then(function(method) {
-            credentials.authMethods.push(method);
-
-            return credentials.save();
-        });
+        return Promise.resolve();
     }
 
-    return Promise.resolve();
-}).then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
     a11y.init();
@@ -61,9 +54,14 @@ $g.waitForLoad().then(function() {
     input.init();
     home.init();
     switcher.init();
+    oobs.init();
     sphere.init();
 
-    $g.sel("#lockScreenMain").screenFade();
+    if (oobsActivated) {
+        $g.sel("#oobs").screenFade();
+    } else {
+        $g.sel("#lockScreenMain").screenFade();
+    }
 
     $g.sel("#openMenuButton").on("click", function() {
         $g.sel("#mainMenu").menuOpen();
@@ -109,27 +107,27 @@ $g.waitForLoad().then(function() {
         a11y.setOption("switch_enabled", $g.sel("#switchNavigation").getValue());
     });
 
-    users.get("test").then(function(user) {
-        var credentials = new auth.UserAuthCredentials(user);
+    // users.get("test").then(function(user) {
+    //     var credentials = new auth.UserAuthCredentials(user);
 
-        credentials.load().then(function() {
-            $g.sel("#passcodeAuth").setValue(credentials.authMethods[0] instanceof auth.PasscodeAuthMethod);
-        });
-    });
+    //     credentials.load().then(function() {
+    //         $g.sel("#passcodeAuth").setValue(credentials.authMethods[0] instanceof auth.PasscodeAuthMethod);
+    //     });
+    // });
 
-    $g.sel("#passcodeAuth").on("change", function() {
-        users.get("test").then(function(user) {
-            var credentials = new auth.UserAuthCredentials(user);
+    // $g.sel("#passcodeAuth").on("change", function() {
+    //     users.get("test").then(function(user) {
+    //         var credentials = new auth.UserAuthCredentials(user);
 
-            credentials.load().then(function() {
-                return $g.sel("#passcodeAuth").getValue() ? auth.PasscodeAuthMethod.generate("1234") : auth.UnsecureAuthMethod.generate();
-            }).then(function(authMethod) {
-                credentials.authMethods = [authMethod];
+    //         credentials.load().then(function() {
+    //             return $g.sel("#passcodeAuth").getValue() ? auth.PasscodeAuthMethod.generate("1234") : auth.UnsecureAuthMethod.generate();
+    //         }).then(function(authMethod) {
+    //             credentials.authMethods = [authMethod];
 
-                credentials.save();
-            });
-        });
-    });
+    //             credentials.save();
+    //         });
+    //     });
+    // });
 
     $g.sel("#openSwitcher").on("click", function() {
         switcher.openApp("https://opensource.liveg.tech/Adapt-UI/demos/all/");

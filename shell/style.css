@@ -17,6 +17,7 @@
 @import url("gshell://userenv/desktop.css");
 @import url("gshell://userenv/home.css");
 @import url("gshell://userenv/switcher.css");
+@import url("gshell://oobs/oobs.css");
 @import url("gshell://sphere/sphere.css");
 
 html, body {

@@ -21,7 +21,7 @@
     padding-bottom: 0.2rem;
 }
 
-body:not([device-type="mobile"]) .hasSurfaces .infoBar {
+body:not([device-type="mobile"]) .hasSurfaces .infoBar:not(.showOnDesktop) {
     display: none;
 }
 

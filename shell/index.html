@@ -85,11 +85,11 @@
                                     <label for="darkTheme" aui-mode="switch">Dark theme</label>
                                     <input type="checkbox" role="switch" id="darkTheme">
                                 </div>
-                                <div>
+                                <!-- <div>
                                     <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
                                     <input type="checkbox" role="switch" id="passcodeAuth">
                                 </div>
-                                <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p>
+                                <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p> -->
                                 <div>
                                     <label for="switchNavigation" aui-mode="switch">Switch Navigation</label>
                                     <input type="checkbox" role="switch" id="switchNavigation">
@@ -221,6 +221,28 @@
                         <img alt="" aui-icon="light" class="info_batteryIcon">
                         <span aui-mode="part" class="info_batteryLevel"></span>
                         <span class="info_time"></span>
+                    </div>
+                </div>
+            </div>
+        </aui-screen>
+        <aui-screen id="oobs" hidden>
+            <div class="displays">
+                <div class="display hasSurfaces">
+                    <div>
+                        <header class="infoBar showOnDesktop">
+                            <span class="info_time"></span>
+                            <span></span>
+                            <img alt="" aui-icon="light" class="info_batteryIcon">
+                            <span aui-mode="part" class="info_batteryLevel"></span>
+                        </header>
+                    </div>
+                    <div class="surface">
+                        <main>
+                            <div class="oobs_step" aui-template="gshell://oobs/welcome.html"></div>
+                            <div class="oobs_step" aui-template="gshell://oobs/l10n.html" hidden></div>
+                            <div class="oobs_step" aui-template="gshell://oobs/userprofile.html" hidden></div>
+                            <div class="oobs_step" aui-template="gshell://oobs/finish.html" hidden></div>
+                        </main>
                     </div>
                 </div>
             </div>

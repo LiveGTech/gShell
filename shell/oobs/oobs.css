@@ -27,6 +27,8 @@
     flex-direction: column;
     flex-grow: 1;
     flex-shrink: 1;
+    padding-left: calc(50% - 15rem);
+    padding-right: calc(50% - 15rem);
     overflow: auto;
     justify-content: center;
 }
@@ -50,7 +52,5 @@
 
     .oobs_content {
         justify-content: start;
-        padding-left: calc(50% - 15rem);
-        padding-right: calc(50% - 15rem);
     }
 }

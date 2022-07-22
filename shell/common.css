@@ -31,6 +31,6 @@ body[liveg-a11y-scancolour="aqua"] *:is(:focus, [aria-role="group"]:focus-within
     outline: 0.3rem ridge #00ffff!important;
 }
 
-body[liveg-a11y-scancolour] [aria-role="group"]:focus-within:not(:focus) {
+body[liveg-a11y-switch="true"] [aria-role="group"]:focus-within:not(:focus) {
     outline-style: dashed!important;
 }

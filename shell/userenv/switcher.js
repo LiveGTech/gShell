@@ -324,55 +324,60 @@ export function openWindow(windowContents, appDetails = null) {
                     $g.create("span")
                         .addClass("switcher_windowTitle")
                     ,
-                    $g.create("button")
-                        .addClass("switcher_minimiseButton")
-                        .setAttribute("title", _("switcher_minimise"))
-                        .setAttribute("aria-label", _("switcher_minimise"))
-                        .on("click", function() {
-                            minimiseWindow(screenElement);
-                        })
+                    $g.create("div")
+                        .addClass("switcher_windowButtons")
+                        .setAttribute("aria-role", "group")
                         .add(
-                            $g.create("img")
-                                .setAttribute("aui-icon", "dark embedded")
-                                .setAttribute("src", "gshell://lib/adaptui/icons/dropdown.svg")
-                        )
-                    ,
-                    $g.create("button")
-                        .addClass("switcher_maximiseButton")
-                        .setAttribute("title", _("switcher_maximise"))
-                        .setAttribute("aria-label", _("switcher_maximise"))
-                        .on("click", function() {
-                            maximiseWindow(screenElement);
-                        })
-                        .add(
-                            $g.create("img")
-                                .setAttribute("aui-icon", "dark embedded")
-                                .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen.svg")
-                        )
-                    ,
-                    $g.create("button")
-                        .addClass("switcher_restoreButton")
-                        .setAttribute("title", _("switcher_restore"))
-                        .setAttribute("aria-label", _("switcher_restore"))
-                        .on("click", function() {
-                            restoreWindow(screenElement);
-                        })
-                        .add(
-                            $g.create("img")
-                                .setAttribute("aui-icon", "dark embedded")
-                                .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen-exit.svg")
-                        )
-                    ,
-                    $g.create("button")
-                        .setAttribute("title", _("switcher_close"))
-                        .setAttribute("aria-label", _("switcher_close"))
-                        .on("click", function() {
-                            closeWindow(screenElement);
-                        })
-                        .add(
-                            $g.create("img")
-                                .setAttribute("aui-icon", "dark embedded")
-                                .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
+                            $g.create("button")
+                                .addClass("switcher_minimiseButton")
+                                .setAttribute("title", _("switcher_minimise"))
+                                .setAttribute("aria-label", _("switcher_minimise"))
+                                .on("click", function() {
+                                    minimiseWindow(screenElement);
+                                })
+                                .add(
+                                    $g.create("img")
+                                        .setAttribute("aui-icon", "dark embedded")
+                                        .setAttribute("src", "gshell://lib/adaptui/icons/dropdown.svg")
+                                )
+                            ,
+                            $g.create("button")
+                                .addClass("switcher_maximiseButton")
+                                .setAttribute("title", _("switcher_maximise"))
+                                .setAttribute("aria-label", _("switcher_maximise"))
+                                .on("click", function() {
+                                    maximiseWindow(screenElement);
+                                })
+                                .add(
+                                    $g.create("img")
+                                        .setAttribute("aui-icon", "dark embedded")
+                                        .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen.svg")
+                                )
+                            ,
+                            $g.create("button")
+                                .addClass("switcher_restoreButton")
+                                .setAttribute("title", _("switcher_restore"))
+                                .setAttribute("aria-label", _("switcher_restore"))
+                                .on("click", function() {
+                                    restoreWindow(screenElement);
+                                })
+                                .add(
+                                    $g.create("img")
+                                        .setAttribute("aui-icon", "dark embedded")
+                                        .setAttribute("src", "gshell://lib/adaptui/icons/fullscreen-exit.svg")
+                                )
+                            ,
+                            $g.create("button")
+                                .setAttribute("title", _("switcher_close"))
+                                .setAttribute("aria-label", _("switcher_close"))
+                                .on("click", function() {
+                                    closeWindow(screenElement);
+                                })
+                                .add(
+                                    $g.create("img")
+                                        .setAttribute("aui-icon", "dark embedded")
+                                        .setAttribute("src", "gshell://lib/adaptui/icons/close.svg")
+                                )
                         )
                 )
             ,

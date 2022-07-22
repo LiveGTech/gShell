@@ -348,6 +348,11 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
     pointer-events: none;
 }
 
+.switcher_windowButtons {
+    height: 100%;
+    border-radius: 0.5rem;
+}
+
 .switcher_screen.maximised .switcher_maximiseButton {
     display: none;
 }

@@ -95,6 +95,9 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
             this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
 
+            this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
+            screenElement.find("*:is(.switcher_titleBar, .switcher_apps)").removeAttribute("inert");
+
             if (device.data?.type == "desktop") {
                 screenElement.setStyle("z-index", topmostZIndex++);
             }
@@ -122,6 +125,8 @@ export class Switcher extends screenScroll.ScrollableScreen {
         this.element.addClass("allowSelect");
         this.element.find(":scope > *").removeClass("backgrounded");
         this.element.find(":scope > *").removeClass("selected");
+
+        this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
 
         this.element.find(":scope > *").setStyle("position", null);
         this.element.find(":scope > *").setStyle("top", null);

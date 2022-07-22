@@ -345,23 +345,48 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
                         var targetSurface = document.body;
                         var targetWebContentsId = 1;
 
-                        $g.sel("webview").getAll().forEach(function(element) {
-                            if (getComputedStyle(element).pointerEvents == "none") {
-                                return;
+                        function computeZIndex(element) {
+                            if (!(element instanceof Element)) {
+                                return 0;
                             }
 
-                            var surfaceRect = element.getBoundingClientRect();
-
-                            if (
-                                surfaceRect.left <= thisScope.pointScanTargetX &&
-                                surfaceRect.right > thisScope.pointScanTargetX &&
-                                surfaceRect.top <= thisScope.pointScanTargetY &&
-                                surfaceRect.bottom > thisScope.pointScanTargetY
-                            ) {
-                                targetSurface = element;
-                                targetWebContentsId = element.getWebContentsId();
+                            if ($g.sel(element).is(".switcher_screen *")) {
+                                element = $g.sel(element).ancestor(".switcher_screen").get();
                             }
-                        });
+
+                            if ($g.sel(element).is("aui-menu, aui-menu *")) {
+                                return Infinity;
+                            }
+
+                            return Number(getComputedStyle(element).zIndex);
+                        }
+
+                        $g.sel("*")
+                            .getAll()
+                            .sort((a, b) => computeZIndex(a) - computeZIndex(b))
+                            .forEach(function(element) {
+                                if (getComputedStyle(element).pointerEvents == "none") {
+                                    return;
+                                }
+
+                                var surfaceRect = element.getBoundingClientRect();
+
+                                if (
+                                    surfaceRect.left <= thisScope.pointScanTargetX &&
+                                    surfaceRect.right > thisScope.pointScanTargetX &&
+                                    surfaceRect.top <= thisScope.pointScanTargetY &&
+                                    surfaceRect.bottom > thisScope.pointScanTargetY
+                                ) {
+                                    if ($g.sel(element).is("webview")) {
+                                        targetSurface = element;
+                                        targetWebContentsId = element.getWebContentsId();
+                                    } else {
+                                        targetSurface = document.body;
+                                        targetWebContentsId = 1;
+                                    }
+                                }
+                            })
+                        ;
 
                         var promiseChain = Promise.resolve();
                         var surfaceRect = targetSurface.getBoundingClientRect();

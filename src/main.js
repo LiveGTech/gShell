@@ -73,6 +73,7 @@ electron.app.on("ready", function() {
         });
     
         exports.window.setMenuBarVisibility(false);
+        exports.window.webContents.debugger.attach("1.2");
 
         electron.nativeTheme.themeSource = "light";
 
@@ -80,10 +81,7 @@ electron.app.on("ready", function() {
             exports.window.setPosition(0, 0);
             exports.window.webContents.setZoomFactor(5);
         }
-
         if (flags.emulateTouch) {
-            exports.window.webContents.debugger.attach("1.2");
-
             exports.window.webContents.debugger.sendCommand("Emulation.setEmitTouchEventsForMouse", {
                 enabled: true,
                 configuration: "mobile"

@@ -350,7 +350,6 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
 
 .switcher_windowButtons {
     height: 100%;
-    border-radius: 0.5rem;
 }
 
 .switcher_screen.maximised .switcher_maximiseButton {
@@ -472,5 +471,13 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximis
     
     body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.selected {
         background-color: rgb(49, 49, 49);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body[device-type="desktop"] .switcher {
+        transform: scale(1)!important;
+        opacity: 1!important;
+        animation: 0.5s switcher_desktopHideSelect!important;
     }
 }

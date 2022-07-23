@@ -15,6 +15,8 @@ const bcryptjs = require("bcryptjs");
 var flags = require("./flags");
 var device = require("./device");
 
+var mediaFeatures = {};
+
 exports.executeCommand = function(command, args = []) {
     return new Promise(function(resolve, reject) {
         child_process.execFile(command, args, function(error, stdout, stderr) {
@@ -137,6 +139,26 @@ exports.setColourScheme = function(scheme = "light") {
     electron.nativeTheme.themeSource = scheme;
 
     return Promise.resolve();
+};
+
+exports.setMediaFeatures = function(features = mediaFeatures) {
+    mediaFeatures = features;
+
+    return Promise.all(electron.webContents.getAllWebContents().map(function(webContents) {
+        return webContents.debugger.sendCommand("Emulation.setEmulatedMedia", {
+            features: Object.keys(features).map((name) => ({name, value: features[name]}))
+        });
+    }));
+};
+
+exports.setMediaFeature = function(name, value) {
+    mediaFeatures[name] = value;
+
+    return exports.setMediaFeatures();
+};
+
+exports.getMediaFeatures = function() {
+    return Promise.resolve(mediaFeatures);
 };
 
 exports.bcryptHash = function(data, saltRounds) {

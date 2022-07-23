@@ -140,8 +140,21 @@ ipcMain.handle("webview_attach", function(event, data) {
             userAgentMetadata: data.userAgentMetadata
         });
     }).then(function() {
-        return Promise.resolve();
+        // We must re-apply media features since the new webview won't have them yet
+        return system.setMediaFeatures();
     });
+});
+
+ipcMain.handle("webview_setMediaFeatures", function(event, data) {
+    return system.setMediaFeatures(data.features);
+});
+
+ipcMain.handle("webview_setMediaFeature", function(event, data) {
+    return system.setMediaFeature(data.name, data.value);
+});
+
+ipcMain.handle("webview_getMediaFeatures", function(event, data) {
+    return system.getMediaFeatures();
 });
 
 ipcMain.handle("dev_restart", function(event, data) {

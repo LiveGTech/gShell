@@ -21,6 +21,8 @@ export var A11yPage = astronaut.component("A11yPage", function(props, children) 
         )
     );
 
+    var reduceMotionSwitch = SwitchInput() ();
+
     switchNavigationButton.on("click", function() {
         settings.visitInnerScreen(
             SwitchNavigationScreen() (
@@ -29,9 +31,38 @@ export var A11yPage = astronaut.component("A11yPage", function(props, children) 
         );
     });
 
+    reduceMotionSwitch.on("change", function() {
+        _sphere.callPrivilegedCommand("a11y_setOption", {
+            name: "display_reduceMotion",
+            value: !_sphere.getPrivilegedData()?.a11y_options?.display_reduceMotion
+        });
+    });
+
+    function updateData() {
+        var data = _sphere.getPrivilegedData();
+
+        reduceMotionSwitch.setValue(!!data?.a11y_options?.display_reduceMotion);
+    }
+
+    _sphere.onPrivilegedDataUpdate(updateData);
+    updateData();
+
     return Page (
         Section (
             switchNavigationButton
+        ),
+        Section (
+            Container({
+                attributes: {
+                    "tabindex": "0",
+                    "aria-role": "group"
+                }
+            }) (
+                Label() (
+                    Text(_("a11y_reduceMotion")),
+                    reduceMotionSwitch
+                )
+            )
         )
     );
 });

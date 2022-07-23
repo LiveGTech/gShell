@@ -15,6 +15,8 @@ export var options = {
     touch_holdDelay: 500, // 500 milliseconds
     touch_doublePressDelay: 500, // 500 milliseconds
 
+    display_reduceMotion: false,
+
     switch_enabled: false,
     switch_scanColour: "blue",
     switch_itemScanPeriod: 500, // 500 milliseconds
@@ -82,6 +84,11 @@ export function init() {
 }
 
 export function update() {
+    gShell.call("webview_setMediaFeature", {
+        name: "prefers-reduced-motion",
+        value: options.display_reduceMotion ? "reduce" : "no-preference"
+    });
+
     assistiveTechnologies.forEach((tech) => tech.update());
 
     privilegedInterface.setData("a11y_options", options);

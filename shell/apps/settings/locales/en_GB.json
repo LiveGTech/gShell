@@ -49,6 +49,8 @@
         "a11y_switch_description": "Switch Navigation allows you to access and navigate your device by using one or more switches — such as push buttons, foot pedals, sip-and-puff switches and more.",
         "a11y_switch_enable": "Enable Switch Navigation",
 
+        "a11y_reduceMotion": "Reduce animations and non-essential motion",
+
         "about": "About this device",
         "about_summary": "View OS and hardware information",
 

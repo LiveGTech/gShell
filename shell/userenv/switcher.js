@@ -153,6 +153,8 @@ export class Switcher extends screenScroll.ScrollableScreen {
         this.element.find(":scope > *").addClass("backgrounded");
         this.element.find(":scope > *").removeClass("selected");
 
+        $g.sel(".desktop_appListButton").removeClass("selected");
+
         this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
     }
 }

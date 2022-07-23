@@ -91,6 +91,11 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
             screenElement.addClass("selected");
 
+            var listButton = $g.sel(`.desktop_appListButton[data-id="${screenElement.getAttribute("data-id")}"]`);
+
+            $g.sel(".desktop_appListButton").removeClass("selected");
+            listButton.addClass("selected");
+
             this.screenSelected = true;
 
             this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
@@ -125,6 +130,8 @@ export class Switcher extends screenScroll.ScrollableScreen {
         this.element.addClass("allowSelect");
         this.element.find(":scope > *").removeClass("backgrounded");
         this.element.find(":scope > *").removeClass("selected");
+
+        $g.sel(".desktop_appListButton").removeClass("selected");
 
         this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
 
@@ -253,9 +260,12 @@ export function openWindow(windowContents, appDetails = null) {
     var shouldSelectScreen = false;
     var lastTitleBarPress = null;
 
+    var id = $g.core.generateKey();
+
     var screenElement = $g.create("div")
         .addClass("switcher_screen")
         .addClass("launching")
+        .setAttribute("data-id", id)
         .on("pointermove", function(event) {
             if (device.data?.type != "desktop") {
                 return;
@@ -317,6 +327,7 @@ export function openWindow(windowContents, appDetails = null) {
                 .add(
                     $g.create("img")
                         .addClass("switcher_windowIcon")
+                        .setAttribute("aria-hidden", true)
                         .on("error", function() {
                             screenElement.find(".switcher_windowIcon").setAttribute("src", "gshell://media/appdefault.svg")
                         })
@@ -447,6 +458,29 @@ export function openWindow(windowContents, appDetails = null) {
         )
     ;
 
+    var appListButton = $g.create("button")
+        .addClass("desktop_appListButton")
+        .addClass("transitioning")
+        .setAttribute("data-id", id)
+        .add(
+            $g.create("img")
+                .addClass("desktop_appListButton_icon")
+                .setAttribute("aria-hidden", true)
+                .on("error", function() {
+                    appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg")
+                })
+        )
+        .on("click", function() {
+            if (screenElement.hasClass("selected") && !screenElement.hasClass("minimised")) {
+                minimiseWindow(screenElement);
+
+                return;
+            }
+
+            selectScreen(screenElement);
+        })
+    ;
+
     initialGeometry = {
         x: ((window.innerWidth - DESKTOP_DEFAULT_WINDOW_WIDTH) / (WINDOW_STACK_WRAPAROUND + 2)) * (windowStackStep + 1),
         y: ((window.innerHeight - DESKTOP_DEFAULT_WINDOW_HEIGHT) / (WINDOW_STACK_WRAPAROUND + 2)) * (windowStackStep + 1),
@@ -537,15 +571,24 @@ export function openWindow(windowContents, appDetails = null) {
         screenElement.find("webview").on("page-title-updated", function(event) {
             screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
             screenElement.find(".switcher_windowTitle").setText(event.title);
+
+            appListButton.setAttribute("title", event.title);
+            appListButton.setAttribute("aria-label", event.title);
         });
 
         screenElement.find("webview").on("page-favicon-updated", function(event) {
             screenElement.find(".switcher_windowIcon").setAttribute("src", event.favicons[0]);
+
+            appListButton.find(".desktop_appListButton_icon").setAttribute("src", event.favicons[0]);
         });
     } else {
         screenElement.find(".switcher_screenButton").setAttribute("aria-label", appDetails.name);
         screenElement.find(".switcher_windowTitle").setText(appDetails.name);
         screenElement.find(".switcher_windowIcon").setAttribute("src", appDetails.icon);
+
+        appListButton.setAttribute("title", appDetails.name);
+        appListButton.setAttribute("aria-label", appDetails.name);
+        appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
 
     screenElement.find(".switcher_apps *").on("focus", function() {
@@ -568,18 +611,23 @@ export function openWindow(windowContents, appDetails = null) {
         });
     }
 
+    function finishLaunch() {
+        screenElement.removeClass("launching");
+        appListButton.removeClass("transitioning");
+    }
+
     if (screenElement.find("webview").getAll().length > 0 && !appDetails?.instantLaunch) {
         screenElement.find("webview").on("dom-ready", function() {
-            screenElement.removeClass("launching");
+            finishLaunch();
         });
 
         // If loading is taking too long, show the window anyway to prevent confusion
         setTimeout(function() {
-            screenElement.removeClass("launching");
+            finishLaunch();
         }, MAX_WAIT_UNTIL_LAUNCH);
     } else {
         setTimeout(function() {
-            screenElement.removeClass("launching");
+            finishLaunch();
         });
     }
 
@@ -613,6 +661,7 @@ export function openWindow(windowContents, appDetails = null) {
     screenElement.swipeToDismiss(device.data?.type == "desktop" ? dismiss.directions.VERTICAL : dismiss.directions.UP);
 
     $g.sel("#switcherView .switcher").add(screenElement);
+    $g.sel(".desktop_appList").add(appListButton);
 
     main.selectScreen(screenElement);
 
@@ -624,6 +673,8 @@ export function openWindow(windowContents, appDetails = null) {
 export function minimiseWindow(element) {
     element.addClass("minimised");
     setWindowGeometry(element);
+
+    $g.sel(".desktop_appListButton").removeClass("selected");
 }
 
 export function showWindow(element) {
@@ -653,10 +704,14 @@ export function restoreWindow(element) {
 
 export function closeWindow(element, animate = true) {
     return new Promise(function(resolve, reject) {
+        var listButton = $g.sel(`.desktop_appListButton[data-id="${element.getAttribute("data-id")}"]`);
+
         element.addClass("closing");
+        listButton.addClass("transitioning");
 
         setTimeout(function() {
             element.remove();
+            listButton.remove();
 
             if ($g.sel("#switcherView .switcher *").getAll().length == 0) {
                 main.selectDesktop();

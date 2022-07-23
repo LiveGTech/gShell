@@ -42,7 +42,8 @@ export const N_GRAM_DICTIONARY_SEPARATOR = "\u241E";
 export const inputModes = {
     NONE: 0,
     FULL_KEYBOARD: 1,
-    IME_ONLY: 2
+    IME_ONLY: 2,
+    FLOATING_KEYBOARD: 3
 };
 
 export const candidateResultSources = {
@@ -803,7 +804,15 @@ export function render() {
 }
 
 export function getBestInputMode() {
-    return device.touchActive ? inputModes.FULL_KEYBOARD : inputModes.IME_ONLY;
+    if (device.touchActive) {
+        return inputModes.FULL_KEYBOARD;
+    }
+
+    if (a11y.options.switch_enabled && device.data?.type == "desktop") {
+        return inputModes.FLOATING_KEYBOARD;
+    }
+
+    return inputModes.IME_ONLY;
 }
 
 export function show(mode = getBestInputMode()) {
@@ -816,11 +825,19 @@ export function show(mode = getBestInputMode()) {
     showing = true;
     showingTransition = true;
 
-    if (mode != inputModes.IME_ONLY) {
-        $g.sel(".input").removeClass("imeOnly");
-        $g.sel("body").addClass("input_keyboardShowing");
-    } else {
+    if (mode == inputModes.IME_ONLY) {
         $g.sel(".input").addClass("imeOnly");
+    } else {
+        $g.sel(".input").removeClass("imeOnly");
+    }
+
+    if (mode == inputModes.FLOATING_KEYBOARD) {
+        $g.sel(".input").addClass("floating");
+    } else {
+        $g.sel(".input").removeClass("floating");
+    }
+
+    if ([inputModes.IME_ONLY, inputModes.FLOATING_KEYBOARD].includes(mode)) {
         $g.sel(".input").setStyle("bottom", null);
 
         if (!$g.sel(document.activeElement).is("webview")) {
@@ -832,8 +849,17 @@ export function show(mode = getBestInputMode()) {
             lastInputHeight = elementRect.height;
         }
 
-        $g.sel(".input").setStyle("top", `${lastInputTop + lastInputHeight + 5}px`);
+        var top = lastInputTop + lastInputHeight + 5;
+        var inputHeight = parseInt(getComputedStyle($g.sel(".input").get()).height);
+
+        if (top + inputHeight > window.innerHeight) {
+            top = lastInputTop - inputHeight - 5;
+        }
+
+        $g.sel(".input").setStyle("top", `${top}px`);
         $g.sel(".input").setStyle("left", `${lastInputLeft}px`);
+    } else {
+        $g.sel("body").addClass("input_keyboardShowing");
     }
 
     webviewComms.update();

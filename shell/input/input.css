@@ -37,6 +37,15 @@
     bottom: unset;
 }
 
+.input.floating {
+    width: 22rem;
+    height: 18rem;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    outline: 0.2rem solid var(--menuOutline);
+    bottom: unset;
+}
+
 .input[hidden] {
     display: none;
 }

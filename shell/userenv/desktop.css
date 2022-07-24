@@ -95,7 +95,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
     position: relative;
     display: block;
     top: -0.15rem;
-    width: 1rem;
+    width: calc(100% - 1rem);
     height: 0.1rem;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
@@ -120,7 +120,6 @@ body:not([device-type="desktop"]) .desktop_appBar {
 .desktop_appListButton_icon {
     width: 2rem;
     height: 2rem;
-    margin-inline-end: 0.5rem;
     background-color: white;
     border-radius: 0.5rem;
 }

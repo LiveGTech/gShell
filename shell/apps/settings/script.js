@@ -49,6 +49,10 @@ export function visitInnerScreen(screen) {
     screen.screenForward();
 }
 
+export function registerDialog(dialog) {
+    root.add(dialog);
+}
+
 export var InnerScreen = astronaut.component("InnerScreen", function(props, children, inter) {
     var backButton = IconButton({icon: "back", alt: _("back")}) ();
     var screen = Screen() (
@@ -90,6 +94,8 @@ $g.waitForLoad().then(function() {
     Object.keys(pages).forEach(function(pageId) {
         pageMenuButtons[pageId] = PageMenuButton({page: pages[pageId]}) (_(pageId));
     });
+
+    a11y.init();
 
     var homePage = Page(true) (
         Section (

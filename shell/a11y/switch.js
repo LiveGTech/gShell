@@ -139,12 +139,22 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
             }
         });
 
+        var switchWasEnabled = false;
+
         setInterval(function() {
             if (!a11y.options.switch_enabled) {
                 $g.sel("[aria-role='group']").removeAttribute("tabindex");
 
+                switchWasEnabled = false;
+
                 return;
             }
+
+            if (!switchWasEnabled) {
+                thisScope.currentMode = modes.ITEM_SCAN;
+            }
+
+            switchWasEnabled = true;
 
             $g.sel("[aria-role='group']").setAttribute("tabindex", "0");
 

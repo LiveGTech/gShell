@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as settings from "./script.js";
@@ -72,8 +73,15 @@ export var SwitchNavigationScreen = astronaut.component("SwitchNavigationScreen"
 
     var enableSwitch = SwitchInput() ();
 
-    enableSwitch.on("change", function() {
+    enableSwitch.on("change", function(event) {
         // TODO: Add confirmation dialog when disabling Switch Navigation
+
+        if (!enableSwitch.getValue()) {
+            switchNavigationDisableDialog.dialogOpen();
+            enableSwitch.setValue(true);
+
+            return;
+        }
 
         _sphere.callPrivilegedCommand("a11y_setOption", {
             name: "switch_enabled",
@@ -113,3 +121,46 @@ export var SwitchNavigationScreen = astronaut.component("SwitchNavigationScreen"
 
     return screen;
 });
+
+export var SwitchNavigationDisableDialog = astronaut.component("SwitchNavigationDisableDialog", function(props, children) {
+    var turnOffButton = Button() (_("a11y_switch_disableDialog_turnOff"));
+
+    var dialog = Dialog (
+        Heading() (_("a11y_switch_disableDialog_title")),
+        DialogContent (
+            Paragraph() (_("a11y_switch_disableDialog_description"))
+        ),
+        ButtonRow({
+            attributes: {
+                "aui-mode": "end"
+            }
+        }) (
+            turnOffButton,
+            Button({
+                mode: "secondary",
+                attributes: {
+                    "aui-bind": "close"
+                }
+            }) (_("cancel"))
+        )
+    );
+
+    turnOffButton.on("click", function() {
+        _sphere.callPrivilegedCommand("a11y_setOption", {
+            name: "switch_enabled",
+            value: false
+        });
+
+        dialog.dialogClose();
+    });
+
+    return dialog;
+});
+
+export var switchNavigationDisableDialog = null;
+
+export function init() {
+    switchNavigationDisableDialog = SwitchNavigationDisableDialog() ();
+    
+    settings.registerDialog(switchNavigationDisableDialog);
+}

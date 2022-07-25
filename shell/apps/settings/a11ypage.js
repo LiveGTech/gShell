@@ -74,8 +74,6 @@ export var SwitchNavigationScreen = astronaut.component("SwitchNavigationScreen"
     var enableSwitch = SwitchInput() ();
 
     enableSwitch.on("change", function(event) {
-        // TODO: Add confirmation dialog when disabling Switch Navigation
-
         if (!enableSwitch.getValue()) {
             switchNavigationDisableDialog.dialogOpen();
             enableSwitch.setValue(true);

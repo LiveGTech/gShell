@@ -13,6 +13,8 @@ const path = require("path");
 const fs = require("fs");
 const electron = require("electron");
 
+const rootDirectory = electron.app.isPackaged ? process.resourcesPath : path.join(__dirname, "/..");
+
 var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
@@ -39,7 +41,8 @@ electron.protocol.registerSchemesAsPrivileged([
 ]);
 
 electron.app.on("ready", function() {
-    if (!fs.existsSync(path.join("shell", "lib", "adaptui", "src", "adaptui.js"))) {
+    console.log(path.join(rootDirectory, "shell", "lib", "adaptui", "src", "adaptui.js"));
+    if (!fs.existsSync(path.join(rootDirectory, "shell", "lib", "adaptui", "src", "adaptui.js"))) {
         console.error("Missing required dependency: Adapt UI");
         console.error("Please ensure that you clone the required submodules to install the dependencies.");
         console.error("Read README.md for more information on how to do this.");
@@ -50,7 +53,7 @@ electron.app.on("ready", function() {
     electron.protocol.registerFileProtocol("gshell", function(request, callback) {
         var url = request.url.substring("gshell://".length);
 
-        callback({path: path.normalize(`${__dirname}/../shell/${url}`)});
+        callback({path: path.normalize(`${rootDirectory}/shell/${url}`)});
     });
 
     storage.init().then(function() {
@@ -66,7 +69,7 @@ electron.app.on("ready", function() {
             backgroundColor: "#000000",
             webPreferences: {
                 devTools: !electron.app.isPackaged,
-                preload: path.normalize(`${__dirname}/../shell/preload.js`),
+                preload: path.normalize(`${rootDirectory}/shell/preload.js`),
                 webviewTag: true,
                 sandbox: true
             }

@@ -4,13 +4,37 @@
     "description": "Interactive graphical desktop environment for LiveG OS.",
     "main": "src/main.js",
     "author": "LiveG Technologies",
+    "repository": "https://github.com/LiveGTech/gShell",
     "scripts": {
-        "gshell": "electron . --disable-gpu"
+        "gshell": "electron . --disable-gpu",
+        "dist": "electron-builder"
+    },
+    "devDependencies": {
+        "electron": "^19.0.8",
+        "electron-builder": "^23.1.0"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
-        "electron": "^19.0.8",
         "minimist": "^1.2.5",
         "mkdirp": "^0.5.6"
+    },
+    "build": {
+        "appId": "tech.liveg.gshell",
+        "productName": "gShell",
+        "copyright": "Copyright © LiveG. All Rights Reserved.",
+        "extraResources": [
+            {"from": "shell", "to": "shell"}
+        ],
+        "directories": {
+            "buildResources": "res",
+            "output": "dist"
+        },
+        "linux": {
+            "target": "AppImage",
+            "executableName": "gshell",
+            "icon": "res/512x512.png",
+            "synopsis": "Interactive graphical desktop environment for LiveG OS.",
+            "category": "System"
+        }
     }
 }

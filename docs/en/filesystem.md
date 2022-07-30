@@ -15,6 +15,8 @@ gShell abstracts away the complexities of where its filesystem is located in the
 * `storage://users/<uid>/files/Photos/Camera`: Where photos and videos taken by the device's camera are stored.
 * `storage://users/<uid>/files/Photos/Screenshots`: Where screenshots taken by the user are stored.
 
+The default folder structure should be made editable via the Settings app so that users can choose their own custom folder structures. This would also make it ideal for naming default folders based on the user's locale. An API should be exposed to allow apps to find default folders by their paths (we could also create symlinks such as `storage://users/<uid>/.defaults/downloads` for programmatic access without the use of the API).
+
 ## Where are apps and their respective data stored?
 Apps and their respective data are not stored in the gShell filesystem, but _are_ stored in the host system's filesystem. Since apps are web apps, they may choose to be stored in Electron's cache so that they can be used when the device is offline.
 

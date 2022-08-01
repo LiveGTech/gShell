@@ -10,6 +10,19 @@
 
         "unknown": "Unknown",
 
+        "size_bytes": {
+            "{size} == 1": "{size} byte",
+            "{size} != 1": "{size} bytes"
+        },
+        "size_kb": "{size} KB",
+        "size_mb": "{size} MB",
+        "size_gb": "{size} GB",
+        "size_tb": "{size} TB",
+        "size_kib": "{size} KiB",
+        "size_mib": "{size} MiB",
+        "size_gib": "{size} GiB",
+        "size_tib": "{size} TiB",
+
         "info_batteryIcon_charging": "Battery - charging",
         "info_batteryIcon_discharging": "Battery - discharging",
         "info_batteryIcon_unknown": "Battery - unknown",
@@ -38,6 +51,10 @@
         "oobs_previous": "Previous",
         "oobs_next": "Next",
         "oobs_finish": "Finish",
+
+        "oobs_installDisks_diskUnlabelledTitle": "Unlabelled (disk {number})",
+        "oobs_installDisks_diskLabelledTitle": "{label} (disk {number})",
+        "oobs_installDisks_diskTotalSize": "{size} total size",
 
         "oobs_userProfile_title": "Let's get some details about you",
         "oobs_userProfile_displayNameLabel": "What's your name?",

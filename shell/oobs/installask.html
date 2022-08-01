@@ -1,0 +1,39 @@
+<!--
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+-->
+<div aui-stack="horizontal">
+    <div aui-display="full">
+        <img src="gshell://media/devices.svg" aria-hidden="true" class="oobs_featureMedia">
+    </div>
+    <div>
+        <div class="oobs_content">
+            <div>
+                <h1>Install LiveG OS?</h1>
+                <p>You can either install LiveG OS to this device's internal storage now, or try out LiveG OS without installation first.</p>
+                <p>If you choose to try out LiveG OS without installing, files you save and changes you make in LiveG OS will be lost when the system shuts down.</p>
+                <button aui-listitem="icon" oobs-choosestep="installdisk">
+                    <img src="gshell://lib/adaptui/icons/download.svg" alt="" aui-icon="dark embedded">
+                    <div>
+                        <strong>Install LiveG OS to internal storage</strong><br>
+                        <span>You will be able to choose the disk and partition to install to</span>
+                    </div>
+                </button>
+                <button aui-listitem="icon" oobs-choosestep="userprofile">
+                    <img src="gshell://lib/adaptui/icons/emoji.svg" alt="" aui-icon="dark embedded">
+                    <div>
+                        <strong>Try out LiveG OS without installation</strong><br>
+                        <span>Changes will be lost, and internal storage will not be affected</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <aui-buttons aui-mode="end" class="oobs_options">
+            <button aui-mode="secondary" oobs-choosestep="l10n" translate>oobs_previous</button>
+        </aui-buttons>
+    </div>
+</div>

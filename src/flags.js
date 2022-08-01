@@ -13,6 +13,7 @@ exports.argv = minimist(process.argv.slice(2));
 
 exports.isRealHardware = !!exports.argv["real"];
 exports.allowHostControl = !!exports.argv["allow-host-control"];
+exports.emulateInstallationMedia = !!exports.argv["im-emulation"];
 exports.emulateTouch = !exports.isRealHardware && exports.argv["touch-emulation"] != false;
 exports.deviceDescriptionLocation = exports.argv["device-desc-location"] || null;
 exports.deviceType = exports.argv["device-type"] || null;

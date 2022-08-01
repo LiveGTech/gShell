@@ -8,6 +8,7 @@
 */
 
 const child_process = require("child_process");
+const stream = require("stream");
 const fs = require("fs");
 const electron = require("electron");
 const bcryptjs = require("bcryptjs");
@@ -17,9 +18,9 @@ var device = require("./device");
 
 var mediaFeatures = {};
 
-exports.executeCommand = function(command, args = []) {
+exports.executeCommand = function(command, args = [], stdin = null) {
     return new Promise(function(resolve, reject) {
-        child_process.execFile(command, args, function(error, stdout, stderr) {
+        var child = child_process.execFile(command, args, function(error, stdout, stderr) {
             if (error) {
                 reject({stdout, stderr});
 
@@ -28,7 +29,25 @@ exports.executeCommand = function(command, args = []) {
 
             resolve({stdout, stderr});
         });
+
+        if (stdin != null) {
+            var childStream = new stream.Readable();
+
+            childStream.push(stdin);
+            childStream.push(null);
+            childStream.pipe(child.stdin);
+        }
     });
+};
+
+exports.executeOrLogCommand = function(command, args = [], stdin = null) {
+    if (!flags.isRealHardware) {
+        console.log(`Execute command: ${command} ${args.join(" ")}; stdin: ${stdin}`);
+
+        return Promise.resolve({stdin: null, stdout: null});
+    }
+
+    return exports.executeCommand(...arguments);
 };
 
 exports.getFlags = function() {
@@ -37,6 +56,26 @@ exports.getFlags = function() {
 
 exports.getDevice = function() {
     return Promise.resolve(device.data);
+};
+
+exports.isInstallationMedia = function() {
+    if (flags.emulateInstallationMedia) {
+        return Promise.resolve(true);
+    }
+
+    if (!flags.isRealHardware) {
+        return Promise.resolve(false);
+    }
+
+    return exports.executeCommand("df", ["~"]).then(function(output) {
+        var disk = output.stdin.split("\n")[1].split(" ")[0];
+
+        if (disk == "/dev/sr0") {
+            return Promise.resolve(true);
+        }
+
+        return Promise.resolve(false);
+    });
 };
 
 exports.parseNmcliLine = function(line) {

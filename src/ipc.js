@@ -25,6 +25,14 @@ ipcMain.handle("system_getDevice", function(event, data) {
     return system.getDevice();
 });
 
+ipcMain.handle("system_executeCommand", function(event, data) {
+    return system.executeOrLogCommand(data.command, data.args, data.stdin);
+});
+
+ipcMain.handle("system_isInstallationMedia", function(event, data) {
+    return system.isInstallationMedia();
+});
+
 ipcMain.handle("storage_read", function(event, data) {
     return storage.read(data.location, data.encoding);
 });

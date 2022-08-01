@@ -1,0 +1,52 @@
+<!--
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+-->
+<div aui-stack="horizontal">
+    <div aui-display="full">
+        <img src="gshell://media/devices.svg" aria-hidden="true" class="oobs_featureMedia">
+    </div>
+    <div>
+        <div class="oobs_content">
+            <div>
+                <h1>Choose a partition</h1>
+                <p>Partitions are areas of the disk that can be reserved for different purposes (such as for installing multiple operating systems). Choose how you wish to partition the disk for when LiveG OS is installed.</p>
+                <div>
+                    <input type="radio" checked="true" name="oobs_partitionMode" id="oobs_partitionMode_erase">
+                    <label for="oobs_partitionMode_erase">
+                        <strong>Erase entire disk and install LiveG OS</strong><br>
+                        <span>All data stored on the chosen disk will be lost. The recommended partitions for installing LiveG OS will automatically be created.</span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" name="oobs_partitionMode" id="oobs_partitionMode_existing">
+                    <label for="oobs_partitionMode_existing"><strong>Install LiveG OS to an existing partition</strong></label>
+                </div>
+                <aui-dependency inert="dependent">
+                    <label for="oobs_partitionMode_existing_partition">Partition to install to</label>
+                    <select id="oobs_partitionMode_existing_partition">
+                        <option>Partition 1</option>
+                        <option>Partition 2</option>
+                        <option>Partition 3</option>
+                    </select>
+                </aui-dependency>
+                <div>
+                    <input type="radio" name="oobs_partitionMode" id="oobs_partitionMode_new">
+                    <label for="oobs_partitionMode_new"><strong>Create a new partition to install LiveG OS to</strong></label>
+                </div>
+                <aui-dependency inert="dependent">
+                    <label for="oobs_partitionMode_new_size">Size of new partition (MB)</label>
+                    <input type="number" min="0" max="1024" value="1024" id="oobs_partitionMode_new_size">
+                </aui-dependency>
+            </div>
+        </div>
+        <aui-buttons aui-mode="end" class="oobs_options">
+            <button oobs-choosestep="l10n" translate>oobs_next</button>
+            <button aui-mode="secondary" oobs-choosestep="installdisk" translate>oobs_previous</button>
+        </aui-buttons>
+    </div>
+</div>

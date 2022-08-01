@@ -47,6 +47,18 @@ export function finish() {
     });
 }
 
+function checkInstallDisk() {
+    if ($g.sel("[name='oobs_installDisks']:checked").getAll().length == 0) {
+        $g.sel(".oobs_installDisk_error").setText(_("oobs_installDisk_emptyError"));
+
+        return;
+    }
+
+    $g.sel(".oobs_installDisk_error").setText("");
+
+    selectStep("installpartition");
+}
+
 function checkDisplayName() {
     if ($g.sel("#oobs_userProfile_displayName").getValue().trim() == "") {
         $g.sel(".oobs_userProfile_error").setText(_("oobs_userProfile_displayNameEmptyError"));
@@ -140,6 +152,10 @@ export function init() {
 
     $g.sel(".oobs_finish").on("click", function() {
         finish();
+    });
+
+    $g.sel(".oobs_installDisk_next").on("click", function() {
+        checkInstallDisk();
     });
 
     $g.sel(".oobs_userProfile_next").on("click", function() {

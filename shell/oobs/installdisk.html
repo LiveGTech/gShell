@@ -13,13 +13,14 @@
     <div>
         <div class="oobs_content">
             <div>
-                <h1>Choose a disk to install to</h1>
-                <p>Before LiveG OS is installed, you will be able to configure the partitions of the disk to install to.</p>
+                <h1 translate>oobs_installDisk_title</h1>
+                <p translate>oobs_installDisk_description</p>
                 <div class="oobs_installDisks"></div>
+                <p class="oobs_installDisk_error"></p>
             </div>
         </div>
         <aui-buttons aui-mode="end" class="oobs_options">
-            <button oobs-choosestep="l10n" translate>oobs_next</button>
+            <button class="oobs_installDisk_next" translate>oobs_next</button>
             <button aui-mode="secondary" oobs-choosestep="installask" translate>oobs_previous</button>
         </aui-buttons>
     </div>

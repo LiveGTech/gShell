@@ -52,6 +52,17 @@
         "oobs_next": "Next",
         "oobs_finish": "Finish",
 
+        "oobs_installAsk_title": "Install LiveG OS?",
+        "oobs_installAsk_description1": "You can either install LiveG OS to this device's internal storage now, or try out LiveG OS without installation first.",
+        "oobs_installAsk_description2": "If you choose to try out LiveG OS without installing, files you save and changes you make in LiveG OS will be lost when the system shuts down.",
+        "oobs_installAsk_install_title": "Install LiveG OS to internal storage",
+        "oobs_installAsk_install_description": "You will be able to choose the disk and partition to install to",
+        "oobs_installAsk_tryOut_title": "Try out LiveG OS without installation",
+        "oobs_installAsk_tryOut_description": "Changes will be lost, and internal storage will not be affected",
+
+        "oobs_installDisk_title": "Choose a disk to install to",
+        "oobs_installDisk_description": "Before LiveG OS is installed, you will be able to configure the partitions of the disk to install to.",
+        "oobs_installDisk_emptyError": "Please select a disk to install LiveG OS onto.",
         "oobs_installDisks_diskUnlabelledTitle": "Unlabelled (disk {number})",
         "oobs_installDisks_diskLabelledTitle": "{label} (disk {number})",
         "oobs_installDisks_diskTotalSize": "{size} total size",

@@ -13,7 +13,7 @@ export const SIZE_RADICES = {
 };
 
 function roundToDecimalPlaces(value, decimalPlaces) {
-    return Math.round(value * (10 ** decimalPlaces) / (10 ** decimalPlaces));
+    return Math.round(value * (10 ** decimalPlaces)) / (10 ** decimalPlaces);
 }
 
 export function getString(size, units = "metric", decimalPlaces = 1) {

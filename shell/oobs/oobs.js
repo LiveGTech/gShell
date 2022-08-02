@@ -16,9 +16,9 @@ import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as sizeUnits from "gshell://common/sizeunits.js";
 
 var flags = {};
+var systemSize = null;
 var installDisks = [];
 var installSelectedDisk = null;
-var installPartitions = [];
 
 const MAX_PRIMARY_PARTITIONS = 4;
 
@@ -26,6 +26,7 @@ const DUMMY_LSBLK_STDOUT = `\
 NAME    RO       SIZE   LABEL
 sda      0 1073741824   Dummy disk
 sdb      0 1073741824   
+sr0      0  535822336   LiveG-OS
 `;
 
 const DUMMY_FDISK_L_STDOUT = `\
@@ -37,10 +38,10 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 Disklabel type: dos
 Disk identifier: 0x00000000
 
-Device    Boot   Start     End    Sectors Size Id Type
-/dev/sda1         2048 1050623    1048576 512M 83 Linux
-/dev/sda2 *    1050624 2093055    1044480   1M 83 Linux
-/dev/sda3      2093056 2097152       4096   2M 82 Linux swap / Solaris
+Device        End Sectors Type
+/dev/sda1 1050623 1048576 Linux
+/dev/sda2 2093055 1044480 Linux
+/dev/sda3 2097152    4096 Linux swap / Solaris
 `;
 
 export function selectStep(stepName) {
@@ -73,6 +74,10 @@ export function finish() {
     });
 }
 
+function getSelectedDiskInfo() {
+    return installDisks.find((disk) => disk.name == installSelectedDisk) || null;
+}
+
 function checkInstallDisk() {
     if ($g.sel("[name='oobs_installDisks']:checked").getAll().length == 0) {
         $g.sel(".oobs_installDisk_error").setText(_("oobs_installDisk_emptyError"));
@@ -86,23 +91,37 @@ function checkInstallDisk() {
 
     gShell.call("system_executeCommand", {
         command: "sudo",
-        args: ["fdisk", "-l", `/dev/${installSelectedDisk}`]
+        args: ["fdisk", "-l", "-o", "Device,End,Sectors,Type", `/dev/${installSelectedDisk}`]
     }).then(function(output) {
         var lines = (flags.isRealHardware ? output.stdout : DUMMY_FDISK_L_STDOUT).split("\n");
 
         var sectorSize = Number(lines.find((line) => line.startsWith("Sector size"))?.match(/([0-9]+) bytes$/)?.[1]) || 512;
+        var disk = getSelectedDiskInfo();
 
-        installPartitions = lines.filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux")).map(function(line) {
+        disk.partitions = lines.filter((line) => line.startsWith("/dev/")).map(function(line) {
             var parts = line.split(" ").filter((part) => part != "");
 
             return {
                 name: parts[0].replace("/dev/", ""),
-                size: Number(parts[parts.length - 4]) * sectorSize
+                size: Number(parts[2]) * sectorSize,
+                end: Number(parts[1]) * sectorSize,
+                valid: line.endsWith(" Linux")
             };
         });
 
+        disk.endSpaceSize = (
+            disk.partitions.length == 0 ?
+            disk.size - (2_048 * sectorSize) :
+            disk.size - disk.partitions[disk.partitions.length - 1].end
+        );
+
+        var endSpaceSizeMiB = Math.floor(disk.endSpaceSize / (1_024 ** 2));
+
+        $g.sel("#oobs_partitionMode_new_size").setAttribute("max", endSpaceSizeMiB);
+        $g.sel("#oobs_partitionMode_new_size").setValue(endSpaceSizeMiB);
+
         $g.sel("#oobs_partitionMode_existing_partition").clear().add(
-            ...installPartitions.map((partition) => $g.create("option")
+            ...disk.partitions.filter((partition) => partition.valid).map((partition) => $g.create("option")
                 .setText(_("oobs_installPartition_partition", {
                     name: partition.name,
                     size: sizeUnits.getString(Number(partition.size), "iec")
@@ -111,7 +130,7 @@ function checkInstallDisk() {
             )
         );
 
-        if (installPartitions.length == 0) {
+        if (disk.partitions.filter((partition) => partition.valid).length == 0) {
             $g.sel(".oobs_partitionMode_existing_container").setAttribute("inert", "dependent");
             $g.sel(".oobs_partitionMode_existing_notice").setText(_("oobs_installPartition_noneExistNotice"));
         } else {
@@ -129,6 +148,64 @@ function checkInstallDisk() {
     });
 
     selectStep("installpartition");
+}
+
+function checkInstallPartition() {
+    var mode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
+    var enoughSpace = true;
+
+    switch (mode) {
+        case "erase":
+            if (getSelectedDiskInfo().size < systemSize) {
+                enoughSpace = false;
+            }
+
+            break;
+
+        case "existing":
+            var partitionName = $g.sel("#oobs_partitionMode_existing_partition").getValue();
+
+            if (getSelectedDiskInfo().partitions.find((partition) => partition.name == partitionName).size < systemSize) {
+                enoughSpace = false;
+            }
+
+            break;
+
+        case "new":
+            var newSizeMiB = Number($g.sel("#oobs_partitionMode_new_size").getValue()) || 0;
+            var newSize = newSizeMiB * (1_024 ** 2);
+
+            if (newSize > getSelectedDiskInfo().endSpaceSize) {
+                newSize = getSelectedDiskInfo().endSpaceSize;
+                newSizeMiB = Math.floor(newSize / (1_024 ** 2));
+
+                $g.sel("#oobs_partitionMode_new_size").setValue(newSizeMiB);
+            }
+
+            if (newSize < systemSize) {
+                enoughSpace = false;
+            }
+
+            break;
+
+        default:
+            console.error("No choice for partition mode was made");
+
+            return;
+    }
+
+    if (!enoughSpace) {
+        $g.sel(".oobs_installPartition_error").setText(_("oobs_installPartition_notEnoughSpaceError", {
+            sizeMetric: sizeUnits.getString(systemSize, "metric"),
+            sizeIec: sizeUnits.getString(systemSize, "iec")
+        }));
+
+        return;
+    }
+
+    $g.sel(".oobs_installPartition_error").setText("");
+
+    // TODO: Go to next step
 }
 
 function checkDisplayName() {
@@ -190,6 +267,8 @@ export function init() {
                     };
                 }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
 
+                systemSize = (lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2] || null;
+
                 $g.sel(".oobs_installDisks").clear().add(
                     ...installDisks.map((disk) => $g.create("div").add(
                         $g.create("input")
@@ -213,7 +292,7 @@ export function init() {
                             )
                     ))
                 );
-            })
+            });
         }
     });
 
@@ -225,10 +304,12 @@ export function init() {
         checkInstallDisk();
     });
 
+    $g.sel(".oobs_installPartition_next").on("click", function() {
+        checkInstallPartition();
+    });
+
     $g.sel("[name='oobs_partitionMode']").on("change", function() {
         var mode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
-
-        console.log(mode);
 
         $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
         $g.sel(`.oobs_partitionMode_dependency[data-mode="${mode}"]`).removeAttribute("inert");

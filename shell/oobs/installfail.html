@@ -13,15 +13,16 @@
     <div>
         <div class="oobs_content">
             <div>
-                <h1 translate>oobs_installConfirm_title</h1>
-                <p translate>oobs_installConfirm_description1</p>
-                <p><strong translate>oobs_installConfirm_description2</strong></p>
-                <p translate>oobs_installConfirm_description3</p>
+                <h1 translate>oobs_installFail_title</h1>
+                <p translate>oobs_installFail_description</p>
+                <p>
+                    <span translate>oobs_installFail_error</span>
+                    <code class="oobs_installFail_error">UNKNOWN</code>
+                </p>
             </div>
         </div>
         <aui-buttons aui-mode="end" class="oobs_options">
-            <button class="oobs_installConfirm_confirm" translate>oobs_confirm</button>
-            <button aui-mode="secondary" oobs-choosestep="installpartition" translate>oobs_previous</button>
+            <button oobs-choosestep="installask" translate>oobs_continue</button>
         </aui-buttons>
     </div>
 </div>

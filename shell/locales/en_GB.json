@@ -51,6 +51,7 @@
         "oobs_previous": "Previous",
         "oobs_next": "Next",
         "oobs_confirm": "Confirm",
+        "oobs_continue": "Continue",
         "oobs_finish": "Finish",
 
         "oobs_installAsk_title": "Install LiveG OS?",
@@ -86,6 +87,16 @@
         "oobs_installConfirm_description1": "Now is the best time to review the choices you have made on the previous steps before installation starts.",
         "oobs_installConfirm_description2": "You will not be able to revert your device's configuration or recover any erased data unless you have previously made a backup of your device's internal storage.",
         "oobs_installConfirm_description3": "You will also not be able to return back to the previous steps while LiveG OS is being installed.",
+
+        "oobs_installProcess_title": "Installing LiveG OS...",
+        "oobs_installProcess_warning": "This might take a while. Please do not power off this device.",
+        "oobs_installProcess_status_partitioning": "Configuring disk partitions...",
+        "oobs_installProcess_status_formatting": "Formatting selected partition...",
+        "oobs_installProcess_status_copying": "Copying system files...",
+
+        "oobs_installFail_title": "Installation was not successful",
+        "oobs_installFail_description": "An error occurred which caused the installation of LiveG OS to be aborted. You may want to review the options you chose and try again.",
+        "oobs_installFail_error": "Error code:",
 
         "oobs_userProfile_title": "Let's get some details about you",
         "oobs_userProfile_displayNameLabel": "What's your name?",

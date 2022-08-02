@@ -21,6 +21,8 @@ var installDisks = [];
 var installSelectedDisk = null;
 
 const MAX_PRIMARY_PARTITIONS = 4;
+const SWAP_SIZE = 8 * (1_024 ** 3); // 8 GiB
+const MIN_SIZE_FOR_SWAP = 3 * SWAP_SIZE; // So maximum 1/3 swap for system
 
 const DUMMY_LSBLK_STDOUT = `\
 NAME    RO       SIZE   LABEL
@@ -42,6 +44,41 @@ Device        End Sectors Type
 /dev/sda1 1050623 1048576 Linux
 /dev/sda2 2093055 1044480 Linux
 /dev/sda3 2097152    4096 Linux swap / Solaris
+`;
+
+const FDISK_ERASE_SWAP_STDIN = `\
+n // New partition
+p // Primary
+1 // Partition number
+2048 // First sector
+-${Math.floor(SWAP_SIZE / (1_024 ** 1))}K // All space except for swap
+n // New partition
+p // Primary
+2 // Partition number
+// Default first sector
++${Math.floor(SWAP_SIZE / (1_024 ** 1))}K // Swap size
+t // Change partition type
+2 // Partition number
+swap // Linux swap / Solaris
+w // Write and exit \
+`.replace(/ *\/\/.*$/gm, "");
+
+const FDISK_ERASE_NOSWAP_STDIN = `\
+n // New partition
+p // Primary
+1 // Partition number
+2048 // First sector
+// All space
+w // Write and exit \
+`.replace(/ *\/\/.*$/gm, "");
+
+const FDISK_NEW_STDIN = `\
+n // New partition
+p // Primary
+// Next partition number
+// Next sector
++{size}M // Specified space
+w // Write and exit \
 `;
 
 export function selectStep(stepName) {
@@ -71,6 +108,21 @@ export function finish() {
         return lockScreen.loadUsers();
     }).then(function() {
         $g.sel("#lockScreenMain").screenFade();
+    });
+}
+
+// Dummy delay which is used for testing UI flow on non-real hardware only
+function dummyDelay() {
+    if (flags.isRealHardware) {
+        return Promise.resolve();
+    }
+
+    return new Promise(function(resolve, reject) {
+        console.log("Dummy delay enforced");
+
+        setTimeout(function() {
+            resolve();
+        }, 3_000);
     });
 }
 
@@ -214,6 +266,114 @@ function checkInstallPartition() {
     selectStep("installconfirm");
 }
 
+function processInstallation() {
+    var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
+    var partitionName = null;
+
+    selectStep("installprocess");
+
+    return Promise.resolve().then(function() {
+        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_partitioning"));
+
+        if (partitionMode == "erase") {
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["sfdisk", "--delete", `/dev/${installSelectedDisk}`]
+            }).then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["fdisk", `/dev/${installSelectedDisk}`],
+                    stdin: getSelectedDiskInfo().size >= MIN_SIZE_FOR_SWAP ? FDISK_ERASE_SWAP_STDIN : FDISK_ERASE_NOSWAP_STDIN
+                });
+            }).then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["fdisk", "-l", "-o", "Device,Type", `/dev/${installSelectedDisk}`]
+                });
+            }).then(function(output) {
+                if (!flags.isRealHardware) {
+                    partitionName = "sda1";
+
+                    return dummyDelay();
+                }
+
+                var partitions = output.stdout
+                    .split("\n")
+                    .filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux"))
+                    .map((line) => line.match(/^\/dev\/([^\s]+)/)[1])
+                ;
+
+                if (partitions.length == 0) {
+                    return Promise.reject("TRAP_NO_PARTITIONS_FOUND");
+                }
+
+                partitionName = partitions[0];
+
+                return Promise.resolve();
+            });
+        }
+
+        if (partitionMode == "existing") {
+            partitionName = $g.sel("#oobs_partitionMode_existing_partition").getValue();
+
+            return Promise.resolve();
+        }
+
+        if (partitionMode == "new") {
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["fdisk", `/dev/${installSelectedDisk}`],
+                stdin: FDISK_NEW_STDIN.replace(/{size}/g, String(Number($g.sel("#oobs_partitionMode_new_size").getValue()) || 0))
+            }).then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["fdisk", "-l", "-o", "Device,Type", `/dev/${installSelectedDisk}`]
+                });
+            }).then(function(output) {
+                if (!flags.isRealHardware) {
+                    partitionName = "sda1";
+
+                    return dummyDelay();
+                }
+
+                var partitions = output.stdout
+                    .split("\n")
+                    .filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux"))
+                    .map((line) => line.match(/^\/dev\/([^\s]+)/)[1])
+                ;
+
+                if (partitions.length == 0) {
+                    return Promise.reject("TRAP_NO_PARTITIONS_FOUND");
+                }
+
+                if (getSelectedDiskInfo().partitions.map((partition) => partition.name).includes(partitions[partitions.length - 1])) {
+                    return Promise.reject("TRAP_NO_NEW_PARTITION");
+                }
+
+                partitionName = partitions[partitions.length - 1];
+
+                return Promise.resolve();
+            });
+        }
+
+        return Promise.reject("No choice for partition mode was made");
+    }).then(function() {
+        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_formatting"));
+
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["mkfs.ext4", `/dev/${installSelectedDisk}`, "-L", "LiveG OS"]
+        }).then(dummyDelay);
+    }).then(function() {
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["mount", `/dev/${installSelectedDisk}`, "/tmp/base"]
+        }).then(dummyDelay);
+    }).then(function() {
+        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_copying"));
+    });
+}
+
 function checkDisplayName() {
     if ($g.sel("#oobs_userProfile_displayName").getValue().trim() == "") {
         $g.sel(".oobs_userProfile_error").setText(_("oobs_userProfile_displayNameEmptyError"));
@@ -319,6 +479,16 @@ export function init() {
 
         $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
         $g.sel(`.oobs_partitionMode_dependency[data-mode="${mode}"]`).removeAttribute("inert");
+    });
+
+    $g.sel(".oobs_installConfirm_confirm").on("click", function() {
+        processInstallation().then(function() {
+            // TODO: Go to next step
+        }).catch(function(error) {
+            $g.sel(".oobs_installFail_error").setText(error || "UNKNOWN");
+
+            selectStep("installfail");
+        });
     });
 
     $g.sel(".oobs_userProfile_next").on("click", function() {

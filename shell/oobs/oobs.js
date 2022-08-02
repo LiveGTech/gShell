@@ -85,8 +85,8 @@ function checkInstallDisk() {
     installSelectedDisk = $g.sel("[name='oobs_installDisks']:checked").getAttribute("value");
 
     gShell.call("system_executeCommand", {
-        command: "fdisk",
-        args: ["-l", `/dev/${installSelectedDisk}`]
+        command: "sudo",
+        args: ["fdisk", "-l", `/dev/${installSelectedDisk}`]
     }).then(function(output) {
         var lines = (flags.isRealHardware ? output.stdout : DUMMY_FDISK_L_STDOUT).split("\n");
 

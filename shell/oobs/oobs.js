@@ -158,6 +158,15 @@ export function init() {
         checkInstallDisk();
     });
 
+    $g.sel("[name='oobs_partitionMode']").on("change", function() {
+        var mode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
+
+        console.log(mode);
+
+        $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
+        $g.sel(`.oobs_partitionMode_dependency[data-mode="${mode}"]`).removeAttribute("inert");
+    });
+
     $g.sel(".oobs_userProfile_next").on("click", function() {
         checkDisplayName();
     });

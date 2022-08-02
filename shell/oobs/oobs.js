@@ -122,7 +122,7 @@ function checkInstallDisk() {
 
         $g.sel("#oobs_partitionMode_existing_partition").clear().add(
             ...disk.partitions.filter((partition) => partition.valid).map((partition) => $g.create("option")
-                .setText(_("oobs_installPartition_partition", {
+                .setText(_("oobs_installPartition_existing_partition", {
                     name: partition.name,
                     size: sizeUnits.getString(Number(partition.size), "iec")
                 }))
@@ -173,13 +173,19 @@ function checkInstallPartition() {
 
         case "new":
             var newSizeMiB = Number($g.sel("#oobs_partitionMode_new_size").getValue()) || 0;
-            var newSize = newSizeMiB * (1_024 ** 2);
+            var newSize = Math.floor(newSizeMiB * (1_024 ** 2));
 
             if (newSize > getSelectedDiskInfo().endSpaceSize) {
                 newSize = getSelectedDiskInfo().endSpaceSize;
                 newSizeMiB = Math.floor(newSize / (1_024 ** 2));
 
                 $g.sel("#oobs_partitionMode_new_size").setValue(newSizeMiB);
+            }
+
+            if (newSize == 0) {
+                $g.sel(".oobs_installPartition_error").setText(_("oobs_installPartition_minimumSizeError"));
+
+                return;
             }
 
             if (newSize < systemSize) {

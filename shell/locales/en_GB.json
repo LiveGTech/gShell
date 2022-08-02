@@ -50,6 +50,7 @@
 
         "oobs_previous": "Previous",
         "oobs_next": "Next",
+        "oobs_confirm": "Confirm",
         "oobs_finish": "Finish",
 
         "oobs_installAsk_title": "Install LiveG OS?",
@@ -80,6 +81,10 @@
         "oobs_installPartition_maxPrimaryReachedNotice": "(Maximum primary partitions limit reached)",
         "oobs_installPartition_minimumSizeError": "The size of the partition to create cannot be zero.",
         "oobs_installPartition_notEnoughSpaceError": "There is not enough free space to install LiveG OS with this configuration. A minimum free space of {sizeMetric} ({sizeIec}) is required to install LiveG OS.",
+
+        "oobs_installConfirm_title": "Ready to install?",
+        "oobs_installConfirm_description1": "Now is the best time to review the choices you have made on the previous steps before installation starts.",
+        "oobs_installConfirm_description2": "You will not be able to revert your device's configuration or recover any erased data unless you have previously made a backup of your device's internal storage.",
 
         "oobs_userProfile_title": "Let's get some details about you",
         "oobs_userProfile_displayNameLabel": "What's your name?",

@@ -211,7 +211,7 @@ function checkInstallPartition() {
 
     $g.sel(".oobs_installPartition_error").setText("");
 
-    // TODO: Go to next step
+    selectStep("installconfirm");
 }
 
 function checkDisplayName() {

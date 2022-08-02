@@ -85,6 +85,7 @@
         "oobs_installConfirm_title": "Ready to install?",
         "oobs_installConfirm_description1": "Now is the best time to review the choices you have made on the previous steps before installation starts.",
         "oobs_installConfirm_description2": "You will not be able to revert your device's configuration or recover any erased data unless you have previously made a backup of your device's internal storage.",
+        "oobs_installConfirm_description3": "You will also not be able to return back to the previous steps while LiveG OS is being installed.",
 
         "oobs_userProfile_title": "Let's get some details about you",
         "oobs_userProfile_displayNameLabel": "What's your name?",

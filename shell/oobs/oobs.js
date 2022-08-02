@@ -15,7 +15,33 @@ import * as auth from "gshell://auth/auth.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as sizeUnits from "gshell://common/sizeunits.js";
 
+var flags = {};
 var installDisks = [];
+var installSelectedDisk = null;
+var installPartitions = [];
+
+const MAX_PRIMARY_PARTITIONS = 4;
+
+const DUMMY_LSBLK_STDOUT = `\
+NAME    RO       SIZE   LABEL
+sda      0 1073741824   Dummy disk
+sdb      0 1073741824   
+`;
+
+const DUMMY_FDISK_L_STDOUT = `\
+Disk /dev/sda1: 1 GiB, 1073741824 bytes, 2097152 sectors
+Disk model: Dummy                                   
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device    Boot   Start     End    Sectors Size Id Type
+/dev/sda1         2048 1050623    1048576 512M 83 Linux
+/dev/sda2 *    1050624 2093055    1044480   1M 83 Linux
+/dev/sda3      2093056 2097152       4096   2M 82 Linux swap / Solaris
+`;
 
 export function selectStep(stepName) {
     return $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"])`).fadeOut().then(function() {
@@ -56,6 +82,52 @@ function checkInstallDisk() {
 
     $g.sel(".oobs_installDisk_error").setText("");
 
+    installSelectedDisk = $g.sel("[name='oobs_installDisks']:checked").getAttribute("value");
+
+    gShell.call("system_executeCommand", {
+        command: "fdisk",
+        args: ["-l", `/dev/${installSelectedDisk}`]
+    }).then(function(output) {
+        var lines = (flags.isRealHardware ? output.stdout : DUMMY_FDISK_L_STDOUT).split("\n");
+
+        var sectorSize = Number(lines.find((line) => line.startsWith("Sector size"))?.match(/([0-9]+) bytes$/)?.[1]) || 512;
+
+        installPartitions = lines.filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux")).map(function(line) {
+            var parts = line.split(" ").filter((part) => part != "");
+
+            return {
+                name: parts[0].replace("/dev/", ""),
+                size: Number(parts[parts.length - 4]) * sectorSize
+            };
+        });
+
+        $g.sel("#oobs_partitionMode_existing_partition").clear().add(
+            ...installPartitions.map((partition) => $g.create("option")
+                .setText(_("oobs_installPartition_partition", {
+                    name: partition.name,
+                    size: sizeUnits.getString(Number(partition.size), "iec")
+                }))
+                .setAttribute("value", partition.name)
+            )
+        );
+
+        if (installPartitions.length == 0) {
+            $g.sel(".oobs_partitionMode_existing_container").setAttribute("inert", "dependent");
+            $g.sel(".oobs_partitionMode_existing_notice").setText(_("oobs_installPartition_noneExistNotice"));
+        } else {
+            $g.sel(".oobs_partitionMode_existing_container").removeAttribute("inert");
+            $g.sel(".oobs_partitionMode_existing_notice").setText("");
+        }
+
+        if (lines.filter((line) => line.startsWith("/dev/")).length == MAX_PRIMARY_PARTITIONS) {
+            $g.sel(".oobs_partitionMode_new_container").setAttribute("inert", "dependent");
+            $g.sel(".oobs_partitionMode_new_notice").setText(_("oobs_installPartition_maxPrimaryReachedNotice"));
+        } else {
+            $g.sel(".oobs_partitionMode_new_container").removeAttribute("inert");
+            $g.sel(".oobs_partitionMode_new_notice").setText("");
+        }
+    });
+
     selectStep("installpartition");
 }
 
@@ -80,8 +152,6 @@ function checkDisplayName() {
 export function init() {
     selectStep("welcome");
 
-    var flags;
-
     gShell.call("system_getFlags").then(function(result) {
         flags = result;
 
@@ -104,11 +174,11 @@ export function init() {
                 command: "lsblk",
                 args: ["-db", "-o", "NAME,RO,SIZE,LABEL"]
             }).then(function(output) {
-                var lines = (output.stdin || "").split("\n").filter((line) => line != "");
+                var lines = (flags.isRealHardware ? output.stdout : DUMMY_LSBLK_STDOUT).split("\n").filter((line) => line != "");
 
                 lines.shift();
 
-                installDisks = (flags.isRealHardware ? lines.map(function(line, i) {
+                installDisks = lines.map(function(line, i) {
                     var parts = line.split(" ").filter((part) => part != "");
 
                     return {
@@ -118,10 +188,7 @@ export function init() {
                         size: Number(parts[2]),
                         label: parts.slice(3).join(" ")
                     };
-                }) : [
-                    {number: 1, name: "sda", readOnly: 0, size: 1_024 ** 3, label: "Dummy disk"},
-                    {number: 2, name: "sdb", readOnly: 0, size: 1_024 ** 3, label: ""}
-                ]).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
+                }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
 
                 $g.sel(".oobs_installDisks").clear().add(
                     ...installDisks.map((disk) => $g.create("div").add(

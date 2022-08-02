@@ -22,21 +22,27 @@
                         <span>All data stored on the chosen disk will be lost. The recommended partitions for installing LiveG OS will be automatically created.</span>
                     </label>
                 </div>
-                <div>
+                <div class="oobs_partitionMode_existing_container">
                     <input type="radio" name="oobs_partitionMode" value="existing" id="oobs_partitionMode_existing">
-                    <label for="oobs_partitionMode_existing"><strong>Install LiveG OS to an existing partition</strong></label>
+                    <label for="oobs_partitionMode_existing">
+                        <strong>Install LiveG OS to an existing partition</strong><br>
+                        <span class="oobs_partitionMode_existing_notice"></span>
+                    </label>
                 </div>
                 <aui-dependency inert="dependent" class="oobs_partitionMode_dependency" data-mode="existing">
-                    <label for="oobs_partitionMode_existing_partition">Partition to install to</label>
+                    <label for="oobs_partitionMode_existing_partition">Partition to erase and install onto</label>
                     <select id="oobs_partitionMode_existing_partition">
                         <option>Partition 1</option>
                         <option>Partition 2</option>
                         <option>Partition 3</option>
                     </select>
                 </aui-dependency>
-                <div>
+                <div class="oobs_partitionMode_new_container">
                     <input type="radio" name="oobs_partitionMode" value="new" id="oobs_partitionMode_new">
-                    <label for="oobs_partitionMode_new"><strong>Create a new partition to install LiveG OS to</strong></label>
+                    <label for="oobs_partitionMode_new">
+                        <strong>Create a new partition to install LiveG OS onto</strong><br>
+                        <span class="oobs_partitionMode_new_notice"></span>
+                    </label>
                 </div>
                 <aui-dependency inert="dependent" class="oobs_partitionMode_dependency" data-mode="new">
                     <label for="oobs_partitionMode_new_size">Size of new partition (MiB)</label>

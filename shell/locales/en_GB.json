@@ -67,6 +67,10 @@
         "oobs_installDisks_diskLabelledTitle": "{label} (disk {number})",
         "oobs_installDisks_diskTotalSize": "{size} total size",
 
+        "oobs_installPartition_partition": "{name} ({size})",
+        "oobs_installPartition_noneExistNotice": "(None exist that are compatible with LiveG OS)",
+        "oobs_installPartition_maxPrimaryReachedNotice": "(Maximum primary partitions limit reached)",
+
         "oobs_userProfile_title": "Let's get some details about you",
         "oobs_userProfile_displayNameLabel": "What's your name?",
         "oobs_userProfile_displayNameHint": "We recommend that you enter your full name, but any name (such as a nickname or username) is fine.",

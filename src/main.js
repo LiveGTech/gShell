@@ -68,7 +68,7 @@ electron.app.on("ready", function() {
             fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
-                devTools: !electron.app.isPackaged,
+                devTools: true, // !electron.app.isPackaged, TODO: Prevent DevTools in packaged builds in future
                 preload: path.normalize(`${rootDirectory}/shell/preload.js`),
                 webviewTag: true,
                 sandbox: true
@@ -84,11 +84,16 @@ electron.app.on("ready", function() {
             exports.window.setPosition(0, 0);
             exports.window.webContents.setZoomFactor(5);
         }
+
         if (flags.emulateTouch) {
             exports.window.webContents.debugger.sendCommand("Emulation.setEmitTouchEventsForMouse", {
                 enabled: true,
                 configuration: "mobile"
             });
+        }
+
+        if (flags.devTools) {
+            exports.window.webContents.openDevTools();
         }
 
         exports.window.once("ready-to-show", function() {

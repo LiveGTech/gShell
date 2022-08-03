@@ -60,7 +60,7 @@ p // Primary
 t // Change partition type
 2 // Partition number
 swap // Linux swap / Solaris
-w // Write and exit \
+w // Write and exit
 `.replace(/ *\/\/.*$/gm, "");
 
 const FDISK_ERASE_NOSWAP_STDIN = `\
@@ -69,7 +69,7 @@ p // Primary
 1 // Partition number
 2048 // First sector
 // All space
-w // Write and exit \
+w // Write and exit
 `.replace(/ *\/\/.*$/gm, "");
 
 const FDISK_NEW_STDIN = `\
@@ -78,7 +78,7 @@ p // Primary
 // Next partition number
 // Next sector
 +{size}M // Specified space
-w // Write and exit \
+w // Write and exit
 `;
 
 export function selectStep(stepName) {
@@ -266,6 +266,14 @@ function checkInstallPartition() {
     selectStep("installconfirm");
 }
 
+function makeError(code) {
+    return function(error) {
+        console.error(error);
+
+        return Promise.reject(code);
+    }
+}
+
 function processInstallation() {
     var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
     var partitionName = null;
@@ -280,18 +288,21 @@ function processInstallation() {
             return gShell.call("system_executeCommand", {
                 command: "sudo",
                 args: ["sfdisk", "--delete", `/dev/${installSelectedDisk}`]
+            }).catch(function() {
+                // Ignore since `sfdisk` returns exit code `1` if empty to begin with
+                return Promise.resolve();
             }).then(function() {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
                     args: ["fdisk", `/dev/${installSelectedDisk}`],
                     stdin: getSelectedDiskInfo().size >= MIN_SIZE_FOR_SWAP ? FDISK_ERASE_SWAP_STDIN : FDISK_ERASE_NOSWAP_STDIN
                 });
-            }).then(function() {
+            }).catch(makeError("FAIL_PARTITION_DISK_ERASE")).then(function() {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
                     args: ["fdisk", "-l", "-o", "Device,Type", `/dev/${installSelectedDisk}`]
                 });
-            }).then(function(output) {
+            }).catch(makeError("FAIL_LIST_PARTITIONS_ERASE")).then(function(output) {
                 if (!flags.isRealHardware) {
                     partitionName = "sda1";
 
@@ -325,12 +336,12 @@ function processInstallation() {
                 command: "sudo",
                 args: ["fdisk", `/dev/${installSelectedDisk}`],
                 stdin: FDISK_NEW_STDIN.replace(/{size}/g, String(Number($g.sel("#oobs_partitionMode_new_size").getValue()) || 0))
-            }).then(function() {
+            }).catch(makeError("FAIL_PARTITION_DISK_NEW")).then(function() {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
                     args: ["fdisk", "-l", "-o", "Device,Type", `/dev/${installSelectedDisk}`]
                 });
-            }).then(function(output) {
+            }).catch(makeError("FAIL_LIST_PARTITIONS_NEW")).then(function(output) {
                 if (!flags.isRealHardware) {
                     partitionName = "sda1";
 
@@ -357,19 +368,28 @@ function processInstallation() {
             });
         }
 
-        return Promise.reject("No choice for partition mode was made");
+        return Promise.reject("IMPL_BAD_PARTITION_CHOICE");
+    }).then(function() {
+        // Try unmounting (partition may still be mounted if retrying)
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["umount", `/dev/${partitionName}`]
+        }).catch(function() {
+            // Wasn't mounted in first place
+            return Promise.resolve();
+        });
     }).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_formatting"));
 
         return gShell.call("system_executeCommand", {
             command: "sudo",
-            args: ["mkfs.ext4", `/dev/${installSelectedDisk}`, "-L", "LiveG-OS"]
-        }).then(dummyDelay);
+            args: ["mkfs.ext4", `/dev/${partitionName}`, "-L", "LiveG-OS"]
+        }).catch(makeError("FAIL_FORMAT_PARTITION")).then(dummyDelay);
     }).then(function() {
         return gShell.call("system_executeCommand", {
             command: "sudo",
-            args: ["mount", `/dev/${installSelectedDisk}`, "/tmp/base"]
-        });
+            args: ["mount", `/dev/${partitionName}`, "/tmp/base"]
+        }).catch(makeError("FAIL_MOUNT_PARTITION"));
     }).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_copying"));
 
@@ -380,8 +400,9 @@ function processInstallation() {
         return gShell.call("system_copyFiles", {
             source: "/",
             destination: "/tmp/base",
+            exclude: ["/dev", "/proc", "/sys", "/tmp"],
             privileged: true
-        }).then(function(id) {
+        }).catch(makeError("FAIL_START_COPY_FILES")).then(function(id) {
             return new Promise(function(resolve, reject) {
                 (function poll() {
                     gShell.call("system_getCopyFileInfo", {id}).then(function(info) {
@@ -398,6 +419,9 @@ function processInstallation() {
                                 resolve();
 
                                 break;
+
+                            case "error":
+                                reject("FAIL_COPY_FILES");
 
                             default:
                                 reject("IMPL_BAD_COPY_STATUS");
@@ -437,14 +461,14 @@ function processInstallation() {
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["chroot", "/tmp/base", "/bin/bash", "-c", `grub-install /dev/${installSelectedDisk}`]
-        }).then(dummyDelay);
+        }).catch(makeError("FAIL_INSTALL_BOOTLOADER")).then(dummyDelay);
     }).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_finalising"));
         
         return gShell.call("system_executeCommand", {
             command: "sudo",
-            args: ["umount", "/tmp/base"]
-        }).then(dummyDelay);
+            args: ["umount", "-l", "/tmp/base"]
+        }).catch(makeError("FAIL_UNMOUNT_DISK")).then(dummyDelay);
     });
 }
 
@@ -559,6 +583,8 @@ export function init() {
         processInstallation().then(function() {
             selectStep("installfinish");
         }).catch(function(error) {
+            console.error(error);
+
             $g.sel(".oobs_installFail_error").setText(error || "UNKNOWN");
 
             selectStep("installfail");

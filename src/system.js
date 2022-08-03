@@ -21,8 +21,11 @@ var copyRsyncProcesses = [];
 
 exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
     return new Promise(function(resolve, reject) {
-        var child = child_process.execFile(command, args, function(error, stdout, stderr) {
+        var child = child_process.execFile(command, args, {maxBuffer: 4 * (1_024 ** 2)}, function(error, stdout, stderr) {
             if (error) {
+                console.error("error:", error);
+                console.error("stderr:", stderr);
+
                 reject({stdout, stderr});
 
                 return;
@@ -74,8 +77,8 @@ exports.isInstallationMedia = function() {
         return Promise.resolve(false);
     }
 
-    return exports.executeCommand("df", ["~"]).then(function(output) {
-        var disk = output.stdin.split("\n")[1].split(" ")[0];
+    return exports.executeCommand("df", ["/system"]).then(function(output) {
+        var disk = output.stdout.split("\n")[1].split(" ")[0];
 
         if (disk == "/dev/sr0") {
             return Promise.resolve(true);
@@ -121,6 +124,10 @@ exports.copyFiles = function(source, destination, privileged = false, exclude = 
 
     exports.executeCommand(privileged ? "sudo" : "rsync", args, null, stdoutCallback).then(function(output) {
         copyRsyncProcesses[id].status = "success";
+    }).catch(function(error) {
+        console.error(error);
+
+        copyRsyncProcesses[id].status = "error";
     });
 
     return Promise.resolve(id);

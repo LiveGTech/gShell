@@ -33,6 +33,14 @@ ipcMain.handle("system_isInstallationMedia", function(event, data) {
     return system.isInstallationMedia();
 });
 
+ipcMain.handle("system_copyFiles", function(event, data) {
+    return system.copyFiles(data.source, data.destination, data.privileged, data.exclude);
+});
+
+ipcMain.handle("system_getCopyFileInfo", function(event, data) {
+    return system.getCopyFileInfo(data.id);
+});
+
 ipcMain.handle("storage_read", function(event, data) {
     return storage.read(data.location, data.encoding);
 });

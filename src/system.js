@@ -17,8 +17,9 @@ var flags = require("./flags");
 var device = require("./device");
 
 var mediaFeatures = {};
+var copyRsyncProcesses = [];
 
-exports.executeCommand = function(command, args = [], stdin = null) {
+exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
     return new Promise(function(resolve, reject) {
         var child = child_process.execFile(command, args, function(error, stdout, stderr) {
             if (error) {
@@ -37,10 +38,16 @@ exports.executeCommand = function(command, args = [], stdin = null) {
             childStream.push(null);
             childStream.pipe(child.stdin);
         }
+
+        if (stdoutCallback != null) {
+            child.stdout.on("data", function(data) {
+                stdoutCallback(data.toString());
+            });
+        }
     });
 };
 
-exports.executeOrLogCommand = function(command, args = [], stdin = null) {
+exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
     if (!flags.isRealHardware) {
         console.log(`Execute command: ${command} ${args.join(" ")}; stdin: ${stdin}`);
 
@@ -76,6 +83,55 @@ exports.isInstallationMedia = function() {
 
         return Promise.resolve(false);
     });
+};
+
+exports.copyFiles = function(source, destination, privileged = false, exclude = []) {
+    var args = ["-ah", "--info=progress2", "--no-inc-recursive"];
+
+    if (privileged) {
+        args.unshift("rsync");
+    }
+
+    args.push(...exclude.map((path) => `--exclude=${path}`));
+    args.push(source, destination);
+
+    var id = copyRsyncProcesses.length;
+
+    copyRsyncProcesses.push({
+        status: "running",
+        stdout: "",
+        progress: null
+    });
+
+    function stdoutCallback(data) {
+        copyRsyncProcesses[id].stdout += data;
+
+        var lines = copyRsyncProcesses[id].stdout.split("\r");
+
+        copyRsyncProcesses[id].stdout = lines.slice(lines.length - 2).join("\r");
+
+        if (!lines.slice(lines.length - 2)[0]?.includes("% ")) {
+            return;
+        }
+
+        var parts = lines.slice(lines.length - 2)[0].trim().split(" ").filter((part) => part != "");
+
+        copyRsyncProcesses[id].progress = Number(parseInt(parts[1]) / 100) || 0;
+    }
+
+    exports.executeCommand(privileged ? "sudo" : "rsync", args, null, stdoutCallback).then(function(output) {
+        copyRsyncProcesses[id].status = "success";
+    });
+
+    return Promise.resolve(id);
+};
+
+exports.getCopyFileInfo = function(id) {
+    if (id >= copyRsyncProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(copyRsyncProcesses[id]);
 };
 
 exports.parseNmcliLine = function(line) {

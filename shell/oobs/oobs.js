@@ -270,10 +270,11 @@ function processInstallation() {
     var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
     var partitionName = null;
 
-    selectStep("installprocess");
-
     return Promise.resolve().then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_partitioning"));
+        $g.sel(".oobs_installProcess_progress").removeAttribute("value");
+
+        selectStep("installprocess");
 
         if (partitionMode == "erase") {
             return gShell.call("system_executeCommand", {
@@ -368,9 +369,82 @@ function processInstallation() {
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["mount", `/dev/${installSelectedDisk}`, "/tmp/base"]
-        }).then(dummyDelay);
+        });
     }).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_copying"));
+
+        if (!flags.isRealHardware) {
+            return dummyDelay();
+        }
+
+        return gShell.call("system_copyFiles", {
+            source: "/",
+            destination: "/tmp/base",
+            privileged: true
+        }).then(function(id) {
+            return new Promise(function(resolve, reject) {
+                (function poll() {
+                    gShell.call("system_getCopyFileInfo", {id}).then(function(info) {
+                        $g.sel(".oobs_installProcess_progress").setValue(info.progress);
+                        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_copyingProgress", {progress: Math.round(info.progress * 100)}));
+
+                        switch (info.status) {
+                            case "running":
+                                setTimeout(poll);
+
+                                break;
+
+                            case "success":
+                                resolve();
+
+                                break;
+
+                            default:
+                                reject("IMPL_BAD_COPY_STATUS");
+
+                                break;
+                        }
+                    });
+                })();
+            });
+        });
+    }).then(function() {
+        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_installingBootloader"));
+        $g.sel(".oobs_installProcess_progress").removeAttribute("value");
+
+        var promiseChain = Promise.resolve();
+
+        ["/tmp/base/dev", "/tmp/base/proc", "/tmp/base/sys"].forEach(function(path) {
+            promiseChain = promiseChain.then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["mkdir", path]
+                });
+            });
+        });
+
+        ["dev", "proc", "sys", "usr"].forEach(function(path) {
+            promiseChain = promiseChain.then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["mount", "--bind", `/${path}`, `/tmp/base/${path}`]
+                });
+            });
+        });
+
+        return promiseChain;
+    }).then(function() {
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["chroot", "/tmp/base", "/bin/bash", "-c", `grub-install /dev/${installSelectedDisk}`]
+        }).then(dummyDelay);
+    }).then(function() {
+        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_finalising"));
+        
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["umount", "/tmp/base"]
+        }).then(dummyDelay);
     });
 }
 
@@ -483,7 +557,7 @@ export function init() {
 
     $g.sel(".oobs_installConfirm_confirm").on("click", function() {
         processInstallation().then(function() {
-            // TODO: Go to next step
+            selectStep("installfinish");
         }).catch(function(error) {
             $g.sel(".oobs_installFail_error").setText(error || "UNKNOWN");
 

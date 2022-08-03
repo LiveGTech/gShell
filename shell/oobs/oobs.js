@@ -363,7 +363,7 @@ function processInstallation() {
 
         return gShell.call("system_executeCommand", {
             command: "sudo",
-            args: ["mkfs.ext4", `/dev/${installSelectedDisk}`, "-L", "LiveG OS"]
+            args: ["mkfs.ext4", `/dev/${installSelectedDisk}`, "-L", "LiveG-OS"]
         }).then(dummyDelay);
     }).then(function() {
         return gShell.call("system_executeCommand", {

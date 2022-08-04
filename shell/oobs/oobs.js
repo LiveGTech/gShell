@@ -400,7 +400,7 @@ function processInstallation() {
         return gShell.call("system_copyFiles", {
             source: "/",
             destination: "/tmp/base",
-            exclude: ["/dev", "/proc", "/sys", "/tmp"],
+            exclude: ["/dev", "/proc", "/sys", "/tmp", "/mnt"],
             privileged: true
         }).catch(makeError("FAIL_START_COPY_FILES")).then(function(id) {
             return new Promise(function(resolve, reject) {

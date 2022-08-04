@@ -21,7 +21,7 @@ var copyRsyncProcesses = [];
 
 exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
     return new Promise(function(resolve, reject) {
-        var child = child_process.execFile(command, args, {maxBuffer: 4 * (1_024 ** 2)}, function(error, stdout, stderr) {
+        var child = child_process.execFile(command, args, {maxBuffer: 8 * (1_024 ** 2)}, function(error, stdout, stderr) {
             if (error) {
                 console.error("error:", error);
                 console.error("stderr:", stderr);

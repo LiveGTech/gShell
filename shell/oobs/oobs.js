@@ -278,6 +278,8 @@ function processInstallation() {
     var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
     var partitionName = null;
 
+    // TODO: Remove `h` option from `rsync`, get actual min size requirement and fix create new partition option
+
     return Promise.resolve().then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_partitioning"));
         $g.sel(".oobs_installProcess_progress").removeAttribute("value");

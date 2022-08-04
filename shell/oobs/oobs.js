@@ -540,6 +540,10 @@ export function init() {
                             .setAttribute("type", "radio")
                             .setAttribute("name", "oobs_installDisks")
                             .setAttribute("value", disk.name)
+                            .on("change", function() {
+                                $g.sel("#oobs_partitionMode_erase").setValue(true);
+                                $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
+                            })
                         ,
                         $g.create("label")
                             .setAttribute("for", `oobs_installDisks_${disk.name}`)

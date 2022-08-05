@@ -109,3 +109,5 @@ export function spawnAsUser(url, user = null, options = {}) {
         return Promise.resolve(spawn(url, options));
     });
 }
+
+gShell.call("webview_acknowledgeUserAgent", {userAgent: USER_AGENT});

@@ -1,0 +1,71 @@
+{
+    "localeCode": "fr_FR",
+    "metadata": {
+        "name": "Français (France)",
+        "nameShort": "Français",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "settings": "Paramètres",
+
+        "back": "Précédent",
+        "cancel": "Annuler",
+
+        "network": "Réseau",
+
+        "network_summary": "Wi-Fi, Ethernet",
+        "network_summaryConnected": "Connecté",
+        "network_summaryConnectedWifi": "Connecté à {name}",
+        "network_summaryConnectedEthernet": "Connecté via Ethernet",
+        "network_summaryDisconnected": "Déconnecté",
+
+        "network_connected": "Connecté",
+
+        "network_wifiNetworks": "Réseaux Wi-Fi",
+        "network_wifiScanResultDetails": "{details} ({bandwidth} Mbit/s)",
+        "network_wifiSecurityType_open": "Ouvert",
+        "network_wifiSecurityType_secured": "Sécurisé",
+        "network_wifiSecurityType_unknown": "Sécurité inconnue",
+
+        "network_wifiAp_connect": "Connecter",
+        "network_wifiAp_disconnect": "Déconnecter",
+        "network_wifiAp_forget": "Oublier",
+        "network_wifiAp_channelDetails": "Détails du canal",
+        "network_wifiAp_channel": "Canal {channel}",
+        "network_wifiAp_bssid": "BSSID",
+        "network_wifiAp_signalStrength": "Force du signal",
+        "network_wifiAp_signalStrength_value": "{value} %",
+        "network_wifiAp_bandwidth": "Bande passante",
+        "network_wifiAp_bandwidth_value": {
+            "{value} == 1": "{value} mégabit/seconde",
+            "{value} != 1": "{value} mégabits/seconde"
+        },
+
+        "a11y": "Accessibilité",
+
+        "a11y_summary": "Personnaliser l'accès visuel, auditif et de navigation",
+
+        "a11y_switch": "Navigation au Interrupteur",
+        "a11y_switch_summary": "Contrôle total et navigation avec au moins un interrupteur",
+        "a11y_switch_description": "La Navigation au Interrupteur vous permet d'accéder à votre appareil et de le parcourir à l'aide d'un ou plusieurs interrupteurs, tels que des boutons-poussoirs, des pédales, des interrupteurs sip-and-puff, etc.",
+        "a11y_switch_enable": "Activer la Navigation au Interrupteur",
+
+        "a11y_switch_disableDialog_title": "Désactiver la Navigation au Interrupteur ?",
+        "a11y_switch_disableDialog_description": "Vous ne pourrez pas naviguer à l'aide d'un interrupteur tant que l'interrupteur de navigation n'est pas réactivé.",
+        "a11y_switch_disableDialog_turnOff": "Désactiver",
+
+        "a11y_reduceMotion": "Réduisez les animations et les mouvements non essentiels",
+
+        "about": "À propos de cet appareil",
+        "about_summary": "Afficher les informations sur le système et le matériel",
+
+        "about_name": " LiveG OS",
+        "about_version": "Variante {version}",
+        "about_copyright": "Droits d'auteur © LiveG. Tous les droits sont réservés.",
+
+        "about_deviceInfo": "Info appareil",
+        "about_deviceInfo_name": "Nom du produit",
+        "about_deviceInfo_manufacturer": "Fabricant",
+        "about_deviceInfo_serial": "Numéro de série"
+    }
+}

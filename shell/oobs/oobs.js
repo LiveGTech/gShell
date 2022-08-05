@@ -10,6 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
+import * as l10n from "gshell://config/l10n.js";
 import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
@@ -494,6 +495,62 @@ function checkDisplayName() {
 }
 
 export function init() {
+    fetch("gshell://oobs/l10n.json").then(function(response) {
+        return response.json();
+    }).then(function(data) {
+        var i = 0;
+        var pastFirst = false;
+
+        function nextMessage() {
+            $g.sel(".oobs_welcome_message").addClass("transitioning");
+
+            setTimeout(function() {
+                $g.sel(".oobs_welcome_title").setText(data.messages[i].title);
+                $g.sel(".oobs_welcome_description").setText(data.messages[i].description);
+
+                $g.sel(".oobs_welcome_message").removeClass("transitioning");
+
+                if (!pastFirst) {
+                    data.messages = data.messages
+                        .map((message, i) => ({...message, i, position: Math.random()}))
+                        .sort((a, b) => a.position - b.position)
+                    ;
+
+                    if (data.messages[0].i == 0) {
+                        i = 1;
+                    }
+
+                    pastFirst = true;
+
+                    return;
+                }
+
+                i++;
+
+                if (i >= data.messages.length) {
+                    i = 0;
+                }
+            }, 500);
+        }
+
+        setInterval(nextMessage, 3_000);
+
+        nextMessage();
+
+        $g.sel(".oobs_languages").clear().add(
+            ...data.languages.map((language) => $g.create("button")
+                .setAttribute("aui-listitem", true)
+                .setText(language.name)
+                .on("click", function() {
+                    // TODO: Store chosen locale code in config
+                    l10n.apply(language.baseLocale);
+
+                    selectStep("l10n");
+                })
+            )
+        );
+    });
+
     selectStep("welcome");
 
     gShell.call("system_getFlags").then(function(result) {
@@ -512,64 +569,66 @@ export function init() {
                 }
             });
         });
-
-        if (isInstallationMedia) {
-            gShell.call("system_executeCommand", {
-                command: "lsblk",
-                args: ["-db", "-o", "NAME,RO,SIZE,LABEL"]
-            }).then(function(output) {
-                var lines = (flags.isRealHardware ? output.stdout : DUMMY_LSBLK_STDOUT).split("\n").filter((line) => line != "");
-
-                lines.shift();
-
-                installDisks = lines.map(function(line, i) {
-                    var parts = line.split(" ").filter((part) => part != "");
-
-                    return {
-                        number: i + 1,
-                        name: parts[0],
-                        readOnly: parts[1] == 1,
-                        size: Number(parts[2]),
-                        label: parts.slice(3).join(" ")
-                    };
-                }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
-
-                systemSize = Number((lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
-                systemSize += SYSTEM_SIZE_PADDING;
-
-                $g.sel(".oobs_installDisks").clear().add(
-                    ...installDisks.map((disk) => $g.create("div").add(
-                        $g.create("input")
-                            .setId(`oobs_installDisks_${disk.name}`)
-                            .setAttribute("type", "radio")
-                            .setAttribute("name", "oobs_installDisks")
-                            .setAttribute("value", disk.name)
-                            .on("change", function() {
-                                $g.sel("#oobs_partitionMode_erase").setValue(true);
-                                $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
-                            })
-                        ,
-                        $g.create("label")
-                            .setAttribute("for", `oobs_installDisks_${disk.name}`)
-                            .add(
-                                $g.create("strong").setText(
-                                    disk.label == "" ?
-                                    _("oobs_installDisks_diskUnlabelledTitle", {...disk}) :
-                                    _("oobs_installDisks_diskLabelledTitle", {...disk})
-                                ),
-                                $g.create("br"),
-                                $g.create("span").setText(_("oobs_installDisks_diskTotalSize", {
-                                    size: sizeUnits.getString(Number(disk.size))
-                                }))
-                            )
-                    ))
-                );
-            });
-        }
     });
 
     $g.sel(".oobs_finish").on("click", function() {
         finish();
+    });
+
+    $g.sel(".oobs_installAsk_disk").on("click", function() {
+        gShell.call("system_executeCommand", {
+            command: "lsblk",
+            args: ["-db", "-o", "NAME,RO,SIZE,LABEL"]
+        }).then(function(output) {
+            var lines = (flags.isRealHardware ? output.stdout : DUMMY_LSBLK_STDOUT).split("\n").filter((line) => line != "");
+
+            lines.shift();
+
+            installDisks = lines.map(function(line, i) {
+                var parts = line.split(" ").filter((part) => part != "");
+
+                return {
+                    number: i + 1,
+                    name: parts[0],
+                    readOnly: parts[1] == 1,
+                    size: Number(parts[2]),
+                    label: parts.slice(3).join(" ")
+                };
+            }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
+
+            systemSize = Number((lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
+            systemSize += SYSTEM_SIZE_PADDING;
+
+            $g.sel(".oobs_installDisks").clear().add(
+                ...installDisks.map((disk) => $g.create("div").add(
+                    $g.create("input")
+                        .setId(`oobs_installDisks_${disk.name}`)
+                        .setAttribute("type", "radio")
+                        .setAttribute("name", "oobs_installDisks")
+                        .setAttribute("value", disk.name)
+                        .on("change", function() {
+                            $g.sel("#oobs_partitionMode_erase").setValue(true);
+                            $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
+                        })
+                    ,
+                    $g.create("label")
+                        .setAttribute("for", `oobs_installDisks_${disk.name}`)
+                        .add(
+                            $g.create("strong").setText(
+                                disk.label == "" ?
+                                _("oobs_installDisks_diskUnlabelledTitle", {...disk}) :
+                                _("oobs_installDisks_diskLabelledTitle", {...disk})
+                            ),
+                            $g.create("br"),
+                            $g.create("span").setText(_("oobs_installDisks_diskTotalSize", {
+                                size: sizeUnits.getString(Number(disk.size))
+                            }))
+                        )
+                ))
+            );
+
+            selectStep("installdisk");
+        });
     });
 
     $g.sel(".oobs_installDisk_next").on("click", function() {

@@ -49,6 +49,36 @@
     padding-right: 0.5rem;
 }
 
+.oobs_welcome {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+.oobs_welcome_message {
+    flex-shrink: 0;
+    height: 10rem;
+    text-align: center;
+    opacity: 1;
+    overflow: hidden;
+    transition: 0.5s opacity;
+}
+
+.oobs_welcome_message.transitioning {
+    opacity: 0;
+}
+
+.oobs_languages {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.oobs_languages button {
+    width: calc(100% - 0.5rem);
+    margin-inline-start: 0.25rem;
+    margin-inline-end: 0;
+}
+
 @media (max-width: 800px) {
     #oobs .oobs_step {
         padding: 0.5rem;

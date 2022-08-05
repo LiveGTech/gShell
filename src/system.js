@@ -17,6 +17,8 @@ var flags = require("./flags");
 var device = require("./device");
 
 var mediaFeatures = {};
+var currentUserAgent = null;
+var currentLocale = null;
 var copyRsyncProcesses = [];
 
 exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
@@ -261,6 +263,21 @@ exports.setMediaFeature = function(name, value) {
 
 exports.getMediaFeatures = function() {
     return Promise.resolve(mediaFeatures);
+};
+
+exports.acknowledgeUserAgent = function(userAgent) {
+    currentUserAgent = userAgent;
+};
+
+exports.setLocale = function(localeCode = currentLocale) {
+    currentLocale = localeCode;
+
+    return Promise.all(electron.webContents.getAllWebContents().map(function(webContents) {
+        return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
+            userAgent: currentUserAgent,
+            acceptLanguage: localeCode.replace(/_/g, "-")
+        });
+    }));
 };
 
 exports.bcryptHash = function(data, saltRounds) {

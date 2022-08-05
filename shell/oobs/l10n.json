@@ -1,0 +1,26 @@
+{
+    "messages": [
+        {"title": "Welcome", "description": "Please choose your language from the list below."},
+        {"title": "Bienvenue", "description": "Veuillez choisir votre langue dans la liste ci-dessous."},
+        {"title": "欢迎", "description": "请从下面的列表中选择您的语言。"},
+        {"title": "Bienvenido", "description": "Elija su idioma de la lista a continuación."},
+        {"title": "أهلا وسهلا", "description": "الرجاء اختيار لغتك من القائمة أدناه."},
+        {"title": "Willkommen", "description": "Bitte wählen Sie Ihre Sprache aus der Liste unten aus."}
+    ],
+    "languages": [
+        {
+            "name": "English",
+            "baseLocale": "en_GB",
+            "locales": {
+                "en_GB": "English (United Kingdom)"
+            }
+        },
+        {
+            "name": "Français",
+            "baseLocale": "fr_FR",
+            "locales": {
+                "fr_FR": "Français (France)"
+            }
+        }
+    ]
+}

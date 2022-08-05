@@ -1,0 +1,136 @@
+{
+    "localeCode": "fr_FR",
+    "metadata": {
+        "name": "Français (France)",
+        "nameShort": "Français",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "percentage": "{value} %",
+
+        "unknown": "Inconnue",
+
+        "size_bytes": {
+            "{size} == 1": "{size} octet",
+            "{size} != 1": "{size} octets"
+        },
+        "size_kb": "{size} Ko",
+        "size_mb": "{size} Mo",
+        "size_gb": "{size} Go",
+        "size_tb": "{size} To",
+        "size_kib": "{size} Kio",
+        "size_mib": "{size} Mio",
+        "size_gib": "{size} Gio",
+        "size_tib": "{size} Tio",
+
+        "info_batteryIcon_charging": "Batterie - charge",
+        "info_batteryIcon_discharging": "Batterie - décharge",
+        "info_batteryIcon_unknown": "Batterie - inconnue",
+
+        "input_key_shift": "Maj",
+        "input_key_backspace": "Retour arrière",
+        "input_key_space": "Espace",
+        "input_key_enter": "Entrée",
+        "input_option_hide": "Masquer le clavier",
+        "input_option_emoji": "Émoji",
+
+        "lockScreen_unlock": "Déverrouiller",
+        "lockScreen_enterPasscode": "Entrer le code d'accès",
+        "lockScreen_incorrectPasscode": "Code d'accès incorrect, réessayez",
+        "lockScreen_delete": "Effacer",
+
+        "switcher_goHome": "Retour à l'accueil",
+        "switcher_toggleList": "Basculer le sélecteur d'application",
+        "switcher_minimise": "Réduire",
+        "switcher_maximise": "Agrandir",
+        "switcher_restore": "Restaurer",
+        "switcher_close": "Fermer",
+        "switcher_closeAll": "Fermer tout",
+        "switcher_empty": "Aucune application ouverte",
+
+        "oobs_previous": "Précédent",
+        "oobs_next": "Suivant",
+        "oobs_confirm": "Confirmer",
+        "oobs_continue": "Continuer",
+        "oobs_finish": "Finir",
+
+        "oobs_installAsk_title": "Installer LiveG OS ?",
+        "oobs_installAsk_description1": "Vous pouvez soit installer LiveG OS sur le stockage interne de cet appareil maintenant, soit essayer LiveG OS sans installation préalable.",
+        "oobs_installAsk_description2": "Si vous choisissez d'essayer LiveG OS sans l'installer, les fichiers que vous enregistrez et les modifications que vous apportez dans LiveG OS seront perdus lors de l'arrêt du système.",
+        "oobs_installAsk_install_title": "Installer LiveG OS sur le stockage interne",
+        "oobs_installAsk_install_description": "Vous pourrez choisir le disque et la partition à installer sur",
+        "oobs_installAsk_tryOut_title": "Essayez LiveG OS sans installation",
+        "oobs_installAsk_tryOut_description": "Les modifications seront perdues et le stockage interne ne sera pas affecté",
+
+        "oobs_installDisk_title": "Choisissez un disque sur lequel installer",
+        "oobs_installDisk_description": "Avant l'installation de LiveG OS, vous pourrez configurer les partitions du disque sur lesquelles installer.",
+        "oobs_installDisk_emptyError": "Veuillez sélectionner un disque sur lequel installer LiveG OS.",
+        "oobs_installDisks_diskUnlabelledTitle": "Sans étiquette (disque {number})",
+        "oobs_installDisks_diskLabelledTitle": "{label} (disque {number})",
+        "oobs_installDisks_diskTotalSize": "Taille totale de {size}",
+
+        "oobs_installPartition_title": "Choisissez une partition",
+        "oobs_installPartition_description": "Les partitions sont des zones du disque qui peuvent être réservées à différentes fins (comme l'installation de plusieurs systèmes d'exploitation). Choisissez comment vous souhaitez partitionner le disque lorsque LiveG OS est installé.",
+        "oobs_installPartition_erase_title": "Effacez tout le disque et installez LiveG OS",
+        "oobs_installPartition_erase_description": "Toutes les données stockées sur le disque choisi seront perdues. Les partitions recommandées pour l'installation de LiveG OS seront automatiquement créées.",
+        "oobs_installPartition_existing_title": "Installer LiveG OS sur une partition existante",
+        "oobs_installPartition_existing_partitionToSelect": "Partition à effacer et à installer sur",
+        "oobs_installPartition_existing_partition": "{name} ({size})",
+        "oobs_installPartition_new_title": "Créez une nouvelle partition sur laquelle installer LiveG OS",
+        "oobs_installPartition_new_size": "Taille de la nouvelle partition (Mio)",
+        "oobs_installPartition_noneExistNotice": "(Il n'en existe aucun qui soit compatible avec LiveG OS)",
+        "oobs_installPartition_maxPrimaryReachedNotice": "(Limite maximale de partitions principales atteinte)",
+        "oobs_installPartition_minimumSizeError": "La taille de la partition à créer ne peut pas être de zéro.",
+        "oobs_installPartition_notEnoughSpaceError": "Il n'y a pas assez d'espace libre pour installer LiveG OS avec cette configuration. Un espace libre minimum de {sizeMetric} ({sizeIec}) est requis pour installer LiveG OS.",
+
+        "oobs_installConfirm_title": "Prêt à installer ?",
+        "oobs_installConfirm_description1": "C'est maintenant le meilleur moment pour revoir les choix que vous avez faits lors des étapes précédentes avant de commencer l'installation.",
+        "oobs_installConfirm_description2": "Vous ne pourrez pas rétablir la configuration de votre appareil ou récupérer des données effacées à moins que vous n'ayez déjà effectué une sauvegarde de la mémoire interne de votre appareil.",
+        "oobs_installConfirm_description3": "Vous ne pourrez pas non plus revenir aux étapes précédentes pendant l'installation de LiveG OS.",
+
+        "oobs_installProcess_title": "Installation du LiveG OS...",
+        "oobs_installProcess_warning": "Cela peut prendre un certain temps. Veuillez ne pas éteindre cet appareil.",
+        "oobs_installProcess_status_partitioning": "Configuration des partitions de disque...",
+        "oobs_installProcess_status_formatting": "Formatage de la partition sélectionnée...",
+        "oobs_installProcess_status_copying": "Copie des fichiers système...",
+        "oobs_installProcess_status_copyingProgress": "Copie des fichiers système... ({progress} %)",
+        "oobs_installProcess_status_installingBootloader": "Installation du chargeur de démarrage...",
+        "oobs_installProcess_status_finalising": "Finition de l'installation...",
+
+        "oobs_installFinish_title": "Tout installé !",
+        "oobs_installFinish_description": "LiveG OS est maintenant installé. Le système redémarrera dans 10 secondes afin que vous puissiez continuer à configurer LiveG OS.",
+
+        "oobs_installFail_title": "L'installation n'a pas réussi",
+        "oobs_installFail_description": "Une erreur s'est produite qui a provoqué l'abandon de l'installation de LiveG OS. Vous voudrez peut-être revoir les options que vous avez choisies et réessayer.",
+        "oobs_installFail_error": "Code d'erreur :",
+
+        "oobs_userProfile_title": "Obtenons quelques détails sur vous",
+        "oobs_userProfile_displayNameLabel": "Quel est votre nom ?",
+        "oobs_userProfile_displayNameHint": "Nous vous recommandons d'entrer votre nom complet, mais n'importe quel nom (comme un surnom ou un nom d'utilisateur) convient.",
+        "oobs_userProfile_displayNameEmptyError": "S'il vous plaît entrez votre nom.",
+        "oobs_userProfile_displayNameLengthError": "Le nom que vous avez entré est trop long ; veuillez le raccourcir.",
+
+        "oobs_finish_title": "Complété !",
+        "oobs_finish_description1": "C'est tout ce dont nous avons besoin de votre part pour configurer votre appareil. Lorsque vous êtes prêt, vous pouvez commencer à utiliser votre appareil immédiatement.",
+        "oobs_finish_description2": "C'est maintenant le meilleur moment pour revoir les choix que vous avez faits lors des étapes précédentes avant que la configuration de votre appareil ne soit finalisée. Vous pouvez toujours modifier les options que vous avez choisies ultérieurement dans l'application Paramètres.",
+
+        "sphere": "Sphère",
+        "sphere_back": "Précédent",
+        "sphere_forward": "Suivant",
+        "sphere_menu": "Menu",
+
+        "a11y_switch_openMainMenu": "Menu",
+        "a11y_switch_switchToItemScan": "Scan des articles",
+        "a11y_switch_switchToPointScan": "Scan du points",
+        "a11y_switch_quickSettings": "Paramètres rapides",
+        "a11y_switch_scanSlower": "Scanner plus lentement",
+        "a11y_switch_scanFaster": "Scanner plus rapidement",
+        "a11y_switch_done": "Fait",
+        "a11y_switch_click": "Cliquez",
+        "a11y_switch_swipe": "Balayez",
+        "a11y_switch_pinch": "Pincer",
+        "a11y_switch_rotate": "Tourner",
+        "a11y_switch_doubleClick": "Double-cliquez",
+        "a11y_switch_mouseButtons": "Boutons de la souris"
+    }
+}

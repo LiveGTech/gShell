@@ -15,8 +15,11 @@ export var currentLocale = null;
 
 export function apply(localeCode = "en_GB") {
     return $g.l10n.selectLocaleFromResources({
-        "en_GB": "gshell://locales/en_GB.json"
-    }, "en_GB", {}, localeCode).then(function(locale) {
+        "en_GB": "gshell://locales/en_GB.json",
+        "fr_FR": "gshell://locales/fr_FR.json"
+    }, "en_GB", {
+        "fr_FR": "en_GB"
+    }, localeCode).then(function(locale) {
         window._ = function() {
             return locale.translate(...arguments);
         };
@@ -28,6 +31,8 @@ export function apply(localeCode = "en_GB") {
         currentLocale = locale;
 
         $g.l10n.translateApp(locale);
+
+        gShell.call("webview_setLocale", {localeCode});
 
         info.applyAll();
 

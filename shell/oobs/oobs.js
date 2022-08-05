@@ -21,18 +21,19 @@ var installDisks = [];
 var installSelectedDisk = null;
 
 const MAX_PRIMARY_PARTITIONS = 4;
+const SYSTEM_SIZE_PADDING = 512 * (1_024 ** 2); // 512 MB
 const SWAP_SIZE = 8 * (1_024 ** 3); // 8 GiB
 const MIN_SIZE_FOR_SWAP = 3 * SWAP_SIZE; // So maximum 1/3 swap for system
 
 const DUMMY_LSBLK_STDOUT = `\
 NAME    RO       SIZE   LABEL
-sda      0 1073741824   Dummy disk
-sdb      0 1073741824   
+sda      0 3218078720   Dummy disk
+sdb      0 3218078720   
 sr0      0  535822336   LiveG-OS
 `;
 
 const DUMMY_FDISK_L_STDOUT = `\
-Disk /dev/sda1: 1 GiB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sda1: 3.2 GiB, 3218078720 bytes, 6285310 sectors
 Disk model: Dummy                                   
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -41,9 +42,9 @@ Disklabel type: dos
 Disk identifier: 0x00000000
 
 Device        End Sectors Type
-/dev/sda1 1050623 1048576 Linux
-/dev/sda2 2093055 1044480 Linux
-/dev/sda3 2097152    4096 Linux swap / Solaris
+/dev/sda1 2099198 2097152 Linux
+/dev/sda2 4196350 2088960 Linux
+/dev/sda3 6285310    4096 Linux swap / Solaris
 `;
 
 const FDISK_ERASE_SWAP_STDIN = `\
@@ -167,7 +168,7 @@ function checkInstallDisk() {
             disk.size - disk.partitions[disk.partitions.length - 1].end
         );
 
-        var endSpaceSizeMiB = Math.floor(disk.endSpaceSize / (1_024 ** 2));
+        var endSpaceSizeMiB = Math.max(Math.floor(disk.endSpaceSize / (1_024 ** 2)), 0);
 
         $g.sel("#oobs_partitionMode_new_size").setAttribute("max", endSpaceSizeMiB);
         $g.sel("#oobs_partitionMode_new_size").setValue(endSpaceSizeMiB);
@@ -400,7 +401,7 @@ function processInstallation() {
         }
 
         return gShell.call("system_copyFiles", {
-            source: "/",
+            source: "/ro/",
             destination: "/tmp/base",
             exclude: ["/dev", "/proc", "/sys", "/tmp", "/mnt"],
             privileged: true
@@ -533,7 +534,8 @@ export function init() {
                     };
                 }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
 
-                systemSize = (lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2] || null;
+                systemSize = Number((lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
+                systemSize += SYSTEM_SIZE_PADDING;
 
                 $g.sel(".oobs_installDisks").clear().add(
                     ...installDisks.map((disk) => $g.create("div").add(

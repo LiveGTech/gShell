@@ -14,11 +14,13 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 astronaut.unpack();
 
 import * as network from "./networkpage.js";
+import * as l10n from "./l10npage.js";
 import * as a11y from "./a11ypage.js";
 import * as about from "./aboutpage.js";
 
 export const PAGE_ICONS = {
     network: "wifi",
+    l10n: "language",
     a11y: "a11y",
     about: "info"
 };
@@ -91,6 +93,7 @@ $g.waitForLoad().then(function() {
     };
 
     pages.network = network.NetworkPage() ();
+    pages.l10n = l10n.L10nPage() ();
     pages.a11y = a11y.A11yPage() ();
     pages.about = about.AboutPage() ();
 

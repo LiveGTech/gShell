@@ -46,3 +46,13 @@ export function loadFromConfig() {
         return apply(data.localeCode || "en_GB");
     });
 }
+
+export function setLocale(localeCode) {
+    return apply(localeCode).then(function() {
+        return config.edit("l10n.gsc", function(data) {
+            data.localeCode = localeCode;
+    
+            return Promise.resolve(data);
+        });
+    });
+}

@@ -41,6 +41,12 @@
             "{value} != 1": "{value} megabits/second"
         },
 
+        "l10n": "Language and input",
+
+        "l10n_summary": "Change language, region and keyboard settings",
+
+        "l10n_systemLanguage": "System language",
+
         "a11y": "Accessibility",
 
         "a11y_summary": "Customise visual, auditory and navigatory access",

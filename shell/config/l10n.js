@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as config from "gshell://config/config.js";
 import * as info from "gshell://global/info.js";
 
 export var currentLocale = null;
@@ -37,5 +38,11 @@ export function apply(localeCode = "en_GB") {
         info.applyAll();
 
         return Promise.resolve();
+    });
+}
+
+export function loadFromConfig() {
+    return config.read("l10n.gsc").then(function(data) {
+        return apply(data.localeCode || "en_GB");
     });
 }

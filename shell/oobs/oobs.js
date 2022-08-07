@@ -10,9 +10,11 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
+import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
+import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as sizeUnits from "gshell://common/sizeunits.js";
 
@@ -95,6 +97,16 @@ export function finish() {
     var credentials;
 
     $g.sel("#oobs").fadeOut(1_000).then(function() {
+        return config.write("l10n.gsc", {
+            localeCode: l10n.currentLocale.localeCode
+        });
+    }).then(function() {
+        return config.write("input.gsc", {
+            keyboardLayouts: [
+                {path: input.currentKeyboardLayout.path}
+            ]
+        });
+    }).then(function() {
         return users.create(undefined, {
             displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim()
         });
@@ -125,6 +137,28 @@ function dummyDelay() {
         setTimeout(function() {
             resolve();
         }, 3_000);
+    });
+}
+
+function getKeyboardLayouts() {
+    return input.getKeyboardLayoutDataForLocale($g.sel("#oobs_l10n_localeVariation").getValue()).then(function(data) {
+        $g.sel("#oobs_l10n_keyboardLayout").clear().add(
+            ...data.map((layout) => $g.create("option")
+                .setAttribute("value", layout.path)
+                .setText(layout.layout.metadata.variantName)
+            )
+        );
+
+        function setKeyboardLayout() {
+            input.clearKeyboardLayouts();
+            input.loadKeyboardLayout($g.sel("#oobs_l10n_keyboardLayout").getValue());
+        }
+
+        $g.sel("#oobs_l10n_keyboardLayout").on("change", function() {
+            setKeyboardLayout();
+        });
+
+        setKeyboardLayout();
     });
 }
 
@@ -540,8 +574,24 @@ export function init() {
                 .setAttribute("aui-listitem", true)
                 .setText(language.name)
                 .on("click", function() {
-                    // TODO: Store chosen locale code in config
                     l10n.apply(language.baseLocale);
+
+                    $g.sel("#oobs_l10n_localeVariation").clear().add(
+                        ...Object.keys(language.locales).map((localeCode) => $g.create("option")
+                            .setAttribute("value", localeCode)
+                            .setText(language.locales[localeCode])
+                        )
+                    );
+
+                    $g.sel("#oobs_l10n_localeVariation").setValue(language.baseLocale);
+
+                    $g.sel("#oobs_l10n_localeVariation").on("change", function() {
+                        l10n.apply($g.sel("#oobs_l10n_localeVariation").getValue());
+
+                        getKeyboardLayouts();
+                    });
+
+                    getKeyboardLayouts();
 
                     selectStep("l10n");
                 })

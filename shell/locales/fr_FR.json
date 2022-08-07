@@ -54,6 +54,9 @@
         "oobs_continue": "Continuer",
         "oobs_finish": "Finir",
 
+        "oobs_l10n_localeVariation": "Région/variation linguistique",
+        "oobs_l10n_keyboardLayout": "Disposition du clavier",
+
         "oobs_installAsk_title": "Installer LiveG OS ?",
         "oobs_installAsk_description1": "Vous pouvez soit installer LiveG OS sur le stockage interne de cet appareil maintenant, soit essayer LiveG OS sans installation préalable.",
         "oobs_installAsk_description2": "Si vous choisissez d'essayer LiveG OS sans l'installer, les fichiers que vous enregistrez et les modifications que vous apportez dans LiveG OS seront perdus lors de l'arrêt du système.",

@@ -13,6 +13,7 @@ import Fuse from "gshell://lib/fuse.esm.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
 import * as device from "gshell://system/device.js";
+import * as config from "gshell://config/config.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 // Also in `shell/webviewpreload.js`
@@ -54,7 +55,6 @@ export const candidateResultSources = {
 export var keyboardLayouts = [];
 export var inputMethods = [];
 export var currentKeyboardLayout = null;
-export var currentInputMethod = null;
 export var showing = false;
 export var targetInputSurface = null;
 export var inputEntryBuffer = [];
@@ -72,25 +72,34 @@ var lastInputWidth = 0;
 var lastInputHeight = 0;
 
 export class KeyboardLayout {
-    constructor(localeCode, variant, metadata) {
+    constructor(localeCode, variant, metadata = {}, path = null) {
         this.localeCode = localeCode;
         this.variant = variant;
         this.metadata = metadata;
+        this.path = path;
 
         this.states = {};
         this.defaultState = null;
         this.shiftState = null;
         this.currentState = null;
+        this.allInputMethodPaths = [];
+        this.inputMethodPaths = [];
+        this.inputMethods = [];
+        this.currentInputMethod = null;
         this.capsLockActive = false;
     }
 
-    static deserialise(data) {
-        var instance = new this(data.localeCode, data.variant, data.metadata);
+    static deserialise(data, path = null, inputMethodPaths = null) {
+        var instance = new this(data.localeCode, data.variant, data.metadata, path);
 
         instance.states = data.states || {};
         instance.defaultState = data.defaultState || null;
         instance.shiftState = data.shiftState || null;
         instance.currentState = instance.defaultState;
+        instance.allInputMethodPaths = data.inputMethodPaths || [];
+        instance.inputMethodPaths = inputMethodPaths || instance.allInputMethodPaths.slice(0, 1);
+
+        instance.loadInputMethods();
 
         return instance;
     }
@@ -115,6 +124,28 @@ export class KeyboardLayout {
     }
 
     onStateUpdate() {}
+
+    loadInputMethods() {
+        var thisScope = this;
+
+        return Promise.all(this.inputMethodPaths.map(function(path) {
+            return fetch(path).then(function(response) {
+                return response.json();
+            }).then(function(data) {
+                var inputMethod = InputMethod.deserialise(data, path);
+
+                thisScope.inputMethods.push(inputMethod);
+
+                if (thisScope.currentInputMethod == null) {
+                    thisScope.currentInputMethod = inputMethod;
+
+                    return thisScope.render();
+                }
+
+                return Promise.resolve();
+            });
+        }));
+    }
 
     render() {
         var thisScope = this;
@@ -358,10 +389,11 @@ export class KeyboardLayout {
 }
 
 export class InputMethod {
-    constructor(localeCode, type = "default", metadata = {}) {
+    constructor(localeCode, type = "default", metadata = {}, path = null) {
         this.localeCode = localeCode;
         this.type = type;
         this.metadata = metadata;
+        this.path = path;
 
         this.wordSeparator = metadata.wordSeparator || " "; // Set as `""` for ideographic languages since they don't have spaces
         this.nGramLength = metadata.nGramLength || 4;
@@ -378,8 +410,8 @@ export class InputMethod {
         this.reindexDictionaries();
     }
 
-    static deserialise(data) {
-        var instance = new this(data.localeCode, data.type, data.metadata);
+    static deserialise(data, path = null) {
+        var instance = new this(data.localeCode, data.type, data.metadata, path);
 
         instance.nGramDictionary = data.nGramDictionary || {};
         instance.wordDictionary = data.wordDictionary || [];
@@ -512,12 +544,14 @@ export class InputMethod {
 }
 
 export function updateInputMethodEditor() {
-    if (currentInputMethod == null) {
+    if (currentKeyboardLayout == null || currentKeyboardLayout.currentInputMethod == null) {
+        inputMethodEditorElement.clear();
+        
         return;
     }
 
-    return currentInputMethod.getCandidates().then(function(candidates) {
-        return currentInputMethod.getCandidates(2).then(function(baseCandidates) {
+    return currentKeyboardLayout.currentInputMethod.getCandidates().then(function(candidates) {
+        return currentKeyboardLayout.currentInputMethod.getCandidates(2).then(function(baseCandidates) {
             candidates = candidates.slice(0, 3);
 
             inputMethodEditorElement.clear().add(
@@ -525,7 +559,7 @@ export function updateInputMethodEditor() {
                     .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
                     .setText(candidate.result)
                     .on("click", function() {
-                        currentInputMethod.selectCandidate(candidate);
+                        currentKeyboardLayout.currentInputMethod.selectCandidate(candidate);
                         updateInputMethodEditor();
                     })
                 )
@@ -683,24 +717,19 @@ export function init() {
     $g.sel("body").on("keydown", keydownCallback);
     webviewComms.onEvent("keydown", keydownCallback);
 
-    fetch("gshell://input/imedata/en_GB_default.gime").then(function(response) {
+    loadKeyboardLayoutsFromConfig();
+}
+
+export function clearKeyboardLayouts() {
+    keyboardLayouts = [];
+    currentKeyboardLayout = null;
+}
+
+export function loadKeyboardLayout(path, inputMethodPaths = null) {
+    return fetch(path).then(function(response) {
         return response.json();
     }).then(function(data) {
-        var inputMethod = InputMethod.deserialise(data);
-
-        inputMethods.push(inputMethod);
-
-        if (currentInputMethod == null) {
-            currentInputMethod = inputMethod;
-        }
-
-        updateInputMethodEditor();
-    });
-
-    fetch("gshell://input/layouts/en_GB_qwerty.gkbl").then(function(response) {
-        return response.json();
-    }).then(function(data) {
-        var keyboard = KeyboardLayout.deserialise(data);
+        var keyboard = KeyboardLayout.deserialise(data, path, inputMethodPaths);
 
         keyboard.onStateUpdate = function() {
             render();
@@ -708,13 +737,43 @@ export function init() {
             $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
         };
 
+        keyboardLayouts = keyboardLayouts.filter((layout) => layout.path != path);
+
         keyboardLayouts.push(keyboard);
 
         if (currentKeyboardLayout == null) {
             currentKeyboardLayout = keyboard;
+
+            return render();
         }
 
-        render();
+        return Promise.resolve();
+    });
+}
+
+export function loadKeyboardLayoutsFromConfig() {
+    clearKeyboardLayouts();
+
+    return config.read("input.gsc").then(function(data) {
+        return Promise.all((
+            data.keyboardLayouts || [{path: "gshell://input/layouts/en_GB_qwerty.gkbl"}]
+        ).map(function(layoutData) {
+            return loadKeyboardLayout(layoutData.path, layoutData.inputMethodPaths || null);
+        }));
+    });
+}
+
+export function getKeyboardLayoutDataForLocale(localeCode) {
+    return fetch("gshell://input/l10nmappings.json").then(function(response) {
+        return response.json();
+    }).then(function(data) {
+        return Promise.all((data.mappings[localeCode] || []).map(function(path) {
+            return fetch(path).then(function(response) {
+                return response.json();
+            }).then(function(layout) {
+                return {path, layout};
+            });
+        }))
     });
 }
 
@@ -861,6 +920,8 @@ export function show(mode = getBestInputMode()) {
     } else {
         $g.sel("body").addClass("input_keyboardShowing");
     }
+
+    updateInputMethodEditor();
 
     webviewComms.update();
 

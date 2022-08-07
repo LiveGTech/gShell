@@ -1,0 +1,10 @@
+{
+    "mappings": {
+        "en_GB": [
+            "gshell://input/layouts/en_GB_qwerty.gkbl"
+        ],
+        "fr_FR": [
+            "gshell://input/layouts/fr_FR_azerty.gkbl"
+        ]
+    }
+}

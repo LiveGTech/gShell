@@ -33,7 +33,7 @@ $g.waitForLoad().then(function() {
 }).then(function() {
     return device.init();
 }).then(function() {
-    return l10n.apply();
+    return l10n.loadFromConfig();
 }).then(function() {
     return a11y.load();
 }).then(function() {

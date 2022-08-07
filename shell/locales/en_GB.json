@@ -54,6 +54,9 @@
         "oobs_continue": "Continue",
         "oobs_finish": "Finish",
 
+        "oobs_l10n_localeVariation": "Language region/variation",
+        "oobs_l10n_keyboardLayout": "Keyboard layout",
+
         "oobs_installAsk_title": "Install LiveG OS?",
         "oobs_installAsk_description1": "You can either install LiveG OS to this device's internal storage now, or try out LiveG OS without installation first.",
         "oobs_installAsk_description2": "If you choose to try out LiveG OS without installing, files you save and changes you make in LiveG OS will be lost when the system shuts down.",

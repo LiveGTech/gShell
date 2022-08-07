@@ -280,8 +280,6 @@ function processInstallation() {
     var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
     var partitionName = null;
 
-    // TODO: Remove `h` option from `rsync`, get actual min size requirement and fix create new partition option
-
     return Promise.resolve().then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_partitioning"));
         $g.sel(".oobs_installProcess_progress").removeAttribute("value");
@@ -599,33 +597,42 @@ export function init() {
             systemSize = Number((lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
             systemSize += SYSTEM_SIZE_PADDING;
 
-            $g.sel(".oobs_installDisks").clear().add(
-                ...installDisks.map((disk) => $g.create("div").add(
-                    $g.create("input")
-                        .setId(`oobs_installDisks_${disk.name}`)
-                        .setAttribute("type", "radio")
-                        .setAttribute("name", "oobs_installDisks")
-                        .setAttribute("value", disk.name)
-                        .on("change", function() {
-                            $g.sel("#oobs_partitionMode_erase").setValue(true);
-                            $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
-                        })
-                    ,
-                    $g.create("label")
-                        .setAttribute("for", `oobs_installDisks_${disk.name}`)
-                        .add(
-                            $g.create("strong").setText(
-                                disk.label == "" ?
-                                _("oobs_installDisks_diskUnlabelledTitle", {...disk}) :
-                                _("oobs_installDisks_diskLabelledTitle", {...disk})
-                            ),
-                            $g.create("br"),
-                            $g.create("span").setText(_("oobs_installDisks_diskTotalSize", {
-                                size: sizeUnits.getString(Number(disk.size))
-                            }))
-                        )
-                ))
-            );
+            if (installDisks.length > 0) {
+                $g.sel(".oobs_installDisks").clear().add(
+                    ...installDisks.map((disk) => $g.create("div").add(
+                        $g.create("input")
+                            .setId(`oobs_installDisks_${disk.name}`)
+                            .setAttribute("type", "radio")
+                            .setAttribute("name", "oobs_installDisks")
+                            .setAttribute("value", disk.name)
+                            .on("change", function() {
+                                $g.sel("#oobs_partitionMode_erase").setValue(true);
+                                $g.sel(".oobs_partitionMode_dependency").setAttribute("inert", "dependent");
+                            })
+                        ,
+                        $g.create("label")
+                            .setAttribute("for", `oobs_installDisks_${disk.name}`)
+                            .add(
+                                $g.create("strong").setText(
+                                    disk.label == "" ?
+                                    _("oobs_installDisks_diskUnlabelledTitle", {...disk}) :
+                                    _("oobs_installDisks_diskLabelledTitle", {...disk})
+                                ),
+                                $g.create("br"),
+                                $g.create("span").setText(_("oobs_installDisks_diskTotalSize", {
+                                    size: sizeUnits.getString(Number(disk.size))
+                                }))
+                            )
+                    ))
+                );
+            } else {
+                $g.sel(".oobs_installDisks").clear().add(
+                    $g.create("aui-message").add(
+                        $g.create("h2").setText(_("oobs_installDisks_noneMessage_title")),
+                        $g.create("p").setText(_("oobs_installDisks_noneMessage_description"))
+                    )
+                );
+            }
 
             selectStep("installdisk");
         });

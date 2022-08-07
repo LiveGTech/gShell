@@ -65,9 +65,11 @@
         "oobs_installDisk_title": "Choose a disk to install to",
         "oobs_installDisk_description": "Before LiveG OS is installed, you will be able to configure the partitions of the disk to install to.",
         "oobs_installDisk_emptyError": "Please select a disk to install LiveG OS onto.",
-        "oobs_installDisks_diskUnlabelledTitle": "Unlabelled (disk {number})",
-        "oobs_installDisks_diskLabelledTitle": "{label} (disk {number})",
+        "oobs_installDisks_diskUnlabelledTitle": "Unlabelled ({name}; disk {number})",
+        "oobs_installDisks_diskLabelledTitle": "{label} ({name}; disk {number})",
         "oobs_installDisks_diskTotalSize": "{size} total size",
+        "oobs_installDisks_noneMessage_title": "No disks available",
+        "oobs_installDisks_noneMessage_description": "Shut down the system, then check whether the disks are connected.",
 
         "oobs_installPartition_title": "Choose a partition",
         "oobs_installPartition_description": "Partitions are areas of the disk that can be reserved for different purposes (such as for installing multiple operating systems). Choose how you wish to partition the disk for when LiveG OS is installed.",

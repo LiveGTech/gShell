@@ -5,7 +5,8 @@
         {"title": "欢迎", "description": "请从下面的列表中选择您的语言。"},
         {"title": "Bienvenido", "description": "Elija su idioma de la lista a continuación."},
         {"title": "أهلا وسهلا", "description": "الرجاء اختيار لغتك من القائمة أدناه."},
-        {"title": "Willkommen", "description": "Bitte wählen Sie Ihre Sprache aus der Liste unten aus."}
+        {"title": "Willkommen", "description": "Bitte wählen Sie Ihre Sprache aus der Liste unten aus."},
+        {"title": "Benvenuto", "description": "Si prega di scegliere la lingua dall'elenco sottostante."}
     ],
     "languages": [
         {

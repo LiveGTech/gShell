@@ -63,7 +63,7 @@
         "oobs_installAsk_install_title": "Install LiveG OS to internal storage",
         "oobs_installAsk_install_description": "You will be able to choose the disk and partition to install to",
         "oobs_installAsk_tryOut_title": "Try out LiveG OS without installation",
-        "oobs_installAsk_tryOut_description": "Changes will be lost, and internal storage will not be affected",
+        "oobs_installAsk_tryOut_description": "Changes will be lost and internal storage will not be affected",
 
         "oobs_installDisk_title": "Choose a disk to install to",
         "oobs_installDisk_description": "Before LiveG OS is installed, you will be able to configure the partitions of the disk to install to.",

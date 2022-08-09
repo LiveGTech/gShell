@@ -10,6 +10,7 @@
 
         "back": "Back",
         "cancel": "Cancel",
+        "apply": "Apply",
 
         "network": "Network",
 
@@ -46,6 +47,7 @@
         "l10n_summary": "Change language, region and keyboard settings",
 
         "l10n_systemLanguage": "System language",
+        "l10n_changeMessage": "The new language that you choose will be applied on apps once they have been relaunched.",
 
         "a11y": "Accessibility",
 

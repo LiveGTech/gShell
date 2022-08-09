@@ -10,6 +10,7 @@
 
         "back": "Précédent",
         "cancel": "Annuler",
+        "apply": "Appliquer",
 
         "network": "Réseau",
 
@@ -46,6 +47,7 @@
         "l10n_summary": "Modifier les paramètres de langue, de région et de clavier",
 
         "l10n_systemLanguage": "Langue du système",
+        "l10n_changeMessage": "La nouvelle langue que vous choisissez sera appliquée sur les applications une fois qu'elles auront été relancées.",
 
         "a11y": "Accessibilité",
 

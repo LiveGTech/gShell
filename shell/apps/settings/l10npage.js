@@ -12,8 +12,9 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 export var L10nPage = astronaut.component("L10nPage", function(props, children) {
     var localeSelectionInput = SelectionInput() ();
+    var localeSelectionButton = Button() (_("apply"));
 
-    localeSelectionInput.on("change", function() {
+    localeSelectionButton.on("click", function() {
         _sphere.callPrivilegedCommand("l10n_setLocale", {
             localeCode: localeSelectionInput.getValue()
         });
@@ -36,6 +37,10 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
             Label (
                 Text(_("l10n_systemLanguage")),
                 localeSelectionInput
+            ),
+            Paragraph() (_("l10n_changeMessage")),
+            ButtonRow (
+                localeSelectionButton
             )
         )
     );

@@ -918,6 +918,9 @@ export function show(mode = getBestInputMode()) {
         $g.sel(".input").setStyle("top", `${top}px`);
         $g.sel(".input").setStyle("left", `${lastInputLeft}px`);
     } else {
+        $g.sel(".input").setStyle("top", "unset");
+        $g.sel(".input").setStyle("left", "unset");
+
         $g.sel("body").addClass("input_keyboardShowing");
     }
 

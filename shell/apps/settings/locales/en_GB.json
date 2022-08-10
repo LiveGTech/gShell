@@ -27,6 +27,8 @@
         "network_wifiSecurityType_open": "Open",
         "network_wifiSecurityType_secured": "Secured",
         "network_wifiSecurityType_unknown": "Unknown security",
+        "network_wifiNetworksNone_title": "No Wi-Fi networks in-range",
+        "network_wifiNetworksNone_description": "Move closer to a Wi-Fi router to get better reception.",
 
         "network_wifiAp_connect": "Connect",
         "network_wifiAp_disconnect": "Disconnect",

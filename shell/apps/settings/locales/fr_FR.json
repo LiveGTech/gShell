@@ -27,6 +27,8 @@
         "network_wifiSecurityType_open": "Ouvert",
         "network_wifiSecurityType_secured": "Sécurisé",
         "network_wifiSecurityType_unknown": "Sécurité inconnue",
+        "network_wifiNetworksNone_title": "Aucun réseau Wi-Fi à portée",
+        "network_wifiNetworksNone_description": "Rapprochez-vous d'un routeur Wi-Fi pour obtenir une meilleure réception.",
 
         "network_wifiAp_connect": "Connecter",
         "network_wifiAp_disconnect": "Déconnecter",

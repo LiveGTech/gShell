@@ -970,6 +970,7 @@ export function hide(force = false) {
     }
 
     targetInput = null;
+    inputEntryBuffer = [];
 
     $g.sel("body").removeClass("input_keyboardShowing");
 

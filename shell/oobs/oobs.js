@@ -448,20 +448,18 @@ function processInstallation() {
                         switch (info.status) {
                             case "running":
                                 setTimeout(poll);
-
                                 break;
 
                             case "success":
                                 resolve();
-
                                 break;
 
                             case "error":
                                 reject("FAIL_COPY_FILES");
+                                break;
 
                             default:
                                 reject("IMPL_BAD_COPY_STATUS");
-
                                 break;
                         }
                     });

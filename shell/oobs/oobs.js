@@ -731,6 +731,22 @@ export function init() {
     $g.sel(".oobs_installConfirm_confirm").on("click", function() {
         processInstallation().then(function() {
             selectStep("installfinish");
+
+            var countdownValue = 10;
+
+            $g.sel(".oobs_installFinish_countdown").setText(_format(countdownValue));
+
+            var countdownInterval = setInterval(function countdown() {
+                countdownValue--;
+
+                $g.sel(".oobs_installFinish_countdown").setText(_format(countdownValue));
+
+                if (countdownValue == 0) {
+                    clearInterval(countdownInterval);
+
+                    gShell.call("power_restart");
+                }
+            }, 1_000);
         }).catch(function(error) {
             console.error(error);
 
@@ -738,6 +754,10 @@ export function init() {
 
             selectStep("installfail");
         });
+    });
+
+    $g.sel(".oobs_installFinish_restart").on("click", function() {
+        gShell.call("power_restart");
     });
 
     $g.sel(".oobs_userProfile_next").on("click", function() {

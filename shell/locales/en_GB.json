@@ -53,6 +53,7 @@
         "oobs_confirm": "Confirm",
         "oobs_continue": "Continue",
         "oobs_finish": "Finish",
+        "oobs_restart": "Restart",
 
         "oobs_l10n_localeVariation": "Language region/variation",
         "oobs_l10n_keyboardLayout": "Keyboard layout",

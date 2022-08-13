@@ -100,6 +100,12 @@ ipcMain.handle("power_shutDown", function(event, data) {
     return Promise.resolve();
 });
 
+ipcMain.handle("power_restart", function(event, data) {
+    system.restart();
+
+    return Promise.resolve();
+});
+
 ipcMain.handle("power_sleep", function(event, data) {
     system.sleep();
 

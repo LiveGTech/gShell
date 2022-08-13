@@ -194,6 +194,8 @@ exports.getScreenResolution = function() {
 };
 
 exports.shutDown = function() {
+    console.log("Shut down called");
+
     if (!flags.isRealHardware) {
         electron.app.exit(0);
 
@@ -203,7 +205,22 @@ exports.shutDown = function() {
     return exports.executeCommand("sudo", ["shutdown", "-h", "now"]);
 };
 
+exports.restart = function() {
+    console.log("Restart called");
+
+    if (!flags.isRealHardware) {
+        electron.app.relaunch();
+        electron.app.exit(0);
+
+        return Promise.resolve();
+    }
+
+    return exports.executeCommand("sudo", ["reboot"]);
+};
+
 exports.sleep = function() {
+    console.log("Sleep called");
+
     if (!flags.isRealHardware) {
         return Promise.resolve();
     }

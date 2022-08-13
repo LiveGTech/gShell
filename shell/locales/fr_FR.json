@@ -53,6 +53,7 @@
         "oobs_confirm": "Confirmer",
         "oobs_continue": "Continuer",
         "oobs_finish": "Finir",
+        "oobs_restart": "Redémarrer",
 
         "oobs_l10n_localeVariation": "Région/variation linguistique",
         "oobs_l10n_keyboardLayout": "Disposition du clavier",

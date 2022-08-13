@@ -82,7 +82,7 @@ electron.app.on("ready", function() {
 
         if (flags.isRealHardware) {
             exports.window.setPosition(0, 0);
-            exports.window.webContents.setZoomFactor(5);
+            exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
         }
 
         if (flags.emulateTouch) {

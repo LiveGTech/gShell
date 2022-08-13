@@ -82,7 +82,7 @@ exports.isInstallationMedia = function() {
     return exports.executeCommand("df", ["/system"]).then(function(output) {
         var disk = output.stdout.split("\n")[1].split(" ")[0];
 
-        if (disk == "/dev/sr0") {
+        if (disk == "overlay") {
             return Promise.resolve(true);
         }
 

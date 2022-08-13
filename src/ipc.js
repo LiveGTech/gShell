@@ -13,6 +13,7 @@ var main = require("./main");
 var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
+var device = require("./device");
 var config = require("./config");
 
 var ipcMain = electron.ipcMain;
@@ -139,7 +140,7 @@ ipcMain.handle("webview_attach", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 
     if (flags.isRealHardware) {
-        webContents.setZoomFactor(5);
+        webContents.setZoomFactor(device.data.display.scaleFactor);
     }
 
     webContents.debugger.attach();
@@ -147,8 +148,8 @@ ipcMain.handle("webview_attach", function(event, data) {
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,
         height: 0,
-        deviceScaleFactor: 5,
-        scale: flags.isRealHardware ? (1.2 ** (5 - 0.5)) : undefined,
+        deviceScaleFactor: device.data.display.scaleFactor,
+        scale: flags.isRealHardware ? (1.2 ** (device.data.display.scaleFactor - 0.5)) : undefined,
         mobile: true
     }).then(function() {
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {

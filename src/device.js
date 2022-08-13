@@ -35,6 +35,9 @@ exports.init = function(location = "device.gsc") {
         };
         exports.data.hardware.batteryLevelReporter ||= null;
 
+        exports.data.display ||= {};
+        exports.data.display.scaleFactor ||= 1;
+
         return Promise.resolve();
     })
 };

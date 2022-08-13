@@ -1,6 +1,6 @@
 {
     "name": "gshell",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Interactive graphical desktop environment for LiveG OS.",
     "main": "src/main.js",
     "author": "LiveG Technologies",

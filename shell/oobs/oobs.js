@@ -60,7 +60,7 @@ n // New partition
 p // Primary
 2 // Partition number
 // Default first sector
-+${Math.floor(SWAP_SIZE / (1_024 ** 1))}K // Swap size
+// Default last sector (fill remaining to end)
 t // Change partition type
 2 // Partition number
 swap // Linux swap / Solaris
@@ -82,8 +82,9 @@ p // Primary
 // Next partition number
 // Next sector
 +{size}M // Specified space
+Y // Force removal of EXT4 signature
 w // Write and exit
-`;
+`.replace(/ *\/\/.*$/gm, "");
 
 export function selectStep(stepName) {
     return $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"])`).fadeOut().then(function() {
@@ -203,7 +204,7 @@ function checkInstallDisk() {
             disk.size - disk.partitions[disk.partitions.length - 1].end
         );
 
-        var endSpaceSizeMiB = Math.max(Math.floor(disk.endSpaceSize / (1_024 ** 2)), 0);
+        var endSpaceSizeMiB = Math.max(Math.floor(disk.endSpaceSize / (1_024 ** 2)) - 1, 0);
 
         $g.sel("#oobs_partitionMode_new_size").setAttribute("max", endSpaceSizeMiB);
         $g.sel("#oobs_partitionMode_new_size").setValue(endSpaceSizeMiB);
@@ -314,7 +315,10 @@ function processInstallation() {
     var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
     var partitionName = null;
 
-    return Promise.resolve().then(function() {
+    return gShell.call("system_executeCommand", {
+        command: "mkdir",
+        args: ["-p", "/tmp/base"]
+    }).catch(makeError("FAIL_CREATE_MOUNT_POINT")).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_partitioning"));
         $g.sel(".oobs_installProcess_progress").removeAttribute("value");
 
@@ -422,6 +426,15 @@ function processInstallation() {
             args: ["mkfs.ext4", `/dev/${partitionName}`, "-L", "LiveG-OS"]
         }).catch(makeError("FAIL_FORMAT_PARTITION")).then(dummyDelay);
     }).then(function() {
+        if (partitionMode != "erase" || getSelectedDiskInfo().size < MIN_SIZE_FOR_SWAP) {
+            return Promise.resolve();
+        }
+
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["mkswap", `/dev/${installSelectedDisk}2`, "-L", "LiveG-Swap"]
+        }).catch(makeError("FAIL_LABEL_SWAP"));
+    }).then(function() {
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["mount", `/dev/${partitionName}`, "/tmp/base"]
@@ -466,6 +479,20 @@ function processInstallation() {
                 })();
             });
         });
+    }).then(function() {
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["cp", "/system/install/grub.cfg", "/tmp/base/boot/grub/grub.cfg"]
+        }).catch(makeError("FAIL_COPY_BOOTLOADER"));
+    }).then(function() {
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["cp", (
+                partitionMode == "erase" && getSelectedDiskInfo().size >= MIN_SIZE_FOR_SWAP ?
+                "/system/install/fstab-swap" :
+                "/system/install/fstab"
+            ), "/tmp/base/etc/fstab"]
+        }).catch(makeError("FAIL_COPY_FSTAB"));
     }).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_installingBootloader"));
         $g.sel(".oobs_installProcess_progress").removeAttribute("value");

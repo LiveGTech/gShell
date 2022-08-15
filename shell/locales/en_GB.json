@@ -123,6 +123,7 @@
         "sphere": "Sphere",
         "sphere_back": "Back",
         "sphere_forward": "Forward",
+        "sphere_reload": "Reload",
         "sphere_menu": "Menu",
 
         "a11y_switch_openMainMenu": "Menu",

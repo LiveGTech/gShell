@@ -18,7 +18,9 @@ import * as webviewComms from "gshell://userenv/webviewcomms.js";
 export const FULL_CHROME_MIN_WIDTH = calc.getRemSize(30);
 
 export class Browser {
-    constructor() {}
+    constructor() {
+        this.isFullChrome = false;
+    }
 
     static normaliseUrl(url) {
         if (url.match(/^localhost:\d+/)) {
@@ -53,8 +55,14 @@ export class Browser {
     updateChrome() {
         this.uiChrome.find(".sphere_tabButton").setText(this.tabCount > 99 ? ":)" : this.tabCount); // EASTEREGG: In a similar vein to mobile Chromium...
 
-        if (this.selectedTab.find("webview").is(".sphere_ready") && document.activeElement !== this.uiChrome.find(".sphere_addressInput").get()) {
+        if (
+            this.selectedTab.find("webview").is(".sphere_ready") &&
+            !this.isFullChrome &&
+            document.activeElement !== this.uiChrome.find(".sphere_addressInput").get()
+        ) {
             this.uiChrome.find(".sphere_addressInput").setValue(this.constructor.getUrlPreview(this.selectedTab.find("webview").get()?.getURL()));
+        } else {
+            this.uiChrome.find(".sphere_addressInput").setValue(this.selectedTab.find("webview").get()?.getURL());
         }
     }
 
@@ -98,6 +106,10 @@ export class Browser {
         tab.find("webview").get()?.goForward();
     }
 
+    reload(tab = this.selectedTab) {
+        tab.find("webview").get()?.reload();
+    }
+
     visitUrl(url, tab = this.selectedTab) {
         tab.find("webview").get()?.loadURL(this.constructor.normaliseUrl(url));
     }
@@ -110,6 +122,7 @@ export class Browser {
         // UI chrome, not to be confused with the Google Chrome browser
         this.uiChrome = $g.create("header").add(
             $g.create("button")
+                .setAttribute("title", _("sphere_back"))
                 .setAttribute("aria-label", _("sphere_back"))
                 .on("click", function() {
                     thisScope.goBack();
@@ -123,6 +136,7 @@ export class Browser {
             ,
             $g.create("button")
                 .addClass("sphere_fullChromeOnly")
+                .setAttribute("title", _("sphere_forward"))
                 .setAttribute("aria-label", _("sphere_forward"))
                 .on("click", function() {
                     thisScope.goForward();
@@ -131,6 +145,20 @@ export class Browser {
                     $g.create("img")
                         .setAttribute("aui-icon", "dark embedded")
                         .setAttribute("src", "gshell://lib/adaptui/icons/forward.svg")
+                        .setAttribute("alt", "")
+                )
+            ,
+            $g.create("button")
+                .addClass("sphere_fullChromeOnly")
+                .setAttribute("title", _("sphere_reload"))
+                .setAttribute("aria-label", _("sphere_reload"))
+                .on("click", function() {
+                    thisScope.reload();
+                })
+                .add(
+                    $g.create("img")
+                        .setAttribute("aui-icon", "dark embedded")
+                        .setAttribute("src", "gshell://lib/adaptui/icons/refresh.svg")
                         .setAttribute("alt", "")
                 )
             ,
@@ -169,11 +197,15 @@ export class Browser {
         this.newTab("https://search.liveg.tech");
 
         new ResizeObserver(function() {
-            if (thisScope.uiContainer.get().clientWidth >= FULL_CHROME_MIN_WIDTH) {
+            thisScope.isFullChrome = thisScope.uiContainer.get().clientWidth >= FULL_CHROME_MIN_WIDTH;
+
+            if (thisScope.isFullChrome) {
                 thisScope.uiContainer.addClass("fullChrome");
             } else {
                 thisScope.uiContainer.removeClass("fullChrome");
             }
+
+            thisScope.updateChrome();
         }).observe(this.uiContainer.get());
 
         return this.uiContainer.add(this.uiChrome, this.uiMain);

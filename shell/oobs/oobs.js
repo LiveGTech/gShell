@@ -92,6 +92,8 @@ export function selectStep(stepName) {
     }).then(function() {
         $g.sel($g.sel(`#oobs .oobs_step:not([hidden])`).find(a11y.FOCUSABLES).getAll()[0]).focus();
 
+        $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"]) video`).getAll().forEach((element) => element.currentTime = 0);
+
         $g.sel(`#oobs .oobs_step:not([hidden]) video`).get()?.play();
     });
 }
@@ -566,6 +568,8 @@ export function init() {
             setTimeout(function() {
                 $g.sel(".oobs_welcome_title").setText(data.messages[i].title);
                 $g.sel(".oobs_welcome_description").setText(data.messages[i].description);
+
+                $g.sel(".oobs_welcome_title, .oobs_welcome_description").setAttribute("dir", data.messages[i].textDirection);
 
                 $g.sel(".oobs_welcome_message").removeClass("transitioning");
 

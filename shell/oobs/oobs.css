@@ -19,6 +19,7 @@
 #oobs .oobs_step > div[aui-stack] > div {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     height: 100%;
 }
 

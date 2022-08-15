@@ -91,6 +91,8 @@ export function selectStep(stepName) {
         return $g.sel(`#oobs .oobs_step[aui-template="gshell://oobs/${stepName}.html"]`).fadeIn();
     }).then(function() {
         $g.sel($g.sel(`#oobs .oobs_step:not([hidden])`).find(a11y.FOCUSABLES).getAll()[0]).focus();
+
+        $g.sel(`#oobs .oobs_step:not([hidden]) video`).get()?.play();
     });
 }
 

@@ -104,7 +104,7 @@
         "oobs_installProcess_status_finalising": "Finishing up...",
 
         "oobs_installFinish_title": "All installed!",
-        "oobs_installFinish_description": "LiveG OS has now been installed. The system will restart in 10 seconds so that you can continue setting up LiveG OS.",
+        "oobs_installFinish_description": "LiveG OS has now been installed. The system will restart in 10 seconds so that you can continue with setting up LiveG OS.",
 
         "oobs_installFail_title": "Installation was not successful",
         "oobs_installFail_description": "An error occurred which caused the installation of LiveG OS to be aborted. You may want to review the options you chose and try again.",

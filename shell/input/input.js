@@ -396,7 +396,7 @@ export class InputMethod {
         this.metadata = metadata;
         this.path = path;
 
-        this.wordSeparator = metadata.wordSeparator || " "; // Set as `""` for ideographic languages since they don't have spaces
+        this.wordSeparator = metadata.wordSeparator ?? " "; // Set as `""` for ideographic languages since they don't have spaces
         this.nGramLength = metadata.nGramLength || 4;
         this.allowPartialWords = metadata.allowPartialWords || false;
 
@@ -515,6 +515,8 @@ export class InputMethod {
             });
 
             inputEntryBuffer.pop();
+
+            // TODO: Fix popping of partial words
 
             inputCharsToEnter++;
         }

@@ -261,6 +261,7 @@ export function openWindow(windowContents, appDetails = null) {
     var cursor = null;
     var shouldSelectScreen = false;
     var lastTitleBarPress = null;
+    var shouldCancelUnsnap = false;
 
     var id = $g.core.generateKey();
 
@@ -281,7 +282,7 @@ export function openWindow(windowContents, appDetails = null) {
 
             moveResizeMode.resizeWest = pointerRelativeX <= WINDOW_RESIZE_BORDER_THICKNESS;
             moveResizeMode.resizeEast = pointerRelativeX > screenRect.width - WINDOW_RESIZE_BORDER_THICKNESS;
-            moveResizeMode.resizeNorth = pointerRelativeY <= WINDOW_RESIZE_BORDER_THICKNESS;
+            moveResizeMode.resizeNorth = !screenElement.hasClass("maximised") && pointerRelativeY <= WINDOW_RESIZE_BORDER_THICKNESS;
             moveResizeMode.resizeSouth = pointerRelativeY > screenRect.height - WINDOW_RESIZE_BORDER_THICKNESS;
 
             cursor = null;
@@ -315,8 +316,10 @@ export function openWindow(windowContents, appDetails = null) {
         .add(
             $g.create("div")
                 .addClass("switcher_titleBar")
-                .on("pointerdown", function() {
+                .on("pointerdown", function(event) {
                     if (lastTitleBarPress != null && Date.now() - lastTitleBarPress <= a11y.options.touch_doublePressDelay) {
+                        shouldCancelUnsnap = true;
+
                         if (!screenElement.hasClass("maximised")) {
                             maximiseWindow(screenElement);
                         } else {
@@ -499,9 +502,23 @@ export function openWindow(windowContents, appDetails = null) {
             return;
         }
 
-        var newGeometry = getWindowGeometry(screenElement);
         var pointerDeltaX = event.clientX - pointerStartX;
         var pointerDeltaY = event.clientY - pointerStartY;
+        var newGeometry = getWindowGeometry(screenElement);
+
+        if (screenElement.hasClass("maximised") && pointerDeltaY > 0 && !shouldCancelUnsnap) {
+            restoreWindow(screenElement, false);
+
+            setWindowGeometry(screenElement, {
+                ...getWindowGeometry(screenElement),
+                x: event.clientX - (getWindowGeometry(screenElement).width / 2),
+                y: event.clientY - (screenElement.find(".switcher_titleBar").get().getBoundingClientRect().height / 2)
+            });
+            
+            initialGeometry = getWindowGeometry(screenElement);
+        }
+
+        shouldCancelUnsnap = false;
 
         function handleHorizontal() {
             if (moveResizeMode.resizeWest) {
@@ -684,24 +701,34 @@ export function showWindow(element) {
     setWindowGeometry(element);
 }
 
-export function maximiseWindow(element) {
-    element.addClass("transitioning");
+export function maximiseWindow(element, animated = true) {
+    if (animated) {
+        element.addClass("transitioning");
+    }
+
     element.addClass("maximised");
     setWindowGeometry(element);
 
-    setTimeout(function() {
-        element.removeClass("transitioning");
-    }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+    if (animated) {
+        setTimeout(function() {
+            element.removeClass("transitioning");
+        }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+    }
 }
 
-export function restoreWindow(element) {
-    element.addClass("transitioning");
+export function restoreWindow(element, animated = true) {
+    if (animated) {
+        element.addClass("transitioning");
+    }
+
     element.removeClass("maximised");
     setWindowGeometry(element);
 
-    setTimeout(function() {
-        element.removeClass("transitioning");
-    }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+    if (animated) {
+        setTimeout(function() {
+            element.removeClass("transitioning");
+        }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+    }
 }
 
 export function closeWindow(element, animate = true) {

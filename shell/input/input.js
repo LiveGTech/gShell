@@ -38,6 +38,7 @@ export const NON_TEXTUAL_INPUTS = [
 export const TRAILING_PUNCTUATION = ["-", ",", ".", "!", "?", ":", ";", "<", ">"];
 
 export const MAX_INPUT_ENTRY_BUFFER_LENGTH = 128;
+export const MAX_WORD_MATCH_LENGTH = 10;
 export const N_GRAM_DICTIONARY_SEPARATOR = "\u241E";
 
 export const inputModes = {
@@ -479,7 +480,7 @@ export class InputMethod {
 
     getCandidates(nGramLength = this.nGramLength) {
         var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
-        var wordResults = this.wordFuse.search(this.getPartialWord(this.getInputWord()));
+        var wordResults = this.wordFuse.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH));
         var allCandidates = [];
 
         wordResults.forEach(function(result) {

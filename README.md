@@ -48,3 +48,4 @@ Here's a list of arguments that can be supplied to gShell:
 * `--device-type`: Override the device description file's [`type` value](docs/en/device.md#type) with the value specified.
 * `--allow-host-control`: Allow gShell to configure the host system's hardware configuration (such as Wi-Fi connections).
 * `--enable-a11y-switch`: Force the [Switch Navigation](docs/en/a11y.md#switch-navigation-switchjs) accessibility feature to be enabled.
+* `--im-emulation`: Emulate gShell being used as if it were booted on installation media.

@@ -557,16 +557,20 @@ export function updateInputMethodEditor() {
             var maxCandidates = currentKeyboardLayout.currentInputMethod.maxCandidates;
 
             candidates = candidates.slice(0, maxCandidates);
+            baseCandidates = baseCandidates.slice(0, maxCandidates);
 
             inputMethodEditorElement.clear().add(
-                ...[...candidates, ...baseCandidates.slice(0, Math.max(maxCandidates - candidates.length, 0))].map((candidate) => $g.create("button")
-                    .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
-                    .setText(candidate.result)
-                    .on("click", function() {
-                        currentKeyboardLayout.currentInputMethod.selectCandidate(candidate);
-                        updateInputMethodEditor();
-                    })
-                )
+                ...[...candidates, ...baseCandidates]
+                    .sort((a, b) => b.weighting - a.weighting)
+                    .slice(0, Math.max(maxCandidates, 0))
+                    .map((candidate) => $g.create("button")
+                        .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
+                        .setText(candidate.result)
+                        .on("click", function() {
+                            currentKeyboardLayout.currentInputMethod.selectCandidate(candidate);
+                            updateInputMethodEditor();
+                        })
+                    )
             );
     
             return Promise.resolve();

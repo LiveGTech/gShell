@@ -399,6 +399,7 @@ export class InputMethod {
         this.wordSeparator = metadata.wordSeparator ?? " "; // Set as `""` for ideographic languages since they don't have spaces
         this.nGramLength = metadata.nGramLength || 4;
         this.allowPartialWords = metadata.allowPartialWords || false;
+        this.maxCandidates = metadata.maxCandidates || 3;
 
         this.remainingWordPart = "";
 
@@ -516,14 +517,12 @@ export class InputMethod {
 
             inputEntryBuffer.pop();
 
-            // TODO: Fix popping of partial words
-
             inputCharsToEnter++;
         }
 
         inputCharsToEnter += [...candidate.result, ...this.wordSeparator].length;
 
-        [...candidate.result, ...this.wordSeparator, ...this.remainingWordPart].forEach(function(char) {
+        [...candidate.result, ...this.wordSeparator, ...this.remainingWordPart].forEach(function(char, i) {
             ["keyDown", "char", "keyUp"].forEach(function(type) {
                 if (type == "char" && ["Enter"].includes(char)) {
                     return;
@@ -531,7 +530,7 @@ export class InputMethod {
     
                 gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: char}});
 
-                if (type == "keyDown") {
+                if (type == "keyDown" && i < candidate.result.length) {
                     inputEntryBuffer.push(char);
                 }
             });
@@ -555,10 +554,12 @@ export function updateInputMethodEditor() {
 
     return currentKeyboardLayout.currentInputMethod.getCandidates().then(function(candidates) {
         return currentKeyboardLayout.currentInputMethod.getCandidates(2).then(function(baseCandidates) {
-            candidates = candidates.slice(0, 3);
+            var maxCandidates = currentKeyboardLayout.currentInputMethod.maxCandidates;
+
+            candidates = candidates.slice(0, maxCandidates);
 
             inputMethodEditorElement.clear().add(
-                ...[...candidates, ...baseCandidates.slice(0, Math.max(3 - candidates.length, 0))].map((candidate) => $g.create("button")
+                ...[...candidates, ...baseCandidates.slice(0, Math.max(maxCandidates - candidates.length, 0))].map((candidate) => $g.create("button")
                     .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
                     .setText(candidate.result)
                     .on("click", function() {

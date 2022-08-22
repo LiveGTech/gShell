@@ -32,7 +32,7 @@ export var AboutPage = astronaut.component("AboutPage", function(props, children
                 PropertyList (
                     Property() (_("about_deviceInfo_name"), Text(getLocalisedProperty(modelInfo.name))),
                     Property() (_("about_deviceInfo_manufacturer"), Text(getLocalisedProperty(modelInfo.manufacturer))),
-                    Property() (_("about_deviceInfo_serial"), CodeSnippet() (modelInfo.serial))
+                    modelInfo.serial != null ? Property() (_("about_deviceInfo_serial"), CodeSnippet() (modelInfo.serial)) : TextFragment() ()
                 )
             );
         }

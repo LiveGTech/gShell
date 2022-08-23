@@ -290,9 +290,15 @@ exports.setLocale = function(localeCode = currentLocale) {
     currentLocale = localeCode;
 
     return Promise.all(electron.webContents.getAllWebContents().map(function(webContents) {
+        var hyphenLocaleCode = localeCode.replace(/_/g, "-");
+
+        webContents.session.setSpellCheckerLanguages([
+            webContents.session.availableSpellCheckerLanguages.includes(hyphenLocaleCode) ? hyphenLocaleCode : localeCode.split("_")[0]
+        ]);
+
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
             userAgent: currentUserAgent,
-            acceptLanguage: localeCode.replace(/_/g, "-")
+            acceptLanguage: hyphenLocaleCode
         });
     }));
 };

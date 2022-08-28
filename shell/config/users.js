@@ -13,6 +13,8 @@ import * as config from "gshell://config/config.js";
 import * as auth from "gshell://auth/auth.js";
 import * as info from "gshell://global/info.js";
 
+var userStateChangeCallbacks = [];
+
 export class User {
     constructor(uid, data) {
         this.uid = uid;
@@ -66,6 +68,20 @@ export function getList() {
 
 export function getCurrentUser() {
     return Promise.resolve(auth.currentUserAuthCredentials?.user || null);
+}
+
+export function onUserStateChange(callback) {
+    auth.onUserStateChange(function(signedIn) {
+        if (!signedIn) {
+            callback(null);
+
+            return;
+        }
+
+        getCurrentUser().then(function(user) {
+            callback(user);
+        });
+    });
 }
 
 export function create(uid = $g.core.generateKey(), data = {}) {

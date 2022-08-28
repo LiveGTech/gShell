@@ -77,4 +77,8 @@ export function init() {
     setInterval(function() {
         applyPower();
     }, 3_000);
+
+    users.onUserStateChange(function(user) {
+        applyCurrentUser();
+    });
 }

@@ -24,6 +24,8 @@ export const authMethodTypes = {
 
 export var currentUserAuthCredentials = null;
 
+var userStateChangeCallbacks = [];
+
 export class AuthMethod {
     constructor(type) {
         this.type = type;
@@ -312,7 +314,7 @@ export function start(user) {
         }
 
         return unlock().then(function() {
-            info.applyCurrentUser();
+            userStateChangeCallbacks.forEach((callback) => callback(true));
 
             return Promise.resolve();
         });
@@ -327,4 +329,8 @@ export function cancel() {
     $g.sel("#lockScreenMain").screenFade().then(function() {
         $g.sel(".lockScreen_auth_passcode").setValue("");
     });
+}
+
+export function onUserStateChange(callback) {
+    userStateChangeCallbacks.push(callback);
 }

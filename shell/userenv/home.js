@@ -10,6 +10,8 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as screenScroll from "gshell://helpers/screenscroll.js";
+import * as config from "gshell://config/config.js";
+import * as users from "gshell://config/users.js";
 import * as switcher from "gshell://userenv/switcher.js";
 
 var scroller = null;
@@ -29,7 +31,11 @@ export function init() {
         });
     });
 
-    load();
+    users.onUserStateChange(function(user) {
+        if (user != null) {
+            load();
+        }
+    });
 }
 
 function createApp(appDetails) {
@@ -59,27 +65,35 @@ function createApp(appDetails) {
 }
 
 export function load() {
-    $g.sel(".home").getAll().forEach(function(homeElement) {
-        homeElement = $g.sel(homeElement);
+    return users.getCurrentUser().then(function(user) {
+        if (user == null) {
+            return; // No user signed in right now
+        }
 
-        homeElement.clear().add(
-            $g.create("div")
-                .addClass("home_page")
-                .add(
-                    createApp({name: "Settings", url: "gshell://apps/settings/index.html", icon: "gshell://apps/settings/icon.svg"}),
-                    createApp({name: "Sphere", url: "gsspecial://sphere", icon: "gshell://sphere/icon.svg"}),
-                    createApp({name: "AUI Demo", url: "https://opensource.liveg.tech/Adapt-UI/demos/all/"})
-                )
-            ,
-            $g.create("div")
-                .addClass("home_page")
-                .add(
-                    ...new Array(24).fill(null).map(() => createApp({name: "Debug", icon: "gshell://media/logo.svg"})
-                        .on("click", function() {
-                            $g.sel("#main").screenFade();
-                        })
+        // TODO: Read from a user config file to show apps user has installed
+
+        $g.sel(".home").getAll().forEach(function(homeElement) {
+            homeElement = $g.sel(homeElement);
+    
+            homeElement.clear().add(
+                $g.create("div")
+                    .addClass("home_page")
+                    .add(
+                        createApp({name: "Settings", url: "gshell://apps/settings/index.html", icon: "gshell://apps/settings/icon.svg"}),
+                        createApp({name: "Sphere", url: "gsspecial://sphere", icon: "gshell://sphere/icon.svg"}),
+                        createApp({name: "AUI Demo", url: "https://opensource.liveg.tech/Adapt-UI/demos/all/"})
                     )
-                )
-        );
+                ,
+                $g.create("div")
+                    .addClass("home_page")
+                    .add(
+                        ...new Array(24).fill(null).map(() => createApp({name: "Debug", icon: "gshell://media/logo.svg"})
+                            .on("click", function() {
+                                $g.sel("#main").screenFade();
+                            })
+                        )
+                    )
+            );
+        });
     });
 }

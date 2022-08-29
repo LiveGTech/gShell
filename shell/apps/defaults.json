@@ -1,0 +1,30 @@
+{
+    "apps": {
+        "settings": {
+            "fallbackLocale": "en_GB",
+            "name": {
+                "en_GB": "Settings",
+                "fr_FR": "Paramètres"
+            },
+            "url": "gshell://apps/settings/index.html",
+            "icon": "gshell://apps/settings/icon.svg"
+        },
+        "sphere": {
+            "fallbackLocale": "en_GB",
+            "name": {
+                "en_GB": "Sphere",
+                "fr_FR": "Sphère"
+            },
+            "url": "gsspecial://sphere",
+            "icon": "gshell://sphere/icon.svg"
+        },
+        "auiDemo": {
+            "fallbackLocale": "en_GB",
+            "name": {
+                "en_GB": "AUI Demo",
+                "fr_FR": "AUI Demo"
+            },
+            "url": "https://opensource.liveg.tech/Adapt-UI/demos/all/"
+        }
+    }
+}

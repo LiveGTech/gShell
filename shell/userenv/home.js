@@ -12,7 +12,10 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
+import * as l10n from "gshell://config/l10n.js";
 import * as switcher from "gshell://userenv/switcher.js";
+
+export var configData = null;
 
 var scroller = null;
 
@@ -70,30 +73,43 @@ export function load() {
             return; // No user signed in right now
         }
 
-        // TODO: Read from a user config file to show apps user has installed
+        var defaultConfigData;
 
-        $g.sel(".home").getAll().forEach(function(homeElement) {
-            homeElement = $g.sel(homeElement);
-    
-            homeElement.clear().add(
-                $g.create("div")
-                    .addClass("home_page")
-                    .add(
-                        createApp({name: "Settings", url: "gshell://apps/settings/index.html", icon: "gshell://apps/settings/icon.svg"}),
-                        createApp({name: "Sphere", url: "gsspecial://sphere", icon: "gshell://sphere/icon.svg"}),
-                        createApp({name: "AUI Demo", url: "https://opensource.liveg.tech/Adapt-UI/demos/all/"})
-                    )
-                ,
-                $g.create("div")
-                    .addClass("home_page")
-                    .add(
-                        ...new Array(24).fill(null).map(() => createApp({name: "Debug", icon: "gshell://media/logo.svg"})
-                            .on("click", function() {
-                                $g.sel("#main").screenFade();
-                            })
+        return fetch("gshell://apps/defaults.json").then(function(response) {
+            return response.json();
+        }).then(function(data) {
+            defaultConfigData = data;
+
+            return config.read(`users/${user.uid}/apps.gsc`);
+        }).then(function(data) {
+            configData = defaultConfigData;
+
+            configData.apps = {...configData.apps, ...(data.apps || {})};
+
+            $g.sel(".home").getAll().forEach(function(homeElement) {
+                homeElement = $g.sel(homeElement);
+        
+                homeElement.clear().add(
+                    $g.create("div")
+                        .addClass("home_page")
+                        .add(
+                            ...Object.values(configData.apps).map((app) => createApp({
+                                ...app,
+                                name: app.name[l10n.currentLocale.localeCode] || app.name[app.fallbackLocale]
+                            }))
                         )
-                    )
-            );
+                    ,
+                    $g.create("div")
+                        .addClass("home_page")
+                        .add(
+                            ...new Array(24).fill(null).map(() => createApp({name: "Debug", icon: "gshell://media/logo.svg"})
+                                .on("click", function() {
+                                    $g.sel("#main").screenFade();
+                                })
+                            )
+                        )
+                );
+            });
         });
     });
 }

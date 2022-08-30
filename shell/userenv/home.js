@@ -17,13 +17,17 @@ import * as switcher from "gshell://userenv/switcher.js";
 
 export var configData = null;
 
-var scroller = null;
+var scrollers = null;
 
 export function init() {
+    scrollers = [];
+
     $g.sel(".home").getAll().forEach(function(homeElement) {
         homeElement = $g.sel(homeElement);
 
-        scroller = new screenScroll.ScrollableScreen(homeElement);
+        var scroller = new screenScroll.ScrollableScreen(homeElement);
+
+        scrollers.push(scroller);
 
         homeElement.on("focusin", function(event) {
             var target = $g.sel(event.target);
@@ -111,7 +115,11 @@ export function load() {
                 );
             });
 
-            scroller.applyPagination($g.sel(".home_pagination"));
+            console.log(scrollers, $g.sel(".home_pagination").getAll());
+
+            scrollers.forEach(function(scroller, i) {
+                scroller.applyPagination($g.sel($g.sel(".home_pagination").getAll()[i]));
+            });
         });
     });
 }

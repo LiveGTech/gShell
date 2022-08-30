@@ -11,7 +11,7 @@
     position: relative;
     display: flex;
     width: 100%;
-    height: calc(100% - 1.4rem);
+    height: calc(100% - 1.7rem);
     overflow: hidden;
 }
 
@@ -69,5 +69,14 @@
 }
 
 .home_app:active {
+    opacity: 0.6;
+}
+
+.home_pagination:not(.desktop_homeLayout *) {
+    position: relative;
+}
+
+.home_pagination:not(.desktop_homeLayout *) button {
+    background-color: white!important;
     opacity: 0.6;
 }

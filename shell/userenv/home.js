@@ -110,6 +110,8 @@ export function load() {
                         )
                 );
             });
+
+            scroller.applyPagination($g.sel(".home_pagination"));
         });
     });
 }

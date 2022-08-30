@@ -8,8 +8,8 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as screenScroll from "gshell://lib/adaptui/src/screenscroll.js";
 
-import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
 import * as l10n from "gshell://config/l10n.js";

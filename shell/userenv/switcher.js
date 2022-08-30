@@ -11,10 +11,10 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as dismiss from "gshell://lib/adaptui/src/dismiss.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import * as calc from "gshell://lib/adaptui/src/calc.js";
+import * as screenScroll from "gshell://lib/adaptui/src/screenscroll.js";
 
 import * as device from "gshell://system/device.js";
 import * as a11y from "gshell://a11y/a11y.js";
-import * as screenScroll from "gshell://helpers/screenscroll.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as sphere from "gshell://sphere/sphere.js";
 

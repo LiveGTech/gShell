@@ -77,6 +77,7 @@
 }
 
 .home_pagination:not(.desktop_homeLayout *) button {
-    background-color: white!important;
+    --scrollbar: white;
+    --scrollbarPress: white;
     opacity: 0.6;
 }

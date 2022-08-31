@@ -192,6 +192,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
 }
 
 .desktop_homeMenu .home_app {
+    padding: 0.2rem;
     text-align: center;
     border-radius: 0.5rem;
     transition: 0.5s opacity, 0.5s background-color;

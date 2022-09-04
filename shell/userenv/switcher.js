@@ -252,7 +252,7 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
     }
 }
 
-export function openWindow(windowContents, appDetails = null) {
+export function openWindow(windowContents, appDetails = null, elementCallback = function() {}) {
     var initialGeometry = null;
     var pointerDown = false;
     var moveResizeMode = new WindowMoveResizeMode();
@@ -318,17 +318,19 @@ export function openWindow(windowContents, appDetails = null) {
                 .addClass("switcher_titleBar")
                 .addClass("hideTabs")
                 .on("pointerdown", function(event) {
-                    if (lastTitleBarPress != null && Date.now() - lastTitleBarPress <= a11y.options.touch_doublePressDelay) {
-                        shouldCancelUnsnap = true;
-
-                        if (!screenElement.hasClass("maximised")) {
-                            maximiseWindow(screenElement);
-                        } else {
-                            restoreWindow(screenElement);
+                    if (!$g.sel(event.target).is(".switcher_titleBar:not(.hideTabs) .switcher_tabs *, .switcher_windowButtons *")) {
+                        if (lastTitleBarPress != null && Date.now() - lastTitleBarPress <= a11y.options.touch_doublePressDelay) {
+                            shouldCancelUnsnap = true;
+    
+                            if (!screenElement.hasClass("maximised")) {
+                                maximiseWindow(screenElement);
+                            } else {
+                                restoreWindow(screenElement);
+                            }
                         }
+    
+                        lastTitleBarPress = Date.now();
                     }
-
-                    lastTitleBarPress = Date.now();
                 })
                 .add(
                     $g.create("div").addClass("switcher_tabs"),
@@ -655,6 +657,8 @@ export function openWindow(windowContents, appDetails = null) {
 
     $g.sel(".desktop_homeMenu").menuClose();
 
+    elementCallback(screenElement);
+
     return $g.sel("#switcherView").screenFade();
 }
 
@@ -669,6 +673,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     var tab = $g.create("div")
         .addClass("switcher_tab")
         .addClass("selected")
+        .addClass("transitioning")
         .add(
             $g.create("button")
                 .addClass("switcher_tabActivateButton")
@@ -743,6 +748,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     });
 
     element.find(".switcher_tabs").add(tab);
+
+    setTimeout(function() {
+        tab.removeClass("transitioning");
+    });
 }
 
 export function minimiseWindow(element) {

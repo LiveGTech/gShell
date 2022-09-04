@@ -19,6 +19,7 @@ export const FULL_CHROME_MIN_WIDTH = calc.getRemSize(30);
 
 export class Browser {
     constructor() {
+        this.screenElement = null;
         this.isFullChrome = false;
     }
 
@@ -44,29 +45,30 @@ export class Browser {
         }
     }
 
-    get tabCount() {
-        return this.uiMain.find(".sphere_tabs .sphere_tab").getAll().length;
+    get webview() {
+        return this.uiMain.find("webview");
     }
 
-    get selectedTab() {
-        return this.uiMain.find(".sphere_tab_selected");
+    get tabCount() {
+        // TODO: Communicate with switcher to count tabs
+        return 1;
     }
 
     updateChrome() {
         this.uiChrome.find(".sphere_tabButton").setText(this.tabCount > 99 ? ":)" : this.tabCount); // EASTEREGG: In a similar vein to mobile Chromium...
 
         if (
-            this.selectedTab.find("webview").is(".sphere_ready") &&
+            this.webview.is(".sphere_ready") &&
             !this.isFullChrome &&
             document.activeElement !== this.uiChrome.find(".sphere_addressInput").get()
         ) {
-            this.uiChrome.find(".sphere_addressInput").setValue(this.constructor.getUrlPreview(this.selectedTab.find("webview").get()?.getURL()));
+            this.uiChrome.find(".sphere_addressInput").setValue(this.constructor.getUrlPreview(this.webview.get()?.getURL()));
         } else {
-            this.uiChrome.find(".sphere_addressInput").setValue(this.selectedTab.find("webview").get()?.getURL());
+            this.uiChrome.find(".sphere_addressInput").setValue(this.webview.get()?.getURL());
         }
     }
 
-    newTab(url) {
+    spawnWebview(url) {
         var thisScope = this;
 
         return webviewManager.spawnAsUser(this.constructor.normaliseUrl(url)).then(function(webview) {
@@ -87,31 +89,26 @@ export class Browser {
                 thisScope.updateChrome();
             });
     
-            thisScope.uiMain.find(".sphere_tabs").add(
-                $g.create("div")
-                    .addClass("sphere_tab")
-                    .addClass("sphere_tab_selected")
-                    .add(webview)
-            );
+            thisScope.uiMain.add(webview);
     
             thisScope.updateChrome();
         });
     }
 
-    goBack(tab = this.selectedTab) {
-        tab.find("webview").get()?.goBack();
+    goBack() {
+        this.webview.get()?.goBack();
     }
 
-    goForward(tab = this.selectedTab) {
-        tab.find("webview").get()?.goForward();
+    goForward() {
+        this.webview.get()?.goForward();
     }
 
-    reload(tab = this.selectedTab) {
-        tab.find("webview").get()?.reload();
+    reload() {
+        this.webview.get()?.reload();
     }
 
-    visitUrl(url, tab = this.selectedTab) {
-        tab.find("webview").get()?.loadURL(this.constructor.normaliseUrl(url));
+    visitUrl(url) {
+        this.webview.get()?.loadURL(this.constructor.normaliseUrl(url));
     }
 
     render() {
@@ -166,7 +163,7 @@ export class Browser {
                 .addClass("sphere_addressInput")
                 .setAttribute("type", "url")
                 .on("click", function() {
-                    thisScope.uiChrome.find(".sphere_addressInput").setValue(thisScope.selectedTab.find("webview").get()?.getURL());
+                    thisScope.uiChrome.find(".sphere_addressInput").setValue(thisScope.webview.get()?.getURL());
 
                     thisScope.uiChrome.find(".sphere_addressInput").get().select();
                 })
@@ -179,6 +176,20 @@ export class Browser {
             $g.create("button")
                 .addClass("sphere_tabButton")
                 .setText("0")
+                .on("click", function() {
+                    if (thisScope.screenElement == null) {
+                        return;
+                    }
+
+                    var browser = new Browser();
+
+                    browser.screenElement = thisScope.screenElement;
+
+                    switcher.addAppToWindow(thisScope.screenElement, browser.render(), {
+                        name: _("sphere"),
+                        icon: "gshell://sphere/icon.svg"
+                    });
+                })
             ,
             $g.create("button")
                 .setAttribute("aria-label", _("sphere_menu"))
@@ -190,11 +201,9 @@ export class Browser {
                 )
         );
 
-        this.uiMain = $g.create("main").add(
-            $g.create("div").addClass("sphere_tabs")
-        );
+        this.uiMain = $g.create("main");
 
-        this.newTab("https://search.liveg.tech");
+        this.spawnWebview("https://search.liveg.tech");
 
         new ResizeObserver(function() {
             thisScope.isFullChrome = thisScope.uiContainer.get().clientWidth >= FULL_CHROME_MIN_WIDTH;
@@ -234,5 +243,7 @@ export function openBrowser() {
         icon: "gshell://sphere/icon.svg",
         instantLaunch: true,
         showTabs: true
+    }, function(element) {
+        browser.screenElement = element;
     });
 }

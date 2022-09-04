@@ -343,7 +343,7 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
     display: flex;
     flex-grow: 1;
     height: 100%;
-    margin-inline-end: 0.3rem;
+    margin-inline-end: 0.8rem;
     overflow: hidden;
 }
 
@@ -354,7 +354,7 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
     height: 100%;
     margin-inline-end: 0.2rem;
     border-radius: 0.5rem;
-    transition: 0.5s background-color;
+    transition: 0.5s width, 0.5s background-color;
 }
 
 html[aui-istouch="false"] .switcher_tab:not(.switcher_titleBar.hideTabs *):hover, .switcher_tab:not(.switcher_titleBar.hideTabs *):active {
@@ -365,8 +365,12 @@ html[aui-istouch="false"] .switcher_tab:not(.switcher_titleBar.hideTabs *):hover
     width: 100%;
 }
 
-.switcher_tab.switcher_tab:not(.switcher_titleBar.hideTabs *).selected {
+.switcher_tab:not(.switcher_titleBar.hideTabs *).selected {
     background-color: var(--secondarySelected);
+}
+
+.switcher_tab.transitioning {
+    width: 0;
 }
 
 .switcher_tab button * {

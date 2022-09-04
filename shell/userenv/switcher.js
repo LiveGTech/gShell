@@ -331,29 +331,7 @@ export function openWindow(windowContents, appDetails = null) {
                     lastTitleBarPress = Date.now();
                 })
                 .add(
-                    $g.create("div")
-                        .addClass("switcher_tabs")
-                        .add(
-                            $g.create("div")
-                                .addClass("switcher_tab")
-                                .addClass("selected")
-                                .add(
-                                    $g.create("button")
-                                        .addClass("switcher_tabActivateButton")
-                                        .add(
-                                            $g.create("img")
-                                                .addClass("switcher_windowIcon")
-                                                .setAttribute("aria-hidden", true)
-                                                .on("error", function() {
-                                                    screenElement.find(".switcher_windowIcon").setAttribute("src", "gshell://media/appdefault.svg")
-                                                })
-                                            ,
-                                            $g.create("span")
-                                                .addClass("switcher_windowTitle")
-                                        )
-                                )
-                        )
-                    ,
+                    $g.create("div").addClass("switcher_tabs"),
                     $g.create("div")
                         .addClass("switcher_windowButtons")
                         .setAttribute("aria-role", "group")
@@ -411,12 +389,7 @@ export function openWindow(windowContents, appDetails = null) {
                         )
                 )
             ,
-            $g.create("div")
-                .addClass("switcher_apps")
-                .add(
-                    windowContents.addClass("switcher_app")
-                )
-            ,
+            $g.create("div").addClass("switcher_apps"),
             $g.create("button")
                 .addClass("switcher_screenButton")
                 .setAttribute("aria-label", "")
@@ -477,7 +450,7 @@ export function openWindow(windowContents, appDetails = null) {
         )
     ;
 
-    var appListButton = $g.create("button")
+    screenElement.get().appListButton = $g.create("button")
         .addClass("desktop_appListButton")
         .addClass("transitioning")
         .setAttribute("data-id", id)
@@ -486,7 +459,7 @@ export function openWindow(windowContents, appDetails = null) {
                 .addClass("desktop_appListButton_icon")
                 .setAttribute("aria-hidden", true)
                 .on("error", function() {
-                    appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg")
+                    screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg")
                 })
         )
         .on("click", function() {
@@ -600,30 +573,6 @@ export function openWindow(windowContents, appDetails = null) {
         $g.sel("#switcherView .switcher").setStyle("cursor", null);
     });
 
-    if (appDetails == null) {
-        screenElement.find("webview").on("page-title-updated", function(event) {
-            screenElement.find(".switcher_screenButton").setAttribute("aria-label", event.title);
-            screenElement.find(".switcher_windowTitle").setText(event.title);
-
-            appListButton.setAttribute("title", event.title);
-            appListButton.setAttribute("aria-label", event.title);
-        });
-
-        screenElement.find("webview").on("page-favicon-updated", function(event) {
-            screenElement.find(".switcher_windowIcon").setAttribute("src", event.favicons[0]);
-
-            appListButton.find(".desktop_appListButton_icon").setAttribute("src", event.favicons[0]);
-        });
-    } else {
-        screenElement.find(".switcher_screenButton").setAttribute("aria-label", appDetails.name);
-        screenElement.find(".switcher_windowTitle").setText(appDetails.name);
-        screenElement.find(".switcher_windowIcon").setAttribute("src", appDetails.icon);
-
-        appListButton.setAttribute("title", appDetails.name);
-        appListButton.setAttribute("aria-label", appDetails.name);
-        appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
-    }
-
     screenElement.find(".switcher_apps *").on("focus", function() {
         screenElement.find(".switcher_screenButton").focus();
     });
@@ -644,9 +593,15 @@ export function openWindow(windowContents, appDetails = null) {
         });
     }
 
+    if (appDetails?.showTabs) {
+        screenElement.find(".switcher_titleBar").removeClass("hideTabs");
+    }
+
+    addAppToWindow(screenElement, windowContents, appDetails);
+
     function finishLaunch() {
         screenElement.removeClass("launching");
-        appListButton.removeClass("transitioning");
+        screenElement.get().appListButton.removeClass("transitioning");
     }
 
     if (screenElement.find("webview").getAll().length > 0 && !appDetails?.instantLaunch) {
@@ -694,13 +649,100 @@ export function openWindow(windowContents, appDetails = null) {
     screenElement.swipeToDismiss(device.data?.type == "desktop" ? dismiss.directions.VERTICAL : dismiss.directions.UP);
 
     $g.sel("#switcherView .switcher").add(screenElement);
-    $g.sel(".desktop_appList").add(appListButton);
+    $g.sel(".desktop_appList").add(screenElement.get().appListButton);
 
     main.selectScreen(screenElement);
 
     $g.sel(".desktop_homeMenu").menuClose();
 
     return $g.sel("#switcherView").screenFade();
+}
+
+export function addAppToWindow(element, windowContents, appDetails = null) {
+    element.find(".switcher_app").addClass("hidden");
+    element.find(".switcher_tab").removeClass("selected");
+
+    var app = windowContents.addClass("switcher_app");
+
+    element.find(".switcher_apps").add(app);
+
+    var tab = $g.create("div")
+        .addClass("switcher_tab")
+        .addClass("selected")
+        .add(
+            $g.create("button")
+                .addClass("switcher_tabActivateButton")
+                .add(
+                    $g.create("img")
+                        .addClass("switcher_tabIcon")
+                        .setAttribute("aria-hidden", true)
+                        .on("error", function() {
+                            element.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg")
+                        })
+                    ,
+                    $g.create("span")
+                        .addClass("switcher_tabTitle")
+                )
+        )
+    ;
+
+    var lastTitle = null;
+    var lastIcon = null;
+
+    if (appDetails == null) {
+        element.find("webview").on("page-title-updated", function(event) {
+            lastTitle = event.title;
+
+            if (tab.hasClass("selected")) {
+                element.find(".switcher_screenButton").setAttribute("aria-label", lastTitle);
+
+                element.get().appListButton.setAttribute("title", lastTitle);
+                element.get().appListButton.setAttribute("aria-label", lastTitle);
+            }
+
+            tab.find(".switcher_tabTitle").setText(lastTitle);
+        });
+
+        element.find("webview").on("page-favicon-updated", function(event) {
+            lastIcon = event.favicons[0];
+
+            if (tab.hasClass("selected")) {
+                element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", lastIcon);
+            }
+
+            tab.find(".switcher_tabIcon").setAttribute("src", lastIcon);
+        });
+    } else {
+        lastTitle = appDetails.name;
+        lastIcon = appDetails.icon;
+
+        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.name);
+
+        tab.find(".switcher_tabTitle").setText(appDetails.name);
+        tab.find(".switcher_tabIcon").setAttribute("src", appDetails.icon);
+
+        element.get().appListButton.setAttribute("title", appDetails.name);
+        element.get().appListButton.setAttribute("aria-label", appDetails.name);
+        element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
+    }
+
+    tab.on("click", function() {
+        element.find(".switcher_app").addClass("hidden");
+        element.find(".switcher_tab").removeClass("selected");
+
+        app.removeClass("hidden");
+        tab.addClass("selected");
+
+        if (lastTitle != null && lastIcon != null) {
+            element.find(".switcher_screenButton").setAttribute("aria-label", lastTitle);
+
+            element.get().appListButton.setAttribute("title", lastTitle);
+            element.get().appListButton.setAttribute("aria-label", lastTitle);
+            element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", lastIcon);
+        }
+    });
+
+    element.find(".switcher_tabs").add(tab);
 }
 
 export function minimiseWindow(element) {

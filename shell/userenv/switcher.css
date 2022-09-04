@@ -390,7 +390,7 @@ html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActiva
     padding: 0;
 }
 
-.switcher_windowIcon {
+.switcher_tabIcon {
     width: 1.43rem;
     height: 1.43rem;
     margin-inline-end: 0.5rem;
@@ -401,7 +401,7 @@ html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActiva
     transition: 0.5s width, 0.5s height;
 }
 
-.switcher_titleBar.hideTabs .switcher_windowIcon {
+.switcher_titleBar.hideTabs .switcher_tabIcon {
     width: 1.8rem;
     height: 1.8rem;
     border-radius: 0.5rem;
@@ -476,6 +476,10 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximis
     height: 100%;
     border-radius: calc(0.8rem / 0.7);
     overflow: hidden;
+}
+
+.switcher_app.hidden {
+    display: none;
 }
 
 .switcher_app main {

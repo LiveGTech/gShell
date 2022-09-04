@@ -232,6 +232,7 @@ export function openBrowser() {
     return switcher.openWindow(browser.render(), {
         name: _("sphere"),
         icon: "gshell://sphere/icon.svg",
-        instantLaunch: true
+        instantLaunch: true,
+        showTabs: true
     });
 }

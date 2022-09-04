@@ -45,6 +45,7 @@
         "switcher_maximise": "Maximise",
         "switcher_restore": "Restore",
         "switcher_close": "Close",
+        "switcher_closeTab": "Close tab",
         "switcher_closeAll": "Close all",
         "switcher_empty": "No open apps",
 

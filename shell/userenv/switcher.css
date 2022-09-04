@@ -379,6 +379,10 @@ html[aui-istouch="false"] .switcher_tab:not(.switcher_titleBar.hideTabs *):hover
     vertical-align: middle;
 }
 
+.switcher_titleBar.hideTabs .switcher_tab {
+    width: 100%;
+}
+
 .switcher_tabActivateButton {
     flex-grow: 1;
     overflow: hidden;
@@ -411,6 +415,14 @@ html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActiva
     width: 1.8rem;
     height: 1.8rem;
     border-radius: 0.5rem;
+}
+
+.switcher_tabCloseButton {
+    transform: scale(0.8);
+}
+
+.switcher_titleBar.hideTabs .switcher_tabCloseButton {
+    display: none;
 }
 
 .switcher_windowButtons {

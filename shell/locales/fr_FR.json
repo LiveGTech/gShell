@@ -45,6 +45,7 @@
         "switcher_maximise": "Agrandir",
         "switcher_restore": "Restaurer",
         "switcher_close": "Fermer",
+        "switcher_closeTab": "Fermer l'onglet",
         "switcher_closeAll": "Fermer tout",
         "switcher_empty": "Aucune application ouverte",
 

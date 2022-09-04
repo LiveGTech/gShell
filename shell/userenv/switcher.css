@@ -350,10 +350,11 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
 .switcher_tab {
     display: flex;
     width: 14.5rem;
-    min-width: 1.5rem;
+    min-width: 1.8rem;
     height: 100%;
     margin-inline-end: 0.2rem;
     border-radius: 0.5rem;
+    overflow: hidden;
     transition: 0.5s width, 0.5s background-color;
 }
 
@@ -371,6 +372,7 @@ html[aui-istouch="false"] .switcher_tab:not(.switcher_titleBar.hideTabs *):hover
 
 .switcher_tab.transitioning {
     width: 0;
+    min-width: 0;
 }
 
 .switcher_tab button * {

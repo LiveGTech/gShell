@@ -302,7 +302,7 @@ export function openWindow(windowContents, appDetails = null) {
             screenElement.setStyle("cursor", cursor);
         })
         .on("pointerdown", function(event) {
-            if ($g.sel(event.target).is(".switcher_screen, .switcher_titleBar")) {
+            if ($g.sel(event.target).is(".switcher_screen, .switcher_titleBar, .switcher_tabs, .switcher_titleBar.hideTabs .switcher_tabs *")) {
                 $g.sel("#switcherView .switcher").addClass("manipulating");
 
                 initialGeometry = getWindowGeometry(screenElement);
@@ -316,6 +316,7 @@ export function openWindow(windowContents, appDetails = null) {
         .add(
             $g.create("div")
                 .addClass("switcher_titleBar")
+                .addClass("hideTabs")
                 .on("pointerdown", function(event) {
                     if (lastTitleBarPress != null && Date.now() - lastTitleBarPress <= a11y.options.touch_doublePressDelay) {
                         shouldCancelUnsnap = true;
@@ -330,15 +331,28 @@ export function openWindow(windowContents, appDetails = null) {
                     lastTitleBarPress = Date.now();
                 })
                 .add(
-                    $g.create("img")
-                        .addClass("switcher_windowIcon")
-                        .setAttribute("aria-hidden", true)
-                        .on("error", function() {
-                            screenElement.find(".switcher_windowIcon").setAttribute("src", "gshell://media/appdefault.svg")
-                        })
-                    ,
-                    $g.create("span")
-                        .addClass("switcher_windowTitle")
+                    $g.create("div")
+                        .addClass("switcher_tabs")
+                        .add(
+                            $g.create("div")
+                                .addClass("switcher_tab")
+                                .addClass("selected")
+                                .add(
+                                    $g.create("button")
+                                        .addClass("switcher_tabActivateButton")
+                                        .add(
+                                            $g.create("img")
+                                                .addClass("switcher_windowIcon")
+                                                .setAttribute("aria-hidden", true)
+                                                .on("error", function() {
+                                                    screenElement.find(".switcher_windowIcon").setAttribute("src", "gshell://media/appdefault.svg")
+                                                })
+                                            ,
+                                            $g.create("span")
+                                                .addClass("switcher_windowTitle")
+                                        )
+                                )
+                        )
                     ,
                     $g.create("div")
                         .addClass("switcher_windowButtons")

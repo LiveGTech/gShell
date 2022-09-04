@@ -326,8 +326,9 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screenButton {
 .switcher_titleBar button {
     height: 100%;
     margin: 0;
-    padding: 0.2rem;
+    padding: 0.19rem; /* Aligns better in terms of pixels */
     background-color: transparent;
+    color: inherit;
 }
 
 html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar button:active {
@@ -338,18 +339,77 @@ html[aui-istouch="false"] .switcher_titleBar button:hover, .switcher_titleBar bu
     height: 100%;
 }
 
+.switcher_tabs {
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    margin-inline-end: 0.3rem;
+    overflow: hidden;
+}
+
+.switcher_tab {
+    display: flex;
+    width: 14.5rem;
+    min-width: 1.5rem;
+    height: 100%;
+    margin-inline-end: 0.2rem;
+    border-radius: 0.5rem;
+    transition: 0.5s background-color;
+}
+
+html[aui-istouch="false"] .switcher_tab:not(.switcher_titleBar.hideTabs *):hover, .switcher_tab:not(.switcher_titleBar.hideTabs *):active {
+    background-color: var(--secondaryPress);
+}
+
+.switcher_tabActivateButton .switcher_tab {
+    width: 100%;
+}
+
+.switcher_tab.switcher_tab:not(.switcher_titleBar.hideTabs *).selected {
+    background-color: var(--secondarySelected);
+}
+
+.switcher_tab button * {
+    vertical-align: middle;
+}
+
+.switcher_tabActivateButton {
+    flex-grow: 1;
+    overflow: hidden;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: 0.5s padding;
+}
+
+html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActivateButton:active {
+    background-color: transparent!important;
+}
+
+.switcher_titleBar.hideTabs .switcher_tabActivateButton {
+    padding: 0;
+}
+
 .switcher_windowIcon {
-    width: 1.8rem;
-    height: 1.8rem;
+    width: 1.43rem;
+    height: 1.43rem;
     margin-inline-end: 0.5rem;
     background-color: white;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
     object-fit: contain;
     pointer-events: none;
+    transition: 0.5s width, 0.5s height;
+}
+
+.switcher_titleBar.hideTabs .switcher_windowIcon {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 0.5rem;
 }
 
 .switcher_windowButtons {
     height: 100%;
+    flex-shrink: 0;
 }
 
 .switcher_screen.maximised .switcher_maximiseButton {

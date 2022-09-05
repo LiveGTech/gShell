@@ -41,6 +41,7 @@
 
         "switcher_goHome": "Retour à l'accueil",
         "switcher_toggleList": "Basculer le sélecteur d'application",
+        "switcher_newTab": "Nouvel onglet",
         "switcher_minimise": "Réduire",
         "switcher_maximise": "Agrandir",
         "switcher_restore": "Restaurer",

@@ -20,7 +20,10 @@ export const FULL_CHROME_MIN_WIDTH = calc.getRemSize(30);
 export class Browser {
     constructor() {
         this.screenElement = null;
+        this.appElement = null;
         this.isFullChrome = false;
+        this.lastTitle = null;
+        this.lastIcon = null;
     }
 
     static normaliseUrl(url) {
@@ -87,6 +90,26 @@ export class Browser {
                 webview.focus();
     
                 thisScope.updateChrome();
+            });
+
+            webview.on("page-title-updated", function(event) {
+                thisScope.lastTitle = event.title;
+
+                if (thisScope.appElement == null) {
+                    return;
+                }
+
+                switcher.setAppCustomTab(thisScope.appElement, thisScope.lastTitle, thisScope.lastIcon);
+            });
+
+            webview.on("page-favicon-updated", function(event) {
+                thisScope.lastIcon = event.favicons[0];
+
+                if (thisScope.appElement == null) {
+                    return;
+                }
+
+                switcher.setAppCustomTab(thisScope.appElement, thisScope.lastTitle, thisScope.lastIcon);
             });
     
             thisScope.uiMain.add(webview);
@@ -233,12 +256,12 @@ export function openBrowser() {
             var browser = new Browser();
 
             browser.screenElement = screenElement;
-
-            switcher.addAppToWindow(screenElement, browser.render(), details);
+            browser.appElement = switcher.addAppToWindow(screenElement, browser.render(), details);
         }
     };
 
-    return switcher.openWindow(browser.render(), details, function(element) {
-        browser.screenElement = element;
+    return switcher.openWindow(browser.render(), details, function(screenElement, appElement) {
+        browser.screenElement = screenElement;
+        browser.appElement = appElement;
     });
 }

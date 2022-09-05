@@ -490,7 +490,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 .addClass("desktop_appListButton_icon")
                 .setAttribute("aria-hidden", true)
                 .on("error", function() {
-                    screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg")
+                    screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg");
                 })
         )
         .on("click", function() {
@@ -628,7 +628,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         screenElement.find(".switcher_titleBar").removeClass("hideTabs");
     }
 
-    addAppToWindow(screenElement, windowContents, appDetails);
+    var app = addAppToWindow(screenElement, windowContents, appDetails);
 
     function finishLaunch() {
         screenElement.removeClass("launching");
@@ -686,7 +686,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     $g.sel(".desktop_homeMenu").menuClose();
 
-    elementCallback(screenElement);
+    elementCallback(screenElement, app);
 
     return $g.sel("#switcherView").screenFade();
 }
@@ -711,7 +711,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                         .addClass("switcher_tabIcon")
                         .setAttribute("aria-hidden", true)
                         .on("error", function() {
-                            element.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg")
+                            element.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg");
                         })
                     ,
                     $g.create("span")
@@ -737,11 +737,16 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     app.get().tab = tab;
     tab.get().app = app;
 
+    app.get().usingCustomTab = false;
     app.get().lastTitle = null;
     app.get().lastIcon = null;
 
     if (appDetails == null) {
         element.find("webview").on("page-title-updated", function(event) {
+            if (app.get().usingCustomTab) {
+                return;
+            }
+
             app.get().lastTitle = event.title;
 
             if (tab.hasClass("selected")) {
@@ -755,6 +760,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
         });
 
         element.find("webview").on("page-favicon-updated", function(event) {
+            if (app.get().usingCustomTab) {
+                return;
+            }
+
             app.get().lastIcon = event.favicons[0];
 
             if (tab.hasClass("selected")) {
@@ -786,6 +795,8 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     setTimeout(function() {
         tab.removeClass("transitioning");
     });
+
+    return app;
 }
 
 export function minimiseWindow(element) {
@@ -913,6 +924,18 @@ export function closeApp(element) {
     setTimeout(function() {
         element.get().tab.remove();
     }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+}
+
+export function setAppCustomTab(element, title, icon) {
+    element.get().usingCustomTab = true;
+
+    console.log(icon, element.get().tab.get());
+
+    element.get().tab.find(".switcher_tabTitle").setText(title || "");
+
+    if (icon) {
+        element.get().tab.find(".switcher_tabIcon").setAttribute("src", icon);
+    }
 }
 
 export function showList() {

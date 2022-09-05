@@ -115,8 +115,6 @@ export function load() {
                 );
             });
 
-            console.log(scrollers, $g.sel(".home_pagination").getAll());
-
             scrollers.forEach(function(scroller, i) {
                 scroller.applyPagination($g.sel($g.sel(".home_pagination").getAll()[i]));
             });

@@ -41,7 +41,6 @@ electron.protocol.registerSchemesAsPrivileged([
 ]);
 
 electron.app.on("ready", function() {
-    console.log(path.join(rootDirectory, "shell", "lib", "adaptui", "src", "adaptui.js"));
     if (!fs.existsSync(path.join(rootDirectory, "shell", "lib", "adaptui", "src", "adaptui.js"))) {
         console.error("Missing required dependency: Adapt UI");
         console.error("Please ensure that you clone the required submodules to install the dependencies.");

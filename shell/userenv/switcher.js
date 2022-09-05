@@ -335,6 +335,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 .add(
                     $g.create("div")
                         .addClass("switcher_tabs")
+                        .setAttribute("inert", true)
                         .add(
                             $g.create("button")
                                 .addClass("switcher_tabNewButton")
@@ -626,6 +627,11 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     if (appDetails?.showTabs) {
         screenElement.find(".switcher_titleBar").removeClass("hideTabs");
+
+        screenElement.find(".switcher_tabs")
+            .removeAttribute("inert")
+            .setAttribute("aria-role", "group")
+        ;
     }
 
     var app = addAppToWindow(screenElement, windowContents, appDetails);

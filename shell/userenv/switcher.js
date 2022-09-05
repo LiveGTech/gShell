@@ -929,8 +929,6 @@ export function closeApp(element) {
 export function setAppCustomTab(element, title, icon) {
     element.get().usingCustomTab = true;
 
-    console.log(icon, element.get().tab.get());
-
     element.get().tab.find(".switcher_tabTitle").setText(title || "");
 
     if (icon) {

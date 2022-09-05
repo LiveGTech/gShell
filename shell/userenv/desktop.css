@@ -167,6 +167,11 @@ body:not([device-type="desktop"]) .desktop_appBar {
     border-radius: 50%;
 }
 
+[dir="rtl"] .desktop_homeMenuTop img {
+    left: unset;
+    right: 0.6rem;
+}
+
 .desktop_homeMenuTop .info_currentUserDisplayName {
     display: block;
     margin-top: 0.2rem;

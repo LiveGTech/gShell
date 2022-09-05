@@ -176,20 +176,6 @@ export class Browser {
             $g.create("button")
                 .addClass("sphere_tabButton")
                 .setText("0")
-                .on("click", function() {
-                    if (thisScope.screenElement == null) {
-                        return;
-                    }
-
-                    var browser = new Browser();
-
-                    browser.screenElement = thisScope.screenElement;
-
-                    switcher.addAppToWindow(thisScope.screenElement, browser.render(), {
-                        name: _("sphere"),
-                        icon: "gshell://sphere/icon.svg"
-                    });
-                })
             ,
             $g.create("button")
                 .setAttribute("aria-label", _("sphere_menu"))
@@ -238,12 +224,21 @@ export function init() {
 export function openBrowser() {
     var browser = new Browser();
 
-    return switcher.openWindow(browser.render(), {
+    var details = {
         name: _("sphere"),
         icon: "gshell://sphere/icon.svg",
         instantLaunch: true,
-        showTabs: true
-    }, function(element) {
+        showTabs: true,
+        newTabHandler: function(screenElement) {
+            var browser = new Browser();
+
+            browser.screenElement = screenElement;
+
+            switcher.addAppToWindow(screenElement, browser.render(), details);
+        }
+    };
+
+    return switcher.openWindow(browser.render(), details, function(element) {
         browser.screenElement = element;
     });
 }

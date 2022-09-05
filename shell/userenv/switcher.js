@@ -333,7 +333,36 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                     }
                 })
                 .add(
-                    $g.create("div").addClass("switcher_tabs"),
+                    $g.create("div")
+                        .addClass("switcher_tabs")
+                        .add(
+                            $g.create("button")
+                                .addClass("switcher_tabNewButton")
+                                .setAttribute("title", _("switcher_newTab"))
+                                .setAttribute("aria-label", _("switcher_newTab"))
+                                .on("click", function() {
+                                    var tab = screenElement.find(".switcher_tab.selected");
+                                    var details = tab.get().app.get().details;
+
+                                    if (details == null) {
+                                        openApp(tab.get().app.find("webview").get()?.getURL() || "about:blank", screenElement);
+
+                                        return;
+                                    }
+
+                                    if (details.newTabHandler) {
+                                        details.newTabHandler(screenElement);
+
+                                        return;
+                                    }
+                                })
+                                .add(
+                                    $g.create("img")
+                                        .setAttribute("aui-icon", "dark embedded")
+                                        .setAttribute("src", "gshell://lib/adaptui/icons/add.svg")
+                                )
+                        )
+                    ,
                     $g.create("div")
                         .addClass("switcher_windowButtons")
                         .setAttribute("aria-role", "group")
@@ -704,6 +733,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
         )
     ;
 
+    app.get().details = appDetails;
     app.get().tab = tab;
     tab.get().app = app;
 
@@ -751,7 +781,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
         selectApp(app);
     });
 
-    element.find(".switcher_tabs").add(tab);
+    element.find(".switcher_tabs").get().insertBefore(tab.get(), element.find(".switcher_tabNewButton").get());
 
     setTimeout(function() {
         tab.removeClass("transitioning");
@@ -820,7 +850,7 @@ export function closeWindow(element, animate = true) {
     });
 }
 
-export function openApp(url) {
+export function openApp(url, targetWindow = null) {
     if (url == "gsspecial://sphere") {
         sphere.openBrowser();
 
@@ -828,9 +858,15 @@ export function openApp(url) {
     }
 
     return webviewManager.spawnAsUser(url, null, {privileged: url.startsWith("gshell://")}).then(function(webview) {
-        return openWindow($g.create("div").add(
+        var contents = $g.create("div").add(
             $g.create("main").add(webview)
-        ));
+        );
+
+        if (targetWindow != null) {
+            addAppToWindow(targetWindow, contents);
+        }
+
+        return openWindow(contents);
     });
 }
 

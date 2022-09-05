@@ -425,6 +425,10 @@ html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActiva
     display: none;
 }
 
+.switcher_titleBar.hideTabs .switcher_tabNewButton {
+    display: none;
+}
+
 .switcher_windowButtons {
     height: 100%;
     flex-shrink: 0;

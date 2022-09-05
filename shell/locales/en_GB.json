@@ -41,6 +41,7 @@
 
         "switcher_goHome": "Go home",
         "switcher_toggleList": "Toggle app switcher",
+        "switcher_newTab": "New tab",
         "switcher_minimise": "Minimise",
         "switcher_maximise": "Maximise",
         "switcher_restore": "Restore",

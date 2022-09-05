@@ -717,7 +717,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                         .addClass("switcher_tabIcon")
                         .setAttribute("aria-hidden", true)
                         .on("error", function() {
-                            element.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg");
+                            tab.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg");
                         })
                     ,
                     $g.create("span")

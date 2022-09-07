@@ -758,7 +758,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
             if (tab.hasClass("selected")) {
                 element.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
 
-                element.get().appListButton.setAttribute("title", app.get().lastTitle);
+                element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(element)}));
                 element.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
             }
 
@@ -787,7 +787,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
         tab.find(".switcher_tabTitle").setText(appDetails.name);
         tab.find(".switcher_tabIcon").setAttribute("src", appDetails.icon);
 
-        element.get().appListButton.setAttribute("title", appDetails.name);
+        element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.name, count: getWindowAppCount(element) + 1}));
         element.get().appListButton.setAttribute("aria-label", appDetails.name);
         element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
@@ -899,7 +899,7 @@ export function selectApp(element) {
     if (element.get().lastTitle != null && element.get().lastIcon != null) {
         screenElement.find(".switcher_screenButton").setAttribute("aria-label", element.get().lastTitle);
 
-        screenElement.get().appListButton.setAttribute("title", element.get().lastTitle);
+        screenElement.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: element.get().lastTitle, count: getWindowAppCount(screenElement)}));
         screenElement.get().appListButton.setAttribute("aria-label", element.get().lastTitle);
         screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", element.get().lastIcon);
     }
@@ -917,6 +917,8 @@ export function closeApp(element) {
 
     var tabIndex = allTabElements.findIndex((tabElement) => element.get().tab.get().isSameNode(tabElement));
 
+    element.get().tab.addClass("transitioning");
+
     if (tabIndex == 0) {
         selectApp(allTabElements[1].app);
     } else {
@@ -925,11 +927,13 @@ export function closeApp(element) {
 
     element.remove();
 
-    element.get().tab.addClass("transitioning");
-
     setTimeout(function() {
         element.get().tab.remove();
     }, aui_a11y.prefersReducedMotion() ? 0 : 500);
+}
+
+export function getWindowAppCount(element) {
+    return element.find(".switcher_tab:not(.transitioning)").getAll().length;
 }
 
 export function setAppCustomTab(element, title, icon) {

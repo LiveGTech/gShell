@@ -41,6 +41,10 @@
 
         "switcher_goHome": "Go home",
         "switcher_toggleList": "Toggle app switcher",
+        "switcher_appListTitle": {
+            "{count} == 1": "{title}",
+            "{count} != 1": "{title} ({count})"
+        },
         "switcher_newTab": "New tab",
         "switcher_minimise": "Minimise",
         "switcher_maximise": "Maximise",

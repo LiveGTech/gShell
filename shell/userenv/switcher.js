@@ -910,7 +910,7 @@ export function selectApp(element) {
 
 export function closeApp(element) {
     var screenElement = element.ancestor(".switcher_screen");
-    var allTabElements = screenElement.find(".switcher_tab").getAll();
+    var allTabElements = screenElement.find(".switcher_tab:not(.transitioning)").getAll();
 
     if (allTabElements.length <= 1) {
         closeWindow(screenElement);
@@ -928,6 +928,8 @@ export function closeApp(element) {
         } else {
             selectApp(allTabElements[tabIndex - 1].app);
         }
+    } else {
+        selectApp(screenElement.find(".switcher_tab.selected").get().app);
     }
 
     element.remove();

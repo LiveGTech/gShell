@@ -709,6 +709,9 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
         .addClass("switcher_tab")
         .addClass("selected")
         .addClass("transitioning")
+        .on("auxclick", function() {
+            closeApp(app);
+        })
         .add(
             $g.create("button")
                 .addClass("switcher_tabActivateButton")
@@ -919,10 +922,12 @@ export function closeApp(element) {
 
     element.get().tab.addClass("transitioning");
 
-    if (tabIndex == 0) {
-        selectApp(allTabElements[1].app);
-    } else {
-        selectApp(allTabElements[tabIndex - 1].app);
+    if (element.get().tab.hasClass("selected")) {
+        if (tabIndex == 0) {
+            selectApp(allTabElements[1].app);
+        } else {
+            selectApp(allTabElements[tabIndex - 1].app);
+        }
     }
 
     element.remove();

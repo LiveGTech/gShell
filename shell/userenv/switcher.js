@@ -855,16 +855,18 @@ export function closeWindow(element, animate = true) {
         element.addClass("closing");
         listButton.addClass("transitioning");
 
-        setTimeout(function() {
-            element.remove();
-            listButton.remove();
-
-            if ($g.sel("#switcherView .switcher *").getAll().length == 0) {
-                main.selectDesktop();
-            }
-
-            resolve();
-        }, (aui_a11y.prefersReducedMotion() || !animate) ? 0 : 500);
+        ($g.sel("#switcherView .switcher_screen").getAll().length == 1 ? goHome() : Promise.resolve()).then(function() {
+            setTimeout(function() {
+                element.remove();
+                listButton.remove();
+    
+                if ($g.sel("#switcherView .switcher_screen").getAll().length == 0) {
+                    main.selectDesktop();
+                }
+    
+                resolve();
+            }, (aui_a11y.prefersReducedMotion() || !animate) ? 0 : 500);
+        });
     });
 }
 
@@ -970,9 +972,17 @@ export function toggleList() {
 }
 
 export function closeAll() {
-    $g.sel(".switcher_screen").remove();
+    return goHome().then(function() {
+        $g.sel("#switcherView .switcher_screen").remove();
+
+        return Promise.resolve();
+    });
 }
 
 export function goHome() {
+    if (device.data?.type == "desktop") {
+        return Promise.resolve();
+    }
+
     return $g.sel("#home").screenFade();
 }

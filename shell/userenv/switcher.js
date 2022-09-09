@@ -201,8 +201,6 @@ export function init() {
     main = new Switcher($g.sel(".switcher"));
 
     if (device.data?.type == "desktop") {
-        // TODO: Add styling for maximised window inside switcher view
-
         setInterval(function() {
             if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").getAll().length > 0) {
                 $g.sel("#switcherView").addClass("hasMaximisedWindow");

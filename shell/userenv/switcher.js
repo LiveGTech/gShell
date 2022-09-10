@@ -858,7 +858,6 @@ export function closeWindow(element, animate = true) {
         ($g.sel("#switcherView .switcher_screen").getAll().length == 1 ? goHome() : Promise.resolve()).then(function() {
             setTimeout(function() {
                 element.remove();
-                listButton.remove();
     
                 if ($g.sel("#switcherView .switcher_screen").getAll().length == 0) {
                     main.selectDesktop();
@@ -866,6 +865,10 @@ export function closeWindow(element, animate = true) {
     
                 resolve();
             }, (aui_a11y.prefersReducedMotion() || !animate) ? 0 : 500);
+
+            setTimeout(function() {
+                listButton.remove();
+            }, aui_a11y.prefersReducedMotion() ? 0 : 500);
         });
     });
 }

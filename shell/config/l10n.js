@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as config from "gshell://config/config.js";
 import * as info from "gshell://global/info.js";
+import * as home from "gshell://userenv/home.js";
 
 export var currentLocale = null;
 
@@ -36,6 +37,7 @@ export function apply(localeCode = "en_GB") {
         gShell.call("webview_setLocale", {localeCode});
 
         info.applyAll();
+        home.load();
 
         return Promise.resolve();
     });

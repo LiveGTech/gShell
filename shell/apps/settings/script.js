@@ -92,6 +92,8 @@ $g.waitForLoad().then(function() {
         return locale.translate(...arguments);
     };
 
+    $g.sel("title").setText(_("settings"));
+
     pages.network = network.NetworkPage() ();
     pages.l10n = l10n.L10nPage() ();
     pages.a11y = a11y.A11yPage() ();

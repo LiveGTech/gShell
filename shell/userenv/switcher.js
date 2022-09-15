@@ -212,8 +212,8 @@ export function init() {
 }
 
 export function getWindowGeometry(element) {
-    if (element.hasAttribute("data-geometry")) {
-        return JSON.parse(element.getAttribute("data-geometry"));
+    if (element.get().geometry) {
+        return element.get().geometry;
     }
 
     var rect = element.get().getBoundingClientRect();
@@ -231,7 +231,7 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
         return;
     }
 
-    element.setAttribute("data-geometry", JSON.stringify(geometry));
+    element.get().geometry = geometry;
 
     if ($g.sel("#switcherView .switcher").is(".allowSelect")) {
         return;
@@ -303,7 +303,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
             if ($g.sel(event.target).is(".switcher_screen, .switcher_titleBar, .switcher_tabs, .switcher_titleBar.hideTabs .switcher_tabs *")) {
                 $g.sel("#switcherView .switcher").addClass("manipulating");
 
-                initialGeometry = getWindowGeometry(screenElement);
+                initialGeometry = {...getWindowGeometry(screenElement)};
                 pointerDown = true;
                 pointerStartX = event.clientX;
                 pointerStartY = event.clientY;
@@ -521,7 +521,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
         var pointerDeltaX = event.clientX - pointerStartX;
         var pointerDeltaY = event.clientY - pointerStartY;
-        var newGeometry = getWindowGeometry(screenElement);
+        var newGeometry = {...getWindowGeometry(screenElement)};
 
         if (screenElement.hasClass("maximised") && pointerDeltaY > 0 && !shouldCancelUnsnap) {
             restoreWindow(screenElement, false);
@@ -532,7 +532,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 y: event.clientY - (screenElement.find(".switcher_titleBar").get().getBoundingClientRect().height / 2)
             });
             
-            initialGeometry = getWindowGeometry(screenElement);
+            initialGeometry = {...getWindowGeometry(screenElement)};
         }
 
         shouldCancelUnsnap = false;

@@ -16,11 +16,25 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
 
     function updateData() {
         var data = _sphere.getPrivilegedData();
+        var usedNames = [];
 
         if (data?.network_wifiScanResults?.length > 0) {
             wifiScanResultsContainer.clear().add(
                 ...(data?.network_wifiScanResults || [])
-                    .filter((result) => result.name != "")
+                    .sort((a, b) => a.connected ? -1 : 1)
+                    .filter(function(result) {
+                        if (result.name == "") {
+                            return false;
+                        }
+
+                        if (usedNames.includes(result.name)) {
+                            return false;
+                        }
+
+                        usedNames.push(result.name);
+
+                        return true;
+                    })
                     .map(function(result) {
                         var securityType = "unknown";
 

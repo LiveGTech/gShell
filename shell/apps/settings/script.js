@@ -33,10 +33,14 @@ var homePageMenuButton = null;
 var headerText = null;
 var root = Container() ();
 
-export function switchToPage(pageId) {
-    pageMenuButtons[pageId].get().click();
+export function updateHeader(pageId) {
     homePageBackButton.show();
     headerText.setText(_(pageId));
+}
+
+export function switchToPage(pageId) {
+    pageMenuButtons[pageId].get().click();
+    updateHeader(pageId);
 }
 
 export function goToHomePage() {
@@ -101,6 +105,10 @@ $g.waitForLoad().then(function() {
 
     Object.keys(pages).forEach(function(pageId) {
         pageMenuButtons[pageId] = PageMenuButton({page: pages[pageId]}) (_(pageId));
+
+        pageMenuButtons[pageId].on("click", function() {
+            updateHeader(pageId);
+        });
     });
 
     a11y.init();

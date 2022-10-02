@@ -359,7 +359,7 @@ exports.networkScanWifi = function() {
         return Promise.resolve([]);
     }
 
-    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,bssid,chan,rate,signal,security", "device", "wifi", "list"]).then(function(output) {
+    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,bssid,chan,rate,signal,security,active", "device", "wifi", "list"]).then(function(output) {
         var lines = output.stdout.split("\n").filter((line) => line != "");
 
         return lines.map(function(line) {
@@ -375,7 +375,8 @@ exports.networkScanWifi = function() {
                     "WEP": "wep",
                     "WPA1": "wpa1",
                     "WPA2": "wpa2"
-                }[data] || "unknown"))
+                }[data] || "unknown")),
+                connected: data[6] == "yes"
             };
         });
     });

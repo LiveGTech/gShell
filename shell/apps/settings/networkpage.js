@@ -36,7 +36,7 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
 
                         var details = [];
 
-                        if ((data?.network_listResults || []).filter((result) => result.connected)[0]?.name == result.name) {
+                        if (result.connected) {
                             details.push(_("network_connected"));
                         }
 
@@ -143,13 +143,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
         var data = _sphere.getPrivilegedData();
         var apResults = (data?.network_wifiScanResults || []).filter((result) => result.name == props.accessPoint.name);
-
-        var connected = (data?.network_listResults || [])
-            .filter((result) => result.name == props.accessPoint.name)
-            .filter((result) => result.type == "wifi")
-            .filter((result) => result.connected)
-            .length != 0
-        ;
+        var connected = (data?.network_wifiScanResults || []).filter((result) => result.connected).length > 0;
 
         if (apResults.length == 0) {
             // TODO: Add not in range message
@@ -201,15 +195,16 @@ export function connectSummary(summary) {
     function updateSummary() {
         var data = _sphere.getPrivilegedData();
         var listResults = data?.network_listResults || [];
-        var genericConnection = listResults.filter((result) => result.connected);
-        var wifiConnection = genericConnection.filter((result) => result.type == "wifi");
-        var ethernetConnection = genericConnection.filter((result) => result.type == "ethernet");
+        var genericConnections = listResults.filter((result) => result.connected);
+        var wifiConnections = genericConnections.filter((result) => result.type == "wifi");
+        var ethernetConnections = genericConnections.filter((result) => result.type == "ethernet");
+        var wifiScanConnectedResults = (data?.network_wifiScanResults || []).filter((result) => result.connected);
 
-        if (wifiConnection && typeof(wifiConnection[0]?.name) == "string") {
-            summary.setText(_("network_summaryConnectedWifi", {name: wifiConnection[0]?.name}));
-        } else if (ethernetConnection) {
+        if (wifiConnections.length > 0 && wifiScanConnectedResults.length > 0) {
+            summary.setText(_("network_summaryConnectedWifi", {name: wifiScanConnectedResults[0].name}));
+        } else if (ethernetConnections.length > 0) {
             summary.setText(_("network_summaryConnectedEthernet"));
-        } else if (genericConnection) {
+        } else if (genericConnections.length > 0) {
             summary.setText(_("network_summaryConnected"));
         } else {
             summary.setText(_("network_summaryDisconnected"));

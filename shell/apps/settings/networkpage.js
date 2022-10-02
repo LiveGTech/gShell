@@ -160,8 +160,6 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         var connected = (data?.network_wifiScanResults || []).filter((result) => result.connected).length > 0;
 
         if (apResults.length == 0) {
-            // TODO: Add not in range message
-
             return;
         }
 

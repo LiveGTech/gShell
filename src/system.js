@@ -331,6 +331,10 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
+function wifiSsidToConnectionName(ssid) {
+    return `[wifi] ${ssid}`;
+}
+
 exports.networkList = function() {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve([]);
@@ -343,7 +347,7 @@ exports.networkList = function() {
             var data = exports.parseNmcliLine(line);
 
             return {
-                name: data[0],
+                name: data[0].replace(/^\[wifi\] /, ""),
                 type: {
                     "802-11-wireless": "wifi",
                     "802-3-ethernet": "ethernet"
@@ -379,6 +383,57 @@ exports.networkScanWifi = function() {
                 connected: data[6] == "yes"
             };
         });
+    });
+};
+
+exports.networkDisconnectWifi = function(ssid) {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve();
+    }
+
+    return exports.networkList().then(function(results) {
+        var matchingResults = results.filter((result) => result.name == wifiSsidToConnectionName(ssid) && result.connected);
+
+        if (matchingResults.length == 0) {
+            return Promise.resolve();
+        }
+
+        return exports.executeCommand("nmcli", ["connection", "down", wifiSsidToConnectionName(ssid)]);
+    });
+};
+
+exports.networkForgetWifi = function(ssid) {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve();
+    }
+
+    return exports.networkList().then(function(results) {
+        var matchingResults = results.filter((result) => result.name == wifiSsidToConnectionName(ssid));
+
+        if (matchingResults.length == 0) {
+            return Promise.resolve();
+        }
+
+        return exports.executeCommand("nmcli", ["connection", "forget", wifiSsidToConnectionName(ssid)]);
+    });
+};
+
+// TODO: It might be better to use BSSID instead of SSID for giving connection IDs
+exports.networkConfigureWifi = function(ssid, auth = {}) {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve();
+    }
+
+    return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", wifiSsidToConnectionName(ssid), "ssid", ssid, ...Object.entries(auth).flat()]);
+};
+
+exports.networkConnectWifi = function(ssid) {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve();
+    }
+
+    return exports.networkDisconnect().then(function() {
+        return exports.executeCommand("nmcli", ["device", "wifi", "connect", ssid]);
     });
 };
 

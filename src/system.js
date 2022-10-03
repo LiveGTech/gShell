@@ -331,8 +331,8 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
-function wifiSsidToConnectionName(ssid) {
-    return `[wifi] ${ssid}`;
+function wifiBssidToConnectionName(bssid) {
+    return `[wifi] ${bssid}`;
 }
 
 exports.networkList = function() {
@@ -386,54 +386,53 @@ exports.networkScanWifi = function() {
     });
 };
 
-exports.networkDisconnectWifi = function(ssid) {
+exports.networkDisconnectWifi = function(bssid) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
     return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.name == wifiSsidToConnectionName(ssid) && result.connected);
+        var matchingResults = results.filter((result) => result.bssid == wifiBssidToConnectionName(bssid) && result.connected);
 
         if (matchingResults.length == 0) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "down", wifiSsidToConnectionName(ssid)]);
+        return exports.executeCommand("nmcli", ["connection", "down", wifiBssidToConnectionName(bssid)]);
     });
 };
 
-exports.networkForgetWifi = function(ssid) {
+exports.networkForgetWifi = function(bssid) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
     return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.name == wifiSsidToConnectionName(ssid));
+        var matchingResults = results.filter((result) => result.bssid == wifiBssidToConnectionName(bssid));
 
         if (matchingResults.length == 0) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "forget", wifiSsidToConnectionName(ssid)]);
+        return exports.executeCommand("nmcli", ["connection", "forget", wifiBssidToConnectionName(bssid)]);
     });
 };
 
-// TODO: It might be better to use BSSID instead of SSID for giving connection IDs
-exports.networkConfigureWifi = function(ssid, auth = {}) {
+exports.networkConfigureWifi = function(bssid, auth = {}) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
-    return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", wifiSsidToConnectionName(ssid), "ssid", ssid, ...Object.entries(auth).flat()]);
+    return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", wifiBssidToConnectionName(bssid), "bssid", bssid, ...Object.entries(auth).flat()]);
 };
 
-exports.networkConnectWifi = function(ssid) {
+exports.networkConnectWifi = function(bssid) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
     return exports.networkDisconnect().then(function() {
-        return exports.executeCommand("nmcli", ["device", "wifi", "connect", ssid]);
+        return exports.executeCommand("nmcli", ["device", "wifi", "connect", bssid]);
     });
 };
 

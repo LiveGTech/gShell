@@ -414,7 +414,7 @@ exports.networkForgetWifi = function(bssid) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "forget", wifiBssidToConnectionName(bssid)]);
+        return exports.executeCommand("nmcli", ["connection", "delete", wifiBssidToConnectionName(bssid)]);
     });
 };
 
@@ -423,7 +423,9 @@ exports.networkConfigureWifi = function(bssid, auth = {}) {
         return Promise.resolve();
     }
 
-    return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", wifiBssidToConnectionName(bssid), "bssid", bssid, ...Object.entries(auth).flat()]);
+    return exports.networkForgetWifi(bssid).then(function() {
+        return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", wifiBssidToConnectionName(bssid), "bssid", bssid, ...Object.entries(auth).flat()]);        
+    });
 };
 
 exports.networkConnectWifi = function(bssid) {

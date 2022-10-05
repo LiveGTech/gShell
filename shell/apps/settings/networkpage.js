@@ -173,7 +173,6 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             }) ()
         );
 
-        // TODO: Add functionality to these buttons
         if (connected) {
             var disconnectButton = Button() (_("network_wifiAp_disconnect"));
             var forgetButton = Button("dangerous") (_("network_wifiAp_forget"));

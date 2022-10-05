@@ -331,10 +331,6 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
-function wifiBssidToConnectionName(bssid) {
-    return `[wifi] ${bssid}`;
-}
-
 exports.networkList = function() {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve([]);
@@ -347,7 +343,7 @@ exports.networkList = function() {
             var data = exports.parseNmcliLine(line);
 
             return {
-                name: data[0].replace(/^\[wifi\] /, ""),
+                name: data[0],
                 type: {
                     "802-11-wireless": "wifi",
                     "802-3-ethernet": "ethernet"
@@ -386,55 +382,55 @@ exports.networkScanWifi = function() {
     });
 };
 
-exports.networkDisconnectWifi = function(bssid) {
+exports.networkDisconnectWifi = function(name) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
     return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.bssid == wifiBssidToConnectionName(bssid) && result.connected);
+        var matchingResults = results.filter((result) => result.name == name && result.connected);
 
         if (matchingResults.length == 0) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "down", wifiBssidToConnectionName(bssid)]);
+        return exports.executeCommand("nmcli", ["connection", "down", name]);
     });
 };
 
-exports.networkForgetWifi = function(bssid) {
+exports.networkForgetWifi = function(name) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
     return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.bssid == wifiBssidToConnectionName(bssid));
+        var matchingResults = results.filter((result) => result.name == name);
 
         if (matchingResults.length == 0) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "delete", wifiBssidToConnectionName(bssid)]);
+        return exports.executeCommand("nmcli", ["connection", "delete", name]); // This should also disconnect if already connected
     });
 };
 
-exports.networkConfigureWifi = function(bssid, auth = {}) {
+exports.networkConfigureWifi = function(name, auth = {}) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
-    return exports.networkForgetWifi(bssid).then(function() {
-        return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", wifiBssidToConnectionName(bssid), "bssid", bssid, ...Object.entries(auth).flat()]);        
+    return exports.networkForgetWifi(name).then(function() {
+        return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", name, "ssid", name, ...Object.entries(auth).flat()]);
     });
 };
 
-exports.networkConnectWifi = function(bssid) {
+exports.networkConnectWifi = function(name) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
 
-    return exports.networkDisconnect().then(function() {
-        return exports.executeCommand("nmcli", ["device", "wifi", "connect", bssid]);
+    return exports.networkDisconnectWifi().then(function() {
+        return exports.executeCommand("nmcli", ["device", "wifi", "connect", name]);
     });
 };
 

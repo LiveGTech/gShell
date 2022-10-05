@@ -157,7 +157,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
         var data = _sphere.getPrivilegedData();
         var apResults = (data?.network_wifiScanResults || []).filter((result) => result.name == props.accessPoint.name);
-        var connected = (data?.network_wifiScanResults || []).filter((result) => result.connected).length > 0;
+        var connected = apResults.filter((result) => result.connected).length > 0;
 
         if (apResults.length == 0) {
             return;
@@ -175,13 +175,46 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
         // TODO: Add functionality to these buttons
         if (connected) {
+            var disconnectButton = Button() (_("network_wifiAp_disconnect"));
+            var forgetButton = Button("dangerous") (_("network_wifiAp_forget"));
+
+            disconnectButton.on("click", function() {
+                _sphere.callPrivilegedCommand("network_disconnectWifi", {
+                    name: props.accessPoint.name
+                }).then(function() {
+                    _shpere.callPrivilegedCommand("network_scanWifi");
+                });
+            });
+
+            forgetButton.on("click", function() {
+                _sphere.callPrivilegedCommand("network_forgetWifi", {
+                    name: props.accessPoint.name
+                }).then(function() {
+                    _shpere.callPrivilegedCommand("network_scanWifi");
+                });
+            });
+
             mainActions.clear().add(
-                Button() (_("network_wifiAp_disconnect")),
-                Button("dangerous") (_("network_wifiAp_forget"))
+                disconnectButton,
+                forgetButton
             );
         } else {
+            var connectButton = Button() (_("network_wifiAp_connect"));
+
+            connectButton.on("click", function() {
+                _sphere.callPrivilegedCommand("network_configureWifi", {
+                    name: props.accessPoint.name
+                }).then(function() {
+                    return _sphere.callPrivilegedCommand("network_connectWifi", {
+                        name: props.accessPoint.name
+                    });
+                }).then(function() {
+                    _shpere.callPrivilegedCommand("network_scanWifi");
+                });
+            });
+
             mainActions.clear().add(
-                Button() (_("network_wifiAp_connect"))
+                connectButton
             );
         }
 

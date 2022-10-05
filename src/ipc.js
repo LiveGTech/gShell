@@ -124,6 +124,22 @@ ipcMain.handle("network_scanWifi", function(event, data) {
     return system.networkScanWifi();
 });
 
+ipcMain.handle("network_disconnectWifi", function(event, data) {
+    return system.networkDisconnectWifi(data.name);
+});
+
+ipcMain.handle("network_forgetWifi", function(event, data) {
+    return system.networkForgetWifi(data.name);
+});
+
+ipcMain.handle("network_configureWifi", function(event, data) {
+    return system.networkConfigureWifi(data.name, data.auth);
+});
+
+ipcMain.handle("network_connectWifi", function(event, data) {
+    return system.networkConnectWifi(data.name);
+});
+
 ipcMain.handle("io_input", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 

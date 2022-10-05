@@ -25,6 +25,7 @@ export function getList() {
     });
 }
 
+// TODO: Trigger constant re-scan when connecting/disconnecting
 export function scanWifi() {
     return gShell.call("network_scanWifi").then(function(data) {
         wifiScanResults = data;
@@ -33,6 +34,22 @@ export function scanWifi() {
 
         return Promise.resolve(data);
     });
+}
+
+export function disconnectWifi(name) {
+    return gShell.call("network_disconnectWifi", {name});
+}
+
+export function forgetWifi(name) {
+    return gShell.call("network_forgetWifi", {name});
+}
+
+export function configureWifi(name, auth) {
+    return gShell.call("network_configureWifi", {name, auth});
+}
+
+export function connectWifi(name) {
+    return gShell.call("network_connectWifi", {name});
 }
 
 export function init() {

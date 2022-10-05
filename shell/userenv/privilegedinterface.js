@@ -17,6 +17,10 @@ export var data = {};
 export var commands = {
     network_getList: network.getList(),
     network_scanWifi: network.scanWifi(),
+    network_disconnectWifi: (data) => network.disconnectWifi(data.name),
+    network_forgetWifi: (data) => network.forgetWifi(data.name),
+    network_configureWifi: (data) => network.configureWifi(data.name, data.auth),
+    network_connectWifi: (data) => network.connectWifi(data.name),
     l10n_setLocale: (data) => l10n.setLocale(data.localeCode),
     a11y_setOption: (data) => a11y.setOption(data.name, data.value)
 };

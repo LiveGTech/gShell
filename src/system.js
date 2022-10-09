@@ -331,6 +331,8 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
+// TODO: Use prefix to differentiate Wi-Fi network connections from other network connections
+// This would prevent Wi-Fi networks that may maliciously use the name "Wired connection 1" from confusing the networking system
 exports.networkList = function() {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve([]);

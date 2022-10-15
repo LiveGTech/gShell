@@ -612,7 +612,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
     });
 
     screenElement.on("pointerdown", function(event) {
-        if ($g.sel(event.target).is(".switcher_screenButton, .switcher_screenCloseButton, .switcher_screenOptions")) {
+        if ($g.sel(event.target).is(".switcher_screenButton, .switcher_screenOptions, .switcher_screenOptions *")) {
             return;
         }
 

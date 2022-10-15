@@ -203,6 +203,11 @@ body:not([device-type="desktop"]) .desktop_appBar {
     transition: 0.5s opacity, 0.5s background-color;
 }
 
+.desktop_homeMenu .home_app .home_icon {
+    max-width: calc(100% - 2rem);
+    max-height: calc(100% - 2rem);
+}
+
 .desktop_homeMenu .home_pagination {
     grid-column: 2;
     grid-row: 3;

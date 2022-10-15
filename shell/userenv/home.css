@@ -54,8 +54,8 @@
 }
 
 .home_app .home_icon {
-    max-width: calc(100% - 2rem);
-    max-height: calc(100% - 2rem);
+    max-width: calc(100% - 1rem);
+    max-height: calc(100% - 1rem);
     background-color: white;
     border-radius: 0.8rem;
 }

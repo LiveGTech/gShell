@@ -9,7 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
-import Fuse from "gshell://lib/fuse.esm.js";
+import MiniSearch from "gshell://lib/minisearch.min.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
 import * as device from "gshell://system/device.js";
@@ -407,7 +407,7 @@ export class InputMethod {
         this.wordDictionary = [];
 
         this.wordInputs = [];
-        this.wordFuse = null;
+        this.wordSearch = null;
 
         this.reindexDictionaries();
     }
@@ -426,11 +426,13 @@ export class InputMethod {
     reindexDictionaries() {
         this.wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
 
-        this.wordFuse = new Fuse(this.wordDictionary, {
-            keys: ["input"],
-            includeScore: true,
-            distance: 3
+        this.wordSearch = new MiniSearch({
+            idField: "input",
+            fields: ["input"],
+            storeFields: ["input", "result", "weighting"]
         });
+
+        this.wordSearch.addAll(this.wordDictionary);
     }
 
     getInputWord(buffer = inputEntryBuffer, wordLength = inputEntryWordLength) {
@@ -481,14 +483,14 @@ export class InputMethod {
 
     getCandidates(nGramLength = this.nGramLength) {
         var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
-        var wordResults = this.wordFuse.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH));
+        var wordResults = this.wordSearch.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH), {fuzzy: 0.2});
         var allCandidates = [];
 
         wordResults.forEach(function(result) {
-            result.item.score = result.item.weighting * (1 - result.score);
-            result.item.source = candidateResultSources.WORD;
+            result.score = result.weighting * (1 - result.score);
+            result.source = candidateResultSources.WORD;
 
-            allCandidates.push(result.item);
+            allCandidates.push(result);
         });
 
         nGramResults.forEach(function(result) {

@@ -359,6 +359,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                                     $g.create("img")
                                         .setAttribute("aui-icon", "dark embedded")
                                         .setAttribute("src", "gshell://lib/adaptui/icons/add.svg")
+                                    ,
+                                    $g.create("span")
+                                        .addClass("switcher_tabNewButtonLabel")
+                                        .setText(_("switcher_newTab"))
                                 )
                         )
                     ,
@@ -607,21 +611,27 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         screenElement.find(".switcher_screenButton").focus();
     });
 
-    if (device.data?.type == "desktop") {
-        screenElement.on("pointerdown", function(event) {
-            if ($g.sel(event.target).is(".switcher_screenButton, .switcher_screenCloseButton, .switcher_screenOptions")) {
-                return;
-            }
+    screenElement.on("pointerdown", function(event) {
+        if ($g.sel(event.target).is(".switcher_screenButton, .switcher_screenCloseButton, .switcher_screenOptions")) {
+            return;
+        }
 
+        main.selectScreen(screenElement);
+
+        if (!$g.sel(event.target).is(".switcher_titleBar, .switcher_titleBar *")) {
+            hideTabList(screenElement);
+        }
+    });
+
+    screenElement.on("webviewevent", function(event) {
+        if (event.detail.type == "pointerdown") {
             main.selectScreen(screenElement);
-        });
 
-        screenElement.on("webviewevent", function(event) {
-            if (event.detail.type == "pointerdown") {
-                main.selectScreen(screenElement);
+            if (!$g.sel(event.target).is(".switcher_titleBar, .switcher_titleBar *")) {
+                hideTabList(screenElement);
             }
-        });
-    }
+        }
+    });
 
     if (appDetails?.showTabs) {
         screenElement.find(".switcher_titleBar").removeClass("hideTabs");
@@ -954,6 +964,31 @@ export function setAppCustomTab(element, title, icon) {
     if (icon) {
         element.get().tab.find(".switcher_tabIcon").setAttribute("src", icon);
     }
+}
+
+export function showTabList(element) {
+    if (element.hasClass("listTabs")) {
+        return;
+    }
+
+    element.find(".switcher_titleBar").addClass("transitioning");
+    element.addClass("listTabs");
+
+    setTimeout(function() {
+        element.find(".switcher_titleBar").removeClass("transitioning");
+    });
+}
+
+export function hideTabList(element) {
+    if (!element.hasClass("listTabs")) {
+        return;
+    }
+
+    element.find(".switcher_titleBar").addClass("transitioning");
+
+    setTimeout(function() {
+        element.removeClass("listTabs");
+    }, aui_a11y.prefersReducedMotion() ? 0 : 500);
 }
 
 export function showList() {

@@ -53,8 +53,7 @@ export class Browser {
     }
 
     get tabCount() {
-        // TODO: Communicate with switcher to count tabs
-        return 1;
+        return switcher.getWindowAppCount(this.screenElement);
     }
 
     updateChrome() {
@@ -199,6 +198,9 @@ export class Browser {
             $g.create("button")
                 .addClass("sphere_tabButton")
                 .setText("0")
+                .on("click", function() {
+                    switcher.showTabList(thisScope.screenElement);
+                })
             ,
             $g.create("button")
                 .setAttribute("aria-label", _("sphere_menu"))

@@ -65,7 +65,7 @@ window.addEventListener("load", function() {
             return;
         }
 
-        if (event.target.matches("input")) {
+        if (event.target.matches("input, textarea")) {
             if (!isTextualInput(event.target)) {
                 electron.ipcRenderer.sendToHost("input_hide");
     

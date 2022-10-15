@@ -798,7 +798,7 @@ export function getWebContentsId() {
 }
 
 export function isTextualInput(element) {
-    return element.is("input") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
+    return element.is("input, textarea") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
 
 export function removeTargetInput() {

@@ -201,16 +201,22 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             var connectButton = Button() (_("network_wifiAp_connect"));
 
             connectButton.on("click", function() {
-                _sphere.callPrivilegedCommand("network_configureWifi", {
-                    name: props.accessPoint.name
-                }).then(function() {
-                    return _sphere.callPrivilegedCommand("network_connectWifi", {
-                        name: props.accessPoint.name
-                    });
-                }).then(function() {
-                    _shpere.callPrivilegedCommand("network_scanWifi");
-                });
+                settings.visitInnerScreen(
+                    WifiConnectionConfigScreen({accessPoint: props.accessPoint}) ()
+                );
             });
+
+            // connectButton.on("click", function() {
+            //     _sphere.callPrivilegedCommand("network_configureWifi", {
+            //         name: props.accessPoint.name
+            //     }).then(function() {
+            //         return _sphere.callPrivilegedCommand("network_connectWifi", {
+            //             name: props.accessPoint.name
+            //         });
+            //     }).then(function() {
+            //         _shpere.callPrivilegedCommand("network_scanWifi");
+            //     });
+            // });
 
             mainActions.clear().add(
                 connectButton
@@ -231,6 +237,46 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
     _sphere.onPrivilegedDataUpdate(updateData);
     updateData();
+
+    return screen;
+});
+
+export var WifiConnectionConfigScreen = astronaut.component("WifiConnectionConfigScreen", function(props, children) {
+    // TODO: Translate screen and add in proper functionality
+
+    var preferredAuthenticationMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
+
+    if (props.accessPoint.security.includes("802_1x")) {
+        preferredAuthenticationMode += "_802_1x";
+    }
+
+    var screen = settings.InnerScreen({title: `Authenticate ${props.accessPoint.name}`}) (
+        Page(true) (
+            Section (
+                Label (
+                    Text("Authentication mode"),
+                    SelectionInput({value: preferredAuthenticationMode}) (
+                        SelectionInputOption("none") ("None"),
+                        SelectionInputOption("wep") ("WEP"),
+                        SelectionInputOption("wpa1") ("WPA1"),
+                        SelectionInputOption("wpa1_802_1x") ("WPA1 802.1x (enterprise)"),
+                        SelectionInputOption("wpa2") ("WPA2"),
+                        SelectionInputOption("wpa2_802_1x") ("WPA2 802.1x (enterprise)"),
+                    )
+                ),
+                Label (
+                    Text("Password"),
+                    Input("password") ()
+                )
+            ),
+            Section (
+                ButtonRow("end") (
+                    Button() ("Connect"),
+                    Button("secondary") ("Cancel")
+                )
+            )
+        )
+    );
 
     return screen;
 });

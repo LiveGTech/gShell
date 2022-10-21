@@ -383,7 +383,8 @@ exports.networkScanWifi = function() {
                 security: data[5].split(" ").filter((data) => data != "").map((data) => ({
                     "WEP": "wep",
                     "WPA1": "wpa1",
-                    "WPA2": "wpa2"
+                    "WPA2": "wpa2",
+                    "802.1X": "802_1x"
                 }[data] || "unknown")),
                 connected: data[6] == "yes"
             };

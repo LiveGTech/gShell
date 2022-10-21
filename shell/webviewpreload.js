@@ -36,7 +36,7 @@ var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
 
 function isTextualInput(element) {
-    return element.matches("input") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
+    return element.matches("input, textarea") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
@@ -65,7 +65,7 @@ window.addEventListener("load", function() {
             return;
         }
 
-        if (event.target.matches("input")) {
+        if (event.target.matches("input, textarea")) {
             if (!isTextualInput(event.target)) {
                 electron.ipcRenderer.sendToHost("input_hide");
     

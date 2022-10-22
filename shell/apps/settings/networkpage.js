@@ -118,6 +118,10 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
     var channelDetails = Container() ();
 
+    var connectionConfigDialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
+
+    settings.registerDialog(connectionConfigDialog);
+
     var screen = settings.InnerScreen({title: props.accessPoint.name}) (
         Page(true) (
             Section({
@@ -202,11 +206,12 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             var connectButton = Button() (_("network_wifiAp_connect"));
 
             connectButton.on("click", function() {
-                settings.visitInnerScreen(
-                    WifiConnectionConfigScreen({accessPoint: props.accessPoint}) ()
-                );
+                connectionConfigDialog.dialogOpen();
+
+                connectionConfigDialog.find(".app_settings_makeFirstFocus").focus();
             });
 
+            // TODO: Integrate this into connection config dialog instead
             // connectButton.on("click", function() {
             //     _sphere.callPrivilegedCommand("network_configureWifi", {
             //         name: props.accessPoint.name
@@ -242,7 +247,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
     return screen;
 });
 
-export var WifiConnectionConfigScreen = astronaut.component("WifiConnectionConfigScreen", function(props, children) {
+export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfigDialog", function(props, children) {
     // TODO: Translate screen and add in proper functionality
 
     var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
@@ -262,21 +267,23 @@ export var WifiConnectionConfigScreen = astronaut.component("WifiConnectionConfi
 
     var authModeConfigContainer = Container() ();
 
-    var screen = settings.InnerScreen({title: `Authenticate ${props.accessPoint.name}`}) (
-        Page(true) (
-            Section (
-                Label (
-                    Text("Authentication mode"),
-                    authModeInput
-                ),
-                authModeConfigContainer
+    var dialog = Dialog (
+        Heading() (`Connect to ${props.accessPoint.name}`),
+        DialogContent (
+            Label (
+                Text("Authentication mode"),
+                authModeInput
             ),
-            Section (
-                ButtonRow("end") (
-                    Button() ("Connect"),
-                    Button("secondary") ("Cancel")
-                )
-            )
+            authModeConfigContainer
+        ),
+        ButtonRow("end") (
+            Button() ("Connect"),
+            Button({
+                mode: "secondary",
+                attributes: {
+                    "aui-bind": "close"
+                }
+            }) ("Cancel")
         )
     );
 
@@ -292,7 +299,7 @@ export var WifiConnectionConfigScreen = astronaut.component("WifiConnectionConfi
 
     renderAuthModeConfigContainer();
 
-    return screen;
+    return dialog;
 });
 
 export function connectSummary(summary) {

@@ -11,6 +11,7 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 // TODO: Translate text in components
 // TODO: Add validation inter function in components
+// TODO: Allow using Enter key to confirm in password inputs
 
 export function noInputModeFactory(config) {
     return astronaut.component({isPrivate: true}, function(props, children, inter) {
@@ -32,6 +33,8 @@ export function passwordInputModeFactory(config) {
                 "wifi-sec.psk": passwordInput.getValue()
             };
         };
+
+        passwordInput.addClass("app_settings_makeFirstFocus");
     
         return Container (
             Label (
@@ -63,7 +66,9 @@ export function identityInputModeFactory(config) {
                 "802-1x.password": passwordInput.getValue()
             };
         };
-    
+
+        usernameInput.addClass("app_settings_makeFirstFocus");
+
         return Container (
             Label (
                 Text("Inner authentication mode"),

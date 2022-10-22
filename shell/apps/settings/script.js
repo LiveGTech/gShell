@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as screens from "gshell://lib/adaptui/src/screens.js";
+import * as markup from "gshell://lib/adaptui/src/markup.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 astronaut.unpack();
@@ -57,6 +58,8 @@ export function visitInnerScreen(screen) {
 
 export function registerDialog(dialog) {
     root.add(dialog);
+
+    markup.apply();
 }
 
 export var InnerScreen = astronaut.component("InnerScreen", function(props, children, inter) {

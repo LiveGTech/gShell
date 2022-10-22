@@ -10,6 +10,7 @@
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as settings from "./script.js";
+import * as wifiAuthModes from "./wifiauthmodes.js";
 
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
     var wifiScanResultsContainer = Container() ();
@@ -244,30 +245,31 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 export var WifiConnectionConfigScreen = astronaut.component("WifiConnectionConfigScreen", function(props, children) {
     // TODO: Translate screen and add in proper functionality
 
-    var preferredAuthenticationMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
+    var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
 
     if (props.accessPoint.security.includes("802_1x")) {
-        preferredAuthenticationMode += "_802_1x";
+        preferredAuthMode += "_802_1x";
     }
+
+    var authModeInput = SelectionInput({value: preferredAuthMode}) (
+        SelectionInputOption("none") ("None"),
+        SelectionInputOption("wep") ("WEP"),
+        SelectionInputOption("wpa1") ("WPA1"),
+        SelectionInputOption("wpa1_802_1x") ("WPA1 802.1x (enterprise)"),
+        SelectionInputOption("wpa2") ("WPA2"),
+        SelectionInputOption("wpa2_802_1x") ("WPA2 802.1x (enterprise)"),
+    );
+
+    var authModeConfigContainer = Container() ();
 
     var screen = settings.InnerScreen({title: `Authenticate ${props.accessPoint.name}`}) (
         Page(true) (
             Section (
                 Label (
                     Text("Authentication mode"),
-                    SelectionInput({value: preferredAuthenticationMode}) (
-                        SelectionInputOption("none") ("None"),
-                        SelectionInputOption("wep") ("WEP"),
-                        SelectionInputOption("wpa1") ("WPA1"),
-                        SelectionInputOption("wpa1_802_1x") ("WPA1 802.1x (enterprise)"),
-                        SelectionInputOption("wpa2") ("WPA2"),
-                        SelectionInputOption("wpa2_802_1x") ("WPA2 802.1x (enterprise)"),
-                    )
+                    authModeInput
                 ),
-                Label (
-                    Text("Password"),
-                    Input("password") ()
-                )
+                authModeConfigContainer
             ),
             Section (
                 ButtonRow("end") (
@@ -277,6 +279,18 @@ export var WifiConnectionConfigScreen = astronaut.component("WifiConnectionConfi
             )
         )
     );
+
+    function renderAuthModeConfigContainer() {
+        authModeConfigContainer.clear().add(
+            wifiAuthModes.components[authModeInput.getValue()]() ()
+        );
+    }
+
+    authModeInput.on("change", function() {
+        renderAuthModeConfigContainer();
+    });
+
+    renderAuthModeConfigContainer();
 
     return screen;
 });

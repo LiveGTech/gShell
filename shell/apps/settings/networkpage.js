@@ -265,7 +265,10 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
         SelectionInputOption("wpa2_802_1x") ("WPA2 802.1x (enterprise)"),
     );
 
+    var connectButton = Button() ("Connect");
+
     var authModeConfigContainer = Container() ();
+    var currentAuthModeConfigElement = null;
 
     var dialog = Dialog (
         Heading() (`Connect to ${props.accessPoint.name}`),
@@ -277,7 +280,7 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
             authModeConfigContainer
         ),
         ButtonRow("end") (
-            Button() ("Connect"),
+            connectButton,
             Button({
                 mode: "secondary",
                 attributes: {
@@ -288,9 +291,23 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
     );
 
     function renderAuthModeConfigContainer() {
-        authModeConfigContainer.clear().add(
-            wifiAuthModes.components[authModeInput.getValue()]() ()
-        );
+        currentAuthModeConfigElement = wifiAuthModes.components[authModeInput.getValue()]() ();
+
+        currentAuthModeConfigElement.find("input").on("input", function() {
+            validate();
+        });
+
+        validate();
+
+        authModeConfigContainer.clear().add(currentAuthModeConfigElement);
+    }
+
+    function validate() {
+        if (currentAuthModeConfigElement.inter.isValid()) {
+            connectButton.removeAttribute("disabled");
+        } else {
+            connectButton.setAttribute("disabled", true);
+        }
     }
 
     authModeInput.on("change", function() {

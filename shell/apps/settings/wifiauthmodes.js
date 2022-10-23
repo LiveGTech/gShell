@@ -13,17 +13,21 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 // TODO: Add validation inter function in components
 // TODO: Allow using Enter key to confirm in password inputs
 
-export function noInputModeFactory(config) {
+export function noInputModeFactory(config, internalConfig) {
     return astronaut.component({isPrivate: true}, function(props, children, inter) {
         inter.getAuthConfig = function() {
             return config;
+        };
+
+        inter.isValid = function() {
+            return true;
         };
     
         return Container() ();
     });
 }
 
-export function passwordInputModeFactory(config) {
+export function passwordInputModeFactory(config, internalConfig) {
     return astronaut.component({isPrivate: true}, function(props, children, inter) {
         var passwordInput = Input("password") ();
 
@@ -32,6 +36,12 @@ export function passwordInputModeFactory(config) {
                 ...config,
                 "wifi-sec.psk": passwordInput.getValue()
             };
+        };
+
+        inter.isValid = function() {
+            var length = passwordInput.getValue().length;
+
+            return (!internalConfig.minLength || length >= internalConfig.minLength) && (!internalConfig.maxLength || length <= internalConfig.maxLength);
         };
 
         passwordInput.addClass("app_settings_makeFirstFocus");
@@ -45,7 +55,7 @@ export function passwordInputModeFactory(config) {
     });
 }
 
-export function identityInputModeFactory(config) {
+export function identityInputModeFactory(config, internalConfig) {
     return astronaut.component({isPrivate: true}, function(props, children, inter) {
         // TODO: Support more than just PEAP as EAP method
 
@@ -65,6 +75,11 @@ export function identityInputModeFactory(config) {
                 "802-1x.eap": "peap",
                 "802-1x.password": passwordInput.getValue()
             };
+        };
+
+        inter.isValid = function() {
+            // Password input may be blank as some users may not have passwords on their network (as insecure as that would be)
+            return usernameInput.getValue() != "";
         };
 
         usernameInput.addClass("app_settings_makeFirstFocus");
@@ -97,10 +112,16 @@ export var components = {
     }),
     wpa1: passwordInputModeFactory({
         "wifi-sec.key-mgmt": "wpa-psk"
+    }, {
+        minLength: 8,
+        maxLength: 63
     }),
     wpa1_802_1x: identityInputModeFactory(),
     wpa2: passwordInputModeFactory({
         "wifi-sec.key-mgmt": "wpa-psk"
+    }, {
+        minLength: 8,
+        maxLength: 63
     }),
     wpa2_802_1x: identityInputModeFactory()
 };

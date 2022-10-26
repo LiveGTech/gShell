@@ -54,7 +54,6 @@ export const candidateResultSources = {
 };
 
 export var keyboardLayouts = [];
-export var inputMethods = [];
 export var currentKeyboardLayout = null;
 export var showing = false;
 export var targetInputSurface = null;
@@ -735,7 +734,7 @@ export function clearKeyboardLayouts() {
     currentKeyboardLayout = null;
 }
 
-export function loadKeyboardLayout(path, inputMethodPaths = null) {
+export function loadKeyboardLayout(path, inputMethodPaths = null, addToList = true) {
     return fetch(path).then(function(response) {
         return response.json();
     }).then(function(data) {
@@ -747,17 +746,19 @@ export function loadKeyboardLayout(path, inputMethodPaths = null) {
             $g.sel(".input").find(aui_a11y.FOCUSABLES).first().focus();
         };
 
-        keyboardLayouts = keyboardLayouts.filter((layout) => layout.path != path);
+        if (addToList) {
+            keyboardLayouts = keyboardLayouts.filter((layout) => layout.path != path);
 
-        keyboardLayouts.push(keyboard);
+            keyboardLayouts.push(keyboard);
 
-        if (currentKeyboardLayout == null) {
-            currentKeyboardLayout = keyboard;
+            if (currentKeyboardLayout == null) {
+                currentKeyboardLayout = keyboard;
 
-            return render();
+                render();
+            }
         }
 
-        return Promise.resolve();
+        return Promise.resolve(keyboard);
     });
 }
 
@@ -773,6 +774,19 @@ export function loadKeyboardLayoutsFromConfig() {
     });
 }
 
+export function saveKeyboardLayoutsToConfig(layouts = keyboardLayouts) {
+    return config.edit("input.gsc").then(function(data) {
+        data.keyboardLayouts = layouts.map((layout) => ({
+            path: layout.path,
+            inputMethodPaths: layout.inputMethodPaths
+        }));
+
+        return Promise.resolve(data);
+    }).then(function() {
+        return loadKeyboardLayoutsFromConfig();
+    });
+}
+
 export function getKeyboardLayoutDataForLocale(localeCode) {
     return fetch("gshell://input/l10nmappings.json").then(function(response) {
         return response.json();
@@ -784,6 +798,18 @@ export function getKeyboardLayoutDataForLocale(localeCode) {
                 return {path, layout};
             });
         }))
+    });
+}
+
+export function getAllKeyboardLayoutOptions() {
+    return fetch("gshell://input/l10nmappings.json").then(function(response) {
+        return response.json();
+    }).then(function(data) {
+        return Promise.all(Object.keys(data.mappings).map(function(localeCode) {
+            return Promise.all(data.mappings[localeCode].map(function(layoutPath) {
+                return loadKeyboardLayout(layoutPath, null, false);
+            }));
+        }));
     });
 }
 

@@ -56,6 +56,7 @@ export function attach(webview, privileged) {
                     break;
                 }
 
+                console.log(privilegedInterface.commands[event.args[0]]);
                 if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
                     privilegedInterface.commands[event.args[0]](event.args[1]);
                 } else {

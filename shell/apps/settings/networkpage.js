@@ -212,6 +212,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             });
 
             // TODO: Integrate this into connection config dialog instead
+            // TODO: Trigger constant re-scan when connecting/disconnecting
             // connectButton.on("click", function() {
             //     _sphere.callPrivilegedCommand("network_configureWifi", {
             //         name: props.accessPoint.name

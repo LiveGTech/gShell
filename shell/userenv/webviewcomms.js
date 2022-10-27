@@ -56,9 +56,24 @@ export function attach(webview, privileged) {
                     break;
                 }
 
-                console.log(privilegedInterface.commands[event.args[0]]);
                 if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
-                    privilegedInterface.commands[event.args[0]](event.args[1]);
+                    privilegedInterface.commands[event.args[0]](event.args[1]).then(function(data) {
+                        webview.getAll().forEach(function(element) {
+                            element.send("callback", {
+                                id: event.args[1]._id,
+                                resolved: true,
+                                data
+                            });
+                        });
+                    }).catch(function(data) {
+                        webview.getAll().forEach(function(element) {
+                                element.send("callback", {
+                                id: event.args[1]._id,
+                                resolved: false,
+                                data
+                            });
+                        });
+                    });
                 } else {
                     console.warn(`Invalid privileged command: ${event.args[0]}`);
                 }

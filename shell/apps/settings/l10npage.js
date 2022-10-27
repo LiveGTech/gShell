@@ -17,9 +17,9 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
     localeSelectionButton.on("click", function() {
         _sphere.callPrivilegedCommand("l10n_setLocale", {
             localeCode: localeSelectionInput.getValue()
+        }).then(function() {
+            window.location.reload();
         });
-
-        window.location.reload();
     });
 
     fetch("./l10n.json").then(function(response) {

@@ -31,7 +31,9 @@ const NON_TEXTUAL_INPUTS = [
 ];
 
 var mainState = {};
+var privilegedDataIdCounter = 0;
 var privilegedDataUpdateCallbacks = [];
+var privilegedDataResponseQueue = {};
 var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
 
@@ -41,7 +43,21 @@ function isTextualInput(element) {
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
     callPrivilegedCommand: function(command, data) {
-        electron.ipcRenderer.sendToHost("privilegedCommand", command, data);
+        var id = privilegedDataIdCounter++;
+
+        electron.ipcRenderer.sendToHost("privilegedCommand", command, {...data, _id: id});
+
+        return new Promise(function(resolve, reject) {
+            setInterval(function() {
+                var response = privilegedDataResponseQueue[id];
+
+                if (response) {
+                    (response.resolved ? resolve : reject)(response.data);
+
+                    delete privilegedDataResponseQueue[id];
+                }
+            });
+        });
     },
     getPrivilegedData: function() {
         return mainState.privilegedData || null;
@@ -170,6 +186,10 @@ window.addEventListener("load", function() {
         } else {
             mainState.privilegedData = null;
         }
+    });
+
+    electron.ipcRenderer.on("callback", function(event, data) {
+        privilegedDataResponseQueue[data.id] = data;
     });
 
     electron.ipcRenderer.on("input_scrollIntoView", function() {

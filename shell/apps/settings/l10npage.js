@@ -22,6 +22,7 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         });
     });
 
+    // TODO: Present this data in a UI
     _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(data) {
         console.log(data);
     });
@@ -45,6 +46,31 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
             Paragraph() (_("l10n_changeMessage")),
             ButtonRow (
                 localeSelectionButton
+            )
+        ),
+        Section ( // TODO: Translate
+            Heading(2) ("Keyboard input"),
+            Heading(3) ("Layouts"),
+            Paragraph() ("You can add multiple keyboard layouts to easily switch between different languages and input modes when writing text."),
+            Container (
+                ListButton() (
+                    BoldTextFragment() ("British QWERTY"),
+                    LineBreak() (),
+                    TextFragment() ("British English spelling and suggestions")
+                ),
+                ListButton() (
+                    BoldTextFragment() ("British QWERTY"),
+                    LineBreak() (),
+                    TextFragment() ("简体中文（中国）拼音（pīnyīn）")
+                ),
+                ListButton() (
+                    BoldTextFragment() ("AZERTY"),
+                    LineBreak() (),
+                    TextFragment() ("British English spelling and suggestions")
+                ),
+                ButtonRow (
+                    Button() ("Add a layout")
+                )
             )
         )
     );

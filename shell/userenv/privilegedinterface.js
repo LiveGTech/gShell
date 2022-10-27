@@ -23,9 +23,9 @@ export var commands = {
     network_configureWifi: (data) => network.configureWifi(data.name, data.auth),
     network_connectWifi: (data) => network.connectWifi(data.name),
     l10n_setLocale: (data) => l10n.setLocale(data.localeCode),
-    input_loadKeyboardLayoutsFromConfig: () => input.saveKeyboardLayoutsToConfig(data),
-    input_saveKeyboardLayoutsToConfig: input.saveKeyboardLayoutsToConfig,
-    input_getAllKeyboardLayoutOptions: input.getAllKeyboardLayoutOptions,
+    input_loadKeyboardLayoutsFromConfig: input.loadKeyboardLayoutsFromConfig,
+    input_saveKeyboardLayoutsToConfig: (data) => input.saveKeyboardLayoutsToConfig(data.layouts),
+    input_getAllKeyboardLayoutOptions: () => input.getAllKeyboardLayoutOptions(true),
     a11y_setOption: (data) => a11y.setOption(data.name, data.value)
 };
 

@@ -89,6 +89,27 @@ export class KeyboardLayout {
         this.capsLockActive = false;
     }
 
+    serialise() {
+        return {
+            localeCode: this.localeCode,
+            variant: this.variant,
+            metadata: this.metadata,
+            states: this.states,
+            defaultState: this.defaultState,
+            shiftState: this.shiftState,
+            currentState: this.currentState,
+            allInputMethodPaths: this.allInputMethodPaths,
+            inputMethodPaths: this.inputMethodPaths
+        };
+    }
+
+    serialiseWithInputMethodOptions() {
+        return {
+            ...this.serialise(),
+            inputMethods: this.inputMethods.map((inputMethod) => inputMethod.serialiseWithoutDictionaries())
+        };
+    }
+
     static deserialise(data, path = null, inputMethodPaths = null) {
         var instance = new this(data.localeCode, data.variant, data.metadata, path);
 
@@ -128,6 +149,8 @@ export class KeyboardLayout {
     loadInputMethods() {
         var thisScope = this;
 
+        thisScope.inputMethods = [];
+
         return Promise.all(this.inputMethodPaths.map(function(path) {
             return fetch(path).then(function(response) {
                 return response.json();
@@ -145,6 +168,12 @@ export class KeyboardLayout {
                 return Promise.resolve();
             });
         }));
+    }
+
+    loadAllInputMethods() {
+        this.inputMethodPaths = [...this.allInputMethodPaths];
+
+        return this.loadInputMethods();
     }
 
     render() {
@@ -409,6 +438,22 @@ export class InputMethod {
         this.wordSearch = null;
 
         this.reindexDictionaries();
+    }
+
+    serialiseWithoutDictionaries() {
+        return {
+            localeCode: this.localeCode,
+            type: this.type,
+            metadata: this.metadata
+        };
+    }
+
+    serialise() {
+        return {
+            ...this.serialiseWithoutDictionaries(),
+            nGramDictionary: this.nGramDictionary,
+            wordDictionary: this.wordDictionary
+        };
     }
 
     static deserialise(data, path = null) {
@@ -775,7 +820,7 @@ export function loadKeyboardLayoutsFromConfig() {
 }
 
 export function saveKeyboardLayoutsToConfig(layouts = keyboardLayouts) {
-    return config.edit("input.gsc").then(function(data) {
+    return config.edit("input.gsc", function(data) {
         data.keyboardLayouts = layouts.map((layout) => ({
             path: layout.path,
             inputMethodPaths: layout.inputMethodPaths
@@ -801,13 +846,21 @@ export function getKeyboardLayoutDataForLocale(localeCode) {
     });
 }
 
-export function getAllKeyboardLayoutOptions() {
+export function getAllKeyboardLayoutOptions(serialise = false) {
     return fetch("gshell://input/l10nmappings.json").then(function(response) {
         return response.json();
     }).then(function(data) {
         return Promise.all(Object.keys(data.mappings).map(function(localeCode) {
             return Promise.all(data.mappings[localeCode].map(function(layoutPath) {
-                return loadKeyboardLayout(layoutPath, null, false);
+                var layout;
+
+                return loadKeyboardLayout(layoutPath, null, false).then(function(loadedLayout) {
+                    layout = loadedLayout;
+
+                    return layout.loadAllInputMethods();
+                }).then(function() {
+                    return Promise.resolve(layout.serialiseWithInputMethodOptions());
+                });
             }));
         }));
     });

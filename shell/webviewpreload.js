@@ -42,7 +42,7 @@ function isTextualInput(element) {
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
-    callPrivilegedCommand: function(command, data) {
+    callPrivilegedCommand: function(command, data = {}) {
         var id = privilegedDataIdCounter++;
 
         electron.ipcRenderer.sendToHost("privilegedCommand", command, {...data, _id: id});

@@ -22,6 +22,10 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         });
     });
 
+    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(data) {
+        console.log(data);
+    });
+
     fetch("./l10n.json").then(function(response) {
         return response.json();
     }).then(function(data) {

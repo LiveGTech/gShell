@@ -67,12 +67,14 @@ export function attach(webview, privileged) {
                         });
                     }).catch(function(data) {
                         webview.getAll().forEach(function(element) {
-                                element.send("callback", {
+                            element.send("callback", {
                                 id: event.args[1]._id,
                                 resolved: false,
                                 data
                             });
                         });
+
+                        console.warn("Received rejection when calling privileged command:", data);
                     });
                 } else {
                     console.warn(`Invalid privileged command: ${event.args[0]}`);

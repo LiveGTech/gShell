@@ -118,10 +118,6 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
     var channelDetails = Container() ();
 
-    var connectionConfigDialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
-
-    settings.registerDialog(connectionConfigDialog);
-
     var screen = settings.InnerScreen({title: props.accessPoint.name}) (
         Page(true) (
             Section({
@@ -206,9 +202,13 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             var connectButton = Button() (_("network_wifiAp_connect"));
 
             connectButton.on("click", function() {
-                connectionConfigDialog.dialogOpen();
+                var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
 
-                connectionConfigDialog.find(".app_settings_makeFirstFocus").focus();
+                settings.registerDialog(dialog);
+
+                dialog.dialogOpen();
+
+                dialog.find(".app_settings_makeFirstFocus").focus();
             });
 
             // TODO: Integrate this into connection config dialog instead

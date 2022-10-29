@@ -253,6 +253,10 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
 
     var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
 
+    if (props.accessPoint.security.includes("wpa1") || props.accessPoint.security.includes("wpa2")) {
+        preferredAuthMode = "wpa";
+    }
+
     if (props.accessPoint.security.includes("802_1x")) {
         preferredAuthMode += "_802_1x";
     }
@@ -260,10 +264,8 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
     var authModeInput = SelectionInput({value: preferredAuthMode}) (
         SelectionInputOption("none") ("None"),
         SelectionInputOption("wep") ("WEP"),
-        SelectionInputOption("wpa1") ("WPA1"),
-        SelectionInputOption("wpa1_802_1x") ("WPA1 802.1x (enterprise)"),
-        SelectionInputOption("wpa2") ("WPA2"),
-        SelectionInputOption("wpa2_802_1x") ("WPA2 802.1x (enterprise)"),
+        SelectionInputOption("wpa") ("WPA1/WPA2"),
+        SelectionInputOption("wpa_802_1x") ("WPA1/WPA2 802.1x (enterprise)")
     );
 
     var connectButton = Button() ("Connect");

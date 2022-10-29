@@ -110,18 +110,11 @@ export var components = {
     wep: noInputModeFactory({
         "wifi-sec.key-mgmt": "none"
     }),
-    wpa1: passwordInputModeFactory({
+    wpa: passwordInputModeFactory({
         "wifi-sec.key-mgmt": "wpa-psk"
     }, {
         minLength: 8,
         maxLength: 63
     }),
-    wpa1_802_1x: identityInputModeFactory(),
-    wpa2: passwordInputModeFactory({
-        "wifi-sec.key-mgmt": "wpa-psk"
-    }, {
-        minLength: 8,
-        maxLength: 63
-    }),
-    wpa2_802_1x: identityInputModeFactory()
+    wpa_802_1x: identityInputModeFactory()
 };

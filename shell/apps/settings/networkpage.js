@@ -249,7 +249,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 });
 
 export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfigDialog", function(props, children) {
-    // TODO: Translate screen and add in proper functionality
+    // TODO: Add in proper functionality
 
     var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
 
@@ -262,22 +262,22 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
     }
 
     var authModeInput = SelectionInput({value: preferredAuthMode}) (
-        SelectionInputOption("none") ("None"),
-        SelectionInputOption("wep") ("WEP"),
-        SelectionInputOption("wpa") ("WPA1/WPA2"),
-        SelectionInputOption("wpa_802_1x") ("WPA1/WPA2 802.1x (enterprise)")
+        SelectionInputOption("none") (_("network_wifiConfig_authMode_none")),
+        SelectionInputOption("wep") (_("network_wifiConfig_authMode_wep")),
+        SelectionInputOption("wpa") (_("network_wifiConfig_authMode_wpa")),
+        SelectionInputOption("wpa_802_1x") (_("network_wifiConfig_authMode_wpa_802_1x"))
     );
 
-    var connectButton = Button() ("Connect");
+    var connectButton = Button() (_("network_wifiConfig_connect"));
 
     var authModeConfigContainer = Container() ();
     var currentAuthModeConfigElement = null;
 
     var dialog = Dialog (
-        Heading() (`Connect to ${props.accessPoint.name}`),
+        Heading() (_("network_wifiConfig_title", {name: props.accessPoint.name})),
         DialogContent (
             Label (
-                Text("Authentication mode"),
+                Text(_("network_wifiConfig_authMode")),
                 authModeInput
             ),
             authModeConfigContainer
@@ -289,7 +289,7 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
                 attributes: {
                     "aui-bind": "close"
                 }
-            }) ("Cancel")
+            }) (_("cancel"))
         )
     );
 

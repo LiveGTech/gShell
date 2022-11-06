@@ -44,6 +44,14 @@
             "{value} != 1": "{value} megabits/second"
         },
 
+        "network_wifiConfig_title": "Connect to {name}",
+        "network_wifiConfig_authMode": "Authentication mode",
+        "network_wifiConfig_authMode_none": "None",
+        "network_wifiConfig_authMode_wep": "WEP",
+        "network_wifiConfig_authMode_wpa": "WPA1/WPA2",
+        "network_wifiConfig_authMode_wpa_802_1x": "WPA1/WPA2 802.1x (enterprise)",
+        "network_wifiConfig_connect": "Connect",
+
         "l10n": "Language and input",
 
         "l10n_summary": "Change language, region and keyboard settings",

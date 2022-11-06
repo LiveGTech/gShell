@@ -57,7 +57,25 @@ export function attach(webview, privileged) {
                 }
 
                 if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
-                    privilegedInterface.commands[event.args[0]](event.args[1]);
+                    privilegedInterface.commands[event.args[0]](event.args[1]).then(function(data) {
+                        webview.getAll().forEach(function(element) {
+                            element.send("callback", {
+                                id: event.args[1]._id,
+                                resolved: true,
+                                data
+                            });
+                        });
+                    }).catch(function(data) {
+                        webview.getAll().forEach(function(element) {
+                            element.send("callback", {
+                                id: event.args[1]._id,
+                                resolved: false,
+                                data
+                            });
+                        });
+
+                        console.warn("Received rejection when calling privileged command:", data);
+                    });
                 } else {
                     console.warn(`Invalid privileged command: ${event.args[0]}`);
                 }

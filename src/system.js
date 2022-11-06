@@ -331,8 +331,14 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
-// TODO: Use prefix to differentiate Wi-Fi network connections from other network connections
-// This would prevent Wi-Fi networks that may maliciously use the name "Wired connection 1" from confusing the networking system
+function networkSsidToQualifiedName(ssid) {
+    return `wifi/${ssid}`;
+}
+
+function networkQualifiedNameToSsid(name) {
+    return name.replace(/^wifi\//, "");
+}
+
 exports.networkList = function() {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve([]);
@@ -345,7 +351,8 @@ exports.networkList = function() {
             var data = exports.parseNmcliLine(line);
 
             return {
-                name: data[0],
+                name: networkQualifiedNameToSsid(data[0]),
+                qualifiedName: data[0],
                 type: {
                     "802-11-wireless": "wifi",
                     "802-3-ethernet": "ethernet"
@@ -376,7 +383,8 @@ exports.networkScanWifi = function() {
                 security: data[5].split(" ").filter((data) => data != "").map((data) => ({
                     "WEP": "wep",
                     "WPA1": "wpa1",
-                    "WPA2": "wpa2"
+                    "WPA2": "wpa2",
+                    "802.1X": "802_1x"
                 }[data] || "unknown")),
                 connected: data[6] == "yes"
             };
@@ -390,13 +398,13 @@ exports.networkDisconnectWifi = function(name) {
     }
 
     return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.name == name && result.connected);
+        var matchingResults = results.filter((result) => result.qualifiedName == networkSsidToQualifiedName(name) && result.connected);
 
         if (matchingResults.length == 0) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "down", name]);
+        return exports.executeCommand("nmcli", ["connection", "down", networkSsidToQualifiedName(name)]);
     });
 };
 
@@ -406,13 +414,13 @@ exports.networkForgetWifi = function(name) {
     }
 
     return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.name == name);
+        var matchingResults = results.filter((result) => result.qualifiedName == networkSsidToQualifiedName(name));
 
         if (matchingResults.length == 0) {
             return Promise.resolve();
         }
 
-        return exports.executeCommand("nmcli", ["connection", "delete", name]); // This should also disconnect if already connected
+        return exports.executeCommand("nmcli", ["connection", "delete", networkSsidToQualifiedName(name)]); // This should also disconnect if already connected
     });
 };
 
@@ -422,7 +430,7 @@ exports.networkConfigureWifi = function(name, auth = {}) {
     }
 
     return exports.networkForgetWifi(name).then(function() {
-        return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", name, "ssid", name, ...Object.entries(auth).flat()]);
+        return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", networkSsidToQualifiedName(name), "ssid", name, ...Object.entries(auth).flat()]);
     });
 };
 

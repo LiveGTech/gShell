@@ -10,6 +10,7 @@
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as settings from "./script.js";
+import * as wifiAuthModes from "./wifiauthmodes.js";
 
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
     var wifiScanResultsContainer = Container() ();
@@ -201,16 +202,28 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             var connectButton = Button() (_("network_wifiAp_connect"));
 
             connectButton.on("click", function() {
-                _sphere.callPrivilegedCommand("network_configureWifi", {
-                    name: props.accessPoint.name
-                }).then(function() {
-                    return _sphere.callPrivilegedCommand("network_connectWifi", {
-                        name: props.accessPoint.name
-                    });
-                }).then(function() {
-                    _shpere.callPrivilegedCommand("network_scanWifi");
-                });
+                var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
+
+                settings.registerDialog(dialog);
+
+                dialog.dialogOpen();
+
+                dialog.find(".app_settings_makeFirstFocus").focus();
             });
+
+            // TODO: Integrate this into connection config dialog instead
+            // TODO: Trigger constant re-scan when connecting/disconnecting
+            // connectButton.on("click", function() {
+            //     _sphere.callPrivilegedCommand("network_configureWifi", {
+            //         name: props.accessPoint.name
+            //     }).then(function() {
+            //         return _sphere.callPrivilegedCommand("network_connectWifi", {
+            //             name: props.accessPoint.name
+            //         });
+            //     }).then(function() {
+            //         _shpere.callPrivilegedCommand("network_scanWifi");
+            //     });
+            // });
 
             mainActions.clear().add(
                 connectButton
@@ -233,6 +246,80 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
     updateData();
 
     return screen;
+});
+
+export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfigDialog", function(props, children) {
+    // TODO: Add in proper functionality
+
+    var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
+
+    if (props.accessPoint.security.includes("wpa1") || props.accessPoint.security.includes("wpa2")) {
+        preferredAuthMode = "wpa";
+    }
+
+    if (props.accessPoint.security.includes("802_1x")) {
+        preferredAuthMode += "_802_1x";
+    }
+
+    var authModeInput = SelectionInput({value: preferredAuthMode}) (
+        SelectionInputOption("none") (_("network_wifiConfig_authMode_none")),
+        SelectionInputOption("wep") (_("network_wifiConfig_authMode_wep")),
+        SelectionInputOption("wpa") (_("network_wifiConfig_authMode_wpa")),
+        SelectionInputOption("wpa_802_1x") (_("network_wifiConfig_authMode_wpa_802_1x"))
+    );
+
+    var connectButton = Button() (_("network_wifiConfig_connect"));
+
+    var authModeConfigContainer = Container() ();
+    var currentAuthModeConfigElement = null;
+
+    var dialog = Dialog (
+        Heading() (_("network_wifiConfig_title", {name: props.accessPoint.name})),
+        DialogContent (
+            Label (
+                Text(_("network_wifiConfig_authMode")),
+                authModeInput
+            ),
+            authModeConfigContainer
+        ),
+        ButtonRow("end") (
+            connectButton,
+            Button({
+                mode: "secondary",
+                attributes: {
+                    "aui-bind": "close"
+                }
+            }) (_("cancel"))
+        )
+    );
+
+    function renderAuthModeConfigContainer() {
+        currentAuthModeConfigElement = wifiAuthModes.components[authModeInput.getValue()]() ();
+
+        currentAuthModeConfigElement.find("input").on("input", function() {
+            validate();
+        });
+
+        validate();
+
+        authModeConfigContainer.clear().add(currentAuthModeConfigElement);
+    }
+
+    function validate() {
+        if (currentAuthModeConfigElement.inter.isValid()) {
+            connectButton.removeAttribute("disabled");
+        } else {
+            connectButton.setAttribute("disabled", true);
+        }
+    }
+
+    authModeInput.on("change", function() {
+        renderAuthModeConfigContainer();
+    });
+
+    renderAuthModeConfigContainer();
+
+    return dialog;
 });
 
 export function connectSummary(summary) {

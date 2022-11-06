@@ -25,7 +25,6 @@ export function getList() {
     });
 }
 
-// TODO: Trigger constant re-scan when connecting/disconnecting
 export function scanWifi() {
     return gShell.call("network_scanWifi").then(function(data) {
         wifiScanResults = data;
@@ -53,6 +52,9 @@ export function connectWifi(name) {
 }
 
 export function init() {
+    getList();
+    scanWifi();
+
     setInterval(function() {
         getList();
     }, LIST_UPDATE_INTERVAL);

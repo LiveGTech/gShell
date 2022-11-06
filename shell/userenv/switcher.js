@@ -454,7 +454,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                     screenElement.easeStyleTransition("opacity", 0).then(function() {
                         return screenElement.collapse(false);
                     }).then(function() {
-                        screenElement.remove();
+                        closeWindow(screenElement, false);
                     });
                 })
                 .add(

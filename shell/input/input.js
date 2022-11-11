@@ -1044,7 +1044,7 @@ export function show(mode = getBestInputMode()) {
 }
 
 export function hide(force = false) {
-    if (!force && showingTransition) {
+    if (!force && (!showing || showingTransition)) {
         return;
     }
 

@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as a11y from "gshell://lib/adaptui/src/a11y.js";
+import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 
 import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
@@ -16,7 +17,6 @@ import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
-import * as sizeUnits from "gshell://common/sizeunits.js";
 
 var flags = {};
 var systemSize = null;
@@ -217,7 +217,7 @@ function checkInstallDisk() {
             ...disk.partitions.filter((partition) => partition.valid).map((partition) => $g.create("option")
                 .setText(_("oobs_installPartition_existing_partition", {
                     name: partition.name,
-                    size: sizeUnits.getString(Number(partition.size), "iec")
+                    size: sizeUnits.getString(Number(partition.size), _, "iec")
                 }))
                 .setAttribute("value", partition.name)
             )
@@ -295,8 +295,8 @@ function checkInstallPartition() {
 
     if (!enoughSpace) {
         $g.sel(".oobs_installPartition_error").setText(_("oobs_installPartition_notEnoughSpaceError", {
-            sizeMetric: sizeUnits.getString(systemSize, "metric"),
-            sizeIec: sizeUnits.getString(systemSize, "iec")
+            sizeMetric: sizeUnits.getString(systemSize, _, "metric"),
+            sizeIec: sizeUnits.getString(systemSize, _, "iec")
         }));
 
         return;
@@ -701,7 +701,7 @@ export function init() {
                                 ),
                                 $g.create("br"),
                                 $g.create("span").setText(_("oobs_installDisks_diskTotalSize", {
-                                    size: sizeUnits.getString(Number(disk.size))
+                                    size: sizeUnits.getString(Number(disk.size), _)
                                 }))
                             )
                     ))

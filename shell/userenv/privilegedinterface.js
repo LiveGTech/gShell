@@ -23,6 +23,8 @@ export var commands = {
     network_configureWifi: (data) => network.configureWifi(data.name, data.auth),
     network_connectWifi: (data) => network.connectWifi(data.name),
     l10n_setLocale: (data) => l10n.setLocale(data.localeCode),
+    input_loadInputDataFromConfig: input.loadInputDataFromConfig,
+    input_saveInputDataToConfig: (data) => input.saveInputDataToConfig(data.data),
     input_loadKeyboardLayoutsFromConfig: input.loadKeyboardLayoutsFromConfig,
     input_saveKeyboardLayoutsToConfig: (data) => input.saveKeyboardLayoutsToConfig(data.layouts),
     input_getAllKeyboardLayoutOptions: () => input.getAllKeyboardLayoutOptions(true),

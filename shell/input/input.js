@@ -103,10 +103,11 @@ export class KeyboardLayout {
         };
     }
 
-    serialiseWithInputMethodOptions() {
+    serialiseForOptionSelection() {
         return {
             ...this.serialise(),
-            inputMethods: this.inputMethods.map((inputMethod) => inputMethod.serialiseWithoutDictionaries())
+            path: this.path,
+            inputMethods: this.inputMethods.map((inputMethod) => inputMethod.serialiseForOptionSelection())
         };
     }
 
@@ -444,17 +445,19 @@ export class InputMethod {
         this.reindexDictionaries();
     }
 
-    serialiseWithoutDictionaries() {
+    serialiseForOptionSelection() {
         return {
             localeCode: this.localeCode,
             type: this.type,
-            metadata: this.metadata
+            metadata: this.metadata,
+            path: this.path
         };
     }
 
     serialise() {
         return {
-            ...this.serialiseWithoutDictionaries(),
+            ...this.serialiseForOptionSelection(),
+            path: undefined,
             nGramDictionary: this.nGramDictionary,
             wordDictionary: this.wordDictionary
         };
@@ -823,6 +826,18 @@ export function loadKeyboardLayoutsFromConfig() {
     });
 }
 
+export function loadInputDataFromConfig() {
+    return config.read("input.gsc");
+}
+
+export function saveInputDataToConfig(data) {
+    return config.edit("input.gsc", function(currentData) {
+        return Promise.resolve(data);
+    }).then(function() {
+        loadKeyboardLayoutsFromConfig();
+    });
+}
+
 export function saveKeyboardLayoutsToConfig(layouts = keyboardLayouts) {
     return config.edit("input.gsc", function(data) {
         data.keyboardLayouts = layouts.map((layout) => ({
@@ -863,7 +878,7 @@ export function getAllKeyboardLayoutOptions(serialise = false) {
 
                     return layout.loadAllInputMethods();
                 }).then(function() {
-                    return Promise.resolve(layout.serialiseWithInputMethodOptions());
+                    return Promise.resolve(layout.serialiseForOptionSelection());
                 });
             })).then(function(layouts) {
                 return {

@@ -12,11 +12,55 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as settings from "./script.js";
 
+var inputConfigData = null;
+var layoutOptions = null;
+
+function findLayoutFromPath(path) {
+    return layoutOptions
+        .map((language) => language.layouts)
+        .flat()
+        .find((layout) => layout.path == path)
+    ;
+}
+
 export var L10nPage = astronaut.component("L10nPage", function(props, children) {
     var localeSelectionInput = SelectionInput() ();
     var localeSelectionButton = Button() (_("apply"));
-
     var keyboardInputAddLayoutButton = Button() ("Add a layout"); // TODO: Translate
+    var layoutsList = Container() ();
+
+    function renderLayoutsList() {
+        return _sphere.callPrivilegedCommand("input_loadInputDataFromConfig").then(function(data) {
+            inputConfigData = data;
+    
+            layoutsList.clear().add(
+                ...inputConfigData.keyboardLayouts.map(function(layout, i) {
+                    // TODO: Load default input method if not specified
+
+                    var layoutData = findLayoutFromPath(layout.path);
+                    var inputMethod = layoutData.inputMethods.find((inputMethod) => inputMethod.path == layout.inputMethodPaths?.[0]);
+
+                    var button = ListButton() (
+                        BoldTextFragment() (layoutData.metadata.variantName),
+                        LineBreak() (),
+                        TextFragment() (inputMethod?.metadata.displayName || "(None)") // TODO: Translate none
+                    );
+
+                    button.on("click", function() {
+                        var dialog = InputConfigDialog({addingLayout: false, id: i}) ();
+    
+                        settings.registerDialog(dialog);
+    
+                        dialog.dialogOpen();
+                    });
+
+                    return button;
+                })
+            );
+
+            return Promise.resolve();
+        });
+    }
 
     localeSelectionButton.on("click", function() {
         _sphere.callPrivilegedCommand("l10n_setLocale", {
@@ -27,6 +71,10 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
     });
 
     keyboardInputAddLayoutButton.on("click", function() {
+        if (layoutOptions == null) {
+            return;
+        }
+
         var dialog = InputConfigDialog({addingLayout: true}) ();
 
         settings.registerDialog(dialog);
@@ -42,6 +90,12 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         );
 
         localeSelectionInput.setValue($g.l10n.getSystemLocaleCode());
+    });
+
+    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
+        layoutOptions = options;
+
+        renderLayoutsList();
     });
 
     return Page (
@@ -60,27 +114,7 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
             Heading(3) ("Layouts"),
             Paragraph() ("You can add multiple keyboard layouts to easily switch between different languages and input modes when writing text."),
             Container (
-                ListButton() (
-                    BoldTextFragment() ("British QWERTY"),
-                    LineBreak() (),
-                    TextFragment() ("British English spelling and suggestions")
-                ).on("click", function() {
-                    var dialog = InputConfigDialog({addingLayout: false, id: 0}) ();
-
-                    settings.registerDialog(dialog);
-
-                    dialog.dialogOpen();
-                }),
-                ListButton() (
-                    BoldTextFragment() ("British QWERTY"),
-                    LineBreak() (),
-                    TextFragment() ("简体中文（中国）拼音（pīnyīn）")
-                ),
-                ListButton() (
-                    BoldTextFragment() ("AZERTY"),
-                    LineBreak() (),
-                    TextFragment() ("British English spelling and suggestions")
-                ),
+                layoutsList,
                 ButtonRow (
                     keyboardInputAddLayoutButton
                 )
@@ -90,13 +124,49 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
 });
 
 export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", function(props, children) {
-    // TODO: Translate and add in rest of functionality
-
-    var layoutOptions = null;
+    // TODO: Translate
+    // TODO: Set selection inputs when loading — select default input method if not specified
 
     var languageSelectionInput = SelectionInput("en_GB") ();
     var layoutSelectionInput = SelectionInput("qwerty") ();
     var inputMethodSelectionInput = SelectionInput("default") ();
+    var addButton = Button() ("Add");
+    var saveButton = Button() ("Save");
+
+    var dialog = Dialog (
+        Heading() (props.addingLayout ? "Add layout" : "Configure layout"),
+        DialogContent (
+            Label (
+                Text("Language"),
+                languageSelectionInput
+            ),
+            Label (
+                Text("Layout"),
+                layoutSelectionInput
+            ),
+            Label (
+                Text("Input method"),
+                inputMethodSelectionInput
+            )
+        ),
+        props.addingLayout ? ButtonRow("end") (
+            addButton,
+            Button({
+                mode: "secondary",
+                attributes: {
+                    "aui-bind": "close"
+                }
+            }) ("Cancel")
+        ) : ButtonRow("end") (
+            saveButton,
+            Button({
+                mode: "dangerous",
+                attributes: {
+                    "aui-bind": "close"
+                }
+            }) ("Remove")
+        )
+    );
 
     function renderInputMethodSelectionInput() {
         if (layoutOptions == null) {
@@ -128,6 +198,21 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
         renderInputMethodSelectionInput();
     }
 
+    function getLayoutConfigData() {
+        var selectedLayout = layoutOptions
+            .find((language) => language.localeCode == languageSelectionInput.getValue())
+            .layouts
+            .find((layout) => layout.variant == layoutSelectionInput.getValue())
+        ;
+
+        var selectedInputMethod = selectedLayout.inputMethods.find((inputMethod) => inputMethod.type == inputMethodSelectionInput.getValue());
+
+        return {
+            path: selectedLayout.path,
+            inputMethodPaths: selectedInputMethod ? [selectedInputMethod.path] : []
+        };
+    }
+
     languageSelectionInput.on("change", function() {
         renderLayoutSelectionInput();
     });
@@ -136,50 +221,35 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
         renderInputMethodSelectionInput();
     });
 
-    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
-        layoutOptions = options;
+    addButton.on("click", function() {
+        if (layoutOptions == null || inputConfigData == null) {
+            return;
+        }
 
-        console.log(options);
+        inputConfigData.keyboardLayouts.push(getLayoutConfigData());
 
-        languageSelectionInput.clear().add(
-            ...layoutOptions.map((language) => SelectionInputOption(language.localeCode) (language.name))
-        );
-
-        renderLayoutSelectionInput();
+        _sphere.callPrivilegedCommand("input_saveInputDataToConfig", {data: inputConfigData}).then(function() {
+            dialog.dialogClose();
+        });
     });
 
-    return Dialog (
-        Heading() (props.addingLayout ? "Add layout" : "Configure layout"),
-        DialogContent (
-            Label (
-                Text("Language"),
-                languageSelectionInput
-            ),
-            Label (
-                Text("Layout"),
-                layoutSelectionInput
-            ),
-            Label (
-                Text("Input method"),
-                inputMethodSelectionInput
-            )
-        ),
-        props.addingLayout ? ButtonRow("end") (
-            Button() ("Add"),
-            Button({
-                mode: "secondary",
-                attributes: {
-                    "aui-bind": "close"
-                }
-            }) ("Cancel")
-        ) : ButtonRow("end") (
-            Button() ("Save"),
-            Button({
-                mode: "dangerous",
-                attributes: {
-                    "aui-bind": "close"
-                }
-            }) ("Remove")
-        )
+    saveButton.on("click", function() {
+        if (layoutOptions == null || inputConfigData == null || !inputConfigData.keyboardLayouts[props.id]) {
+            return;
+        }
+
+        inputConfigData.keyboardLayouts[props.id] = getLayoutConfigData();
+
+        _sphere.callPrivilegedCommand("input_saveInputDataToConfig", {data: inputConfigData}).then(function() {
+            dialog.dialogClose();
+        });
+    });
+
+    languageSelectionInput.clear().add(
+        ...layoutOptions.map((language) => SelectionInputOption(language.localeCode) (language.name))
     );
+
+    renderLayoutSelectionInput();
+
+    return dialog;
 });

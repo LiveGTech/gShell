@@ -103,8 +103,6 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
             return;
         }
 
-        // FIXME: Duplicate input methods showing
-
         inputMethodSelectionInput.clear().add(
             ...layoutOptions
                 .find((language) => language.localeCode == languageSelectionInput.getValue())

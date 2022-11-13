@@ -149,7 +149,7 @@ export class KeyboardLayout {
     loadInputMethods() {
         var thisScope = this;
 
-        thisScope.inputMethods = [];
+        var inputMethodsToAdd = [];
 
         return Promise.all(this.inputMethodPaths.map(function(path) {
             return fetch(path).then(function(response) {
@@ -157,7 +157,7 @@ export class KeyboardLayout {
             }).then(function(data) {
                 var inputMethod = InputMethod.deserialise(data, path);
 
-                thisScope.inputMethods.push(inputMethod);
+                inputMethodsToAdd.push(inputMethod);
 
                 if (thisScope.currentInputMethod == null) {
                     thisScope.currentInputMethod = inputMethod;
@@ -167,7 +167,11 @@ export class KeyboardLayout {
 
                 return Promise.resolve();
             });
-        }));
+        })).then(function() {
+            thisScope.inputMethods = inputMethodsToAdd;
+
+            return Promise.resolve();
+        });
     }
 
     loadAllInputMethods() {

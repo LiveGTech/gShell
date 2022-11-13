@@ -861,7 +861,13 @@ export function getAllKeyboardLayoutOptions(serialise = false) {
                 }).then(function() {
                     return Promise.resolve(layout.serialiseWithInputMethodOptions());
                 });
-            }));
+            })).then(function(layouts) {
+                return {
+                    localeCode,
+                    name: data.languageNames[localeCode],
+                    layouts
+                };
+            });
         }));
     });
 }

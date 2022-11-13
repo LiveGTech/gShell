@@ -6,5 +6,9 @@
         "fr_FR": [
             "gshell://input/layouts/fr_FR_azerty.gkbl"
         ]
+    },
+    "languageNames": {
+        "en_GB": "English (United Kingdom)",
+        "fr_FR": "Français (France)"
     }
 }

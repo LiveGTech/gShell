@@ -34,11 +34,6 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         dialog.dialogOpen();
     });
 
-    // TODO: Present this data in a UI
-    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(data) {
-        console.log(data);
-    });
-
     fetch("./l10n.json").then(function(response) {
         return response.json();
     }).then(function(data) {
@@ -70,7 +65,7 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
                     LineBreak() (),
                     TextFragment() ("British English spelling and suggestions")
                 ).on("click", function() {
-                    var dialog = InputConfigDialog({addingLayout: false}) ();
+                    var dialog = InputConfigDialog({addingLayout: false, id: 0}) ();
 
                     settings.registerDialog(dialog);
 
@@ -95,24 +90,52 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
 });
 
 export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", function(props, children) {
-    // TODO: Translate and add proper implementation
+    // TODO: Translate and add in rest of functionality
+
+    var layoutOptions = null;
+
+    var languageSelectionInput = SelectionInput("en_GB") ();
+    var layoutSelectionInput = SelectionInput("en_GB_qwerty") ();
+
+    function renderLayoutSelectionInput() {
+        if (layoutOptions == null) {
+            return;
+        }
+
+        layoutSelectionInput.clear().add(
+            ...layoutOptions
+                .find((language) => language.localeCode == languageSelectionInput.getValue())
+                .layouts
+                .map((layout) => SelectionInputOption(layout.variant) (layout.metadata.variantName))
+        );
+    }
+
+    languageSelectionInput.on("change", function() {
+        renderLayoutSelectionInput();
+    });
+
+    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
+        layoutOptions = options;
+
+        console.log(options);
+
+        languageSelectionInput.clear().add(
+            ...layoutOptions.map((language) => SelectionInputOption(language.localeCode) (language.name))
+        );
+
+        renderLayoutSelectionInput();
+    });
+
     return Dialog (
         Heading() (props.addingLayout ? "Add layout" : "Configure layout"),
         DialogContent (
             Label (
                 Text("Language"),
-                SelectionInput("en_GB") (
-                    SelectionInputOption("en_GB") ("English (United Kingdom)"),
-                    SelectionInputOption("fr_FR") ("Français (France)"),
-                    SelectionInputOption("zh_CN") ("简体中文（中国）")
-                )
+                languageSelectionInput
             ),
             Label (
                 Text("Layout"),
-                SelectionInput("en_GB_qwerty") (
-                    SelectionInputOption("en_GB_qwerty") ("British QWERTY"),
-                    SelectionInputOption("fr_FR_azerty") ("AZERTY")
-                )
+                layoutSelectionInput
             ),
             Label (
                 Text("Input method"),

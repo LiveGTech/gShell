@@ -95,7 +95,25 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
     var layoutOptions = null;
 
     var languageSelectionInput = SelectionInput("en_GB") ();
-    var layoutSelectionInput = SelectionInput("en_GB_qwerty") ();
+    var layoutSelectionInput = SelectionInput("qwerty") ();
+    var inputMethodSelectionInput = SelectionInput("default") ();
+
+    function renderInputMethodSelectionInput() {
+        if (layoutOptions == null) {
+            return;
+        }
+
+        // FIXME: Duplicate input methods showing
+
+        inputMethodSelectionInput.clear().add(
+            ...layoutOptions
+                .find((language) => language.localeCode == languageSelectionInput.getValue())
+                .layouts
+                .find((layout) => layout.variant == layoutSelectionInput.getValue())
+                .inputMethods
+                .map((inputMethod) => SelectionInputOption(inputMethod.type) (inputMethod.metadata.displayName))
+        );
+    }
 
     function renderLayoutSelectionInput() {
         if (layoutOptions == null) {
@@ -108,10 +126,16 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
                 .layouts
                 .map((layout) => SelectionInputOption(layout.variant) (layout.metadata.variantName))
         );
+
+        renderInputMethodSelectionInput();
     }
 
     languageSelectionInput.on("change", function() {
         renderLayoutSelectionInput();
+    });
+
+    layoutSelectionInput.on("change", function() {
+        renderInputMethodSelectionInput();
     });
 
     _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
@@ -139,10 +163,7 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
             ),
             Label (
                 Text("Input method"),
-                SelectionInput("en_GB_default") (
-                    SelectionInputOption("en_GB_default") ("British English spelling and suggestions"),
-                    SelectionInputOption("zh_CN_pinyin") ("简体中文（中国）拼音（pīnyīn）")
-                )
+                inputMethodSelectionInput
             )
         ),
         props.addingLayout ? ButtonRow("end") (

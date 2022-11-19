@@ -14,6 +14,7 @@ import * as settings from "./script.js";
 
 var inputConfigData = null;
 var layoutOptions = null;
+var layoutsListIsDirty = false;
 
 function findLayoutFromPath(path) {
     return layoutOptions
@@ -96,6 +97,14 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         layoutOptions = options;
 
         renderLayoutsList();
+
+        setInterval(function() {
+            if (layoutsListIsDirty) {
+                renderLayoutsList();
+                
+                layoutsListIsDirty = false;
+            }
+        });
     });
 
     return Page (
@@ -132,6 +141,7 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
     var inputMethodSelectionInput = SelectionInput("default") ();
     var addButton = Button() ("Add");
     var saveButton = Button() ("Save");
+    var removeButton = Button("dangerous") ("Remove");
 
     var dialog = Dialog (
         Heading() (props.addingLayout ? "Add layout" : "Configure layout"),
@@ -159,12 +169,7 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
             }) ("Cancel")
         ) : ButtonRow("end") (
             saveButton,
-            Button({
-                mode: "dangerous",
-                attributes: {
-                    "aui-bind": "close"
-                }
-            }) ("Remove")
+            removeButton
         )
     );
 
@@ -229,8 +234,10 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
         inputConfigData.keyboardLayouts.push(getLayoutConfigData());
 
         _sphere.callPrivilegedCommand("input_saveInputDataToConfig", {data: inputConfigData}).then(function() {
-            dialog.dialogClose();
+            layoutsListIsDirty = true;
         });
+
+        dialog.dialogClose();
     });
 
     saveButton.on("click", function() {
@@ -241,13 +248,49 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
         inputConfigData.keyboardLayouts[props.id] = getLayoutConfigData();
 
         _sphere.callPrivilegedCommand("input_saveInputDataToConfig", {data: inputConfigData}).then(function() {
-            dialog.dialogClose();
+            layoutsListIsDirty = true;
         });
+
+        dialog.dialogClose();
+    });
+
+    removeButton.on("click", function() {
+        if (layoutOptions == null || inputConfigData == null || !inputConfigData.keyboardLayouts[props.id]) {
+            return;
+        }
+
+        if (inputConfigData.keyboardLayouts.length <= 1) {
+            return;
+        }
+
+        inputConfigData.keyboardLayouts.splice(props.id, 1);
+
+        _sphere.callPrivilegedCommand("input_saveInputDataToConfig", {data: inputConfigData}).then(function() {
+            layoutsListIsDirty = true;
+        });
+
+        dialog.dialogClose();
     });
 
     languageSelectionInput.clear().add(
         ...layoutOptions.map((language) => SelectionInputOption(language.localeCode) (language.name))
     );
+
+    if (!props.addingLayout) {
+        var keyboardLayout = findLayoutFromPath(inputConfigData.keyboardLayouts[props.id]?.path);
+
+        if (keyboardLayout == null) {
+            return;
+        }
+
+        languageSelectionInput.setValue(keyboardLayout.localeCode);
+        layoutSelectionInput.setValue(keyboardLayout.variant);
+        layoutSelectionInput.setValue(keyboardLayout.inputMethods[0]?.type);
+    }
+
+    if (inputConfigData.keyboardLayouts.length <= 1) {
+        removeButton.setAttribute("disabled", true);
+    }
 
     renderLayoutSelectionInput();
 

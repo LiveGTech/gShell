@@ -36,8 +36,6 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
     
             layoutsList.clear().add(
                 ...inputConfigData.keyboardLayouts.map(function(layout, i) {
-                    // TODO: Load default input method if not specified
-
                     var layoutData = findLayoutFromPath(layout.path);
                     var inputMethod = layoutData.inputMethods.find((inputMethod) => inputMethod.path == layout.inputMethodPaths?.[0]);
 
@@ -134,11 +132,10 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
 
 export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", function(props, children) {
     // TODO: Translate
-    // TODO: Set selection inputs when loading — select default input method if not specified
 
-    var languageSelectionInput = SelectionInput("en_GB") ();
-    var layoutSelectionInput = SelectionInput("qwerty") ();
-    var inputMethodSelectionInput = SelectionInput("default") ();
+    var languageSelectionInput = SelectionInput() ();
+    var layoutSelectionInput = SelectionInput() ();
+    var inputMethodSelectionInput = SelectionInput() ();
     var addButton = Button() ("Add");
     var saveButton = Button() ("Save");
     var removeButton = Button("dangerous") ("Remove");
@@ -275,6 +272,14 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
     languageSelectionInput.clear().add(
         ...layoutOptions.map((language) => SelectionInputOption(language.localeCode) (language.name))
     );
+
+    var defaultLayout = layoutOptions.find((option) => option.localeCode == $g.l10n.getSystemLocaleCode()).layouts[0];
+
+    defaultLayout ||= layoutOptions.find((option) => option.localeCode == "en_GB").layouts[0];
+
+    languageSelectionInput.setValue(defaultLayout.localeCode);
+    layoutSelectionInput.setValue(defaultLayout.variant);
+    inputMethodSelectionInput.setValue(defaultLayout.inputMethods[0]?.type);
 
     if (!props.addingLayout) {
         var keyboardLayout = findLayoutFromPath(inputConfigData.keyboardLayouts[props.id]?.path);

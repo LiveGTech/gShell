@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import MiniSearch from "gshell://lib/minisearch.min.js";
 
+import * as l10n from "gshell://config/l10n.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as device from "gshell://system/device.js";
 import * as config from "gshell://config/config.js";
@@ -827,7 +828,36 @@ export function loadKeyboardLayoutsFromConfig() {
 }
 
 export function loadInputDataFromConfig() {
-    return config.read("input.gsc");
+    return config.read("input.gsc").then(function(data) {
+        var defaultPath;
+
+        data.keyboardLayouts ||= [];
+
+        if (data.keyboardLayouts.length == 0) {
+            return fetch("gshell://input/l10nmappings.json").then(function(response) {
+                return response.json();
+            }).then(function(mappingsData) {
+                defaultPath = (mappingsData.mappings[l10n.currentLocale.localeCode] || mappingsData.mappings["en_GB"])[0]
+
+                return fetch(defaultPath);
+            }).then(function(response) {
+                return response.json();
+            }).then(function(defaultLayout) {
+                return defaultLayout.inputMethodPaths;
+            }).then(function(defaultInputMethodPaths) {
+                data.keyboardLayouts.push({
+                    path: defaultPath,
+                    inputMethodPaths: defaultInputMethodPaths.slice(0, 1)
+                });
+
+                data.isGenerated = true;
+
+                return Promise.resolve(data);
+            });
+        }
+
+        return Promise.resolve(data);
+    });
 }
 
 export function saveInputDataToConfig(data) {
@@ -844,6 +874,8 @@ export function saveKeyboardLayoutsToConfig(layouts = keyboardLayouts) {
             path: layout.path,
             inputMethodPaths: layout.inputMethodPaths
         }));
+
+        data.isGenerated = false;
 
         return Promise.resolve(data);
     }).then(function() {

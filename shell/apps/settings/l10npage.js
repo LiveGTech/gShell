@@ -27,7 +27,7 @@ function findLayoutFromPath(path) {
 export var L10nPage = astronaut.component("L10nPage", function(props, children) {
     var localeSelectionInput = SelectionInput() ();
     var localeSelectionButton = Button() (_("apply"));
-    var keyboardInputAddLayoutButton = Button() ("Add a layout"); // TODO: Translate
+    var keyboardInputAddLayoutButton = Button() (_("l10n_input_layout_addAction"));
     var layoutsList = Container() ();
 
     function renderLayoutsList() {
@@ -42,7 +42,7 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
                     var button = ListButton() (
                         BoldTextFragment() (layoutData.metadata.variantName),
                         LineBreak() (),
-                        TextFragment() (inputMethod?.metadata.displayName || "(None)") // TODO: Translate none
+                        TextFragment() (inputMethod?.metadata.displayName || _("none"))
                     );
 
                     button.on("click", function() {
@@ -116,10 +116,10 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
                 localeSelectionButton
             )
         ),
-        Section ( // TODO: Translate
-            Heading(2) ("Keyboard input"),
-            Heading(3) ("Layouts"),
-            Paragraph() ("You can add multiple keyboard layouts to easily switch between different languages and input modes when writing text."),
+        Section (
+            Heading(2) (_("l10n_input")),
+            Heading(3) (_("l10n_input_layout_title")),
+            Paragraph() (_("l10n_input_layout_description")),
             Container (
                 layoutsList,
                 ButtonRow (
@@ -131,28 +131,26 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
 });
 
 export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", function(props, children) {
-    // TODO: Translate
-
     var languageSelectionInput = SelectionInput() ();
     var layoutSelectionInput = SelectionInput() ();
     var inputMethodSelectionInput = SelectionInput() ();
-    var addButton = Button() ("Add");
-    var saveButton = Button() ("Save");
-    var removeButton = Button("dangerous") ("Remove");
+    var addButton = Button() (_("add"));
+    var saveButton = Button() (_("save"));
+    var removeButton = Button("dangerous") (_("remove"));
 
     var dialog = Dialog (
-        Heading() (props.addingLayout ? "Add layout" : "Configure layout"),
+        Heading() (props.addingLayout ? _("l10n_input_layout_add") : _("l10n_input_layout_configure")),
         DialogContent (
             Label (
-                Text("Language"),
+                Text(_("l10n_input_layout_language")),
                 languageSelectionInput
             ),
             Label (
-                Text("Layout"),
+                Text(_("l10n_input_layout_layout")),
                 layoutSelectionInput
             ),
             Label (
-                Text("Input method"),
+                Text(_("l10n_input_layout_inputMethod")),
                 inputMethodSelectionInput
             )
         ),
@@ -163,7 +161,7 @@ export var InputConfigDialog = astronaut.component("L10nInputConfigDialog", func
                 attributes: {
                     "aui-bind": "close"
                 }
-            }) ("Cancel")
+            }) (_("cancel"))
         ) : ButtonRow("end") (
             saveButton,
             removeButton

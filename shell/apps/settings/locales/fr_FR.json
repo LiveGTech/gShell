@@ -11,6 +11,10 @@
         "back": "Précédent",
         "cancel": "Annuler",
         "apply": "Appliquer",
+        "add": "Ajouter",
+        "save": "Enregistrer",
+        "remove": "Supprimer",
+        "none": "(Aucune)",
 
         "network": "Réseau",
 
@@ -58,6 +62,18 @@
 
         "l10n_systemLanguage": "Langue du système",
         "l10n_changeMessage": "La nouvelle langue que vous choisissez sera appliquée sur les applications une fois qu'elles auront été relancées.",
+
+        "l10n_input": "Entrée au clavier",
+
+        "l10n_input_layout_title": "Dispositions",
+        "l10n_input_layout_description": "Vous pouvez ajouter plusieurs dispositions de clavier pour basculer facilement entre différentes langues et modes de saisie lors de la rédaction de texte.",
+        "l10n_input_layout_addAction": "Ajouter une disposition",
+        "l10n_input_layout_add": "Ajouter une disposition",
+        "l10n_input_layout_configure": "Configurer la disposition",
+
+        "l10n_input_layout_language": "Langue",
+        "l10n_input_layout_layout": "Disposition",
+        "l10n_input_layout_inputMethod": "Méthode de saisie",
 
         "a11y": "Accessibilité",
 

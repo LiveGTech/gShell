@@ -11,6 +11,10 @@
         "back": "Back",
         "cancel": "Cancel",
         "apply": "Apply",
+        "add": "Add",
+        "save": "Save",
+        "remove": "Remove",
+        "none": "(None)",
 
         "network": "Network",
 
@@ -58,6 +62,18 @@
 
         "l10n_systemLanguage": "System language",
         "l10n_changeMessage": "The new language that you choose will be applied on apps once they have been relaunched.",
+
+        "l10n_input": "Keyboard input",
+
+        "l10n_input_layout_title": "Layouts",
+        "l10n_input_layout_description": "You can add multiple keyboard layouts to easily switch between different languages and input modes when writing text.",
+        "l10n_input_layout_addAction": "Add a layout",
+        "l10n_input_layout_add": "Add layout",
+        "l10n_input_layout_configure": "Configure layout",
+
+        "l10n_input_layout_language": "Language",
+        "l10n_input_layout_layout": "Layout",
+        "l10n_input_layout_inputMethod": "Input method",
 
         "a11y": "Accessibility",
 

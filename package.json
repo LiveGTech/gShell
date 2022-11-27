@@ -30,7 +30,9 @@
             "output": "dist"
         },
         "linux": {
-            "target": "AppImage",
+            "target": [
+                {"target": "AppImage", "arch": ["x64", "armv7l"]}
+            ],
             "executableName": "gshell",
             "icon": "res/512x512.png",
             "synopsis": "Interactive graphical desktop environment for LiveG OS.",

@@ -31,6 +31,10 @@
     border: 0.2rem solid var(--primaryUIText);
 }
 
+body[device-type="desktop"] .sphere_tabButton {
+    display: none;
+}
+
 webview {
     width: 100%;
     height: 100%;

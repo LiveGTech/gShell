@@ -54,6 +54,11 @@
         "switcher_closeAll": "Fermer tout",
         "switcher_empty": "Aucune application ouverte",
 
+        "home_searchPlaceholder": "Recherchez n'importe quoi ...",
+        "home_gridView": "Vue en grille",
+        "home_alphabeticalView": "Vue alphabétique",
+        "home_powerOptions": "Options d'alimentation",
+
         "oobs_previous": "Précédent",
         "oobs_next": "Suivant",
         "oobs_confirm": "Confirmer",

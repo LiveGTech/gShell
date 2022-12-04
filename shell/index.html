@@ -242,9 +242,20 @@
                 <div class="desktop_homeMenuTop">
                     <img aria-hidden="true" class="info_currentUserProfilePicture">
                     <span class="info_currentUserDisplayName"></span>
-                    <input placeholder="Search for anything...">
+                    <input translate="attributesOnly" tl:placeholder="home_searchPlaceholder">
                 </div>
-                <div class="desktop_homeMenuSide"></div>
+                <div class="desktop_homeMenuSide">
+                    <button translate="attributesOnly" tl:title="home_gridView" tl:aria-label="home_gridView" class="selected">
+                        <img src="gshell://lib/adaptui/icons/products.svg" alt="" aui-icon="dark embedded">
+                    </button>
+                    <button translate="attributesOnly" tl:title="home_alphabeticalView" tl:aria-label="home_alphabeticalView">
+                        <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="dark embedded">
+                    </button>
+                    <div></div>
+                    <button translate="attributesOnly" tl:title="home_powerOptions" tl:aria-label="home_powerOptions">
+                        <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="dark embedded">
+                    </button>
+                </div>
                 <div class="home"></div>
                 <aui-pagination aria-role="group" class="home_pagination"></aui-pagination>
             </div>

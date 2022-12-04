@@ -186,8 +186,30 @@ body:not([device-type="desktop"]) .desktop_appBar {
 }
 
 .desktop_homeMenuSide {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     grid-column: 1;
     grid-row: 2;
+    padding: 0.8rem;
+    padding-inline-end: 0.4rem;
+}
+
+.desktop_homeMenuSide button {
+    display: flex;
+    border-radius: 50%;
+}
+
+.desktop_homeMenuSide button.selected {
+    background-color: var(--primarySelected);
+}
+
+.desktop_homeMenuSide button img {
+    width: 100%;
+}
+
+.desktop_homeMenuSide div {
+    flex-grow: 1;
 }
 
 .desktop_homeMenu .home {

@@ -190,7 +190,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
     flex-direction: column;
     gap: 0.5rem;
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 2 / 4;
     padding: 0.8rem;
     padding-inline-end: 0.4rem;
 }

@@ -10,8 +10,8 @@
         "dist": "electron-builder"
     },
     "devDependencies": {
-        "electron": "^19.0.8",
-        "electron-builder": "^23.1.0"
+        "electron": "^22.0.0",
+        "electron-builder": "^22.10.3"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
@@ -23,7 +23,10 @@
         "productName": "gShell",
         "copyright": "Copyright © LiveG. All Rights Reserved.",
         "extraResources": [
-            {"from": "shell", "to": "shell"}
+            {
+                "from": "shell",
+                "to": "shell"
+            }
         ],
         "directories": {
             "buildResources": "res",
@@ -31,7 +34,13 @@
         },
         "linux": {
             "target": [
-                {"target": "AppImage", "arch": ["x64", "armv7l"]}
+                {
+                    "target": "AppImage",
+                    "arch": [
+                        "x64",
+                        "armv7l"
+                    ]
+                }
             ],
             "executableName": "gshell",
             "icon": "res/512x512.png",

@@ -40,6 +40,7 @@
         "lockScreen_delete": "Effacer",
 
         "switcher_goHome": "Retour à l'accueil",
+        "switcher_openHomeMenu": "Ouvrir le menu d'accueil",
         "switcher_toggleList": "Basculer le sélecteur d'application",
         "switcher_appListTitle": {
             "{count} == 1": "{title}",

@@ -40,6 +40,7 @@
         "lockScreen_delete": "Delete",
 
         "switcher_goHome": "Go home",
+        "switcher_openHomeMenu": "Open home menu",
         "switcher_toggleList": "Toggle app switcher",
         "switcher_appListTitle": {
             "{count} == 1": "{title}",

@@ -300,6 +300,12 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
             validate();
         });
 
+        currentAuthModeConfigElement.find("input[type='password']").on("keydown", function(event) {
+            if (event.key == "Enter") {
+                connectButton.click(); // TODO: Might be better to call a function directly
+            }
+        });
+
         validate();
 
         authModeConfigContainer.clear().add(currentAuthModeConfigElement);

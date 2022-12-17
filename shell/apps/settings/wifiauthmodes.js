@@ -11,7 +11,6 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 // TODO: Translate text in components
 // TODO: Add validation inter function in components
-// TODO: Allow using Enter key to confirm in password inputs
 
 export function noInputModeFactory(config, internalConfig) {
     return astronaut.component({isPrivate: true}, function(props, children, inter) {

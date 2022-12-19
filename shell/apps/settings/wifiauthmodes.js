@@ -9,8 +9,6 @@
 
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
-// TODO: Translate text in components
-
 export function noInputModeFactory(config, internalConfig) {
     return astronaut.component({isPrivate: true}, function(props, children, inter) {
         inter.getAuthConfig = function() {
@@ -46,7 +44,7 @@ export function passwordInputModeFactory(config, internalConfig) {
     
         return Container (
             Label (
-                Text("Password"),
+                Text(_("network_wifiConfig_authModes_password")),
                 passwordInput
             )
         );
@@ -58,12 +56,12 @@ export function identityInputModeFactory(config, internalConfig) {
         // TODO: Support more than just PEAP as EAP method
 
         var innerAuthMode = SelectionInput({value: "mschapv2"}) (
-            SelectionInputOption("mschapv2") ("MS-CHAP V2"),
-            SelectionInputOption("gtc") ("GTC")
+            SelectionInputOption("mschapv2") (_("network_wifiConfig_authModes_innerAuthMode_mschapv2")),
+            SelectionInputOption("gtc") (_("network_wifiConfig_authModes_innerAuthMode_gtc"))
         );
 
         var usernameInput = Input() ();
-        var anonymousIdentityInput = Input({placeholder: "(Optional)"}) ();
+        var anonymousIdentityInput = Input({placeholder: _("optional")}) ();
         var passwordInput = Input("password") ();
 
         inter.getAuthConfig = function() {
@@ -84,19 +82,19 @@ export function identityInputModeFactory(config, internalConfig) {
 
         return Container (
             Label (
-                Text("Inner authentication mode"),
+                Text(_("network_wifiConfig_authModes_innerAuthMode")),
                 innerAuthMode
             ),
             Label (
-                Text("Username (identity)"),
+                Text(_("network_wifiConfig_authModes_innerAuthMode_username")),
                 usernameInput
             ),
             Label (
-                Text("Anonymous identity"),
+                Text(_("network_wifiConfig_authModes_innerAuthMode_anonymousIdentity")),
                 anonymousIdentityInput
             ),
             Label (
-                Text("Password"),
+                Text(_("network_wifiConfig_authModes_password")),
                 passwordInput
             )
         );

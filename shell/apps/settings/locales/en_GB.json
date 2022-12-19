@@ -15,6 +15,7 @@
         "save": "Save",
         "remove": "Remove",
         "none": "(None)",
+        "optional": "(Optional)",
 
         "network": "Network",
 
@@ -55,6 +56,14 @@
         "network_wifiConfig_authMode_wpa": "WPA1/WPA2",
         "network_wifiConfig_authMode_wpa_802_1x": "WPA1/WPA2 802.1x (enterprise)",
         "network_wifiConfig_connect": "Connect",
+
+        "network_wifiConfig_authModes_password": "Password",
+
+        "network_wifiConfig_authModes_innerAuthMode": "Inner authentication mode",
+        "network_wifiConfig_authModes_innerAuthMode_mschapv2": "MS-CHAP V2",
+        "network_wifiConfig_authModes_innerAuthMode_gtc": "GTC",
+        "network_wifiConfig_authModes_innerAuthMode_username": "Username (identity)",
+        "network_wifiConfig_authModes_innerAuthMode_anonymousIdentity": "Anonymous identity",
 
         "l10n": "Language and input",
 

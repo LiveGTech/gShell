@@ -864,7 +864,10 @@ export function saveInputDataToConfig(data) {
     return config.edit("input.gsc", function(currentData) {
         return Promise.resolve(data);
     }).then(function() {
+        webviewComms.update();
         loadKeyboardLayoutsFromConfig();
+
+        return Promise.resolve();
     });
 }
 
@@ -879,7 +882,10 @@ export function saveKeyboardLayoutsToConfig(layouts = keyboardLayouts) {
 
         return Promise.resolve(data);
     }).then(function() {
-        return loadKeyboardLayoutsFromConfig();
+        webviewComms.update();
+        loadKeyboardLayoutsFromConfig();
+
+        return Promise.resolve();
     });
 }
 

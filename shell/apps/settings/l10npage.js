@@ -91,18 +91,23 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         localeSelectionInput.setValue($g.l10n.getSystemLocaleCode());
     });
 
-    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
-        layoutOptions = options;
+    function updateData() {
+        _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
+            layoutOptions = options;
 
-        renderLayoutsList();
-
-        setInterval(function() {
-            if (layoutsListIsDirty) {
-                renderLayoutsList();
-                
-                layoutsListIsDirty = false;
-            }
+            renderLayoutsList();
         });
+    }
+
+    _sphere.onPrivilegedDataUpdate(updateData);
+    updateData();
+
+    setInterval(function() {
+        if (layoutsListIsDirty) {
+            renderLayoutsList();
+
+            layoutsListIsDirty = false;
+        }
     });
 
     return Page (

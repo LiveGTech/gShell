@@ -34,6 +34,13 @@ export function open(forceBlur = false) {
     }
 }
 
+export function close() {
+    $g.sel(".powerMenu_basic").menuClose();
+    $g.sel(".powerMenu_basicBlur").menuClose();
+    $g.sel(".powerMenu_user").menuClose();
+    $g.sel(".powerMenu_userBlur").menuClose();
+}
+
 export function init() {
     $g.sel("body").on("keydown", function(event) {
         if (powerButtonIsDown) {

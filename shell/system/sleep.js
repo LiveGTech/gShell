@@ -9,6 +9,8 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as powerMenu from "gshell://global/powermenu.js";
+
 const ENTER_SLEEP_TIME = 4_000;
 
 export var sleeping = false;
@@ -16,6 +18,8 @@ export var lastSleepTime = null;
 
 export function enter() {
     lastSleepTime = new Date().getTime();
+
+    powerMenu.close();
 
     $g.sel("#off").fadeIn().then(function() {
         $g.sel("#lockScreenMain").screenJump().then(function() {

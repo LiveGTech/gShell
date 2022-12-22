@@ -41,11 +41,3 @@ export function toggle() {
         enter();
     }
 }
-
-export function init() {
-    $g.sel("body").on("keydown", function(event) {
-        if (event.key == "PowerOff") {
-            toggle();
-        }
-    });
-}

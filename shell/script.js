@@ -14,6 +14,7 @@ import * as l10n from "gshell://config/l10n.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
+import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
 import * as input from "gshell://input/input.js";
@@ -49,7 +50,7 @@ $g.waitForLoad().then(function() {
 }).then(function() {
     a11y.init();
     info.init();
-    sleep.init();
+    powerMenu.init();
     network.init();
     input.init();
     home.init();

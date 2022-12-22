@@ -202,7 +202,7 @@
                 </div>
             </div>
         </aui-screen>
-        <aui-screen id="testPage" hidden>  <!-- TODO: Remove Debug Environment -->
+        <aui-screen id="testPage" hidden> <!-- TODO: Remove Debug Environment -->
             <div class="displays">
                 <div class="display">
                     <header>
@@ -252,13 +252,31 @@
                         <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="dark embedded">
                     </button>
                     <div></div>
-                    <button translate="attributesOnly" tl:title="home_powerOptions" tl:aria-label="home_powerOptions">
+                    <button aui-mode="persist pressToShowSubmenu noSubmenuHint" aui-submenu=".powerMenu_user" translate="attributesOnly" tl:title="home_powerOptions" tl:aria-label="home_powerOptions">
                         <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="dark embedded">
                     </button>
                 </div>
                 <div aria-role="group" class="home"></div>
                 <aui-pagination aria-role="group" class="home_pagination"></aui-pagination>
             </div>
+        </aui-menu>
+        <aui-menu aui-mode="persistHover" class="powerMenu_basic">
+            <button class="powerMenu_shutDown" translate>powerMenu_shutDown</button>
+            <button class="powerMenu_restart" translate>powerMenu_restart</button>
+        </aui-menu>
+        <aui-menu aui-mode="centred blur" class="powerMenu_basicBlur">
+            <button class="powerMenu_shutDown" translate>powerMenu_shutDown</button>
+            <button class="powerMenu_restart" translate>powerMenu_restart</button>
+        </aui-menu>
+        <aui-menu aui-mode="persistHover" class="powerMenu_user">
+            <button class="powerMenu_lock" translate>powerMenu_lock</button>
+            <button class="powerMenu_shutDown" translate>powerMenu_shutDown</button>
+            <button class="powerMenu_restart" translate>powerMenu_restart</button>
+        </aui-menu>
+        <aui-menu aui-mode="centred blur" class="powerMenu_userBlur">
+            <button class="powerMenu_lock" translate>powerMenu_lock</button>
+            <button class="powerMenu_shutDown" translate>powerMenu_shutDown</button>
+            <button class="powerMenu_restart" translate>powerMenu_restart</button>
         </aui-menu>
         <div class="input" hidden></div>
         <button class="a11y_switch_openMainMenuButton" translate>a11y_switch_openMainMenu</button>

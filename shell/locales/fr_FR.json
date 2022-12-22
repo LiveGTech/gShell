@@ -27,6 +27,10 @@
         "info_batteryIcon_discharging": "Batterie - décharge",
         "info_batteryIcon_unknown": "Batterie - inconnue",
 
+        "powerMenu_lock": "Verrouiller",
+        "powerMenu_shutDown": "Arrêter",
+        "powerMenu_restart": "Redémarrer",
+
         "input_key_shift": "Maj",
         "input_key_backspace": "Retour arrière",
         "input_key_space": "Espace",

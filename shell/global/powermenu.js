@@ -17,7 +17,7 @@ var powerButtonTimeout = null;
 
 export function open(forceBlur = false) {
     var blur = device.data?.type != "desktop" || forceBlur;
-    var user = !$g.sel("#switcherView").get().hidden;
+    var user = !$g.sel("#home").get().hidden || !$g.sel("#switcherView").get().hidden;
 
     if (blur) {
         if (user) {

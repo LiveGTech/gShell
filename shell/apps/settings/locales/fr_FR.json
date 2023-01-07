@@ -84,6 +84,15 @@
         "l10n_input_layout_layout": "Disposition",
         "l10n_input_layout_inputMethod": "Méthode de saisie",
 
+        "personalisation": "Personnalisation",
+
+        "personalisation_summary": "Changer l'arrière-plan et le thème actuels",
+        
+        "personalisation_theme": "Thème",
+
+        "personalisation_themeMode_light": "Mode clair",
+        "personalisation_themeMode_dark": "Mode sombre",
+
         "a11y": "Accessibilité",
 
         "a11y_summary": "Personnaliser l'accès visuel, auditif et de navigation",

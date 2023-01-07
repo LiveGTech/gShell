@@ -20,6 +20,7 @@ import * as network from "gshell://system/network.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
+import * as personalisation from "gshell://config/personalisation.js";
 import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as oobs from "gshell://oobs/oobs.js";
@@ -53,6 +54,7 @@ $g.waitForLoad().then(function() {
     powerMenu.init();
     network.init();
     input.init();
+    personalisation.init();
     home.init();
     switcher.init();
     oobs.init();
@@ -63,13 +65,6 @@ $g.waitForLoad().then(function() {
     } else {
         $g.sel("#lockScreenMain").screenFade();
     }
-
-    // TODO: Implement dark theme option in Settings from Debug Environment
-    // $g.sel("#darkTheme").on("change", function() {
-    //     gShell.call("shell_setColourScheme", {
-    //         scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
-    //     });
-    // });
 
     // TODO: Implement auth options in Settings from Debug Environment
     // users.get("test").then(function(user) {

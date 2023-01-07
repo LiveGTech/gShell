@@ -70,6 +70,14 @@ export function getCurrentUser() {
     return Promise.resolve(auth.currentUserAuthCredentials?.user || null);
 }
 
+export function ensureCurrentUser() {
+    if (auth.currentUserAuthCredentials?.user) {
+        return Promise.resolve(auth.currentUserAuthCredentials.user);
+    }
+
+    return Promise.reject("No user is signed in");
+}
+
 export function onUserStateChange(callback) {
     auth.onUserStateChange(function(signedIn) {
         if (!signedIn) {

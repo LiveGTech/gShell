@@ -11,6 +11,7 @@ import * as webviewComms from "gshell://userenv/webviewcomms.js";
 import * as network from "gshell://system/network.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as input from "gshell://input/input.js";
+import * as personalisation from "gshell://config/personalisation.js";
 import * as a11y from "gshell://a11y/a11y.js";
 
 export var data = {};
@@ -28,6 +29,7 @@ export var commands = {
     input_loadKeyboardLayoutsFromConfig: input.loadKeyboardLayoutsFromConfig,
     input_saveKeyboardLayoutsToConfig: (data) => input.saveKeyboardLayoutsToConfig(data.layouts),
     input_getAllKeyboardLayoutOptions: () => input.getAllKeyboardLayoutOptions(true),
+    personalisation_setOption: (data) => personalisation.setOption(data.name, data.value, data.global),
     a11y_setOption: (data) => a11y.setOption(data.name, data.value)
 };
 

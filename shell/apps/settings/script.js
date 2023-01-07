@@ -18,10 +18,12 @@ import * as network from "./networkpage.js";
 import * as l10n from "./l10npage.js";
 import * as a11y from "./a11ypage.js";
 import * as about from "./aboutpage.js";
+import * as personalisation from "./personalisationpage.js";
 
 export const PAGE_ICONS = {
     network: "wifi",
     l10n: "language",
+    personalisation: "brush",
     a11y: "a11y",
     about: "info"
 };
@@ -103,6 +105,7 @@ $g.waitForLoad().then(function() {
 
     pages.network = network.NetworkPage() ();
     pages.l10n = l10n.L10nPage() ();
+    pages.personalisation = personalisation.PersonalisationPage() ();
     pages.a11y = a11y.A11yPage() ();
     pages.about = about.AboutPage() ();
 
@@ -133,14 +136,6 @@ $g.waitForLoad().then(function() {
                 switch (pageId) {
                     case "network":
                         network.connectSummary(summary);
-                        break;
-
-                    case "a11y":
-                        summary.setText(_("a11y_summary"));
-                        break;
-
-                    case "about":
-                        summary.setText(_("about_summary"));
                         break;
                 }
 

@@ -84,6 +84,15 @@
         "l10n_input_layout_layout": "Layout",
         "l10n_input_layout_inputMethod": "Input method",
 
+        "personalisation": "Personalisation",
+
+        "personalisation_summary": "Change the current background and theme",
+        
+        "personalisation_theme": "Theme",
+
+        "personalisation_themeMode_light": "Light mode",
+        "personalisation_themeMode_dark": "Dark mode",
+
         "a11y": "Accessibility",
 
         "a11y_summary": "Customise visual, auditory and navigatory access",

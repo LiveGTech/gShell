@@ -17,12 +17,12 @@ export function getGlobalConfig() {
 }
 
 export function getUserConfig() {
-    return users.getCurrentUser().then(function(uid) {
-        if (uid == null) {
+    return users.getCurrentUser().then(function(user) {
+        if (user == null) {
             return Promise.resolve({});
         }
 
-        return config.read(`users/${uid}/personalisation.gsc`);
+        return config.read(`users/${user.uid}/personalisation.gsc`);
     });
 }
 
@@ -46,8 +46,8 @@ export function getConfigPath(global = false) {
         return Promise.resolve("personalisation.gsc");
     }
 
-    return users.ensureCurrentUser().then(function(uid) {
-        return Promise.resolve(`users/${uid}/personalisation.gsc`);
+    return users.ensureCurrentUser().then(function(user) {
+        return Promise.resolve(`users/${user.uid}/personalisation.gsc`);
     });
 }
 

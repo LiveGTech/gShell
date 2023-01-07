@@ -9,9 +9,12 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as calc from "gshell://lib/adaptui/src/calc.js";
+import * as markup from "gshell://lib/adaptui/src/markup.js";
 
+import * as l10n from "gshell://config/l10n.js";
 import * as input from "gshell://input/input.js";
 import * as switcher from "gshell://userenv/switcher.js";
+import * as appManager from "gshell://userenv/appmanager.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
@@ -133,6 +136,42 @@ export class Browser {
         this.webview.get()?.loadURL(this.constructor.normaliseUrl(url));
     }
 
+    installApp() {
+        var url = this.webview.get()?.getURL();
+
+        if (!url) {
+            return;
+        }
+
+        var localeCode = l10n.currentLocale.localeCode;
+        var appName = {};
+
+        appName[localeCode] = this.lastTitle;
+
+        return appManager.install({
+            fallbackLocale: localeCode,
+            name: appName,
+            url,
+            icon: this.lastIcon
+        });
+    }
+
+    openOptionsMenu() {
+        var thisScope = this;
+
+        $g.sel(".sphere_optionsMenu").clear().add(
+            $g.create("button")
+                .setText(_("sphere_menu_installApp"))
+                .on("click", function() {
+                    thisScope.installApp();
+                })
+        );
+
+        markup.apply($g.sel(".sphere_optionsMenu").get());
+
+        return $g.sel(".sphere_optionsMenu").menuOpen();
+    }
+
     render() {
         var thisScope = this;
 
@@ -204,6 +243,9 @@ export class Browser {
             ,
             $g.create("button")
                 .setAttribute("aria-label", _("sphere_menu"))
+                .on("click", function() {
+                    thisScope.openOptionsMenu();
+                })
                 .add(
                     $g.create("img")
                         .setAttribute("aui-icon", "dark embedded")
@@ -228,7 +270,10 @@ export class Browser {
             thisScope.updateChrome();
         }).observe(this.uiContainer.get());
 
-        return this.uiContainer.add(this.uiChrome, this.uiMain);
+        return this.uiContainer.add(
+            this.uiChrome,
+            this.uiMain
+        );
     }
 }
 

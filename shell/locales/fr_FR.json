@@ -137,9 +137,13 @@
         "oobs_finish_description2": "C'est maintenant le meilleur moment pour revoir les choix que vous avez faits lors des étapes précédentes avant que la configuration de votre appareil ne soit finalisée. Vous pouvez toujours modifier les options que vous avez choisies ultérieurement dans l'application Paramètres.",
 
         "sphere": "Sphère",
+
         "sphere_back": "Précédent",
         "sphere_forward": "Suivant",
+
         "sphere_menu": "Menu",
+
+        "sphere_menu_installApp": "Installer l'application",
 
         "a11y_switch_openMainMenu": "Menu",
         "a11y_switch_switchToItemScan": "Scan des articles",

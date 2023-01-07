@@ -56,58 +56,6 @@
                 </div>
             </div>
         </aui-screen>
-        <aui-screen id="main" hidden> <!-- TODO: Remove Debug Environment -->
-            <div class="displays">
-                <div class="display hasSurfaces">
-                    <div>
-                        <header class="infoBar">
-                            <span class="info_time"></span>
-                            <span></span>
-                            <img alt="" aui-icon="light" class="info_batteryIcon">
-                            <span aui-mode="part" class="info_batteryLevel"></span>
-                        </header>
-                    </div>
-                    <div class="surface">
-                        <header>
-                            <span>LiveG OS Debug Environment</span>
-                            <button title="Open menu" aria-label="Open menu" id="openMenuButton">
-                                <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="light">
-                            </button>
-                            <button title="Go to test page" aui-mode="action" aria-label="Go to other page" id="testPageButton">
-                                <img src="gshell://lib/adaptui/icons/star.svg" alt="" aui-icon="light">
-                            </button>
-                        </header>
-                        <main>
-                            <section>
-                                <h1>Hello, world!</h1>
-                                <p id="flagInfo"></p>
-                                <div>
-                                    <label for="darkTheme" aui-mode="switch">Dark theme</label>
-                                    <input type="checkbox" role="switch" id="darkTheme">
-                                </div>
-                                <!-- <div>
-                                    <label for="passcodeAuth" aui-mode="switch">Enforce passcode auth</label>
-                                    <input type="checkbox" role="switch" id="passcodeAuth">
-                                </div>
-                                <p>The passcode is 1234 for testing purposes. Entering an incorrect passcode should cause a delay to mitigate brute-force attacks.</p> -->
-                                <div>
-                                    <label for="switchNavigation" aui-mode="switch">Switch Navigation</label>
-                                    <input type="checkbox" role="switch" id="switchNavigation">
-                                </div>
-                                <aui-buttons>
-                                    <button id="openSwitcher">Switcher</button>
-                                </aui-buttons>
-                            </section>
-                        </main>
-                    </div>
-                    <div class="switcherBar">
-                        <button tl:aria-label="switcher_goHome" class="switcher_home" translate="attributesOnly">
-                            <img src="gshell://media/logo.svg" alt="">
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </aui-screen>
         <aui-screen id="home" hidden>
             <div class="displays">
                 <div class="display hasSurfaces">
@@ -202,41 +150,6 @@
                 </div>
             </div>
         </aui-screen>
-        <aui-screen id="testPage" hidden> <!-- TODO: Remove Debug Environment -->
-            <div class="displays">
-                <div class="display">
-                    <header>
-                        <button title="Back" aui-bind="back" aria-label="Back">
-                            <img src="gshell://lib/adaptui/icons/back.svg" alt="" aui-icon="light">
-                        </button>
-                        <span>Test page</span>
-                    </header>
-                    <main>
-                        <section>
-                            <h2>Device info</h2>
-                            <pre id="deviceInfoTest"></pre>
-                        </section>
-                        <section>
-                            <h2>Camera</h2>
-                            <div>
-                                <video autoplay id="cameraTest"></video>
-                            </div>
-                            <button id="cameraTestButton">Start</button>
-                        </section>
-                        <section>
-                            <h2>Keyboard</h2>
-                            <input placeholder="Enter some text">
-                        </section>
-                        <div id="keyboardTestBuffer"></div>
-                    </main>
-                </div>
-            </div>
-        </aui-screen>
-        <aui-menu id="mainMenu"> <!-- TODO: Remove Debug Environment -->
-            <button id="lockButton">Lock</button>
-            <button id="shutDownButton">Shut down</button>
-            <button id="devRestartButton">Restart shell and update</button>
-        </aui-menu>
         <aui-menu class="desktop_homeMenu">
             <div class="desktop_homeLayout">
                 <div class="desktop_homeMenuTop">

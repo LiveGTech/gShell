@@ -64,52 +64,14 @@ $g.waitForLoad().then(function() {
         $g.sel("#lockScreenMain").screenFade();
     }
 
-    $g.sel("#openMenuButton").on("click", function() { // TODO: Remove Debug Environment
-        $g.sel("#mainMenu").menuOpen();
-    });
-
-    $g.sel("#testPageButton").on("click", function() { // TODO: Remove Debug Environment
-        $g.sel("#testPage").screenForward();
-    });
-
-    $g.sel("#lockButton").on("click", function() { // TODO: Remove Debug Environment
-        $g.sel("#lockScreenMain").screenFade();
-    });
-
-    $g.sel("#shutDownButton").on("click", function() { // TODO: Remove Debug Environment
-        gShell.call("power_shutDown");
-    });
-
-    $g.sel("#devRestartButton").on("click", function() { // TODO: Remove Debug Environment
-        gShell.call("dev_restart");
-    });
-
-    gShell.call("system_getFlags").then(function(flags) { // TODO: Remove Debug Environment
-        if (flags.isRealHardware) {
-            $g.sel("#flagInfo").setText("Running on real hardware!");
-        } else {
-            $g.sel("#flagInfo").setText("Running in simulator!");
-        }
-    });
-
-    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(event) { // TODO: Remove Debug Environment
-        $g.sel("#darkTheme").setValue(event.matches);
-    });
-
-    $g.sel("#darkTheme").on("change", function() { // TODO: Remove Debug Environment
-        gShell.call("shell_setColourScheme", {
-            scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
-        });
-    });
-
-    $g.sel("#switchNavigation").setValue(a11y.options.switch_enabled); // TODO: Remove Debug Environment
-
-    $g.sel("#switchNavigation").on("change", function() { // TODO: Remove Debug Environment
-        a11y.setOption("switch_enabled", $g.sel("#switchNavigation").getValue());
-    });
+    // TODO: Implement dark theme option in Settings from Debug Environment
+    // $g.sel("#darkTheme").on("change", function() {
+    //     gShell.call("shell_setColourScheme", {
+    //         scheme: $g.sel("#darkTheme").getValue() ? "dark" : "light"
+    //     });
+    // });
 
     // TODO: Implement auth options in Settings from Debug Environment
-
     // users.get("test").then(function(user) {
     //     var credentials = new auth.UserAuthCredentials(user);
 
@@ -132,19 +94,14 @@ $g.waitForLoad().then(function() {
     //     });
     // });
 
-    $g.sel("#openSwitcher").on("click", function() { // TODO: Remove Debug Environment
-        switcher.openApp("https://opensource.liveg.tech/Adapt-UI/demos/all/");
-    });
+    // TODO: Implement Camera app from Debug Environment
+    // $g.sel("#cameraTestButton").on("click", function() {
+    //     if ("mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices) {
+    //         navigator.mediaDevices.getUserMedia({video: true}).then(function(stream) {
+    //             $g.sel("#cameraTest").get().srcObject = stream;
 
-    $g.sel("#deviceInfoTest").setText(JSON.stringify(device.data)); // TODO: Remove Debug Environment
-
-    $g.sel("#cameraTestButton").on("click", function() { // TODO: Remove Debug Environment
-        if ("mediaDevices" in navigator && "getUserMedia" in navigator.mediaDevices) {
-            navigator.mediaDevices.getUserMedia({video: true}).then(function(stream) {
-                $g.sel("#cameraTest").get().srcObject = stream;
-
-                $g.sel("#cameraTest").get().play();
-            });
-        }
-    });
+    //             $g.sel("#cameraTest").get().play();
+    //         });
+    //     }
+    // });
 });

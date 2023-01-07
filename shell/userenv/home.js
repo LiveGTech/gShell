@@ -102,16 +102,6 @@ export function load() {
                                 name: app.name[l10n.currentLocale.localeCode] || app.name[app.fallbackLocale]
                             }))
                         )
-                    ,
-                    $g.create("div")
-                        .addClass("home_page")
-                        .add(
-                            ...new Array(24).fill(null).map(() => createApp({name: "Debug", icon: "gshell://media/logo.svg"})
-                                .on("click", function() {
-                                    $g.sel("#main").screenFade();
-                                })
-                            )
-                        )
                 );
             });
 

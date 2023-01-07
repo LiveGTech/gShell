@@ -17,14 +17,6 @@
             },
             "url": "gsspecial://sphere",
             "icon": "gshell://sphere/icon.svg"
-        },
-        "auiDemo": {
-            "fallbackLocale": "en_GB",
-            "name": {
-                "en_GB": "AUI Demo",
-                "fr_FR": "AUI Demo"
-            },
-            "url": "https://opensource.liveg.tech/Adapt-UI/demos/all/"
         }
     }
 }

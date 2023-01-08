@@ -144,7 +144,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
     display: grid;
     width: 100%;
     height: 100%;
-    grid-template-rows: min-content auto min-content;
+    grid-template-rows: min-content auto 2rem;
     grid-template-columns: 4rem 1fr;
 }
 
@@ -227,7 +227,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
 }
 
 .desktop_homeMenu .home_icon {
-    height: calc(100% - 1.5rem);
+    height: calc(100% - 2rem);
 }
 
 .desktop_homeMenu .home_pagination {
@@ -244,7 +244,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
 
 @container (max-aspect-ratio: 1 / 1) {
     .desktop_homeMenu .home_icon {
-        width: calc(100% - 1.5rem);
+        width: calc(100% - 2rem);
         height: unset;
     }
 }

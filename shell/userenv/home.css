@@ -45,19 +45,13 @@
 .home_app {
     margin: 0;
     padding: 0.5rem;
+    container-type: size;
     background-color: transparent;
     transition: 0.5s opacity;
 }
 
-.home_app:hover, .home_app:active {
-    background-color: transparent;
-}
-
-.home_app .home_icon {
-    max-width: calc(100% - 1rem);
-    max-height: calc(100% - 1rem);
-    background-color: white;
-    border-radius: 0.8rem;
+.home_app:hover:not([device-type="desktop"] *), .home_app:active:not([device-type="desktop"] *) {
+    background-color: transparent!important;
 }
 
 .home_app span {
@@ -73,6 +67,13 @@
     opacity: 0.6;
 }
 
+.home_icon {
+    height: calc(100% - 1rem);
+    aspect-ratio: 1 / 1;
+    background-color: white;
+    border-radius: 0.8rem;
+}
+
 .home_pagination:not(.desktop_homeLayout *) {
     position: relative;
 }
@@ -81,4 +82,11 @@
     --scrollbar: white;
     --scrollbarPress: white;
     opacity: 0.6;
+}
+
+@container (max-aspect-ratio: 1 / 1) {
+    .home_icon {
+        width: calc(100% - 1rem);
+        height: unset;
+    }
 }

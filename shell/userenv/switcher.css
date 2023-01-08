@@ -516,8 +516,12 @@ body[device-type="desktop"] .switcher_screenOptions {
     flex-grow: 1;
     min-width: 0;
     margin: 0.5rem;
-    background-color: inherit;
+    background-color: transparent;
     color: inherit;
+}
+
+.switcher_screenOptions button:hover, .switcher_screenOptions button:active {
+    background-color: transparent!important;
 }
 
 .switcher_screenOptions img {

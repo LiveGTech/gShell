@@ -54,10 +54,8 @@
 }
 
 .home_app .home_icon {
-    height: 100%;
     max-width: calc(100% - 1rem);
     max-height: calc(100% - 1rem);
-    aspect-ratio: 1 / 1;
     background-color: white;
     border-radius: 0.8rem;
 }

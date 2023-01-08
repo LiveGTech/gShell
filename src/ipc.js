@@ -18,6 +18,10 @@ var config = require("./config");
 
 var ipcMain = electron.ipcMain;
 
+ipcMain.handle("system_getRootDirectory", function(event, data) {
+    return system.getRootDirectory();
+});
+
 ipcMain.handle("system_getFlags", function(event, data) {
     return system.getFlags();
 });

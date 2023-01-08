@@ -12,6 +12,9 @@ const electron = require("electron");
 const FOCUSABLES = "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href]:not(:disabled), [tabindex]:not([tabindex=\"-1\"]):not(:disabled)";
 
 // From `shell/input/input.js`
+const INPUT_SELECTOR = `input, textarea, [contenteditable], [aria-role="input"]`;
+
+// From `shell/input/input.js`
 const NON_TEXTUAL_INPUTS = [
     "button",
     "checkbox",
@@ -38,7 +41,7 @@ var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
 
 function isTextualInput(element) {
-    return element.matches("input, textarea") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
+    return element.matches(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
@@ -81,7 +84,8 @@ window.addEventListener("load", function() {
             return;
         }
 
-        if (event.target.matches("input, textarea")) {
+        if (event.target.matches(INPUT_SELECTOR)) {
+            console.log("is input");
             if (!isTextualInput(event.target)) {
                 electron.ipcRenderer.sendToHost("input_hide");
     

@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as device from "gshell://system/device.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as a11y from "gshell://a11y/a11y.js";
@@ -32,6 +33,8 @@ var oobsActivated = false;
 
 $g.waitForLoad().then(function() {
     return $g.templates.apply();
+}).then(function() {
+    webviewManager.init();
 }).then(function() {
     return device.init();
 }).then(function() {

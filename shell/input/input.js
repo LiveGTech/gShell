@@ -18,6 +18,9 @@ import * as config from "gshell://config/config.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 // Also in `shell/webviewpreload.js`
+export const INPUT_SELECTOR = `input, textarea, [contenteditable], [aria-role="input"]`;
+
+// Also in `shell/webviewpreload.js`
 export const NON_TEXTUAL_INPUTS = [
     "button",
     "checkbox",
@@ -722,7 +725,7 @@ export function init() {
             return;
         }
 
-        if (event.target.matches("input, textarea")) {
+        if (event.target.matches(INPUT_SELECTOR)) {
             if (!isTextualInput($g.sel(event.target))) {
                 hide();
 
@@ -940,7 +943,7 @@ export function getWebContentsId() {
 }
 
 export function isTextualInput(element) {
-    return element.is("input, textarea") && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
+    return element.is(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
 
 export function removeTargetInput() {

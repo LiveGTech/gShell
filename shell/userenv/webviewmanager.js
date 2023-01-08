@@ -50,6 +50,8 @@ export const USER_AGENT_METADATA = {
     ]
 };
 
+export var preloadPath = null;
+
 export function spawn(url, options = {}) {
     var webview = $g.create("webview");
 
@@ -60,7 +62,7 @@ export function spawn(url, options = {}) {
     }
 
     webview.setAttribute("src", url);
-    webview.setAttribute("preload", "./webviewpreload.js");
+    webview.setAttribute("preload", preloadPath);
     webview.setAttribute("useragent", USER_AGENT);
 
     if (!url.startsWith("gshell://")) {
@@ -110,4 +112,10 @@ export function spawnAsUser(url, user = null, options = {}) {
     });
 }
 
-gShell.call("webview_acknowledgeUserAgent", {userAgent: USER_AGENT});
+export function init() {
+    return gShell.call("webview_acknowledgeUserAgent", {userAgent: USER_AGENT}).then(function() {
+        return gShell.call("system_getRootDirectory").then(function(rootDirectory) {
+            preloadPath = `file://${rootDirectory}/shell/webviewpreload.js`;
+        });
+    });
+}

@@ -13,6 +13,7 @@ const fs = require("fs");
 const electron = require("electron");
 const bcryptjs = require("bcryptjs");
 
+var main = require("./main");
 var flags = require("./flags");
 var device = require("./device");
 
@@ -60,6 +61,10 @@ exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutC
     }
 
     return exports.executeCommand(...arguments);
+};
+
+exports.getRootDirectory = function() {
+    return Promise.resolve(main.rootDirectory);
 };
 
 exports.getFlags = function() {

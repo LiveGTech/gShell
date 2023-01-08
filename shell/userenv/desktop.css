@@ -226,9 +226,8 @@ body:not([device-type="desktop"]) .desktop_appBar {
     transition: 0.5s opacity, 0.5s background-color;
 }
 
-.desktop_homeMenu .home_app .home_icon {
-    max-width: calc(100% - 2rem);
-    max-height: calc(100% - 2rem);
+.desktop_homeMenu .home_icon {
+    height: calc(100% - 1.5rem);
 }
 
 .desktop_homeMenu .home_pagination {
@@ -240,5 +239,12 @@ body:not([device-type="desktop"]) .desktop_appBar {
 @media (prefers-color-scheme: dark) {
     .desktop_homeMenuTop {
         background-color: rgba(0, 0, 0, 0.3);
+    }
+}
+
+@container (max-aspect-ratio: 1 / 1) {
+    .desktop_homeMenu .home_icon {
+        width: calc(100% - 1.5rem);
+        height: unset;
     }
 }

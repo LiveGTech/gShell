@@ -67,6 +67,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
 
 .desktop_appBar button img {
     height: 100%;
+    aspect-ratio: 1 / 1;
 }
 
 .desktop_appBar span:not(:empty) {

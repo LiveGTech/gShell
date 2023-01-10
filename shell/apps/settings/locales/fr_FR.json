@@ -36,6 +36,7 @@
         "network_wifiNetworksNone_description": "Rapprochez-vous d'un routeur Wi-Fi pour obtenir une meilleure réception.",
 
         "network_wifiAp_connect": "Connecter",
+        "network_wifiAp_connecting": "Connexion...",
         "network_wifiAp_disconnect": "Déconnecter",
         "network_wifiAp_forget": "Oublier",
         "network_wifiAp_channelDetails": "Détails du canal",

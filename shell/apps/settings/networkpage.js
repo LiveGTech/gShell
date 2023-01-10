@@ -8,6 +8,7 @@
 */
 
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
+import * as screens from "gshell://lib/adaptui/src/screens.js";
 
 import * as settings from "./script.js";
 import * as wifiAuthModes from "./wifiauthmodes.js";
@@ -147,6 +148,8 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         )
     );
 
+    var exitScreen = screen.inter.exit;
+
     screen.on("removed", function() {
         active = false;
     });
@@ -157,6 +160,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         }
 
         var data = _sphere.getPrivilegedData();
+        var listResults = data?.network_listResults || [];
         var apResults = (data?.network_wifiScanResults || []).filter((result) => result.name == props.accessPoint.name);
         var connected = apResults.filter((result) => result.connected).length > 0;
 
@@ -182,16 +186,20 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
                 _sphere.callPrivilegedCommand("network_disconnectWifi", {
                     name: props.accessPoint.name
                 }).then(function() {
-                    _shpere.callPrivilegedCommand("network_scanWifi");
+                    _sphere.callPrivilegedCommand("network_scanWifi");
                 });
+
+                exitScreen();
             });
 
             forgetButton.on("click", function() {
                 _sphere.callPrivilegedCommand("network_forgetWifi", {
                     name: props.accessPoint.name
                 }).then(function() {
-                    _shpere.callPrivilegedCommand("network_scanWifi");
+                    _sphere.callPrivilegedCommand("network_scanWifi");
                 });
+
+                exitScreen();
             });
 
             mainActions.clear().add(
@@ -201,29 +209,46 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         } else {
             var connectButton = Button() (_("network_wifiAp_connect"));
 
+            // TODO: Allow forgetting network if saved but not connected
+
+            if (data?.network_connectingToWifi == props.accessPoint.name) {
+                connectButton.setAttribute("disabled", true);
+                connectButton.setText(_("network_wifiAp_connecting"));
+            }
+
             connectButton.on("click", function() {
-                var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
+                var connectionIsSaved = !!listResults.find((result) => result.name == props.accessPoint.name);
+                var connectionIsOpen = props.accessPoint.security.length == 0;
 
-                settings.registerDialog(dialog);
+                if (connectionIsSaved || connectionIsOpen) {
+                    Promise.resolve().then(function() {
+                        if (connectionIsSaved) {
+                            return Promise.resolve();
+                        }
 
-                dialog.dialogOpen();
+                        return _sphere.callPrivilegedCommand("network_configureWifi", {
+                            name: props.accessPoint.name
+                        });
+                    }).then(function() {
+                        return _sphere.callPrivilegedCommand("network_connectWifi", {
+                            name: props.accessPoint.name
+                        });
+                    }).then(function(status) {
+                        // TODO: Handle status such as `"invalidAuth"`
+                        console.log(status);
 
-                dialog.find(".app_settings_makeFirstFocus").focus();
+                        return Promise.resolve();
+                    });
+                } else {
+                    var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
+
+                    settings.registerDialog(dialog);
+
+                    dialog.dialogOpen();
+
+                    dialog.find(".app_settings_makeFirstFocus").focus();
+                }
             });
-
-            // TODO: Integrate this into connection config dialog instead
-            // TODO: Trigger constant re-scan when connecting/disconnecting
-            // connectButton.on("click", function() {
-            //     _sphere.callPrivilegedCommand("network_configureWifi", {
-            //         name: props.accessPoint.name
-            //     }).then(function() {
-            //         return _sphere.callPrivilegedCommand("network_connectWifi", {
-            //             name: props.accessPoint.name
-            //         });
-            //     }).then(function() {
-            //         _shpere.callPrivilegedCommand("network_scanWifi");
-            //     });
-            // });
 
             mainActions.clear().add(
                 connectButton
@@ -302,7 +327,7 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
 
         currentAuthModeConfigElement.find("input[type='password']").on("keydown", function(event) {
             if (event.key == "Enter") {
-                connectButton.click(); // TODO: Might be better to call a function directly
+                connect();
             }
         });
 
@@ -319,8 +344,34 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
         }
     }
 
+    function connect() {
+        if (!currentAuthModeConfigElement.inter.isValid()) {
+            return Promise.reject("Invalid auth config settings");
+        }
+
+        dialog.dialogClose();
+
+        return _sphere.callPrivilegedCommand("network_configureWifi", {
+            name: props.accessPoint.name,
+            auth: currentAuthModeConfigElement.inter.getAuthConfig()
+        }).then(function() {
+            return _sphere.callPrivilegedCommand("network_connectWifi", {
+                name: props.accessPoint.name
+            });
+        }).then(function(status) {
+            // TODO: Handle status such as `"invalidAuth"`
+            console.log(status);
+
+            return Promise.resolve();
+        });
+    }
+
     authModeInput.on("change", function() {
         renderAuthModeConfigContainer();
+    });
+
+    connectButton.on("click", function() {
+        connect();
     });
 
     renderAuthModeConfigContainer();

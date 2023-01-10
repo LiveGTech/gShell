@@ -11,9 +11,12 @@ import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 
 export const LIST_UPDATE_INTERVAL = 5 * 1_000; // 5 seconds
 export const WIFI_SCAN_INTERVAL = 60 * 1_000; // 1 minute
+export const WIFI_CONNECTING_SCAN_INTERVAL = 2 * 1_000; // 2 seconds
 
 export var listResults = [];
 export var wifiScanResults = [];
+export var wifiStateChanging = false;
+export var wifiTargetStateIsConnected = false;
 
 export function getList() {
     return gShell.call("network_list").then(function(data) {
@@ -36,10 +39,16 @@ export function scanWifi() {
 }
 
 export function disconnectWifi(name) {
+    wifiStateChanging = true;
+    wifiTargetStateIsConnected = false;
+
     return gShell.call("network_disconnectWifi", {name});
 }
 
 export function forgetWifi(name) {
+    wifiStateChanging = true;
+    wifiTargetStateIsConnected = false;
+    
     return gShell.call("network_forgetWifi", {name});
 }
 
@@ -48,6 +57,11 @@ export function configureWifi(name, auth) {
 }
 
 export function connectWifi(name) {
+    wifiStateChanging = true;
+    wifiTargetStateIsConnected = true;
+
+    privilegedInterface.setData("network_connectingToWifi", name);
+
     return gShell.call("network_connectWifi", {name});
 }
 
@@ -62,4 +76,23 @@ export function init() {
     setInterval(function() {
         scanWifi();
     }, WIFI_SCAN_INTERVAL);
+
+    setInterval(function() {
+        if (!wifiStateChanging) {
+            return;
+        }
+
+        scanWifi();
+
+        var connected = !!wifiScanResults.find((result) => result.connected);
+
+        if (
+            (wifiTargetStateIsConnected && connected) ||
+            (!wifiTargetStateIsConnected && !connected && wifiScanResults.length != 0)
+        ) {
+            wifiStateChanging = false;
+
+            privilegedInterface.setData("network_connectingToWifi", null);
+        }
+    }, WIFI_CONNECTING_SCAN_INTERVAL);
 }

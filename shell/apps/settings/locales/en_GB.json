@@ -36,6 +36,7 @@
         "network_wifiNetworksNone_description": "Move closer to a Wi-Fi router to get better reception.",
 
         "network_wifiAp_connect": "Connect",
+        "network_wifiAp_connecting": "Connecting...",
         "network_wifiAp_disconnect": "Disconnect",
         "network_wifiAp_forget": "Forget",
         "network_wifiAp_channelDetails": "Channel details",

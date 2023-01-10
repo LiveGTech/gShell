@@ -373,7 +373,9 @@ exports.networkScanWifi = function() {
         return Promise.resolve([]);
     }
 
-    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,bssid,chan,rate,signal,security,active", "device", "wifi", "list"]).then(function(output) {
+    return exports.executeCommand("nmcli", ["device", "wifi", "rescan"]).then(function() {
+        return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,bssid,chan,rate,signal,security,active", "device", "wifi", "list"]);
+    }).then(function(output) {
         var lines = output.stdout.split("\n").filter((line) => line != "");
 
         return lines.map(function(line) {
@@ -445,7 +447,17 @@ exports.networkConnectWifi = function(name) {
     }
 
     return exports.networkDisconnectWifi().then(function() {
-        return exports.executeCommand("nmcli", ["device", "wifi", "connect", name]);
+        return exports.executeCommand("nmcli", ["device", "wifi", "connect", name], null);
+    }).then(function(data) {
+        if (data.stdout.includes("Error:")) {
+            if (data.stdout.includes("(7)")) {
+                return Promise.resolve("invalidAuth");
+            }
+
+            return Promise.reject("Could not connect to Wi-Fi network");
+        }
+
+        return Promise.resolve("connected");
     });
 };
 

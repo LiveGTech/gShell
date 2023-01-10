@@ -85,7 +85,6 @@ window.addEventListener("load", function() {
         }
 
         if (event.target.matches(INPUT_SELECTOR)) {
-            console.log("is input");
             if (!isTextualInput(event.target)) {
                 electron.ipcRenderer.sendToHost("input_hide");
     

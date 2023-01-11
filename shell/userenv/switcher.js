@@ -866,11 +866,15 @@ export function closeWindow(element, animate = true) {
         listButton.addClass("transitioning");
 
         ($g.sel("#switcherView .switcher_screen").getAll().length == 1 ? goHome() : Promise.resolve()).then(function() {
-            setTimeout(function() {
-                element.remove();
-    
+            setTimeout(function() {    
                 if ($g.sel("#switcherView .switcher_screen").getAll().length == 0) {
                     main.selectDesktop();
+
+                    element.remove();
+                } else {
+                    goHome().then(function() {
+                        element.remove();
+                    });
                 }
     
                 resolve();

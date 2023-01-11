@@ -140,9 +140,9 @@
 
         "sphere_back": "Précédent",
         "sphere_forward": "Suivant",
+        "sphere_reload": "Recharger",
 
         "sphere_menu": "Menu",
-
         "sphere_menu_installApp": "Installer l'application",
 
         "a11y_switch_openMainMenu": "Menu",

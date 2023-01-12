@@ -62,7 +62,16 @@ export function connectWifi(name) {
 
     privilegedInterface.setData("network_connectingToWifi", name);
 
-    return gShell.call("network_connectWifi", {name});
+    return gShell.call("network_connectWifi", {name}).then(function(status) {
+        if (status != "connected") {
+            wifiStateChanging = false;
+            wifiTargetStateIsConnected = false;
+
+            privilegedInterface.setData("network_connectingToWifi", null);
+        }
+
+        return Promise.resolve(status);
+    });
 }
 
 export function init() {

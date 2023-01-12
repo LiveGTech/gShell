@@ -150,9 +150,36 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
     var exitScreen = screen.inter.exit;
 
-    screen.on("removed", function() {
-        active = false;
-    });
+    function forgetAp() {
+        return _sphere.callPrivilegedCommand("network_forgetWifi", {
+            name: props.accessPoint.name
+        }).then(function() {
+            updateData();
+
+            return _sphere.callPrivilegedCommand("network_scanWifi");
+        });
+    }
+
+    function showInvalidAuthWarning(fromSavedNetwork) {
+        var dialog = Dialog (
+            Heading() (_("network_invalidAuthWarning_title")),
+            DialogContent (
+                Paragraph() (fromSavedNetwork ? _("network_invalidAuthWarning_description_fromSaved") : _("network_invalidAuthWarning_description"))
+            ),
+            ButtonRow("end") (
+                Button({
+                    attributes: {
+                        "aui-bind": "close"
+                    }
+                }) (_("ok"))
+            )
+        );
+
+        settings.registerDialog(dialog);
+
+        dialog.dialogOpen();
+        forgetAp();
+    }
 
     function updateData() {
         if (!active) {
@@ -163,6 +190,8 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         var listResults = data?.network_listResults || [];
         var apResults = (data?.network_wifiScanResults || []).filter((result) => result.name == props.accessPoint.name);
         var connected = apResults.filter((result) => result.connected).length > 0;
+        var connectionIsSaved = !!listResults.find((result) => result.name == props.accessPoint.name);
+        var connectionIsOpen = props.accessPoint.security.length == 0;
 
         if (apResults.length == 0) {
             return;
@@ -178,9 +207,14 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             }) ()
         );
 
+        var forgetButton = Button("dangerous") (_("network_wifiAp_forget"));
+
+        forgetButton.on("click", function() {
+            forgetAp();
+        });
+
         if (connected) {
             var disconnectButton = Button() (_("network_wifiAp_disconnect"));
-            var forgetButton = Button("dangerous") (_("network_wifiAp_forget"));
 
             disconnectButton.on("click", function() {
                 _sphere.callPrivilegedCommand("network_disconnectWifi", {
@@ -193,12 +227,6 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             });
 
             forgetButton.on("click", function() {
-                _sphere.callPrivilegedCommand("network_forgetWifi", {
-                    name: props.accessPoint.name
-                }).then(function() {
-                    _sphere.callPrivilegedCommand("network_scanWifi");
-                });
-
                 exitScreen();
             });
 
@@ -209,17 +237,12 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         } else {
             var connectButton = Button() (_("network_wifiAp_connect"));
 
-            // TODO: Allow forgetting network if saved but not connected
-
             if (data?.network_connectingToWifi == props.accessPoint.name) {
                 connectButton.setAttribute("disabled", true);
                 connectButton.setText(_("network_wifiAp_connecting"));
             }
 
             connectButton.on("click", function() {
-                var connectionIsSaved = !!listResults.find((result) => result.name == props.accessPoint.name);
-                var connectionIsOpen = props.accessPoint.security.length == 0;
-
                 if (connectionIsSaved || connectionIsOpen) {
                     Promise.resolve().then(function() {
                         if (connectionIsSaved) {
@@ -234,13 +257,28 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
                             name: props.accessPoint.name
                         });
                     }).then(function(status) {
-                        // TODO: Handle status such as `"invalidAuth"`
-                        console.log(status);
+                        if (status == "invalidAuth") {
+                            showInvalidAuthWarning(true);
+
+                            connectionIsSaved = false;
+                        }
+
+                        // TODO: Handle other errors from catching
 
                         return Promise.resolve();
                     });
                 } else {
-                    var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint}) ();
+                    var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint, parentScreen: screen}) ();
+
+                    dialog.on("connectionsaved", function() {
+                        connectionIsSaved = true;
+                    });
+
+                    dialog.on("invalidauth", function() {
+                        showInvalidAuthWarning();
+
+                        connectionIsSaved = false;
+                    });
 
                     settings.registerDialog(dialog);
 
@@ -250,9 +288,20 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
                 }
             });
 
+            forgetButton.on("click", function() {
+                connectionIsSaved = false;
+
+                forgetButton.remove();
+            });
+
             mainActions.clear().add(
-                connectButton
+                connectButton,
+                forgetButton
             );
+
+            if (!connectionIsSaved || data?.network_connectingToWifi) {
+                forgetButton.remove();
+            }
         }
 
         channelDetails.clear().add(
@@ -270,12 +319,14 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
     _sphere.onPrivilegedDataUpdate(updateData);
     updateData();
 
+    screen.on("removed", function() {
+        active = false;
+    });
+
     return screen;
 });
 
 export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfigDialog", function(props, children) {
-    // TODO: Add in proper functionality
-
     var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
 
     if (props.accessPoint.security.includes("wpa1") || props.accessPoint.security.includes("wpa2")) {
@@ -355,12 +406,17 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
             name: props.accessPoint.name,
             auth: currentAuthModeConfigElement.inter.getAuthConfig()
         }).then(function() {
+            dialog.emit("connectionsaved");
+
             return _sphere.callPrivilegedCommand("network_connectWifi", {
                 name: props.accessPoint.name
             });
         }).then(function(status) {
-            // TODO: Handle status such as `"invalidAuth"`
-            console.log(status);
+            if (status == "invalidAuth") {
+                dialog.emit("invalidauth");
+            }
+
+            // TODO: Handle other errors from catching
 
             return Promise.resolve();
         });

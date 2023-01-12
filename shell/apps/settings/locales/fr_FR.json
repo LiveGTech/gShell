@@ -9,6 +9,7 @@
         "settings": "Paramètres",
 
         "back": "Précédent",
+        "ok": "OK",
         "cancel": "Annuler",
         "apply": "Appliquer",
         "add": "Ajouter",
@@ -65,6 +66,10 @@
         "network_wifiConfig_authModes_innerAuthMode_gtc": "GTC",
         "network_wifiConfig_authModes_innerAuthMode_username": "Nom d'utilisateur (identité)",
         "network_wifiConfig_authModes_innerAuthMode_anonymousIdentity": "Identité anonyme",
+        
+        "network_invalidAuthWarning_title": "Impossible de s'authentifier auprès du réseau",
+        "network_invalidAuthWarning_description": "Vérifiez les détails que vous devez saisir pour vous connecter à ce réseau (comme les mots de passe), puis essayez de vous reconnecter.",
+        "network_invalidAuthWarning_description_fromSaved": "Il semble que les détails nécessaires à la connexion (comme les mots de passe) aient changé depuis votre dernière connexion. Essayez de vous reconnecter.",
 
         "l10n": "Langue et saisie",
 

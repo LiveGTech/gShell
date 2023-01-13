@@ -538,11 +538,15 @@ export class InputMethod {
 
     getCandidates(nGramLength = this.nGramLength) {
         var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
-        var wordResults = this.wordSearch.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH), {fuzzy: 0.2});
+        var wordResults = this.wordSearch.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH), {prefix: true, fuzzy: 0.2});
         var allCandidates = [];
 
+        var wordResultsMaxScore = wordResults.sort((a, b) => b.score - a.score)[0]?.score || 1;
+
         wordResults.forEach(function(result) {
-            result.score = result.weighting * (1 - result.score);
+            result = {...result};
+
+            result.score = result.weighting * (result.score / wordResultsMaxScore);
             result.source = candidateResultSources.WORD;
 
             allCandidates.push(result);

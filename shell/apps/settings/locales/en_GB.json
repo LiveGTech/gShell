@@ -67,9 +67,12 @@
         "network_wifiConfig_authModes_innerAuthMode_username": "Username (identity)",
         "network_wifiConfig_authModes_innerAuthMode_anonymousIdentity": "Anonymous identity",
 
-        "network_invalidAuthWarning_title": "Couldn't authenticate with network",
-        "network_invalidAuthWarning_description": "Check the details you need to enter to connect to this network (such as passwords), and try connecting again.",
-        "network_invalidAuthWarning_description_fromSaved": "It seems that the details needed to connect (such as passwords) have changed since you last connected. Try connecting again.",
+        "network_invalidAuth_title": "Couldn't authenticate with network",
+        "network_invalidAuth_description": "Check the details you need to enter to connect to this network (such as passwords), and try connecting again.",
+        "network_invalidAuth_description_fromSaved": "It seems that the details needed to connect (such as passwords) have changed since you last connected. Try connecting again.",
+
+        "network_connectionError_title": "Couldn't connect to network",
+        "network_connectionError_description": "Check the network configuration and hardware to see if it is working properly, and try connecting again.",
 
         "l10n": "Language and input",
 

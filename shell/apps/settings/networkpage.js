@@ -160,11 +160,11 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
         });
     }
 
-    function showInvalidAuthWarning(fromSavedNetwork) {
+    function showInvalidAuthDialog(fromSavedNetwork) {
         var dialog = Dialog (
-            Heading() (_("network_invalidAuthWarning_title")),
+            Heading() (_("network_invalidAuth_title")),
             DialogContent (
-                Paragraph() (fromSavedNetwork ? _("network_invalidAuthWarning_description_fromSaved") : _("network_invalidAuthWarning_description"))
+                Paragraph() (fromSavedNetwork ? _("network_invalidAuth_description_fromSaved") : _("network_invalidAuth_description"))
             ),
             ButtonRow("end") (
                 Button({
@@ -179,6 +179,26 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
         dialog.dialogOpen();
         forgetAp();
+    }
+
+    function showConnectionErrorDialog() {
+        var dialog = Dialog (
+            Heading() (_("network_connectionError_title")),
+            DialogContent (
+                Paragraph() (_("network_connectionError_description"))
+            ),
+            ButtonRow("end") (
+                Button({
+                    attributes: {
+                        "aui-bind": "close"
+                    }
+                }) (_("ok"))
+            )
+        );
+
+        settings.registerDialog(dialog);
+
+        dialog.dialogOpen();
     }
 
     function updateData() {
@@ -258,14 +278,16 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
                         });
                     }).then(function(status) {
                         if (status == "invalidAuth") {
-                            showInvalidAuthWarning(true);
+                            showInvalidAuthDialog(true);
 
                             connectionIsSaved = false;
                         }
 
-                        // TODO: Handle other errors from catching
-
                         return Promise.resolve();
+                    }).catch(function(error) {
+                        console.warn(error);
+            
+                        showConnectionErrorDialog();
                     });
                 } else {
                     var dialog = WifiConnectionConfigDialog({accessPoint: props.accessPoint, parentScreen: screen}) ();
@@ -275,7 +297,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
                     });
 
                     dialog.on("invalidauth", function() {
-                        showInvalidAuthWarning();
+                        showInvalidAuthDialog();
 
                         connectionIsSaved = false;
                     });
@@ -416,9 +438,11 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
                 dialog.emit("invalidauth");
             }
 
-            // TODO: Handle other errors from catching
-
             return Promise.resolve();
+        }).catch(function(error) {
+            console.warn(error);
+
+            showConnectionErrorDialog();
         });
     }
 

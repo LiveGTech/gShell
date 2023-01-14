@@ -71,6 +71,13 @@ export function connectWifi(name) {
         }
 
         return Promise.resolve(status);
+    }).catch(function(error) {
+        wifiStateChanging = false;
+        wifiTargetStateIsConnected = false;
+
+        privilegedInterface.setData("network_connectingToWifi", null);
+
+        return Promise.reject(error);
     });
 }
 

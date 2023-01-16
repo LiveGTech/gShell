@@ -106,11 +106,7 @@ export function finish() {
             localeCode: l10n.currentLocale.localeCode
         });
     }).then(function() {
-        return config.write("input.gsc", {
-            keyboardLayouts: [
-                {path: input.currentKeyboardLayout.path}
-            ]
-        });
+        return input.saveKeyboardLayoutsToConfig();
     }).then(function() {
         return users.create(undefined, {
             displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim()

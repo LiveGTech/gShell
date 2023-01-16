@@ -24,7 +24,9 @@
 }
 
 .oobs_featureMedia {
+    flex-grow: 1;
     max-width: 100%;
+    max-height: 100%;
 }
 
 .oobs_content {
@@ -43,11 +45,27 @@
     margin-right: 0.5rem;
 }
 
-.oobs_options {
+.oobs_options, .oobs_systemOptions {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+}
+
+.oobs_systemOptions {
+    min-height: 2.8rem;
+}
+
+.oobs_systemOptions button {
+    width: 2.8rem;
+    padding: 0.5rem;
+    background-color: transparent;
+    border-radius: 50%;
+    transition: 0.5s background-color;
+}
+
+html[aui-istouch="false"] .oobs_systemOptions button:hover, .oobs_systemOptions button:active {
+    background-color: var(--secondaryPress);
 }
 
 .oobs_welcome {

@@ -88,9 +88,41 @@ w // Write and exit
 
 export function selectStep(stepName) {
     return $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"])`).fadeOut().then(function() {
-        return $g.sel(`#oobs .oobs_step[aui-template="gshell://oobs/${stepName}.html"]`).fadeIn();
+        var step = $g.sel(`#oobs .oobs_step[aui-template="gshell://oobs/${stepName}.html"]`);
+
+        // TODO: Implement functionality for power and accessibility options by adding menus
+        // We can make use of the already-present power menu for the power options
+        // We should also observe `oobs-processing="true"` in `installprocess.html` to maybe disable the power menu
+
+        step.find(".oobs_systemOptions").clear().add(
+            $g.create("button")
+                .setAttribute("title", _("oobs_powerOptions"))
+                .setAttribute("aria-label", _("oobs_powerOptions"))
+                .add(
+                    $g.create("img")
+                        .setAttribute("src", "gshell://lib/adaptui/icons/power.svg")
+                        .setAttribute("alt", "")
+                        .setAttribute("aui-icon", "dark embedded")
+                )
+            ,
+            $g.create("button")
+                .setAttribute("title", _("oobs_a11yOptions"))
+                .setAttribute("aria-label", _("oobs_a11yOptions"))
+                .add(
+                    $g.create("img")
+                        .setAttribute("src", "gshell://lib/adaptui/icons/a11y.svg")
+                        .setAttribute("alt", "")
+                        .setAttribute("aui-icon", "dark embedded")
+                )
+        );
+
+        return step.fadeIn();
     }).then(function() {
-        $g.sel($g.sel(`#oobs .oobs_step:not([hidden])`).find(a11y.FOCUSABLES).getAll()[0]).focus();
+        $g.sel($g.sel(`#oobs .oobs_step:not([hidden])`)
+            .find(a11y.FOCUSABLES)
+            .where(":scope:not(.oobs_systemOptions *)")
+            .getAll()[0]
+        ).focus();
 
         $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"]) video`).getAll().forEach((element) => element.currentTime = 0);
 

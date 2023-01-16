@@ -71,6 +71,9 @@
         "oobs_finish": "Finish",
         "oobs_restart": "Restart",
 
+        "oobs_powerOptions": "Power options",
+        "oobs_a11yOptions": "Accessibility options",
+
         "oobs_l10n_localeVariation": "Language region/variation",
         "oobs_l10n_keyboardLayout": "Keyboard layout",
 

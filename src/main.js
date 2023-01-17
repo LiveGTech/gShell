@@ -59,6 +59,8 @@ electron.app.on("ready", function() {
         return device.init(flags.deviceDescriptionLocation || undefined);
     }).then(function() {
         return system.getScreenResolution();
+    }).then(function() {
+        return electron.components.whenReady();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({
             width: resolution.width,

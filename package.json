@@ -10,7 +10,7 @@
         "dist": "electron-builder"
     },
     "devDependencies": {
-        "electron": "^22.0.0",
+        "electron": "github:castlabs/electron-releases#v22.0.0+wvcus",
         "electron-builder": "^22.10.3"
     },
     "dependencies": {
@@ -22,6 +22,9 @@
         "appId": "tech.liveg.gshell",
         "productName": "gShell",
         "copyright": "Copyright © LiveG. All Rights Reserved.",
+        "electronDownload": {
+            "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
+        },
         "extraResources": [
             {
                 "from": "shell",
@@ -37,8 +40,7 @@
                 {
                     "target": "AppImage",
                     "arch": [
-                        "x64",
-                        "armv7l"
+                        "x64"
                     ]
                 }
             ],

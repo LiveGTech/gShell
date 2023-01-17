@@ -17,6 +17,7 @@ import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
+import * as powerMenu from "gshell://global/powermenu.js";
 
 var flags = {};
 var systemSize = null;
@@ -90,14 +91,16 @@ export function selectStep(stepName) {
     return $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"])`).fadeOut().then(function() {
         var step = $g.sel(`#oobs .oobs_step[aui-template="gshell://oobs/${stepName}.html"]`);
 
-        // TODO: Implement functionality for power and accessibility options by adding menus
-        // We can make use of the already-present power menu for the power options
+        // TODO: Implement functionality for accessibility options by adding a menu
         // We should also observe `oobs-processing="true"` in `installprocess.html` to maybe disable the power menu
 
         step.find(".oobs_systemOptions").clear().add(
             $g.create("button")
                 .setAttribute("title", _("oobs_powerOptions"))
                 .setAttribute("aria-label", _("oobs_powerOptions"))
+                .on("click", function() {
+                    powerMenu.open();
+                })
                 .add(
                     $g.create("img")
                         .setAttribute("src", "gshell://lib/adaptui/icons/power.svg")

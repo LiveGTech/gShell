@@ -8,11 +8,12 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
-import * as a11y from "gshell://lib/adaptui/src/a11y.js";
+import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 
 import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
+import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
 import * as input from "gshell://input/input.js";
@@ -111,6 +112,9 @@ export function selectStep(stepName) {
             $g.create("button")
                 .setAttribute("title", _("oobs_a11yOptions"))
                 .setAttribute("aria-label", _("oobs_a11yOptions"))
+                .on("click", function() {
+                    a11y.openMenu();
+                })
                 .add(
                     $g.create("img")
                         .setAttribute("src", "gshell://lib/adaptui/icons/a11y.svg")
@@ -122,7 +126,7 @@ export function selectStep(stepName) {
         return step.fadeIn();
     }).then(function() {
         $g.sel($g.sel(`#oobs .oobs_step:not([hidden])`)
-            .find(a11y.FOCUSABLES)
+            .find(aui_a11y.FOCUSABLES)
             .where(":scope:not(.oobs_systemOptions *)")
             .getAll()[0]
         ).focus();

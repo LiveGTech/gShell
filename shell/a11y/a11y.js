@@ -70,6 +70,14 @@ export function init() {
         }
     });
 
+    $g.sel(".a11yMenu button").forEach(function(element) {
+        var optionName = element.getAttribute("a11y-option");
+
+        element.on("click", function() {
+            setOption(optionName, !options[optionName]);
+        });
+    });
+
     Promise.all([
         import("gshell://a11y/switch.js")
     ]).then(function(loadedModules) {
@@ -93,4 +101,20 @@ export function update() {
 
     privilegedInterface.setData("a11y_options", options);
     webviewComms.update();
+
+    $g.sel(".a11yMenu button").forEach(function(element) {
+        var optionName = element.getAttribute("a11y-option");
+
+        element.setAttribute("aria-role", "checkbox");
+
+        if (options[optionName]) {
+            element.setAttribute("aria-checked", true);
+        } else {
+            element.removeAttribute("aria-checked");
+        }
+    });
+}
+
+export function openMenu() {
+    $g.sel(".a11yMenu").menuOpen();
 }

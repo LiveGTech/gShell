@@ -148,6 +148,7 @@
         "sphere_menu": "Menu",
         "sphere_menu_installApp": "Install app",
 
+        "a11y_switch": "Switch Navigation",
         "a11y_switch_openMainMenu": "Menu",
         "a11y_switch_switchToItemScan": "Item scan",
         "a11y_switch_switchToPointScan": "Point scan",
@@ -160,6 +161,8 @@
         "a11y_switch_pinch": "Pinch",
         "a11y_switch_rotate": "Rotate",
         "a11y_switch_doubleClick": "Double click",
-        "a11y_switch_mouseButtons": "Mouse buttons"
+        "a11y_switch_mouseButtons": "Mouse buttons",
+
+        "a11y_reduceMotion": "Reduce motion"
     }
 }

@@ -170,6 +170,8 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
             }
 
             if (thisScope.currentMode == modes.POINT_SCAN) {
+                // FIXME: Point scanning causes unexpected behaviour when an item is programmatically focused (such as in OOBS when going between screens)
+
                 var advanceRate = thisScope.lastPointScanAdvance == -Infinity ? 0 : (Date.now() - thisScope.lastPointScanAdvance) * 0.25;
 
                 if (thisScope.pointScanAxisIsY) {

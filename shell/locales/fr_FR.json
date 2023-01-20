@@ -152,16 +152,16 @@
         "a11y_switch_openMainMenu": "Menu",
         "a11y_switch_switchToItemScan": "Scan des articles",
         "a11y_switch_switchToPointScan": "Scan du points",
-        "a11y_switch_quickSettings": "Paramètres rapides",
-        "a11y_switch_scanSlower": "Scanner plus lentement",
-        "a11y_switch_scanFaster": "Scanner plus rapidement",
+        "a11y_switch_quickSettings": "Params rapides",
+        "a11y_switch_scanSlower": "Moins rapide",
+        "a11y_switch_scanFaster": "Plus rapide",
         "a11y_switch_done": "Fait",
         "a11y_switch_click": "Cliquez",
         "a11y_switch_swipe": "Balayez",
         "a11y_switch_pinch": "Pincer",
         "a11y_switch_rotate": "Tourner",
         "a11y_switch_doubleClick": "Double-cliquez",
-        "a11y_switch_mouseButtons": "Boutons de la souris",
+        "a11y_switch_mouseButtons": "Boutons souris",
 
         "a11y_reduceMotion": "Réduisez les mouvements"
     }

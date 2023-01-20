@@ -650,6 +650,11 @@ function keydownCallback(event) {
     }
 
     if (event.key == " " && $g.sel(document.activeElement).is(".input *")) {
+        if (inputTrailingText == " ") {
+            // Fix for counter not going back to 0 when using Switch Navigation a11y
+            inputCharsToEnter = 0;
+        }
+
         return;
     }
 
@@ -709,7 +714,7 @@ export function init() {
     setInterval(function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
 
-        if (document.activeElement?.matches(".input, .input *")) {
+        if (showing || document.activeElement?.matches(".input, .input *")) {
             return;
         }
 
@@ -1039,6 +1044,7 @@ export function show(mode = getBestInputMode()) {
     }
 
     targetInput = document.activeElement;
+    targetInputSurface = document.activeElement;
 
     showing = true;
     showingTransition = true;

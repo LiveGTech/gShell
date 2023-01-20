@@ -64,7 +64,7 @@
     transition: 0.5s background-color;
 }
 
-html[aui-istouch="false"] .oobs_systemOptions button:hover, .oobs_systemOptions button:active {
+html[aui-istouch="false"] .oobs_systemOptions button:not(:disabled):hover, .oobs_systemOptions button:not(:disabled):active {
     background-color: var(--secondaryPress);
 }
 

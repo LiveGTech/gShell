@@ -92,13 +92,11 @@ export function selectStep(stepName) {
     return $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"])`).fadeOut().then(function() {
         var step = $g.sel(`#oobs .oobs_step[aui-template="gshell://oobs/${stepName}.html"]`);
 
-        // TODO: Implement functionality for accessibility options by adding a menu
-        // We should also observe `oobs-processing="true"` in `installprocess.html` to maybe disable the power menu
-
         step.find(".oobs_systemOptions").clear().add(
             $g.create("button")
                 .setAttribute("title", _("oobs_powerOptions"))
                 .setAttribute("aria-label", _("oobs_powerOptions"))
+                .condition(step.find("div").hasAttribute("oobs-processing"), (element) => element.setAttribute("disabled", true))
                 .on("click", function() {
                     powerMenu.open();
                 })

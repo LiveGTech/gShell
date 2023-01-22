@@ -17,8 +17,6 @@ function uaFor(renderer) {
     return navigator.userAgent.match(new RegExp(`(${renderer}\\/[0-9.]+)`))[1];
 }
 
-// TODO: Store version number for LiveG OS and Sphere in central location so that it can be used in places like the user agent and elsewhere
-
 export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS ${about.VERSION}) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} Mobile ${uaFor("Safari")} Sphere/${about.VERSION}`;
 
 export const USER_AGENT_METADATA = {

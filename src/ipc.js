@@ -210,6 +210,44 @@ ipcMain.handle("webview_setLocale", function(event, data) {
     return system.setLocale(data.localeCode);
 });
 
+ipcMain.handle("webview_getManifest", function(event, data) {
+    var webContents = electron.webContents.fromId(data.webContentsId);
+
+    return new Promise(function(resolve, reject) {
+        if (!webContents.isLoadingMainFrame()) {
+            resolve();
+
+            return;
+        }
+
+        webContents.on("did-finish-load", function() {
+            resolve();
+        });
+    }).then(function() {
+        return webContents.debugger.sendCommand("Page.getAppManifest");
+    }).then(function(manifestData) {
+        var returnData = {
+            isPresent: false,
+            isValid: false,
+            manifest: null,
+            scope: null
+        };
+
+        if (manifestData?.parsed?.scope) {
+            returnData.isPresent = true;
+            returnData.scope = manifestData.parsed.scope
+        }
+
+        try {
+            returnData.manifest = JSON.parse(manifestData?.data);
+            returnData.isPresent = true;
+            returnData.isValid = true;
+        } catch (e) {}
+
+        return Promise.resolve(returnData);
+    });
+});
+
 ipcMain.handle("dev_restart", function(event, data) {
     system.devRestart();
 

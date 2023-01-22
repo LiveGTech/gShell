@@ -143,16 +143,25 @@ export class Browser {
             return;
         }
 
-        var localeCode = l10n.currentLocale.localeCode;
-        var appName = {};
+        gShell.call("webview_getManifest", {
+            webContentsId: this.webview.get().getWebContentsId()
+        }).then(function(data) {
+            var manifestData = appManager.ManifestData.deserialise(data);
 
-        appName[localeCode] = this.lastTitle;
+            if (manifestData.isValid) {
+                return appManager.installFromManifestData(manifestData);
+            }
 
-        return appManager.install({
-            fallbackLocale: localeCode,
-            name: appName,
-            url,
-            icon: this.lastIcon
+            var localeCode = l10n.currentLocale.localeCode;
+
+            return appManager.install({
+                fallbackLocale: localeCode,
+                name: {
+                    [localeCode]: this.lastTitle
+                },
+                url,
+                icon: this.lastIcon
+            });
         });
     }
 

@@ -15,10 +15,9 @@
     Using this resource system is recommended to prevent gShell from having to
     frequently download the same file from the internet when it needs to be
     loaded, as this wastes requests and might not work when offline.
-
-    TODO: Maybe move the logic for this over to the main process instead of
-    being in the renderer as it could be used over there (like `config` is)
 */
+
+// TODO: Maybe move the logic for this over to the main process instead of being in the renderer as it could be used over there (like `config` is)
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 

@@ -120,6 +120,10 @@ ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
 });
 
+ipcMain.handle("network_fetch", function(event, data) {
+    return system.fetch(data.resource, data.options);
+});
+
 ipcMain.handle("network_list", function(event, data) {
     return system.networkList();
 });

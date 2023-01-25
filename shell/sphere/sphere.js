@@ -137,6 +137,7 @@ export class Browser {
     }
 
     installApp() {
+        var thisScope = this;
         var url = this.webview.get()?.getURL();
 
         if (!url) {
@@ -157,10 +158,10 @@ export class Browser {
             return appManager.install({
                 fallbackLocale: localeCode,
                 name: {
-                    [localeCode]: this.lastTitle
+                    [localeCode]: thisScope.lastTitle
                 },
                 url,
-                icon: this.lastIcon
+                icon: thisScope.lastIcon
             });
         });
     }

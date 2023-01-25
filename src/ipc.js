@@ -234,12 +234,14 @@ ipcMain.handle("webview_getManifest", function(event, data) {
             isPresent: false,
             isValid: false,
             manifest: null,
+            manifestUrl: null,
             scope: null
         };
 
         if (manifestData?.parsed?.scope) {
             returnData.isPresent = true;
-            returnData.scope = manifestData.parsed.scope
+            returnData.manifestUrl = manifestData.url;
+            returnData.scope = manifestData.parsed.scope;
         }
 
         try {

@@ -171,15 +171,17 @@ ipcMain.handle("webview_attach", function(event, data) {
 
     if (flags.isRealHardware) {
         webContents.setZoomFactor(device.data.display.scaleFactor);
+    } else {
+        webContents.setZoomFactor(1);
     }
 
-    webContents.debugger.attach();
+    webContents.debugger.attach("1.2");
 
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,
         height: 0,
         deviceScaleFactor: device.data.display.scaleFactor,
-        scale: flags.isRealHardware && device.data.display.scaleFactor != 1 ? (1.2 ** (device.data.display.scaleFactor - 0.5)) : undefined,
+        scale: flags.isRealHardware && device.data.display.scaleFactor != 1 ? (1.2 ** (2 * (device.data.display.scaleFactor - 0.5))) : undefined,
         mobile: true
     }).then(function() {
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {

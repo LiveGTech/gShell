@@ -12,13 +12,23 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as users from "gshell://config/users.js";
+import * as resources from "gshell://storage/resources.js";
 import * as home from "gshell://userenv/home.js";
 
+export const ICON_MIME_TYPES_TO_FILE_EXTENSIONS = {
+    "image/svg+xml": "svg",
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+    "image/x-icon": "ico"
+};
+
 export class ManifestData {
-    constructor(manifest, scope) {
+    constructor(manifest, manifestUrl, scope) {
         this.isPresent = true;
         this.isValid = true;
         this.manifest = manifest;
+        this.manifestUrl = manifestUrl;
         this.scope = scope;
     }
 
@@ -29,7 +39,7 @@ export class ManifestData {
     get url() {
         return new URL(
             this.manifest.start_url || this.manifest.scope || ".",
-            this.scope
+            this.manifestUrl
         ).href;
     }
 
@@ -76,11 +86,11 @@ export class ManifestData {
             return null;
         }
 
-        return new URL(bestIcon, this.scope).href;
+        return new URL(bestIcon, this.manifestUrl).href;
     }
 
     static deserialise(data) {
-        var instance = new this(data.manifest, data.scope);
+        var instance = new this(data.manifest, data.manifestUrl, data.scope);
 
         instance.isPresent = data.isPresent;
         instance.isValid = data.isValid;
@@ -90,13 +100,55 @@ export class ManifestData {
 }
 
 export function install(appDetails) {
-    return users.ensureCurrentUser().then(function(user) {
+    var user;
+    var resource = null;
+
+    return users.ensureCurrentUser().then(function(userData) {
+        user = userData;
+
+        if (!appDetails.icon) {
+            return Promise.resolve();
+        }
+
+        var iconUrl = appDetails.icon;
+        var mimeType;
+
+        appDetails.icon = null; // Discard URL so that it is never loaded if resource saving fails
+
+        return fetch(iconUrl).then(function(response) {
+            mimeType = response.headers.get("Content-Type").split(";")[0];
+
+            if (!(mimeType in ICON_MIME_TYPES_TO_FILE_EXTENSIONS)) {
+                return Promise.reject(`Icon MIME type (\`${mimeType}\`) not allowed when installing app: ${iconUrl}`);
+            }
+
+            return response.arrayBuffer();
+        }).then(function(data) {
+            resource = new resources.Resource(ICON_MIME_TYPES_TO_FILE_EXTENSIONS[mimeType], data);
+
+            return resource.save();
+        }).then(function() {
+            appDetails.icon = resource.url;
+            appDetails.iconResourceId = resource.id;
+
+            return Promise.resolve();
+        }).catch(function(error) {
+            console.warn(error);
+
+            return Promise.resolve();
+        });
+    }).then(function() {
         return config.edit(`users/${user.uid}/apps.gsc`, function(data) {
             data.apps ||= {};
 
-            data.apps[$g.core.generateKey()] = appDetails;
+            var appId = $g.core.generateKey();
 
-            // TODO: Save non-gShell app icons locally
+            data.apps[appId] = appDetails;
+
+            if (resource != null) {
+                data.apps[appId].icon
+            }
+
             // TODO: Add notification telling user app has been added
 
             return Promise.resolve(data);

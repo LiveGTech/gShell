@@ -73,29 +73,31 @@ electron.app.on("ready", function() {
                 sandbox: true
             }
         });
-    
-        exports.window.setMenuBarVisibility(false);
-        exports.window.webContents.debugger.attach("1.2");
-
-        electron.nativeTheme.themeSource = "light";
-
-        if (flags.isRealHardware) {
-            exports.window.setPosition(0, 0);
-            exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
-        }
-
-        if (flags.emulateTouch) {
-            exports.window.webContents.debugger.sendCommand("Emulation.setEmitTouchEventsForMouse", {
-                enabled: true,
-                configuration: "mobile"
-            });
-        }
-
-        if (flags.devTools) {
-            exports.window.webContents.openDevTools();
-        }
 
         exports.window.once("ready-to-show", function() {
+            exports.window.setMenuBarVisibility(false);
+            exports.window.webContents.debugger.attach("1.2");
+
+            electron.nativeTheme.themeSource = "light";
+
+            if (flags.isRealHardware) {
+                exports.window.setPosition(0, 0);
+                exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
+            } else {
+                exports.window.webContents.setZoomFactor(1);
+            }
+
+            if (flags.emulateTouch) {
+                exports.window.webContents.debugger.sendCommand("Emulation.setEmitTouchEventsForMouse", {
+                    enabled: true,
+                    configuration: "mobile"
+                });
+            }
+
+            if (flags.devTools) {
+                exports.window.webContents.openDevTools();
+            }
+
             exports.window.show();
             exports.window.focus();
         });

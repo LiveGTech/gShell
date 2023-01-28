@@ -454,6 +454,10 @@ html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActiva
     border-radius: 0.5rem;
 }
 
+.switcher_titleBar.transparentIcons .switcher_tabIcon {
+    background-color: transparent;
+}
+
 .switcher_tabCloseButton {
     transform: scale(0.8);
 }

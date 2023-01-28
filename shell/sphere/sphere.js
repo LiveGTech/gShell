@@ -309,6 +309,7 @@ export function openBrowser() {
         icon: "gshell://sphere/icon.svg",
         instantLaunch: true,
         showTabs: true,
+        iconTransparency: true,
         newTabHandler: function(screenElement) {
             var browser = new Browser();
 

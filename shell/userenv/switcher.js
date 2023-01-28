@@ -642,6 +642,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         ;
     }
 
+    if (appDetails?.iconTransparency) {
+        screenElement.find(".switcher_titleBar").addClass("transparentIcons");
+    }
+
     var app = addAppToWindow(screenElement, windowContents, appDetails);
 
     function finishLaunch() {

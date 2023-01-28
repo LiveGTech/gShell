@@ -63,7 +63,7 @@ export class Resource {
         var thisScope = this;
 
         if (this.extension == null) {
-            return Promise.reject("No MIME type was specified");
+            return Promise.reject("No extension was specified");
         }
 
         return gShell.call("storage_newFolder", {

@@ -64,7 +64,7 @@ function createApp(appDetails) {
                 return;
             }
 
-            switcher.openApp(appDetails.url);
+            switcher.openApp(appDetails.url, appDetails);
         })
     ;
 

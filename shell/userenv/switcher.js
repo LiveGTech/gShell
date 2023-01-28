@@ -344,7 +344,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                                     var details = tab.get().app.get().details;
 
                                     if (details == null) {
-                                        openApp(tab.get().app.find("webview").get()?.getURL() || "about:blank", screenElement);
+                                        openApp(tab.get().app.find("webview").get()?.getURL() || "about:blank", null, screenElement);
 
                                         return;
                                     }
@@ -758,38 +758,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     app.get().lastTitle = null;
     app.get().lastIcon = null;
 
-    if (appDetails == null) {
-        element.find("webview").on("page-title-updated", function(event) {
-            if (app.get().usingCustomTab) {
-                return;
-            }
-
-            app.get().lastTitle = event.title;
-
-            if (tab.hasClass("selected")) {
-                element.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
-
-                element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(element)}));
-                element.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
-            }
-
-            tab.find(".switcher_tabTitle").setText(app.get().lastTitle);
-        });
-
-        element.find("webview").on("page-favicon-updated", function(event) {
-            if (app.get().usingCustomTab) {
-                return;
-            }
-
-            app.get().lastIcon = event.favicons[0];
-
-            if (tab.hasClass("selected")) {
-                element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", app.get().lastIcon);
-            }
-
-            tab.find(".switcher_tabIcon").setAttribute("src", app.get().lastIcon);
-        });
-    } else {
+    if (appDetails != null) {
         app.get().lastTitle = appDetails.name;
         app.get().lastIcon = appDetails.icon;
 
@@ -802,6 +771,37 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
         element.get().appListButton.setAttribute("aria-label", appDetails.name);
         element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
+
+    element.find("webview").on("page-title-updated", function(event) {
+        if (app.get().usingCustomTab) {
+            return;
+        }
+
+        app.get().lastTitle = event.title;
+
+        if (tab.hasClass("selected")) {
+            element.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
+
+            element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(element)}));
+            element.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
+        }
+
+        tab.find(".switcher_tabTitle").setText(app.get().lastTitle);
+    });
+
+    element.find("webview").on("page-favicon-updated", function(event) {
+        if (app.get().usingCustomTab) {
+            return;
+        }
+
+        app.get().lastIcon = appDetails?.icon || event.favicons[0];
+
+        if (tab.hasClass("selected")) {
+            element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", app.get().lastIcon);
+        }
+
+        tab.find(".switcher_tabIcon").setAttribute("src", app.get().lastIcon);
+    });
 
     tab.on("click", function() {
         selectApp(app);
@@ -887,7 +887,7 @@ export function closeWindow(element, animate = true) {
     });
 }
 
-export function openApp(url, targetWindow = null) {
+export function openApp(url, appDetails = null, targetWindow = null) {
     if (url == "gsspecial://sphere") {
         sphere.openBrowser();
 
@@ -900,10 +900,10 @@ export function openApp(url, targetWindow = null) {
         );
 
         if (targetWindow != null) {
-            addAppToWindow(targetWindow, contents);
+            addAppToWindow(targetWindow, contents, appDetails);
         }
 
-        return openWindow(contents);
+        return openWindow(contents, appDetails);
     });
 }
 

@@ -8,6 +8,7 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
@@ -70,7 +71,11 @@ function unlockButtonEvent() {
         return;
     }
 
-    // TODO: Check if reduced motion is enabled, and if so, unlock instantly
+    if (a11y.prefersReducedMotion()) {
+        unlock();
+
+        return;
+    }
 
     if (currentUnlockLift < 1) {
         currentUnlockLift = 1;

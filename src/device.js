@@ -39,5 +39,5 @@ exports.init = function(location = "device.gsc") {
         exports.data.display.scaleFactor ||= 1;
 
         return Promise.resolve();
-    })
+    });
 };

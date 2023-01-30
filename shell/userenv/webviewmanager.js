@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as device from "gshell://system/device.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 import * as users from "gshell://config/users.js";
 import * as about from "gshell://about.js";
@@ -17,15 +18,11 @@ function uaFor(renderer) {
     return navigator.userAgent.match(new RegExp(`(${renderer}\\/[0-9.]+)`))[1];
 }
 
-export const USER_AGENT = `Mozilla/5.0 (Linux; LiveG OS ${about.VERSION}) ${uaFor("AppleWebKit")} (KHTML, like Gecko) ${uaFor("Chrome")} Mobile ${uaFor("Safari")} Sphere/${about.VERSION}`;
+export var userAgent = null;
 
-export const USER_AGENT_METADATA = {
+export var userAgentMetadata = {
     platform: "LiveG OS",
     platformVersion: about.VERSION,
-    model: "Prism",
-    architecture: "aarch64",
-    bitness: "64",
-    mobile: true,
     brands: [
         {
             brand: "Chromium",
@@ -33,7 +30,7 @@ export const USER_AGENT_METADATA = {
         },
         {
             brand: "Sphere",
-            version: "0"
+            version: about.VERSION.split(".")[0]
         }
     ],
     fullVersionList: [
@@ -61,7 +58,7 @@ export function spawn(url, options = {}) {
 
     webview.setAttribute("src", url);
     webview.setAttribute("preload", preloadPath);
-    webview.setAttribute("useragent", USER_AGENT);
+    webview.setAttribute("useragent", userAgent);
 
     if (!url.startsWith("gshell://")) {
         webview.setAttribute("partition", options.partition || "private");
@@ -111,9 +108,22 @@ export function spawnAsUser(url, user = null, options = {}) {
 }
 
 export function init() {
-    return gShell.call("webview_acknowledgeUserAgent", {userAgent: USER_AGENT}).then(function() {
+    userAgent = (
+        `Mozilla/5.0 (Linux; LiveG OS ${about.VERSION}) ` +
+        `${uaFor("AppleWebKit")} (KHTML, like Gecko) ` +
+        `${uaFor("Chrome")} ` +
+        (device.data?.type == "mobile" ? "Mobile" : "") + `${uaFor("Safari")} ` +
+        `Sphere/${about.VERSION}`
+    );
+
+    userAgentMetadata.model = device.data?.model?.name[device.data?.model?.fallbackLocale || "en_GB"];
+    userAgentMetadata.mobile = device.data?.type == "mobile";
+
+    return gShell.call("webview_acknowledgeUserAgent", {userAgent}).then(function() {
         return gShell.call("system_getRootDirectory").then(function(rootDirectory) {
             preloadPath = `file://${rootDirectory}/shell/webviewpreload.js`;
+
+            return Promise.resolve();
         });
     });
 }

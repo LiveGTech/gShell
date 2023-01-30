@@ -31,8 +31,8 @@ export function attach(webview, privileged) {
         element.addEventListener("did-attach", function() {
             gShell.call("webview_attach", {
                 webContentsId: element.getWebContentsId(),
-                userAgent: webviewManager.USER_AGENT,
-                userAgentMetadata: webviewManager.USER_AGENT_METADATA
+                userAgent: webviewManager.userAgent,
+                userAgentMetadata: webviewManager.userAgentMetadata
             });
         });
     });

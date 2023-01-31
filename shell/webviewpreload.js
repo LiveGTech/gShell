@@ -176,6 +176,14 @@ window.addEventListener("load", function() {
 
                 event.target.querySelector(FOCUSABLES)?.focus();
             }
+
+            return;
+        }
+
+        if (event.key == " " && event.target.matches("a")) {
+            event.target.click();
+
+            event.preventDefault();
         }
     });
 

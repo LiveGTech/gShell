@@ -136,6 +136,14 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
                     event.target.querySelector(aui_a11y.FOCUSABLES)?.focus();
                 }
+
+                return;
+            }
+
+            if (event.key == " " && event.target.matches("a")) {
+                event.target.click();
+    
+                event.preventDefault();
             }
         });
 

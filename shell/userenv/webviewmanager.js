@@ -23,6 +23,8 @@ export var userAgent = null;
 export var userAgentMetadata = {
     platform: "LiveG OS",
     platformVersion: about.VERSION,
+    architecture: "generic",
+    bitness: "64",
     brands: [
         {
             brand: "Chromium",

@@ -26,9 +26,7 @@ export var A11yPage = astronaut.component("A11yPage", function(props, children) 
 
     switchNavigationButton.on("click", function() {
         settings.visitInnerScreen(
-            SwitchNavigationScreen() (
-                SwitchNavigationScreen() ()
-            )
+            SwitchNavigationScreen() ()
         );
     });
 

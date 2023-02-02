@@ -53,6 +53,14 @@ export function attach(webview, privileged) {
 
             case "privilegedCommand":
                 if (!privileged) {
+                    webview.getAll().forEach(function(element) {
+                        element.send("callback", {
+                            id: event.args[1]._id,
+                            resolved: false,
+                            data: "Unable to call privileged command: not running in privileged webview"
+                        });
+                    });
+
                     break;
                 }
 

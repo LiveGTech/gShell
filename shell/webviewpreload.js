@@ -124,6 +124,13 @@ window.addEventListener("load", function() {
         });
     });
 
+    window.addEventListener("mousemove", function() {
+        document.querySelectorAll("[title]").forEach(function(element) {
+            element.setAttribute("sphere-:title", Element.prototype.getAttribute.apply(element, ["title"]));
+            element.removeAttribute("title");
+        });
+    });
+
     window.addEventListener("click", function(event) {
         if (isTextualInput(event.target)) {
             electron.ipcRenderer.sendToHost("input_show");

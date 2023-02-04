@@ -206,6 +206,20 @@ ipcMain.handle("webview_attach", function(event, data) {
     });
 });
 
+ipcMain.handle("webview_send", function(event, data) {
+    var webContents = electron.webContents.fromId(data.webContentsId);
+
+    webContents.send(data.message, data.data);
+
+    if (data.sendToSubframes) {
+        webContents.mainFrame.frames.forEach(function(frame) {
+            frame.send(data.message, data.data);
+        });
+    }
+
+    return Promise.resolve();
+});
+
 ipcMain.handle("webview_setMediaFeatures", function(event, data) {
     return system.setMediaFeatures(data.features);
 });

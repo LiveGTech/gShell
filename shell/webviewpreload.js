@@ -33,6 +33,7 @@ const NON_TEXTUAL_INPUTS = [
     "week"
 ];
 
+var hasInitialised = false;
 var mainState = {};
 var privilegedDataIdCounter = 0;
 var privilegedDataUpdateCallbacks = [];
@@ -71,7 +72,7 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
     }
 });
 
-window.addEventListener("load", function() {
+window.addEventListener("DOMContentLoaded", function() {
     setInterval(function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
 
@@ -230,6 +231,20 @@ window.addEventListener("load", function() {
         }
     });
 
+    electron.ipcRenderer.on("readyResponse", function(event, data) {
+        if (hasInitialised) {
+            return;
+        }
+
+        hasInitialised = true;
+
+        var styleElement = document.createElement("style");
+        
+        styleElement.textContent = data.styleCode;
+
+        document.head.append(styleElement);
+    });
+
     electron.ipcRenderer.on("update", function(event, data) {
         mainState = data;
 
@@ -249,4 +264,6 @@ window.addEventListener("load", function() {
     electron.ipcRenderer.on("input_scrollIntoView", function() {
         document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
     });
+
+    electron.ipcRenderer.sendToHost("ready");
 });

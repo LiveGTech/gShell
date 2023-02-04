@@ -12,6 +12,8 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as device from "gshell://system/device.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as l10n from "gshell://config/l10n.js";
+import * as pointer from "gshell://global/pointer.js";
+import * as tooltips from "gshell://global/tooltips.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as info from "gshell://global/info.js";
@@ -52,6 +54,8 @@ $g.waitForLoad().then(function() {
 
     return lockScreen.loadUsers();
 }).then(function() {
+    pointer.init();
+    tooltips.init();
     a11y.init();
     info.init();
     powerMenu.init();

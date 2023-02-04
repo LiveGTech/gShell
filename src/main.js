@@ -24,6 +24,7 @@ var ipc = require("./ipc");
 exports.window = null;
 
 electron.app.commandLine.appendSwitch("disable-features", "CrossOriginOpenerPolicy");
+electron.app.commandLine.appendSwitch("disable-site-isolation-trials");
 
 electron.protocol.registerSchemesAsPrivileged([
     {
@@ -67,10 +68,12 @@ electron.app.on("ready", function() {
             fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
-                devTools: true, // !electron.app.isPackaged, TODO: Prevent DevTools in packaged builds in future
+                devTools: !flags.isRealHardware,
                 preload: path.normalize(`${exports.rootDirectory}/shell/preload.js`),
                 webviewTag: true,
-                sandbox: true
+                sandbox: true,
+                nodeIntegrationInSubFrames: true,
+                nodeIntegration: false
             }
         });
 

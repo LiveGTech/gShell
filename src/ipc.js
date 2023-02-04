@@ -166,6 +166,16 @@ ipcMain.handle("io_focus", function(event, data) {
     });
 });
 
+ipcMain.handle("io_getPointerPosition", function(event, data) {
+    var pointerPoint = electron.screen.getCursorScreenPoint();
+    var offsetPoint = main.window.getContentBounds();
+
+    return Promise.resolve({
+        x: pointerPoint.x - offsetPoint.x,
+        y: pointerPoint.y - offsetPoint.y
+    });
+});
+
 ipcMain.handle("webview_attach", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 
@@ -194,6 +204,20 @@ ipcMain.handle("webview_attach", function(event, data) {
         // We must re-apply media features since the new webview won't have them yet
         return system.setMediaFeatures();
     });
+});
+
+ipcMain.handle("webview_send", function(event, data) {
+    var webContents = electron.webContents.fromId(data.webContentsId);
+
+    webContents.send(data.message, data.data);
+
+    if (data.sendToSubframes) {
+        webContents.mainFrame.frames.forEach(function(frame) {
+            frame.send(data.message, data.data);
+        });
+    }
+
+    return Promise.resolve();
 });
 
 ipcMain.handle("webview_setMediaFeatures", function(event, data) {

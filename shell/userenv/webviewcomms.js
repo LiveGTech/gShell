@@ -11,6 +11,7 @@ import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
+import * as tooltips from "gshell://global/tooltips.js";
 
 var webviewEvents = [];
 
@@ -18,6 +19,17 @@ export class WebviewEvent {
     constructor(data) {
         Object.assign(this, data);
     }
+}
+
+export function send(webview, message, data, sendToSubframes = false) {
+    webview.getAll().forEach(function(element) {
+        gShell.call("webview_send", {
+            webContentsId: element.getWebContentsId(),
+            message,
+            data,
+            sendToSubframes
+        });
+    });
 }
 
 export function onEvent(eventNames, callback) {
@@ -53,12 +65,10 @@ export function attach(webview, privileged) {
 
             case "privilegedCommand":
                 if (!privileged) {
-                    webview.getAll().forEach(function(element) {
-                        element.send("callback", {
-                            id: event.args[1]._id,
-                            resolved: false,
-                            data: "Unable to call privileged command: not running in privileged webview"
-                        });
+                    send(webview, "callback", {
+                        id: event.args[1]._id,
+                        resolved: false,
+                        data: "Unable to call privileged command: not running in privileged webview"
                     });
 
                     break;
@@ -66,20 +76,16 @@ export function attach(webview, privileged) {
 
                 if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
                     privilegedInterface.commands[event.args[0]](event.args[1]).then(function(data) {
-                        webview.getAll().forEach(function(element) {
-                            element.send("callback", {
-                                id: event.args[1]._id,
-                                resolved: true,
-                                data
-                            });
+                        send(webview, "callback", {
+                            id: event.args[1]._id,
+                            resolved: true,
+                            data
                         });
                     }).catch(function(data) {
-                        webview.getAll().forEach(function(element) {
-                            element.send("callback", {
-                                id: event.args[1]._id,
-                                resolved: false,
-                                data
-                            });
+                        send(webview, "callback", {
+                            id: event.args[1]._id,
+                            resolved: false,
+                            data
                         });
 
                         console.warn("Received rejection when calling privileged command:", data);
@@ -90,6 +96,17 @@ export function attach(webview, privileged) {
 
                 break;
 
+            case "ready":
+                fetch("gshell://common.css").then(function(response) {
+                    return response.text();
+                }).then(function(styleCode) {
+                    send(webview, "readyResponse", {
+                        styleCode
+                    }, true);
+                });
+
+                break;
+
             case "input_show":
                 input.show();
                 break;
@@ -97,17 +114,25 @@ export function attach(webview, privileged) {
             case "input_hide":
                 input.hide();
                 break;
+
+            case "tooltips_show":
+                tooltips.show(event.args[0]);
+                break;
+
+            case "tooltips_hide":
+                tooltips.hide();
+                break;
         }
     });
 }
 
 export function update(webview = $g.sel("body webview")) {
-    webview.getAll().forEach(function(element) {
-        element.send("update", {
+    webview.forEach(function(singleWebview) {
+        send(singleWebview, "update", {
             a11y_options: a11y.options,
             input_showing: input.showing,
-            isPrivileged: element.isPrivileged,
-            privilegedData: element.isPrivileged ? privilegedInterface.data : null
-        });
+            isPrivileged: singleWebview.get().isPrivileged,
+            privilegedData: singleWebview.get().isPrivileged ? privilegedInterface.data : null
+        }, true);
     });
 }

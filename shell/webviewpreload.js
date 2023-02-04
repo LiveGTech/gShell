@@ -33,12 +33,14 @@ const NON_TEXTUAL_INPUTS = [
     "week"
 ];
 
+var hasInitialised = false;
 var mainState = {};
 var privilegedDataIdCounter = 0;
 var privilegedDataUpdateCallbacks = [];
 var privilegedDataResponseQueue = {};
 var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
+var lastTooltip = null;
 
 function isTextualInput(element) {
     return element.matches(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
@@ -70,9 +72,14 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
     }
 });
 
-window.addEventListener("load", function() {
+window.addEventListener("DOMContentLoaded", function() {
     setInterval(function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
+
+        document.querySelectorAll("[title]").forEach(function(element) {
+            element.setAttribute("sphere-:title", Element.prototype.getAttribute.apply(element, ["title"]));
+            element.removeAttribute("title");
+        });
     });
 
     window.addEventListener("click", function(event) {
@@ -105,6 +112,10 @@ window.addEventListener("load", function() {
 
     ["keyup", "keydown", "click", "pointerup", "pointerdown", "focusin", "focusout"].forEach(function(type) {
         window.addEventListener(type, function(event) {
+            if (!event.isTrusted) {
+                return;
+            }
+
             var eventObject = {};
     
             for (var key in event) {
@@ -122,6 +133,39 @@ window.addEventListener("load", function() {
     
             electron.ipcRenderer.sendToHost("eventPropagation", type, eventObject);
         });
+    });
+
+    window.addEventListener("mousemove", function(event) {
+        if (!event.isTrusted) {
+            return;
+        }
+
+        var closestTitleElement = event.target;
+        var currentTooltip = null;
+
+        while (true) {
+            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-:title")) {
+                currentTooltip = closestTitleElement.getAttribute("sphere-:title");
+
+                break;
+            }
+
+            if (closestTitleElement == document) {
+                break;
+            }
+
+            closestTitleElement = closestTitleElement.parentNode;
+        }
+
+        if (currentTooltip != lastTooltip) {
+            lastTooltip = currentTooltip;
+
+            if (currentTooltip != null) {
+                electron.ipcRenderer.sendToHost("tooltips_show", currentTooltip);
+            } else {
+                electron.ipcRenderer.sendToHost("tooltips_hide");
+            }
+        }
     });
 
     window.addEventListener("click", function(event) {
@@ -187,6 +231,20 @@ window.addEventListener("load", function() {
         }
     });
 
+    electron.ipcRenderer.on("readyResponse", function(event, data) {
+        if (hasInitialised) {
+            return;
+        }
+
+        hasInitialised = true;
+
+        var styleElement = document.createElement("style");
+        
+        styleElement.textContent = data.styleCode;
+
+        document.head.append(styleElement);
+    });
+
     electron.ipcRenderer.on("update", function(event, data) {
         mainState = data;
 
@@ -206,4 +264,6 @@ window.addEventListener("load", function() {
     electron.ipcRenderer.on("input_scrollIntoView", function() {
         document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
     });
+
+    electron.ipcRenderer.sendToHost("ready");
 });

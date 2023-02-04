@@ -166,6 +166,16 @@ ipcMain.handle("io_focus", function(event, data) {
     });
 });
 
+ipcMain.handle("io_getPointerPosition", function(event, data) {
+    var pointerPoint = electron.screen.getCursorScreenPoint();
+    var offsetPoint = main.window.getContentBounds();
+
+    return Promise.resolve({
+        x: pointerPoint.x - offsetPoint.x,
+        y: pointerPoint.y - offsetPoint.y
+    });
+});
+
 ipcMain.handle("webview_attach", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 

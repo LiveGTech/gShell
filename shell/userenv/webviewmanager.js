@@ -59,6 +59,7 @@ export function spawn(url, options = {}) {
     webview.setAttribute("src", url);
     webview.setAttribute("preload", preloadPath);
     webview.setAttribute("useragent", userAgent);
+    webview.setAttribute("nodeintegrationinsubframes", true);
 
     if (!url.startsWith("gshell://")) {
         webview.setAttribute("partition", options.partition || "private");

@@ -11,6 +11,7 @@ import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
+import * as tooltips from "gshell://global/tooltips.js";
 
 var webviewEvents = [];
 
@@ -96,6 +97,14 @@ export function attach(webview, privileged) {
 
             case "input_hide":
                 input.hide();
+                break;
+
+            case "tooltips_show":
+                tooltips.show(event.args[0]);
+                break;
+
+            case "tooltips_hide":
+                tooltips.hide();
                 break;
         }
     });

@@ -140,12 +140,21 @@ body:not([device-type="desktop"]) .desktop_appBar {
     right: 0.5rem!important;
 }
 
-.desktop_appLayout {
+.desktop_appMenuLayout {
     display: grid;
     width: 100%;
     height: 100%;
     grid-template-rows: min-content auto 2rem;
     grid-template-columns: 4rem 1fr;
+    overflow: hidden;
+}
+
+.desktop_appMenuLayout:not(.gridViewSelected) {
+    grid-template-rows: min-content auto 0;
+}
+
+.desktop_appMenuLayout:not(.gridViewSelected) .home_pagination {
+    display: none;
 }
 
 .desktop_appMenuTop {
@@ -213,10 +222,14 @@ body:not([device-type="desktop"]) .desktop_appBar {
     flex-grow: 1;
 }
 
-.desktop_appMenu .home {
-    height: 100%;
+.desktop_appMenuTabs {
     grid-column: 2;
     grid-row: 2;
+    overflow: hidden;
+}
+
+.desktop_appMenu .home {
+    height: 100%;
 }
 
 .desktop_appMenu .home_app {

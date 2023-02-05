@@ -43,6 +43,7 @@
 }
 
 .home_app {
+    max-width: unset;
     margin: 0;
     padding: 0.5rem;
     container-type: size;
@@ -67,6 +68,24 @@
     opacity: 0.6;
 }
 
+.home_alphabeticalView {
+    height: 100%;
+    padding: 0.5rem;
+    overflow: auto;
+}
+
+.home_alphabeticalView .home_app {
+    display: flex;
+    height: 2.5rem;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.home_alphabeticalView .home_app span {
+    font-size: 1rem;
+    text-align: start;
+}
+
 .home_icon {
     height: calc(100% - 1rem);
     aspect-ratio: 1 / 1;
@@ -74,11 +93,15 @@
     border-radius: 0.8rem;
 }
 
-.home_pagination:not(.desktop_appLayout *) {
+.home_alphabeticalView .home_icon {
+    height: 100%;
+}
+
+.home_pagination:not(.desktop_appMenuLayout *) {
     position: relative;
 }
 
-.home_pagination:not(.desktop_appLayout *) button {
+.home_pagination:not(.desktop_appMenuLayout *) button {
     --scrollbar: white;
     --scrollbarPress: white;
     opacity: 0.6;

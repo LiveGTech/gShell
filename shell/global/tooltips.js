@@ -34,6 +34,8 @@ export function show(text) {
             .setStyle("left", "0")
         ;
 
+        tooltip.removeAttribute("hidden");
+
         var xPosition = pointer.x + 16;
         var yPosition = pointer.y;
         var tooltipWidth = tooltip.get().clientWidth;

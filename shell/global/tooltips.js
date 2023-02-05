@@ -8,7 +8,6 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
-import * as a11y from "gshell://lib/adaptui/src/a11y.js";
 
 import * as pointer from "gshell://global/pointer.js";
 import * as device from "gshell://system/device.js";
@@ -51,7 +50,7 @@ export function show(text) {
         tooltip
             .setStyle("top", `${yPosition}px`)
             .setStyle("left", `${xPosition}px`)
-            .fadeIn(a11y.prefersReducedMotion() ? 0 : 250)
+            .fadeIn(250)
         ;
     }, 1_000);
 }
@@ -59,7 +58,7 @@ export function show(text) {
 export function hide() {
     clearTimeout(tooltipTimeout);
 
-    $g.sel(".tooltip").fadeOut(a11y.prefersReducedMotion() ? 0 : 250);
+    $g.sel(".tooltip").fadeOut(250);
 }
 
 export function init() {

@@ -185,7 +185,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         webContents.setZoomFactor(1);
     }
 
-    webContents.debugger.attach("1.2");
+    main.ensureDebuggerAttached(webContents);
 
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,

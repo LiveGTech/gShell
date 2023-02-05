@@ -271,6 +271,8 @@ exports.setMediaFeatures = function(features = mediaFeatures) {
     mediaFeatures = features;
 
     return Promise.all(electron.webContents.getAllWebContents().map(function(webContents) {
+        main.ensureDebuggerAttached(webContents);
+
         return webContents.debugger.sendCommand("Emulation.setEmulatedMedia", {
             features: Object.keys(features).map((name) => ({name, value: features[name]}))
         });
@@ -300,6 +302,8 @@ exports.setLocale = function(localeCode = currentLocale) {
         webContents.session.setSpellCheckerLanguages([
             webContents.session.availableSpellCheckerLanguages.includes(hyphenLocaleCode) ? hyphenLocaleCode : localeCode.split("_")[0]
         ]);
+
+        main.ensureDebuggerAttached(webContents);
 
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
             userAgent: currentUserAgent,

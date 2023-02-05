@@ -164,7 +164,7 @@ export function init() {
 
     $g.sel(".switcher_home").on("click", function() {
         if (device.data?.type == "desktop") {
-            $g.sel(".desktop_homeMenu").menuOpen();
+            $g.sel(".desktop_appMenu").menuOpen();
 
             return;
         }
@@ -702,7 +702,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     main.selectScreen(screenElement);
 
-    $g.sel(".desktop_homeMenu").menuClose();
+    $g.sel(".desktop_appMenu").menuClose();
 
     elementCallback(screenElement, app);
 

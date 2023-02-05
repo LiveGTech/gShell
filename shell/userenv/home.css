@@ -74,11 +74,11 @@
     border-radius: 0.8rem;
 }
 
-.home_pagination:not(.desktop_homeLayout *) {
+.home_pagination:not(.desktop_appLayout *) {
     position: relative;
 }
 
-.home_pagination:not(.desktop_homeLayout *) button {
+.home_pagination:not(.desktop_appLayout *) button {
     --scrollbar: white;
     --scrollbarPress: white;
     opacity: 0.6;

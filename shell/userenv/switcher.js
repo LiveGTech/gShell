@@ -892,8 +892,8 @@ export function closeWindow(element, animate = true) {
 }
 
 export function openApp(url, appDetails = null, targetWindow = null) {
-    if (url == "gsspecial://sphere") {
-        sphere.openBrowser();
+    if (url.split("?")[0] == "gsspecial://sphere") {
+        sphere.openBrowser($g.core.parameter("startUrl", url));
 
         return;
     }

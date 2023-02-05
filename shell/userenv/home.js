@@ -162,14 +162,13 @@ export function init() {
                 homeElement.add($g.create("div").addClass("home_spacer"));
             }
 
-            // TODO: Launch with LiveG Seach in Sphere
             homeElement.add(createApp({
                 customDisplay: $g.create("span").add(
                     $g.create("span").setText(_("home_searchInSphere_prefix")),
                     $g.create("strong").setText(query),
                     $g.create("span").setText(_("home_searchInSphere_suffix"))
                 ),
-                url: "gsspecial://sphere",
+                url: `gsspecial://sphere?startUrl=${encodeURIComponent(`https://search.liveg.tech/?q=${query}`)}`,
                 icon: "gshell://sphere/icon.svg"
             }));
         });

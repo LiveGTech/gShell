@@ -23,6 +23,12 @@ var ipc = require("./ipc");
 
 exports.window = null;
 
+exports.ensureDebuggerAttached = function(webContents) {
+    if (!webContents.debugger.isAttached()) {
+        webContents.debugger.attach("1.2");
+    }
+};
+
 electron.app.commandLine.appendSwitch("disable-features", "CrossOriginOpenerPolicy");
 electron.app.commandLine.appendSwitch("disable-site-isolation-trials");
 
@@ -79,7 +85,8 @@ electron.app.on("ready", function() {
 
         exports.window.once("ready-to-show", function() {
             exports.window.setMenuBarVisibility(false);
-            exports.window.webContents.debugger.attach("1.2");
+
+            exports.ensureDebuggerAttached(exports.window.webContents);
 
             electron.nativeTheme.themeSource = "light";
 

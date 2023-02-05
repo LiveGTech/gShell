@@ -149,11 +149,11 @@ body:not([device-type="desktop"]) .desktop_appBar {
     overflow: hidden;
 }
 
-.desktop_appMenuLayout:not(.gridViewSelected) {
+.desktop_appMenuLayout:not(.paginationViewSelected) {
     grid-template-rows: min-content auto 0;
 }
 
-.desktop_appMenuLayout:not(.gridViewSelected) .home_pagination {
+.desktop_appMenuLayout:not(.paginationViewSelected) .home_pagination {
     display: none;
 }
 
@@ -222,7 +222,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
     flex-grow: 1;
 }
 
-.desktop_appMenuTabs {
+.desktop_appMenuViews {
     grid-column: 2;
     grid-row: 2;
     overflow: hidden;

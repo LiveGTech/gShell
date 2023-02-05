@@ -9,18 +9,112 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as screenScroll from "gshell://lib/adaptui/src/screenscroll.js";
+import Fuse from "gshell://lib/fuse.esm.js";
 
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as switcher from "gshell://userenv/switcher.js";
 
-export var configData = null;
+export const searchResultTypes = {
+    APP: 0
+};
 
+export var configData = null;
+export var views = null;
+
+var searcher = null;
+var searchLastView = null;
 var scrollers = null;
+
+export class View {
+    constructor(element, buttonElement = null, usesPagination = false, clearSearch = true) {
+        var thisScope = this;
+
+        this.element = element;
+        this.buttonElement = buttonElement;
+        this.usesPagination = usesPagination;
+        this.clearSearch = clearSearch;
+
+        this.buttonElement?.on("click", function() {
+            thisScope.select();
+        });
+    }
+
+    get isSelected() {
+        return !this.element.hasAttribute("hidden");
+    }
+
+    select() {
+        var thisScope = this;
+
+        if (this.isSelected) {
+            return;
+        }
+
+        $g.sel(".home_viewButton").removeClass("selected");
+        this.buttonElement?.addClass("selected");
+
+        if (this.clearSearch) {
+            $g.sel(".home_appMenuSearchInput").setValue("");
+        }
+
+        Promise.all($g.sel(".home_appMenuView", true).fadeOut(250)).then(function() {
+            $g.sel(".desktop_appMenuLayout").condition(
+                thisScope.usesPagination,
+                (element) => element.addClass("paginationViewSelected"),
+                (element) => element.removeClass("paginationViewSelected")
+            );
+
+            thisScope.element.fadeIn(250);
+        });
+    }
+}
+
+function createApp(appDetails) {
+    var button = $g.create("button")
+        .addClass("home_app")
+        .add(
+            $g.create("img")
+                .addClass("home_icon")
+                .setAttribute("src", appDetails.icon || "gshell://media/appdefault.svg")
+                .setAttribute("aria-hidden", true)
+                .on("error", function() {
+                    button.find(".home_icon").setAttribute("src", "gshell://media/appdefault.svg")
+                })
+            ,
+            $g.create("span").condition(
+                appDetails.customDisplay,
+                (element) => element.clear().add(appDetails.customDisplay),
+                (element) => element.setText(appDetails.displayName)
+            )
+        )
+        .on("click", function() {
+            if (typeof(appDetails.url) != "string") {
+                return;
+            }
+
+            switcher.openApp(appDetails.url, appDetails);
+        })
+    ;
+
+    return button;
+}
+
+export function getSelectedView() {
+    return Object.values(views).find((view) => view.isSelected);
+}
 
 export function init() {
     scrollers = [];
+
+    views = {
+        grid: new View($g.sel(".home_appMenuView.grid"), $g.sel(".home_viewButton.grid"), true),
+        alphabetical: new View($g.sel(".home_appMenuView.alphabetical"), $g.sel(".home_viewButton.alphabetical")),
+        search: new View($g.sel(".home_appMenuView.search"), null, false, false)
+    };
+
+    views.grid.select();
 
     $g.sel(".home").getAll().forEach(function(homeElement) {
         homeElement = $g.sel(homeElement);
@@ -38,34 +132,49 @@ export function init() {
         });
     });
 
-    $g.sel(".home_gridViewButton").on("click", function() {
-        if (!$g.sel(".home.home_appMenuTab").hasAttribute("hidden")) {
+    $g.sel(".home_appMenuSearchInput").on("input", function() {
+        if (getSelectedView() != views.search) {
+            searchLastView = getSelectedView();
+        }
+
+        var query = $g.sel(".home_appMenuSearchInput").getValue();
+        var results = searcher.search(query);
+
+        if (query == "") {
+            searchLastView.select();
+
             return;
         }
 
-        $g.sel(".desktop_appMenuSide button").removeClass("selected");
-        $g.sel(".home_gridViewButton").addClass("selected");
+        $g.sel(".home_appMenuView.search").getAll().forEach(function(homeElement) {
+            homeElement = $g.sel(homeElement);
 
-        Promise.all($g.sel(".home_appMenuTab", true).fadeOut(250)).then(function() {
-            $g.sel(".desktop_appMenuLayout").addClass("gridViewSelected");
+            homeElement.clear();
 
-            $g.sel(".home.home_appMenuTab").fadeIn(250);
+            Object.values(results)
+                .map((result) => result.item)
+                .forEach(function(app) {
+                    homeElement.add(createApp(app));
+                })
+            ;
+
+            if (results.length > 0) {
+                homeElement.add($g.create("div").addClass("home_spacer"));
+            }
+
+            // TODO: Launch with LiveG Seach in Sphere
+            homeElement.add(createApp({
+                customDisplay: $g.create("span").add(
+                    $g.create("span").setText(_("home_searchInSphere_prefix")),
+                    $g.create("strong").setText(query),
+                    $g.create("span").setText(_("home_searchInSphere_suffix"))
+                ),
+                url: "gsspecial://sphere",
+                icon: "gshell://sphere/icon.svg"
+            }));
         });
-    });
 
-    $g.sel(".home_alphabeticalViewButton").on("click", function() {
-        if (!$g.sel(".home_alphabeticalView.home_appMenuTab").hasAttribute("hidden")) {
-            return;
-        }
-
-        $g.sel(".desktop_appMenuSide button").removeClass("selected");
-        $g.sel(".home_alphabeticalViewButton").addClass("selected");
-
-        Promise.all($g.sel(".home_appMenuTab", true).fadeOut(250)).then(function() {
-            $g.sel(".desktop_appMenuLayout").removeClass("gridViewSelected");
-
-            $g.sel(".home_alphabeticalView.home_appMenuTab").fadeIn(250);
-        });
+        views.search.select();
     });
 
     users.onUserStateChange(function(user) {
@@ -73,32 +182,6 @@ export function init() {
             load();
         }
     });
-}
-
-function createApp(appDetails) {
-    var button = $g.create("button")
-        .addClass("home_app")
-        .add(
-            $g.create("img")
-                .addClass("home_icon")
-                .setAttribute("src", appDetails.icon || "gshell://media/appdefault.svg")
-                .setAttribute("aria-hidden", true)
-                .on("error", function() {
-                    button.find(".home_icon").setAttribute("src", "gshell://media/appdefault.svg")
-                })
-            ,
-            $g.create("span").setText(appDetails.name)
-        )
-        .on("click", function() {
-            if (typeof(appDetails.url) != "string") {
-                return;
-            }
-
-            switcher.openApp(appDetails.url, appDetails);
-        })
-    ;
-
-    return button;
 }
 
 export function load() {
@@ -120,19 +203,18 @@ export function load() {
 
             configData.apps = {...configData.apps, ...(data.apps || {})};
 
+            Object.values(configData.apps).forEach(function(app) {
+                app.displayName = app.name[l10n.currentLocale.localeCode] || app.name[app.fallbackLocale];
+            });
+
             $g.sel(".home").getAll().forEach(function(homeElement) {
                 homeElement = $g.sel(homeElement);
 
                 homeElement.clear();
 
-                $g.sel(".home_alphabeticalView").clear();
+                $g.sel(".home_appMenuView.alphabetical").clear();
 
                 Object.values(configData.apps).forEach(function(app) {
-                    var appElement = createApp({
-                        ...app,
-                        name: app.name[l10n.currentLocale.localeCode] || app.name[app.fallbackLocale]
-                    });
-
                     var firstFreePage = homeElement.find(".home_page").filter((page) => page.find(".home_app").items().length < 24);
 
                     if (firstFreePage.items().length == 0) {
@@ -141,31 +223,35 @@ export function load() {
                         homeElement.add(firstFreePage);
                     }
 
-                    firstFreePage.add(appElement);
+                    firstFreePage.add(createApp(app));
                 });
             });
 
-            $g.sel(".home_alphabeticalView").getAll().forEach(function(homeElement) {
+            $g.sel(".home_appMenuView.alphabetical").getAll().forEach(function(homeElement) {
                 homeElement = $g.sel(homeElement);
 
                 homeElement.clear();
 
                 Object.values(configData.apps)
-                    .map(function(app) {
-                        app.displayName = app.name[l10n.currentLocale.localeCode] || app.name[app.fallbackLocale];
-
-                        return app;
-                    })
                     .sort((a, b) => l10n.currentLocale.createCollator().compare(a.displayName, b.displayName))
                     .forEach(function(app) {
-                        var appElement = createApp({
-                            ...app,
-                            name: app.displayName
-                        });
-
-                        homeElement.add(appElement);
+                        homeElement.add(createApp(app));
                     })
                 ;
+            });
+
+            var index = [];
+
+            Object.values(configData.apps).forEach(function(app) {
+                index.push({
+                    ...app,
+                    type: searchResultTypes.APP,
+                    searchTerm: app.displayName
+                });
+            });
+
+            searcher = new Fuse(index, {
+                keys: ["searchTerm"]
             });
 
             scrollers.forEach(function(scroller, i) {

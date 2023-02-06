@@ -17,7 +17,8 @@ import * as l10n from "gshell://config/l10n.js";
 import * as switcher from "gshell://userenv/switcher.js";
 
 export const searchResultTypes = {
-    APP: 0
+    APP: 0,
+    SHORTCUT: 1
 };
 
 export var configData = null;
@@ -85,8 +86,13 @@ function createApp(appDetails) {
             ,
             $g.create("span").condition(
                 appDetails.customDisplay,
-                (element) => element.clear().add(appDetails.customDisplay),
-                (element) => element.setText(appDetails.displayName)
+                (element) => element.add(appDetails.customDisplay),
+                (element) => element
+                    .addClass("home_appDisplayName")
+                    .add(
+                        $g.create("span").setText(appDetails.displayName),
+                        $g.create("span").setText(appDetails.subtext || "")
+                    )
             )
         )
         .on("click", function() {
@@ -204,6 +210,12 @@ export function load() {
 
             Object.values(configData.apps).forEach(function(app) {
                 app.displayName = app.name[l10n.currentLocale.localeCode] || app.name[app.fallbackLocale];
+
+                if (Array.isArray(app.shortcuts)) {
+                    app.shortcuts.forEach(function(shortcut) {
+                        shortcut.displayName = shortcut.name[l10n.currentLocale.localeCode] || shortcut.name[app.fallbackLocale];
+                    });
+                }
             });
 
             $g.sel(".home").getAll().forEach(function(homeElement) {
@@ -247,6 +259,19 @@ export function load() {
                     type: searchResultTypes.APP,
                     searchTerm: app.displayName
                 });
+
+                if (Array.isArray(app.shortcuts)) {
+                    app.shortcuts.forEach(function(shortcut) {
+                        index.push({
+                            ...app,
+                            type: searchResultTypes.SHORTCUT,
+                            displayName: shortcut.displayName,
+                            subtext: app.displayName,
+                            url: shortcut.url,
+                            searchTerm: shortcut.displayName
+                        })
+                    });
+                }
             });
 
             searcher = new Fuse(index, {

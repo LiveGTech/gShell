@@ -119,6 +119,8 @@ $g.waitForLoad().then(function() {
 
     a11y.init();
 
+    // TODO: Use app shortcuts to jump to certain pages/options
+
     var homePage = Page(true) (
         Section (
             ...Object.keys(pages).map(function(pageId) {

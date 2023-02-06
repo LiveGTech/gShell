@@ -23,6 +23,63 @@ export const ICON_MIME_TYPES_TO_FILE_EXTENSIONS = {
     "image/x-icon": "ico"
 };
 
+function findBestIcon(icons) {
+    return icons.sort(function(a, b) {
+        const BETTER = -1;
+        const WORSE = 1;
+
+        if (a.purpose == "maskable") {
+            return BETTER;
+        }
+
+        function getIconMaxSize(icon) {
+            var sizesString = icon.sizes;
+            var biggestSize = 0;
+
+            sizesString.split(" ").forEach(function(sizeString) {
+                var match = sizeString.match(/^(\d+)x(\d+)$/);
+
+                if (!match) {
+                    return;
+                }
+
+                var sizeValue = parseInt(match[1]) * parseInt(match[2]);
+
+                if(sizeValue > biggestSize) {
+                    biggestSize = sizeValue;
+                }
+            });
+
+            return biggestSize;
+        }
+
+        return getIconMaxSize(b) - getIconMaxSize(a);
+    })[0].src;
+}
+
+export class ManifestShortcut {
+    constructor(manifestData, manifestUrl) {
+        this.manifestData = manifestData;
+        this.manifestUrl = manifestUrl;
+    }
+
+    get name() {
+        return this.manifestData.name;
+    }
+
+    get url() {
+        return new URL(this.manifestData.url, this.manifestUrl).href;
+    }
+
+    get icon() {
+        if (!Array.isArray(this.manifestData.icons) || this.manifestData.icons.length == 0) {
+            return null;
+        }
+
+        return new URL(findBestIcon(this.manifestData.icons || []), this.manifestUrl).href;
+    }
+}
+
 export class ManifestData {
     constructor(manifest, manifestUrl, scope) {
         this.isPresent = true;
@@ -44,49 +101,15 @@ export class ManifestData {
     }
 
     get icon() {
-        if (!Array.isArray(this.manifest.icons)) {
+        if (!Array.isArray(this.manifest.icons) || this.manifest.icons.length == 0) {
             return null;
         }
 
-        var bestIcon = (this.manifest.icons || [])
-            .sort(function(a, b) {
-                const BETTER = -1;
-                const WORSE = 1;
+        return new URL(findBestIcon(this.manifest.icons || []), this.manifestUrl).href;
+    }
 
-                if (a.purpose == "maskable") {
-                    return BETTER;
-                }
-
-                function getIconMaxSize(icon) {
-                    var sizesString = icon.sizes;
-                    var biggestSize = 0;
-
-                    sizesString.split(" ").forEach(function(sizeString) {
-                        var match = sizeString.match(/^(\d+)x(\d+)$/);
-
-                        if (!match) {
-                            return;
-                        }
-
-                        var sizeValue = parseInt(match[1]) * parseInt(match[2]);
-
-                        if(sizeValue > biggestSize) {
-                            biggestSize = sizeValue;
-                        }
-                    });
-
-                    return biggestSize;
-                }
-
-                return getIconMaxSize(b) - getIconMaxSize(a);
-            })[0]?.src
-        ;
-
-        if (!bestIcon) {
-            return null;
-        }
-
-        return new URL(bestIcon, this.manifestUrl).href;
+    get shortcuts() {
+        return (this.manifest.shortcuts || []).map((shortcut) => new ManifestShortcut(shortcut, this.manifestUrl));
     }
 
     static deserialise(data) {
@@ -172,6 +195,18 @@ export function installFromManifestData(manifestData) {
             [localeCode]: manifestData.name
         },
         url: manifestData.url,
-        icon: manifestData.icon
+        icon: manifestData.icon,
+        shortcuts: manifestData.shortcuts.map(function(shortcut) {
+            return {
+                name: {
+                    [localeCode]: shortcut.name
+                },
+                description: shortcut.description ? {
+                    [localeCode]: shortcut.description
+                } : null,
+                url: shortcut.url,
+                icon: shortcut.icon
+            };
+        })
     });
 }

@@ -68,6 +68,19 @@
     opacity: 0.6;
 }
 
+.home_appDisplayName > span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home_appDisplayName > span:nth-child(2) {
+    display: block;
+    font-size: 0.8rem;
+    overflow: hidden;
+}
+
 .home_appMenuView:is(.alphabetical, .search) {
     height: 100%;
     padding: 0.5rem;

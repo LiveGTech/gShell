@@ -865,13 +865,14 @@ export function restoreWindow(element, animated = true) {
 export function closeWindow(element, animate = true) {
     return new Promise(function(resolve, reject) {
         var listButton = $g.sel(`.desktop_appListButton[data-id="${element.getAttribute("data-id")}"]`);
+        var isLastScreen = $g.sel("#switcherView .switcher_screen").items().length == 1;
 
         element.addClass("closing");
         listButton.addClass("transitioning");
 
-        ($g.sel("#switcherView .switcher_screen").getAll().length == 1 ? goHome() : Promise.resolve()).then(function() {
-            setTimeout(function() {    
-                if ($g.sel("#switcherView .switcher_screen").getAll().length == 0) {
+        (isLastScreen ? goHome() : Promise.resolve()).then(function() {
+            setTimeout(function() {
+                if (!isLastScreen) {
                     main.selectDesktop();
 
                     element.remove();

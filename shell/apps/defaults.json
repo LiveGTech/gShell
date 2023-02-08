@@ -21,7 +21,7 @@
                         "en_GB": "Wi-Fi networks",
                         "fr_FR": "Réseaux Wi-Fi"
                     },
-                    "url": "gshell://apps/settings/index.html?shortcut=wifi"
+                    "url": "gshell://apps/settings/index.html?shortcut=network_wifi"
                 },
                 {
                     "name": {
@@ -46,6 +46,13 @@
                 },
                 {
                     "name": {
+                        "en_GB": "Theme",
+                        "fr_FR": "Theme"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=personalisation_theme"
+                },
+                {
+                    "name": {
                         "en_GB": "Accessibility",
                         "fr_FR": "Accessibilité"
                     },
@@ -61,9 +68,16 @@
                 {
                     "name": {
                         "en_GB": "About this device",
+                        "fr_FR": "À propos de cet appareil"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=about"
+                },
+                {
+                    "name": {
+                        "en_GB": "Device info",
                         "fr_FR": "Info appareil"
                     },
-                    "url": "gshell://apps/settings/index.html?shortcut=deviceInfo"
+                    "url": "gshell://apps/settings/index.html?shortcut=about_deviceInfo"
                 }
             ]
         },

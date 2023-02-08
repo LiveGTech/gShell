@@ -11,6 +11,7 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 import * as screens from "gshell://lib/adaptui/src/screens.js";
 
 import * as settings from "./script.js";
+import * as shortcuts from "./shortcuts.js";
 import * as wifiAuthModes from "./wifiauthmodes.js";
 
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
@@ -100,6 +101,7 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
 
     return Page (
         Section (
+            shortcuts.ShortcutLandmark("network_wifi") (),
             Heading(2) (_("network_wifiNetworks")),
             wifiScanResultsContainer
         )

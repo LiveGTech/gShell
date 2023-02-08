@@ -10,6 +10,8 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
+import * as shortcuts from "./shortcuts.js";
+
 export var PersonalisationPage = astronaut.component("PersonalisationPage", function(props, children) {
     var previousThemeMode = null;
     var themeModesContainer = Container() ();
@@ -51,6 +53,7 @@ export var PersonalisationPage = astronaut.component("PersonalisationPage", func
 
     return Page (
         Section (
+            shortcuts.ShortcutLandmark("personalisation_theme") (),
             Heading(2) (_("personalisation_theme")),
             themeModesContainer
         )

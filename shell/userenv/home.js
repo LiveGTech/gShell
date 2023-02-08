@@ -265,6 +265,7 @@ export function load() {
                         index.push({
                             ...app,
                             type: searchResultTypes.SHORTCUT,
+                            name: app.displayName,
                             displayName: shortcut.displayName,
                             subtext: app.displayName,
                             url: shortcut.url,

@@ -57,7 +57,7 @@ electron.app.on("ready", function() {
     }
 
     electron.protocol.registerFileProtocol("gshell", function(request, callback) {
-        var url = request.url.substring("gshell://".length);
+        var url = request.url.substring("gshell://".length).split("?")[0];
 
         callback({path: path.normalize(`${exports.rootDirectory}/shell/${url}`)});
     });

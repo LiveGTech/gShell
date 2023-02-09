@@ -133,11 +133,19 @@ body:not([device-type="desktop"]) .desktop_appBar {
     width: 28rem;
     height: 40rem;
     max-height: calc(100% - 4rem);
+    transform: scale(0.8);
+    transform-origin: bottom left;
+    transition: 0.5s transform;
 }
 
 [dir="rtl"] .desktop_appMenu {
     left: unset!important;
     right: 0.5rem!important;
+    transform-origin: bottom right;
+}
+
+.desktop_appMenu.open {
+    transform: scale(1);
 }
 
 .desktop_appMenuLayout {

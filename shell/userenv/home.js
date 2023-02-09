@@ -138,6 +138,14 @@ export function init() {
         });
     });
 
+    $g.sel(".desktop_appMenu").on("open", function() {
+        $g.sel(".desktop_appMenu").addClass("open");
+    });
+
+    $g.sel(".desktop_appMenu").on("close", function() {
+        $g.sel(".desktop_appMenu").removeClass("open");
+    });
+
     $g.sel(".home_appMenuSearchInput").on("input", function() {
         if (getSelectedView() != views.search) {
             searchLastView = getSelectedView();

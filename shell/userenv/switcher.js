@@ -763,16 +763,16 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     app.get().lastIcon = null;
 
     if (appDetails != null) {
-        app.get().lastTitle = appDetails.name;
+        app.get().lastTitle = appDetails.displayName;
         app.get().lastIcon = appDetails.icon;
 
-        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.name);
+        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.displayName);
 
-        tab.find(".switcher_tabTitle").setText(appDetails.name);
+        tab.find(".switcher_tabTitle").setText(appDetails.displayName);
         tab.find(".switcher_tabIcon").setAttribute("src", appDetails.icon);
 
-        element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.name, count: getWindowAppCount(element) + 1}));
-        element.get().appListButton.setAttribute("aria-label", appDetails.name);
+        element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.displayName, count: getWindowAppCount(element) + 1}));
+        element.get().appListButton.setAttribute("aria-label", appDetails.displayName);
         element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
 

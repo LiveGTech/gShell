@@ -111,7 +111,7 @@
 }
 
 .input_keyboard_row button:active:not(.input_keyboard_spaceKey) {
-    background-color: rgba(0, 0, 0, 0.2)!important; /* TODO: Find way of matching theme */
+    background-color: rgba(0, 0, 0, 0.2)!important;
 }
 
 .input_keyboard_row .input_keyboard_spaceKey {

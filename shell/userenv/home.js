@@ -46,7 +46,7 @@ export class View {
         return !this.element.hasAttribute("hidden");
     }
 
-    select() {
+    select(instantaneous = false) {
         var thisScope = this;
 
         if (this.isSelected) {
@@ -60,14 +60,14 @@ export class View {
             $g.sel(".home_appMenuSearchInput").setValue("");
         }
 
-        Promise.all($g.sel(".home_appMenuView", true).fadeOut(250)).then(function() {
+        Promise.all($g.sel(".home_appMenuView", true).fadeOut(instantaneous ? 0 : 250)).then(function() {
             $g.sel(".desktop_appMenuLayout").condition(
                 thisScope.usesPagination,
                 (element) => element.addClass("paginationViewSelected"),
                 (element) => element.removeClass("paginationViewSelected")
             );
 
-            thisScope.element.fadeIn(250);
+            thisScope.element.fadeIn(instantaneous ? 0 : 250);
         });
     }
 }
@@ -140,6 +140,8 @@ export function init() {
 
     $g.sel(".desktop_appMenu").on("open", function() {
         $g.sel(".desktop_appMenu").addClass("open");
+
+        views.grid.select(true);
     });
 
     $g.sel(".desktop_appMenu").on("close", function() {

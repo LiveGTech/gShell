@@ -307,7 +307,7 @@ export function openBrowser(startUrl = undefined) {
     var browser = new Browser(startUrl);
 
     var details = {
-        name: _("sphere"),
+        displayName: _("sphere"),
         icon: "gshell://sphere/icon.svg",
         instantLaunch: true,
         showTabs: true,

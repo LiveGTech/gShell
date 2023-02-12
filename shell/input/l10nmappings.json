@@ -5,10 +5,14 @@
         ],
         "fr_FR": [
             "gshell://input/layouts/fr_FR_azerty.gkbl"
+        ],
+        "zh_CN": [
+            "gshell://input/layouts/zh_CN_qwerty.gkbl"
         ]
     },
     "languageNames": {
         "en_GB": "English (United Kingdom)",
-        "fr_FR": "Français (France)"
+        "fr_FR": "Français (France)",
+        "zh_CN": "中文（中国）"
     }
 }

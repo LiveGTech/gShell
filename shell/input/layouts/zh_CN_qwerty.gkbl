@@ -1,0 +1,38 @@
+{
+    "localeCode": "zh_CN",
+    "variant": "qwerty",
+    "metadata": {
+        "variantName": "QWERTY"
+    },
+    "inputMethodPaths": [
+        "gshell://input/imedata/zh_CN_pinyin.gime"
+    ],
+    "states": {
+        "lowercase": [
+            "{.lm}qwert{.lm}yuiop",
+            "{:0.5}{.lm}asdfg{.lm}hjkl{:0.5}",
+            "{.lm}{.shift:1.5}zxcv{.lm}bnm{.backspace:1.5}",
+            "{.lm}{1#?:@symbol1:1.5},{.space:5}.{.enter:1.5}"
+        ],
+        "uppercase": [
+            "{.lm}QWERT{.lm}YUIOP",
+            "{:0.5}{.lm}ASDFG{.lm}HJKL{:0.5}",
+            "{.lm}{.shift:1.5}ZXCV{.lm}BNM{.backspace:1.5}",
+            "{.lm}{1#?:@symbol1:1.5}!{.space:5}?{.enter:1.5}"
+        ],
+        "symbol1": [
+            "{.lm}12345{.lm}67890",
+            "{:0.5}{.lm}@£&(){.lm}*+-/{:0.5}",
+            "{.lm}{=%>:@symbol2:1.5}#\"':{.lm};!?{.backspace:1.5}",
+            "{.lm}{abc:@lowercase:1.5},{.space:5}.{.enter:1.5}"
+        ],
+        "symbol2": [
+            "{.lm}¬©®™×{.lm}÷π±~°",
+            "{:0.5}{.lm}$€¢¥^{.lm}[]{.u:7b}{.u:7d}{:0.5}",
+            "{.lm}{1#?:@symbol1:1.5}_`\\={.lm}<>%{.backspace:1.5}",
+            "{.lm}{abc:@lowercase:1.5},{.space:5}.{.enter:1.5}"
+        ]
+    },
+    "defaultState": "lowercase",
+    "shiftState": "uppercase"
+}

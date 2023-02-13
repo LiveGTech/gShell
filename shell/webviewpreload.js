@@ -261,6 +261,12 @@ window.addEventListener("DOMContentLoaded", function() {
         privilegedDataResponseQueue[data.id] = data;
     });
 
+    electron.ipcRenderer.on("openFrame", function(event, data) {
+        // TODO: Add event on host that opens a new window when triggered
+
+        console.log(data);
+    });
+
     electron.ipcRenderer.on("input_scrollIntoView", function() {
         document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
     });

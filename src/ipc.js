@@ -185,6 +185,17 @@ ipcMain.handle("webview_attach", function(event, data) {
         webContents.setZoomFactor(1);
     }
 
+    webContents.setWindowOpenHandler(function(details) {
+        // TODO: Include other data passed to `window.open`, including referrer
+
+        webContents.send("openFrame", {
+            webContentsId: data.webContentsId,
+            url: details.url
+        });
+
+        return {action: "deny"};
+    })
+
     main.ensureDebuggerAttached(webContents);
 
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {

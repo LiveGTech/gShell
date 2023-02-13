@@ -61,6 +61,7 @@ export function spawn(url, options = {}) {
     webview.setAttribute("src", url);
     webview.setAttribute("preload", preloadPath);
     webview.setAttribute("useragent", userAgent);
+    webview.setAttribute("allowpopups", true);
     webview.setAttribute("nodeintegrationinsubframes", true);
 
     if (!url.startsWith("gshell://")) {
@@ -93,6 +94,10 @@ export function spawn(url, options = {}) {
         }).then(function(styleCode) {
             webview.get().insertCSS(styleCode);
         });
+    });
+
+    webview.on("webviewopen", function(event) {
+        console.log(webview, event.detail);
     });
 
     return webview;

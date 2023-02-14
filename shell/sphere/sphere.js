@@ -21,7 +21,9 @@ import * as webviewComms from "gshell://userenv/webviewcomms.js";
 export const FULL_CHROME_MIN_WIDTH = calc.getRemSize(30);
 
 export class Browser {
-    constructor() {
+    constructor(startUrl) {
+        this.startUrl = startUrl || "https://search.liveg.tech";
+
         this.screenElement = null;
         this.appElement = null;
         this.isFullChrome = false;
@@ -266,7 +268,7 @@ export class Browser {
 
         this.uiMain = $g.create("main");
 
-        this.spawnWebview("https://search.liveg.tech");
+        this.spawnWebview(this.startUrl);
 
         new ResizeObserver(function() {
             thisScope.isFullChrome = thisScope.uiContainer.get().clientWidth >= FULL_CHROME_MIN_WIDTH;
@@ -301,11 +303,11 @@ export function init() {
     });
 }
 
-export function openBrowser() {
-    var browser = new Browser();
+export function openBrowser(startUrl = undefined) {
+    var browser = new Browser(startUrl);
 
     var details = {
-        name: _("sphere"),
+        displayName: _("sphere"),
         icon: "gshell://sphere/icon.svg",
         instantLaunch: true,
         showTabs: true,

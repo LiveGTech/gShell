@@ -164,7 +164,7 @@ export function init() {
 
     $g.sel(".switcher_home").on("click", function() {
         if (device.data?.type == "desktop") {
-            $g.sel(".desktop_homeMenu").menuOpen();
+            $g.sel(".desktop_appMenu").menuOpen();
 
             return;
         }
@@ -693,7 +693,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     main.selectScreen(screenElement);
 
-    $g.sel(".desktop_homeMenu").menuClose();
+    $g.sel(".desktop_appMenu").menuClose();
 
     elementCallback(screenElement, app);
 
@@ -754,16 +754,16 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     app.get().lastIcon = null;
 
     if (appDetails != null) {
-        app.get().lastTitle = appDetails.name;
+        app.get().lastTitle = appDetails.displayName;
         app.get().lastIcon = appDetails.icon;
 
-        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.name);
+        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.displayName);
 
-        tab.find(".switcher_tabTitle").setText(appDetails.name);
+        tab.find(".switcher_tabTitle").setText(appDetails.displayName);
         tab.find(".switcher_tabIcon").setAttribute("src", appDetails.icon);
 
-        element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.name, count: getWindowAppCount(element) + 1}));
-        element.get().appListButton.setAttribute("aria-label", appDetails.name);
+        element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.displayName, count: getWindowAppCount(element) + 1}));
+        element.get().appListButton.setAttribute("aria-label", appDetails.displayName);
         element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
 
@@ -884,8 +884,8 @@ export function closeWindow(element, animate = true) {
 }
 
 export function openApp(url, appDetails = null, targetWindow = null) {
-    if (url == "gsspecial://sphere") {
-        sphere.openBrowser();
+    if (url.split("?")[0] == "gsspecial://sphere") {
+        sphere.openBrowser($g.core.parameter("startUrl", url));
 
         return;
     }

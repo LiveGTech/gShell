@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as about from "gshell://about.js";
+import * as shortcuts from "./shortcuts.js";
 
 export var AboutPage = astronaut.component("AboutPage", function(props, children) {
     var deviceInfoSection = Section() ();
@@ -27,6 +28,7 @@ export var AboutPage = astronaut.component("AboutPage", function(props, children
             }
 
             deviceInfoSection.clear().add(
+                shortcuts.ShortcutLandmark("about_deviceInfo") (),
                 Heading(2) (_("about_deviceInfo")),
                 PropertyList (
                     Property() (_("about_deviceInfo_name"), Text(getLocalisedProperty(modelInfo.name))),

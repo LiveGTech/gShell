@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as settings from "./script.js";
+import * as shortcuts from "./shortcuts.js";
 
 var inputConfigData = null;
 var layoutOptions = null;
@@ -122,6 +123,7 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
             )
         ),
         Section (
+            shortcuts.ShortcutLandmark("l10n_input") (),
             Heading(2) (_("l10n_input")),
             Heading(3) (_("l10n_input_layout_title")),
             Paragraph() (_("l10n_input_layout_description")),

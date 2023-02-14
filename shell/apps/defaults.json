@@ -7,7 +7,79 @@
                 "fr_FR": "Paramètres"
             },
             "url": "gshell://apps/settings/index.html",
-            "icon": "gshell://apps/settings/icon.svg"
+            "icon": "gshell://apps/settings/icon.svg",
+            "shortcuts": [
+                {
+                    "name": {
+                        "en_GB": "Network",
+                        "fr_FR": "Réseau"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=network"
+                },
+                {
+                    "name": {
+                        "en_GB": "Wi-Fi networks",
+                        "fr_FR": "Réseaux Wi-Fi"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=network_wifi"
+                },
+                {
+                    "name": {
+                        "en_GB": "Language and input",
+                        "fr_FR": "Langue et saisie"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=l10n"
+                },
+                {
+                    "name": {
+                        "en_GB": "Keyboard input",
+                        "fr_FR": "Entrée au clavier"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=l10n_input"
+                },
+                {
+                    "name": {
+                        "en_GB": "Personalisation",
+                        "fr_FR": "Personnalisation"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=personalisation"
+                },
+                {
+                    "name": {
+                        "en_GB": "Theme",
+                        "fr_FR": "Theme"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=personalisation_theme"
+                },
+                {
+                    "name": {
+                        "en_GB": "Accessibility",
+                        "fr_FR": "Accessibilité"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=a11y"
+                },
+                {
+                    "name": {
+                        "en_GB": "Switch Navigation",
+                        "fr_FR": "Navigation au Interrupteur"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=a11y_switch"
+                },
+                {
+                    "name": {
+                        "en_GB": "About this device",
+                        "fr_FR": "À propos de cet appareil"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=about"
+                },
+                {
+                    "name": {
+                        "en_GB": "Device info",
+                        "fr_FR": "Info appareil"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=about_deviceInfo"
+                }
+            ]
         },
         "sphere": {
             "fallbackLocale": "en_GB",

@@ -14,6 +14,7 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 astronaut.unpack();
 
+import * as shortcuts from "./shortcuts.js";
 import * as network from "./networkpage.js";
 import * as l10n from "./l10npage.js";
 import * as a11y from "./a11ypage.js";
@@ -55,7 +56,9 @@ export function goToHomePage() {
 export function visitInnerScreen(screen) {
     root.add(screen);
 
-    screen.screenForward();
+    setTimeout(function() {
+        screen.screenForward();        
+    });
 }
 
 export function registerDialog(dialog) {
@@ -176,4 +179,6 @@ $g.waitForLoad().then(function() {
     );
 
     astronaut.render(root);
+
+    shortcuts.run();
 });

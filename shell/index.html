@@ -150,18 +150,18 @@
                 </div>
             </div>
         </aui-screen>
-        <aui-menu class="desktop_homeMenu">
-            <div class="desktop_homeLayout">
-                <div class="desktop_homeMenuTop">
+        <aui-menu class="desktop_appMenu">
+            <div class="desktop_appMenuLayout gridViewSelected">
+                <div class="desktop_appMenuTop">
                     <img aria-hidden="true" class="info_currentUserProfilePicture">
                     <span class="info_currentUserDisplayName"></span>
-                    <input translate="attributesOnly" tl:placeholder="home_searchPlaceholder">
+                    <input class="home_appMenuSearchInput" translate="attributesOnly" tl:placeholder="home_searchPlaceholder">
                 </div>
-                <div aria-role="group" class="desktop_homeMenuSide">
-                    <button translate="attributesOnly" tl:title="home_gridView" tl:aria-label="home_gridView" class="selected">
+                <div aria-role="group" class="desktop_appMenuSide">
+                    <button aui-mode="persist" class="home_viewButton grid" translate="attributesOnly" tl:title="home_gridView" tl:aria-label="home_gridView">
                         <img src="gshell://lib/adaptui/icons/products.svg" alt="" aui-icon="dark embedded">
                     </button>
-                    <button translate="attributesOnly" tl:title="home_alphabeticalView" tl:aria-label="home_alphabeticalView">
+                    <button aui-mode="persist" class="home_viewButton alphabetical" translate="attributesOnly" tl:title="home_alphabeticalView" tl:aria-label="home_alphabeticalView">
                         <img src="gshell://lib/adaptui/icons/menu.svg" alt="" aui-icon="dark embedded">
                     </button>
                     <div></div>
@@ -169,7 +169,11 @@
                         <img src="gshell://lib/adaptui/icons/power.svg" alt="" aui-icon="dark embedded">
                     </button>
                 </div>
-                <div aria-role="group" class="home"></div>
+                <div class="desktop_appMenuViews">
+                    <div aria-role="group" class="home home_appMenuView grid" hidden></div>
+                    <div aria-role="group" class="home_appMenuView alphabetical" hidden></div>
+                    <div aria-role="group" class="home_appMenuView search" hidden></div>
+                </div>
                 <aui-pagination aria-role="group" class="home_pagination"></aui-pagination>
             </div>
         </aui-menu>

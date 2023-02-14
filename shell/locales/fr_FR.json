@@ -64,6 +64,9 @@
         "home_alphabeticalView": "Vue alphabétique",
         "home_powerOptions": "Options d'alimentation",
 
+        "home_searchInSphere_prefix": "Rechercher ",
+        "home_searchInSphere_suffix": " dans Sphere",
+
         "oobs_previous": "Précédent",
         "oobs_next": "Suivant",
         "oobs_confirm": "Confirmer",

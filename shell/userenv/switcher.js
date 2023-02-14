@@ -343,17 +343,13 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                                     var tab = screenElement.find(".switcher_tab.selected");
                                     var details = tab.get().app.get().details;
 
-                                    if (details == null) {
+                                    if (!details?.newTabHandler) {
                                         openApp(tab.get().app.find("webview").get()?.getURL() || "about:blank", null, screenElement);
 
                                         return;
                                     }
 
-                                    if (details.newTabHandler) {
-                                        details.newTabHandler(screenElement);
-
-                                        return;
-                                    }
+                                    details.newTabHandler(screenElement);
                                 })
                                 .add(
                                     $g.create("img")
@@ -634,12 +630,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
     });
 
     if (appDetails?.showTabs) {
-        screenElement.find(".switcher_titleBar").removeClass("hideTabs");
-
-        screenElement.find(".switcher_tabs")
-            .removeAttribute("inert")
-            .setAttribute("aria-role", "group")
-        ;
+        convertToTabbedWindows(screenElement);
     }
 
     if (appDetails?.iconTransparency) {
@@ -904,11 +895,32 @@ export function openApp(url, appDetails = null, targetWindow = null) {
             $g.create("main").add(webview)
         );
 
-        if (targetWindow != null) {
-            addAppToWindow(targetWindow, contents, appDetails);
+        function bindOpenWindowEvent(parentWindow = targetWindow) {
+            webview.on("openframe", function(event) {
+                var openingUrl = event.detail.url;
+    
+                if (new URL(openingUrl).origin == new URL(url).origin) {
+                    convertToTabbedWindows(parentWindow);
+                    openApp(openingUrl, appDetails, parentWindow);
+
+                    return;
+                }
+
+                // TODO: Open in Sphere if not opening as part of app
+            });
         }
 
-        return openWindow(contents, appDetails);
+        if (targetWindow != null) {
+            addAppToWindow(targetWindow, contents, appDetails);
+
+            bindOpenWindowEvent();
+
+            return Promise.resolve();
+        }
+
+        return openWindow(contents, appDetails, function(parentWindow) {
+            bindOpenWindowEvent(parentWindow);
+        });
     });
 }
 
@@ -973,6 +985,15 @@ export function setAppCustomTab(element, title, icon) {
     if (icon) {
         element.get().tab.find(".switcher_tabIcon").setAttribute("src", icon);
     }
+}
+
+export function convertToTabbedWindows(element) {
+    element.find(".switcher_titleBar").removeClass("hideTabs");
+
+    element.find(".switcher_tabs")
+        .removeAttribute("inert")
+        .setAttribute("aria-role", "group")
+    ;
 }
 
 export function showTabList(element) {

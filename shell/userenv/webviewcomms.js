@@ -107,6 +107,10 @@ export function attach(webview, privileged) {
 
                 break;
 
+            case "openFrame":
+                webview.emit("openframe", event.args[0]);
+                break;
+
             case "input_show":
                 input.show();
                 break;

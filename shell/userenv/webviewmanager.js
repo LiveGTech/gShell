@@ -96,10 +96,6 @@ export function spawn(url, options = {}) {
         });
     });
 
-    webview.on("webviewopen", function(event) {
-        console.log(webview, event.detail);
-    });
-
     return webview;
 }
 

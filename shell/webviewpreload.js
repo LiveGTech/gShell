@@ -262,9 +262,7 @@ window.addEventListener("DOMContentLoaded", function() {
     });
 
     electron.ipcRenderer.on("openFrame", function(event, data) {
-        // TODO: Add event on host that opens a new window when triggered
-
-        console.log(data);
+        electron.ipcRenderer.sendToHost("openFrame", data);
     });
 
     electron.ipcRenderer.on("input_scrollIntoView", function() {

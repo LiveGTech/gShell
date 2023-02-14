@@ -115,6 +115,10 @@ export class Browser {
 
                 switcher.setAppCustomTab(thisScope.appElement, thisScope.lastTitle, thisScope.lastIcon);
             });
+
+            webview.on("openframe", function(event) {
+                openBrowser(event.detail.url, true);
+            });
     
             thisScope.uiMain.add(webview);
     
@@ -303,7 +307,7 @@ export function init() {
     });
 }
 
-export function openBrowser(startUrl = undefined) {
+export function openBrowser(startUrl = undefined, tryOpeningInNewTab = false) {
     var browser = new Browser(startUrl);
 
     var details = {
@@ -313,12 +317,26 @@ export function openBrowser(startUrl = undefined) {
         showTabs: true,
         iconTransparency: true,
         newTabHandler: function(screenElement) {
-            var browser = new Browser();
-
-            browser.screenElement = screenElement;
-            browser.appElement = switcher.addAppToWindow(screenElement, browser.render(), details);
+            openInNewTab(screenElement);
         }
     };
+
+    function openInNewTab(screenElement, startUrl = undefined) {
+        var browser = new Browser(startUrl);
+
+        browser.screenElement = screenElement;
+        browser.appElement = switcher.addAppToWindow(screenElement, browser.render(), details);
+    }
+
+    var openSphereWindows = switcher.getWindowStackingOrder().filter((window) => window.find(".sphere").items().length > 0);
+    var lastSelectedSphereWindow = openSphereWindows[openSphereWindows.length - 1] || null;
+
+    if (tryOpeningInNewTab && lastSelectedSphereWindow != null) {
+        openInNewTab(lastSelectedSphereWindow, startUrl);
+        switcher.main.selectScreen(lastSelectedSphereWindow);
+
+        return Promise.resolve();
+    }
 
     return switcher.openWindow(browser.render(), details, function(screenElement, appElement) {
         browser.screenElement = screenElement;

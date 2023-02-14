@@ -883,6 +883,14 @@ export function closeWindow(element, animate = true) {
     });
 }
 
+export function getWindowStackingOrder() {
+    return $g.sel("#switcherView .switcher")
+        .find(".switcher_screen")
+        .items()
+        .sort((a, b) => Number(a.getStyle("z-index")) - Number(b.getStyle("z-index")))
+    ;
+}
+
 export function openApp(url, appDetails = null, targetWindow = null) {
     if (url.split("?")[0] == "gsspecial://sphere") {
         sphere.openBrowser($g.core.parameter("startUrl", url));
@@ -906,7 +914,7 @@ export function openApp(url, appDetails = null, targetWindow = null) {
                     return;
                 }
 
-                // TODO: Open in Sphere if not opening as part of app
+                sphere.openBrowser(openingUrl, true);
             });
         }
 

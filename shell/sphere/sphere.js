@@ -193,6 +193,8 @@ export class Browser {
 
         this.uiContainer = $g.create("div").addClass("sphere");
 
+        // TODO: Add tooltips to tab button and menu button
+
         // UI chrome, not to be confused with the Google Chrome browser
         this.uiChrome = $g.create("header").add(
             $g.create("button")

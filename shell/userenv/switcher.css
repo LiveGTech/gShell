@@ -197,7 +197,7 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen.closing {
     z-index: 1;
 }
 
-body:not([device-type="desktop"]) .switcher_screen.backgrounded * {
+body:not([device-type="desktop"]) .switcher:not(.gesturing) .switcher_screen.backgrounded * {
     display: none;
 }
 
@@ -250,6 +250,11 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.closing
 body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing) {
     width: 50%!important;
     height: unset!important;
+}
+
+.switcher.gesturing .switcher_screen {
+    pointer-events: none;
+    transition: none;
 }
 
 .switcher_screenButton {

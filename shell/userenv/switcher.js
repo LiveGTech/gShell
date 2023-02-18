@@ -31,6 +31,10 @@ const WINDOW_STACK_WRAPAROUND = 10;
 
 var topmostZIndex = 1;
 var windowStackStep = 0;
+var switcherBarGesturing = false;
+var switcherBarPointerStartX = null;
+var switcherBarPointerStartY = null;
+var switcherBarTriggerDistance = 0;
 
 export class WindowMoveResizeMode {
     constructor() {
@@ -196,6 +200,51 @@ export function init() {
 
     $g.sel(".switcher_toggleList").on("click", function() {
         toggleList();
+    });
+
+    $g.sel(".switcherBar").on("pointerdown", function(event) {
+        if (switcherBarGesturing) {
+            return;
+        }
+
+        switcherBarGesturing = true;
+        switcherBarPointerStartX = event.pageX;
+        switcherBarPointerStartY = event.pageY;
+
+        $g.sel(".switcher").addClass("gesturing");
+    });
+
+    $g.sel("body").on("pointermove", function(event) {
+        if (!switcherBarGesturing) {
+            return;
+        }
+
+        var deltaX = event.pageX - switcherBarPointerStartX;
+        var deltaY = event.pageY - switcherBarPointerStartY;
+
+        switcherBarTriggerDistance = Math.min(Math.abs(deltaY) / (window.innerHeight / 4), 1.5);
+
+        var scale = 0.7 + (0.3 * (1 - switcherBarTriggerDistance));
+
+        if (switcherBarTriggerDistance > 0.1) {
+            $g.sel(".switcher_screen.selected").setStyle("transform", `scale(${scale})`);
+        }
+    });
+
+    $g.sel("body").on("pointerup", function() {
+        if (!switcherBarGesturing) {
+            return;
+        }
+
+        switcherBarGesturing = false;
+
+        $g.sel(".switcher").removeClass("gesturing");
+
+        $g.sel(".switcher_screen").setStyle("transform", null);
+
+        if (switcherBarTriggerDistance > 0.75) {
+            showList();
+        }
     });
 
     main = new Switcher($g.sel(".switcher"));
@@ -692,6 +741,11 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
     $g.sel(".desktop_appList").add(screenElement.get().appListButton);
 
     main.selectScreen(screenElement);
+
+    main.targetScrollX = screenElement.get().offsetLeft;
+    main.scrolling = false;
+
+    main._targetScroll();
 
     $g.sel(".desktop_appMenu").menuClose();
 

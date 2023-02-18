@@ -32,8 +32,8 @@ const WINDOW_STACK_WRAPAROUND = 10;
 var topmostZIndex = 1;
 var windowStackStep = 0;
 var switcherBarGesturing = false;
-var switcherBarPointerStartX = null;
-var switcherBarPointerStartY = null;
+var switcherBarTouchStartX = null;
+var switcherBarTouchStartY = null;
 var switcherBarTriggerDistance = 0;
 
 export class WindowMoveResizeMode {
@@ -202,25 +202,25 @@ export function init() {
         toggleList();
     });
 
-    $g.sel(".switcherBar").on("pointerdown", function(event) {
+    function switcherBarTouchStartEvent(touchX, touchY) {
         if (switcherBarGesturing) {
             return;
         }
 
         switcherBarGesturing = true;
-        switcherBarPointerStartX = event.pageX;
-        switcherBarPointerStartY = event.pageY;
+        switcherBarTouchStartX = touchX;
+        switcherBarTouchStartY = touchY;
 
         $g.sel(".switcher").addClass("gesturing");
-    });
+    }
 
-    $g.sel("body").on("pointermove", function(event) {
+    function switcherBarTouchMoveEvent(touchX, touchY) {
         if (!switcherBarGesturing) {
             return;
         }
 
-        var deltaX = event.pageX - switcherBarPointerStartX;
-        var deltaY = event.pageY - switcherBarPointerStartY;
+        var deltaX = touchX - switcherBarTouchStartX;
+        var deltaY = touchY - switcherBarTouchStartY;
 
         switcherBarTriggerDistance = Math.min(Math.abs(deltaY) / (window.innerHeight / 4), 1.5);
 
@@ -229,9 +229,9 @@ export function init() {
         if (switcherBarTriggerDistance > 0.1) {
             $g.sel(".switcher_screen.selected").setStyle("transform", `scale(${scale})`);
         }
-    });
+    }
 
-    $g.sel("body").on("pointerup", function() {
+    function switcherBarTouchEndEvent() {
         if (!switcherBarGesturing) {
             return;
         }
@@ -245,7 +245,16 @@ export function init() {
         if (switcherBarTriggerDistance > 0.75) {
             showList();
         }
-    });
+    }
+
+    $g.sel(".switcherBar").on("mousedown", (event) => switcherBarTouchStartEvent(event.pageX, event.pageY));
+    $g.sel(".switcherBar").on("touchstart", (event) => switcherBarTouchStartEvent(event.touches[0].pageX, event.touches[0].pageY));
+
+    $g.sel("body").on("mousemove", (event) => switcherBarTouchMoveEvent(event.pageX, event.pageY));
+    $g.sel("body").on("touchmove", (event) => switcherBarTouchMoveEvent(event.touches[0].pageX, event.touches[0].pageY));
+
+    $g.sel("body").on("mouseup", () => switcherBarTouchEndEvent());
+    $g.sel("body").on("touchend", () => switcherBarTouchEndEvent());
 
     main = new Switcher($g.sel(".switcher"));
 

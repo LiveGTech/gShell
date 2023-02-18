@@ -253,8 +253,11 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing)
 }
 
 .switcher.gesturing .switcher_screen {
-    pointer-events: none;
     transition: none;
+}
+
+.switcher.gesturing .switcher_screen * {
+    pointer-events: none!important;
 }
 
 .switcher_screenButton {
@@ -269,7 +272,7 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing)
     background-color: transparent!important;
 }
 
-.switcher_screen.selected .switcher_screenButton {
+.switcher:not(.gesturing) .switcher_screen.selected .switcher_screenButton {
     display: none;
 }
 

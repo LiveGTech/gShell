@@ -6,7 +6,7 @@
     "author": "LiveG Technologies",
     "repository": "https://github.com/LiveGTech/gShell",
     "scripts": {
-        "gshell": "electron . --disable-gpu",
+        "gshell": "electron .",
         "dist": "electron-builder"
     },
     "devDependencies": {

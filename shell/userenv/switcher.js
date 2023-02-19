@@ -228,7 +228,7 @@ export function init() {
         var deltaY = touchY - switcherBarTouchStartY;
 
         main.targetInstantaneous = true;
-        main.targetScrollX = switcherBarScrollStartX - deltaX;
+        main.targetScrollX = main.element.get().scrollLeft = switcherBarScrollStartX - deltaX;
 
         switcherBarSwitching = Math.abs(deltaX) > 20;
 

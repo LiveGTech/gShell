@@ -95,6 +95,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
             this.element.removeClass("allowSelect");
             this.element.find(":scope > *").removeClass("selected");
 
+            screenElement.removeClass("backgrounded");
             screenElement.addClass("selected");
 
             var listButton = $g.sel(`.desktop_appListButton[data-id="${screenElement.getAttribute("data-id")}"]`);

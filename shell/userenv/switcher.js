@@ -32,8 +32,10 @@ const WINDOW_STACK_WRAPAROUND = 10;
 var topmostZIndex = 1;
 var windowStackStep = 0;
 var switcherBarGesturing = false;
+var switcherBarSwitching = false;
 var switcherBarTouchStartX = null;
 var switcherBarTouchStartY = null;
+var switcherBarScrollStartX = null;
 var switcherBarTriggerDistance = 0;
 
 export class WindowMoveResizeMode {
@@ -208,8 +210,10 @@ export function init() {
         }
 
         switcherBarGesturing = true;
+        switcherBarSwitching = false;
         switcherBarTouchStartX = touchX;
         switcherBarTouchStartY = touchY;
+        switcherBarScrollStartX = $g.sel(".switcher_screen.selected").get().offsetLeft;
         switcherBarTriggerDistance = 0;
 
         $g.sel(".switcher").addClass("gesturing");
@@ -223,11 +227,23 @@ export function init() {
         var deltaX = touchX - switcherBarTouchStartX;
         var deltaY = touchY - switcherBarTouchStartY;
 
+        main.targetInstantaneous = true;
+        main.targetScrollX = switcherBarScrollStartX - deltaX;
+
+        switcherBarSwitching = Math.abs(deltaX) > 20;
+
         switcherBarTriggerDistance = Math.min(Math.abs(deltaY) / (window.innerHeight / 4), 1.5);
 
         var scale = 0.7 + (0.3 * (1 - switcherBarTriggerDistance));
 
-        if (switcherBarTriggerDistance > 0.1) {
+        if (switcherBarSwitching) {
+            $g.sel(".switcher").addClass("gestureSwitching");
+            $g.sel(".switcher_screen.selected").setStyle("transform", "scale(0.7)");
+        } else {
+            $g.sel(".switcher").removeClass("gestureSwitching");
+        }
+        
+        if (switcherBarTriggerDistance > 0.1 && !switcherBarSwitching) {
             $g.sel(".switcher_screen.selected").setStyle("transform", `scale(${scale})`);
         }
     }
@@ -239,11 +255,17 @@ export function init() {
 
         switcherBarGesturing = false;
 
+        selectScreen(main.closestScreen || $g.sel(".switcher_screen.selected"));
+
         $g.sel(".switcher").removeClass("gesturing");
+
+        setTimeout(function() {
+            $g.sel(".switcher").removeClass("gestureSwitching");            
+        }, 500);
 
         $g.sel(".switcher_screen").setStyle("transform", null);
 
-        if (switcherBarTriggerDistance > 0.75) {
+        if (switcherBarTriggerDistance > 0.75 && !switcherBarSwitching) {
             showList();
         }
     }

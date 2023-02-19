@@ -197,7 +197,7 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen.closing {
     z-index: 1;
 }
 
-body:not([device-type="desktop"]) .switcher:not(.gesturing) .switcher_screen.backgrounded * {
+body:not([device-type="desktop"]) .switcher:not(.gesturing, .gestureSwitching) .switcher_screen.backgrounded * {
     display: none;
 }
 
@@ -252,7 +252,7 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing)
     height: unset!important;
 }
 
-.switcher.gesturing .switcher_screen {
+.switcher.gesturing:not(.gestureSwitching) .switcher_screen {
     transition: none;
 }
 
@@ -272,7 +272,7 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing)
     background-color: transparent!important;
 }
 
-.switcher:not(.gesturing) .switcher_screen.selected .switcher_screenButton {
+.switcher:not(.gesturing, .gestureSwitching) .switcher_screen.selected .switcher_screenButton {
     display: none;
 }
 

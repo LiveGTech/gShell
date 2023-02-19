@@ -210,6 +210,7 @@ export function init() {
         switcherBarGesturing = true;
         switcherBarTouchStartX = touchX;
         switcherBarTouchStartY = touchY;
+        switcherBarTriggerDistance = 0;
 
         $g.sel(".switcher").addClass("gesturing");
     }

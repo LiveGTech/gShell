@@ -197,7 +197,7 @@ body[device-type="desktop"] .switcher.allowSelect .switcher_screen.closing {
     z-index: 1;
 }
 
-body:not([device-type="desktop"]) .switcher:not(.gesturing, .gestureSwitching) .switcher_screen.backgrounded * {
+body:not([device-type="desktop"]) .switcher:not(.allowSelect, .gesturing, .gestureSwitching) .switcher_screen.backgrounded * {
     display: none;
 }
 

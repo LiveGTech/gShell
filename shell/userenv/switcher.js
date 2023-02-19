@@ -258,11 +258,6 @@ export function init() {
 
         selectScreen(main.closestScreen || $g.sel(".switcher_screen.selected"));
 
-        main.scrolling = false;
-        main.targetInstantaneous = true;
-
-        main._targetScroll();
-
         $g.sel(".switcher").removeClass("gesturing");
 
         setTimeout(function() {

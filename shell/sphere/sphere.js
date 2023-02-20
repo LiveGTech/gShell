@@ -62,7 +62,10 @@ export class Browser {
     }
 
     updateChrome() {
-        this.uiChrome.find(".sphere_tabButton").setText(this.tabCount > 99 ? ":)" : this.tabCount); // EASTEREGG: In a similar vein to mobile Chromium...
+        this.uiChrome.find(".sphere_tabButton")
+            .setText(this.tabCount > 99 ? ":)" : _format(this.tabCount)) // EASTEREGG: In a similar vein to mobile Chromium...
+            .setAttribute("aria-label", _("sphere_showTabListAlt", {count: this.tabCount}))
+        ;
 
         if (
             this.webview.is(".sphere_ready") &&
@@ -177,10 +180,18 @@ export class Browser {
 
         $g.sel(".sphere_optionsMenu").clear().add(
             $g.create("button")
-                .setText(_("sphere_menu_installApp"))
+                .setAttribute("aui-mode", "icon")
                 .on("click", function() {
                     thisScope.installApp();
                 })
+                .add(
+                    $g.create("img")
+                        .setAttribute("aui-icon", "dark embedded")
+                        .setAttribute("src", "gshell://lib/adaptui/icons/download.svg")
+                        .setAttribute("aria-hidden", true)
+                        ,
+                    $g.create("span").setText(_("sphere_menu_installApp"))
+                )
         );
 
         markup.apply($g.sel(".sphere_optionsMenu").get());
@@ -254,13 +265,16 @@ export class Browser {
             ,
             $g.create("button")
                 .addClass("sphere_tabButton")
-                .setText("0")
+                .setText(_format(0))
+                .setAttribute("title", _("sphere_showTabList"))
+                .setAttribute("aria-label", _("sphere_showTabListAlt", {count: 0}))
                 .on("click", function() {
                     switcher.showTabList(thisScope.screenElement);
                 })
             ,
             $g.create("button")
-                .setAttribute("aria-label", _("sphere_menu"))
+                .setAttribute("title", _("sphere_openMenu"))
+                .setAttribute("aria-label", _("sphere_openMenu"))
                 .on("click", function() {
                     thisScope.openOptionsMenu();
                 })

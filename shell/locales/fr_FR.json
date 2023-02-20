@@ -148,7 +148,14 @@
         "sphere_forward": "Suivant",
         "sphere_reload": "Recharger",
 
-        "sphere_menu": "Menu",
+        "sphere_showTabList": "Afficher la liste des onglets",
+        "sphere_showTabListAlt": {
+            "{count} == 1": "Afficher la liste des onglets (1 onglet ouvert)",
+            "{count} != 1": "Afficher la liste des onglets ({count} onglets ouverts)"
+        },
+
+        "sphere_openMenu": "Ouvrir le menu",
+
         "sphere_menu_installApp": "Installer l'application",
 
         "a11y_switch": "Navigation au Interrupteur",

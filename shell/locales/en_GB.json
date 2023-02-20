@@ -148,7 +148,14 @@
         "sphere_forward": "Forward",
         "sphere_reload": "Reload",
 
-        "sphere_menu": "Menu",
+        "sphere_showTabList": "Show tab list",
+        "sphere_showTabListAlt": {
+            "{count} == 1": "Show tab list ({count} tab open)",
+            "{count} != 1": "Show tab list ({count} tabs open)"
+        },
+
+        "sphere_openMenu": "Open menu",
+
         "sphere_menu_installApp": "Install app",
 
         "a11y_switch": "Switch Navigation",

@@ -231,7 +231,7 @@ export function init() {
         main.targetInstantaneous = true;
         main.targetScrollX = main.element.get().scrollLeft = switcherBarScrollStartX - deltaX;
 
-        switcherBarSwitching = Math.abs(deltaX) > 20;
+        switcherBarSwitching = Math.abs(deltaX) > 50;
 
         switcherBarTriggerDistance = Math.min(Math.abs(deltaY) / (window.innerHeight / 4), 1.5);
 

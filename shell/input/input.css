@@ -77,6 +77,26 @@
     white-space: nowrap;
 }
 
+.input_imeCandidateKey {
+    margin-inline-start: 0.5rem;
+    margin-inline-end: -0.2rem;
+    padding: 0.1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    background-color: var(--primaryUI);
+    color: var(--primaryUIText);
+    border-radius: 0.3rem;
+    font-weight: bold;
+}
+
+.input:not(.imeOnly) .input_imeCandidateKey {
+    display: none;
+}
+
+.input_imeCandidateKey > span {
+    position: relative; /* To fix rendering bug with minor pixel precision error */
+}
+
 .input_keyboard_keys {
     display: flex;
     flex-direction: column;

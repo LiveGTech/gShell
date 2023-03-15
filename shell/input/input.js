@@ -624,13 +624,21 @@ export function updateInputMethodEditor() {
                 ...[...candidates, ...baseCandidates]
                     .sort((a, b) => b.weighting - a.weighting)
                     .slice(0, Math.max(maxCandidates, 0))
-                    .map((candidate) => $g.create("button")
+                    .map((candidate, i) => $g.create("button")
                         .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
-                        .setText(candidate.result)
                         .on("click", function() {
                             currentKeyboardLayout.currentInputMethod.selectCandidate(candidate);
                             updateInputMethodEditor();
                         })
+                        .add(
+                            $g.create("span")
+                                .addClass("input_imeCandidateKey")
+                                .add(
+                                    $g.create("span").setText(_format(i + 1))
+                                )
+                            ,
+                            $g.create("span").setText(candidate.result)
+                        )
                     )
             );
     

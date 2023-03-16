@@ -501,6 +501,8 @@ export class InputMethod {
 
         var startingInputs = this.wordInputs.filter((word) => fullWord.startsWith(word));
 
+        // TODO: Find a way of searching through characters instead of words and then use n-grams to perform completion
+
         // Find the longest matching partial word first
         return startingInputs.sort((a, b) => b.length - a.length)[0] || fullWord;
     }

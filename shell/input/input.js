@@ -60,6 +60,7 @@ export const candidateResultSources = {
 export var keyboardLayouts = [];
 export var currentKeyboardLayout = null;
 export var showing = false;
+export var showingMode = inputModes.NONE;
 export var targetInputSurface = null;
 export var inputEntryBuffer = [];
 export var inputEntryWordLength = 0;
@@ -74,6 +75,7 @@ var lastInputTop = 0;
 var lastInputLeft = 0;
 var lastInputWidth = 0;
 var lastInputHeight = 0;
+var lastInputMethodCandidates = [];
 
 export class KeyboardLayout {
     constructor(localeCode, variant, metadata = {}, path = null) {
@@ -568,8 +570,18 @@ export class InputMethod {
         return Promise.resolve(allCandidates.sort((a, b) => b.score - a.score));
     }
 
-    selectCandidate(candidate) {
-        var charsToDelete = inputEntryWordLength;
+    getAllCandidates(baseNgramLength = 2) {
+        var thisScope = this;
+
+        return this.getCandidates().then(function(candidates) {
+            return thisScope.getCandidates(baseNgramLength).then(function(baseCandidates) {
+                return Promise.resolve([...candidates, ...baseCandidates]);
+            });
+        });
+    }
+
+    selectCandidate(candidate, discardSuffixLength = 0) {
+        var charsToDelete = inputEntryWordLength + discardSuffixLength;
 
         targetInput?.focus();
 
@@ -615,38 +627,49 @@ export function updateInputMethodEditor() {
         return;
     }
 
-    return currentKeyboardLayout.currentInputMethod.getCandidates().then(function(candidates) {
-        return currentKeyboardLayout.currentInputMethod.getCandidates(2).then(function(baseCandidates) {
-            var maxCandidates = currentKeyboardLayout.currentInputMethod.maxCandidates;
+    return currentKeyboardLayout.currentInputMethod.getAllCandidates().then(function(candidates) {
+        var maxCandidates = currentKeyboardLayout.currentInputMethod.maxCandidates;
 
-            candidates = candidates.slice(0, maxCandidates);
-            baseCandidates = baseCandidates.slice(0, maxCandidates);
+        candidates = candidates.slice(0, maxCandidates);
 
-            inputMethodEditorElement.clear().add(
-                ...[...candidates, ...baseCandidates]
-                    .sort((a, b) => b.weighting - a.weighting)
-                    .slice(0, Math.max(maxCandidates, 0))
-                    .map((candidate, i) => $g.create("button")
-                        .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
-                        .on("click", function() {
-                            currentKeyboardLayout.currentInputMethod.selectCandidate(candidate);
-                            updateInputMethodEditor();
-                        })
-                        .add(
-                            $g.create("span")
-                                .addClass("input_imeCandidateKey")
-                                .add(
-                                    $g.create("span").setText(_format(i + 1))
-                                )
-                            ,
-                            $g.create("span").setText(candidate.result)
-                        )
+        lastInputMethodCandidates = candidates;
+
+        inputMethodEditorElement.clear().add(
+            ...candidates
+                .sort((a, b) => b.weighting - a.weighting)
+                .slice(0, Math.max(maxCandidates, 0))
+                .map((candidate, i) => $g.create("button")
+                    .on("click", function() {
+                        currentKeyboardLayout.currentInputMethod.selectCandidate(candidate);
+                        updateInputMethodEditor();
+                    })
+                    .add(
+                        i < 10 ? $g.create("span")
+                            .addClass("input_imeCandidateKey")
+                            .add(
+                                $g.create("span").setText(_format(i + 1))
+                            )
+                        : $g.create("span"),
+                        $g.create("span")
+                            .addClass("input_imeCandidateResult")
+                            .setAttribute("dir", $g.sel("html").getAttribute("dir") == "rtl" ? "ltr" : "rtl") // So that only the end of the word is shown
+                            .setText(candidate.result)
                     )
-            );
-    
-            return Promise.resolve();
-        });
+                )
+        );
+
+        return Promise.resolve();
     });
+}
+
+export function selectInputMethodEditorCandiate(index = 0, discardSuffixLength = 0) {
+    if (currentKeyboardLayout == null || currentKeyboardLayout.currentInputMethod == null) {
+        return;
+    }
+
+    var inputMethod = currentKeyboardLayout.currentInputMethod;
+
+    return inputMethod.selectCandidate(lastInputMethodCandidates[index], discardSuffixLength);
 }
 
 function keydownCallback(event) {
@@ -657,6 +680,18 @@ function keydownCallback(event) {
 
     if (event.key == "Tab") {
         return;
+    }
+
+    if (showing && showingMode == inputModes.IME_ONLY) {
+        // TODO: Allow entry of numbers when there are no available candidates
+
+        if (event.keyCode >= 48 && event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10)) {
+            selectInputMethodEditorCandiate(event.keyCode - 48 - 1, 1);
+        }
+
+        if (event.key == " " && currentKeyboardLayout?.currentInputMethod?.wordSeparator != " ") {
+            selectInputMethodEditorCandiate(0, 1);
+        }
     }
 
     if (event.key == " " && $g.sel(document.activeElement).is(".input *")) {
@@ -1057,6 +1092,7 @@ export function show(mode = getBestInputMode()) {
     targetInputSurface = document.activeElement;
 
     showing = true;
+    showingMode = mode;
     showingTransition = true;
 
     if (mode == inputModes.IME_ONLY) {
@@ -1137,6 +1173,7 @@ export function hide(force = false) {
     aui_a11y.clearFocusTrap();
 
     showing = false;
+    showingMode = inputModes.NONE;
 
     targetInput?.focus();
 

@@ -77,9 +77,18 @@
     white-space: nowrap;
 }
 
+.input:not(.imeOnly) .input_imeCandidateResult {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 2;
+}
+
 .input_imeCandidateKey {
-    margin-inline-start: 0.5rem;
-    margin-inline-end: -0.2rem;
+    margin-inline-start: -0.2rem;
+    margin-inline-end: 0.5rem;
     padding: 0.1rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;

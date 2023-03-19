@@ -76,6 +76,8 @@ var lastInputLeft = 0;
 var lastInputWidth = 0;
 var lastInputHeight = 0;
 var lastInputMethodCandidates = [];
+var shouldResetInputTrailingText = true;
+var shouldCheckTrailingPunctuation = true;
 
 export class KeyboardLayout {
     constructor(localeCode, variant, metadata = {}, path = null) {
@@ -696,10 +698,26 @@ function keydownCallback(event) {
 
         if (event.keyCode >= 48 && event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10)) {
             selectInputMethodEditorCandiate(event.keyCode - 48 - 1, 1);
+
+            shouldResetInputTrailingText = false;
         }
 
         if (event.key == " " && currentKeyboardLayout?.currentInputMethod?.wordSeparator != " ") {
             selectInputMethodEditorCandiate(0, 1);
+
+            shouldResetInputTrailingText = false;
+        }
+
+        if (TRAILING_PUNCTUATION.includes(event.key) && shouldCheckTrailingPunctuation) {
+            if (inputTrailingText != "") {
+                inputTrailingText += event.key;
+
+                removeTrailingText(event.key);
+
+                shouldCheckTrailingPunctuation = false;
+            }
+        } else if (event.key != "Backspace") {
+            shouldCheckTrailingPunctuation = true;
         }
     }
 
@@ -718,7 +736,11 @@ function keydownCallback(event) {
         return;
     }
 
-    inputTrailingText = "";
+    if (shouldResetInputTrailingText) {
+        inputTrailingText = "";
+    } else {
+        shouldResetInputTrailingText = true;
+    }
 
     if ([...event.key].length == 1 && !event.ctrlKey && !event.altKey) { // Printable key
         while (inputEntryBuffer.length > MAX_INPUT_ENTRY_BUFFER_LENGTH) {
@@ -1031,10 +1053,16 @@ export function returnToTargetInput(returnToKeyWhenSwitchEnabled = false) {
     }
 }
 
-export function removeTrailingText() {
+export function removeTrailingText(insertAfter = "") {
     for (var i = 0; i < inputTrailingText.length; i++) {
         ["keyDown", "char", "keyUp"].forEach(function(type) {
             gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: "Backspace"}});
+        });
+    }
+
+    for (var i = 0; i < insertAfter.length; i++) {
+        ["keyDown", "char", "keyUp"].forEach(function(type) {
+            gShell.call("io_input", {webContentsId: getWebContentsId(), event: {type, keyCode: insertAfter}});
         });
     }
 

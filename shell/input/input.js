@@ -559,8 +559,6 @@ export class InputMethod {
                 var inputLengthDifference = Math.max(result.input.length - thisScope.getInputWord().length, 0);
                 var inputLengthDifferenceScore = Math.E ** (-(1 / 2) * ((((inputLengthDifference / result.input.length) - 0.25) / 0.5) ** 2)); // Bell curve with peak at 0.25
 
-                console.log(result.input, thisScope.getInputWord(), inputLengthDifferenceScore);
-
                 result.score += (1 - result.score) * 0.1 * inputLengthDifferenceScore;
             }
 

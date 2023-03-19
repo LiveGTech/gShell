@@ -541,6 +541,8 @@ export class InputMethod {
     }
 
     getCandidates(nGramLength = this.nGramLength) {
+        var thisScope = this;
+
         var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
         var wordResults = this.wordSearch.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH), {prefix: true, fuzzy: 0.2});
         var allCandidates = [];
@@ -552,6 +554,15 @@ export class InputMethod {
 
             result.score = result.weighting * (result.score / wordResultsMaxScore);
             result.source = candidateResultSources.WORD;
+
+            if (result.score > 0.5) {
+                var inputLengthDifference = Math.max(result.input.length - thisScope.getInputWord().length, 0);
+                var inputLengthDifferenceScore = Math.E ** (-(1 / 2) * ((((inputLengthDifference / result.input.length) - 0.25) / 0.5) ** 2)); // Bell curve with peak at 0.25
+
+                console.log(result.input, thisScope.getInputWord(), inputLengthDifferenceScore);
+
+                result.score += (1 - result.score) * 0.1 * inputLengthDifferenceScore;
+            }
 
             allCandidates.push(result);
         });

@@ -35,6 +35,7 @@ const NON_TEXTUAL_INPUTS = [
 
 var hasInitialised = false;
 var mainState = {};
+var isPrivileged = false;
 var privilegedDataIdCounter = 0;
 var privilegedDataUpdateCallbacks = [];
 var privilegedDataResponseQueue = {};
@@ -47,6 +48,9 @@ function isTextualInput(element) {
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
+    isPrivileged: function() {
+        return isPrivileged;
+    },
     callPrivilegedCommand: function(command, data = {}) {
         var id = privilegedDataIdCounter++;
 
@@ -250,7 +254,9 @@ window.addEventListener("DOMContentLoaded", function() {
 
         document.querySelector("body").setAttribute("liveg-a11y-scancolour", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
 
-        if (data.isPrivileged) {
+        isPrivileged = data.isPrivileged;
+
+        if (isPrivileged) {
             privilegedDataUpdateCallbacks.forEach((callback) => callback(data.privilegedData));
         } else {
             mainState.privilegedData = null;

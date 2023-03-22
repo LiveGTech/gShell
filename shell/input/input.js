@@ -689,20 +689,28 @@ function keydownCallback(event) {
         inputEntryWordLength = 0;
     }
 
-    if (event.key == "Tab") {
+    if (event.key == "Shift" || event.key == "Tab") {
         return;
     }
 
-    if (showing && showingMode == inputModes.IME_ONLY && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+    if (showing && showingMode == inputModes.IME_ONLY && !event.ctrlKey && !event.altKey) {
         // TODO: Allow entry of numbers when there are no available candidates
 
-        if (event.keyCode >= 48 && event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10)) {
+        if (
+            event.keyCode >= 48 &&
+            event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10) &&
+            !event.shiftKey
+        ) {
             selectInputMethodEditorCandiate(event.keyCode - 48 - 1, 1);
 
             shouldResetInputTrailingText = false;
         }
 
-        if (event.key == " " && currentKeyboardLayout?.currentInputMethod?.wordSeparator != " ") {
+        if (
+            event.key == " " &&
+            currentKeyboardLayout?.currentInputMethod?.wordSeparator != " " &&
+            !event.shiftKey
+        ) {
             selectInputMethodEditorCandiate(0, 1);
 
             shouldResetInputTrailingText = false;

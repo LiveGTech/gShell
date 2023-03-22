@@ -48,6 +48,9 @@ function isTextualInput(element) {
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
+    isSystemApp: function() {
+        return window.location.href.startsWith("gshell://");
+    },
     isPrivileged: function() {
         return isPrivileged;
     },

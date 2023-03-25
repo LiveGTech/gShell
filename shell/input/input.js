@@ -825,6 +825,10 @@ export function init() {
                 return;
             }
 
+            if (event.target.matches(":disabled")) {
+                return;
+            }
+
             event.target.focus();
 
             show();

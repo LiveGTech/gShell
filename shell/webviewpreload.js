@@ -99,7 +99,7 @@ window.addEventListener("DOMContentLoaded", function() {
         }
 
         if (event.target.matches(INPUT_SELECTOR)) {
-            if (!isTextualInput(event.target)) {
+            if (!isTextualInput(event.target) || event.target.matches(":disabled")) {
                 electron.ipcRenderer.sendToHost("input_hide");
     
                 return;
@@ -175,14 +175,8 @@ window.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    window.addEventListener("click", function(event) {
-        if (isTextualInput(event.target)) {
-            electron.ipcRenderer.sendToHost("input_show");
-        }
-    });
-
     window.addEventListener("focusin", function(event) {
-        if (!mainState.a11y_options?.switch_enabled && isTextualInput(event.target) && !shouldSkipNextInputShow) {
+        if (!mainState.a11y_options?.switch_enabled && isTextualInput(event.target) && !event.target.matches(":disabled") && !shouldSkipNextInputShow) {
             electron.ipcRenderer.sendToHost("input_show");
         }
 
@@ -203,6 +197,7 @@ window.addEventListener("DOMContentLoaded", function() {
         if (
             event.key == " " &&
             isTextualInput(document.activeElement) &&
+            !event.target.matches(":disabled") &&
             mainState.a11y_options?.switch_enabled &&
             !mainState.input_showing
         ) {

@@ -10,6 +10,7 @@
 @import url("gshell://common.css");
 @import url("gshell://system/displays.css");
 @import url("gshell://global/tooltips.css");
+@import url("gshell://global/select.css");
 @import url("gshell://global/infobar.css");
 @import url("gshell://global/surfaces.css");
 @import url("gshell://a11y/switch.css");

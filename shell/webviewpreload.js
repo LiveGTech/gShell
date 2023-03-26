@@ -42,9 +42,46 @@ var privilegedDataResponseQueue = {};
 var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
 var lastTooltip = null;
+var currentSelectElement = null;
 
 function isTextualInput(element) {
     return element.matches(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
+}
+
+function openSelect(element) {
+    currentSelectElement = element;
+
+    var bounds = element.getBoundingClientRect();
+
+    var items = [...element.querySelectorAll("option, optgroup, hr")].map(function(element) {
+        if (element.matches("option")) {
+            return {
+                type: "option",
+                text: element.textContent,
+                value: element.value
+            };
+        }
+
+        if (element.matches("optgroup")) {
+            return {
+                type: "text",
+                text: element.textContent
+            };
+        }
+
+        if (element.matches("hr")) {
+            return {type: "divider"};
+        }
+
+        return null;
+    });
+
+    electron.ipcRenderer.sendToHost("select_open", {
+        top: bounds.top,
+        left: bounds.left,
+        width: bounds.width,
+        height: bounds.height
+    }, items);
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
@@ -142,6 +179,16 @@ window.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    window.addEventListener("mousedown", function(event) {
+        if (!event.target.matches("select")) {
+            return;
+        }
+
+        event.preventDefault();
+
+        openSelect(event.target);
+    });
+
     window.addEventListener("mousemove", function(event) {
         if (!event.isTrusted) {
             return;
@@ -204,6 +251,12 @@ window.addEventListener("DOMContentLoaded", function() {
             event.preventDefault();
 
             electron.ipcRenderer.sendToHost("input_show");
+        }
+
+        if ([" ", "Enter"].includes(event.key) && event.target.matches("select")) {
+            event.preventDefault();
+
+            openSelect(event.target);
         }
     });
 
@@ -271,6 +324,12 @@ window.addEventListener("DOMContentLoaded", function() {
 
     electron.ipcRenderer.on("input_scrollIntoView", function() {
         document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
+    });
+
+    electron.ipcRenderer.on("select_confirmOption", function(event, data) {
+        currentSelectElement.value = data.value;
+
+        currentSelectElement.dispatchEvent(new CustomEvent("change"));
     });
 
     electron.ipcRenderer.sendToHost("ready");

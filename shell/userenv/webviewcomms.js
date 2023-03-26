@@ -12,6 +12,7 @@ import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
 import * as tooltips from "gshell://global/tooltips.js";
+import * as select from "gshell://global/select.js";
 
 var webviewEvents = [];
 
@@ -125,6 +126,14 @@ export function attach(webview, privileged) {
 
             case "tooltips_hide":
                 tooltips.hide();
+                break;
+
+            case "select_open":
+                console.log(event.args);
+                select.setFakeArea(webview, event.args[0]);
+                select.setCallbackFromWebview(webview);
+                select.open(undefined, select.itemObjectsToElements(event.args[1]));
+
                 break;
         }
     });

@@ -112,7 +112,7 @@
         "a11y_readout_enable": "Activer la Navigation par Lecteur",
 
         "a11y_readout_disableDialog_title": "Désactiver la Navigation par Lecteur ?",
-        "a11y_readout_disableDialog_description": "Aucun texte ne sera lisible via la synthèse vocale ou un écran braille actualisable jusqu'à ce que la Navigation par Lecteur soit à nouveau activée.",
+        "a11y_readout_disableDialog_description": "Aucun texte ne sera lisible via la synthèse vocale ou un écran braille actualisable tant que l'interrupteur de navigation n'est pas réactivé.",
         "a11y_readout_disableDialog_turnOff": "Désactiver",
 
         "a11y_switch": "Navigation par Interrupteur",

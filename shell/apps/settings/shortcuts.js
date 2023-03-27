@@ -62,6 +62,15 @@ export function run(name = getName()) {
             settings.switchToPage("a11y");
             break;
 
+        case "a11y_readout":
+            settings.switchToPage("a11y");
+
+            settings.visitInnerScreen(
+                a11y.ReadoutNavigationScreen() ()
+            );
+
+            break;
+
         case "a11y_switch":
             settings.switchToPage("a11y");
 

@@ -173,6 +173,8 @@
         "a11y_switch_doubleClick": "Double-cliquez",
         "a11y_switch_mouseButtons": "Boutons souris",
 
+        "a11y_readout": "Navigation par Lecteur",
+
         "a11y_reduceMotion": "Réduisez les mouvements"
     }
 }

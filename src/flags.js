@@ -18,6 +18,7 @@ exports.emulateTouch = !exports.isRealHardware && exports.argv["touch-emulation"
 exports.deviceDescriptionLocation = exports.argv["device-desc-location"] || null;
 exports.deviceType = exports.argv["device-type"] || null;
 
+exports.enableA11yReadout = !!exports.argv["enable-a11y-readout"];
 exports.enableA11ySwitch = !!exports.argv["enable-a11y-switch"];
 
 exports.devTools = !!exports.argv["devtools"];

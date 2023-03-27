@@ -106,9 +106,18 @@
 
         "a11y_summary": "Customise visual, auditory and navigatory access",
 
+        "a11y_readout": "Readout Navigation",
+        "a11y_readout_summary": "Speak or read on-screen text and graphical descriptions",
+        "a11y_readout_description": "Readout Navigation lets you read text and graphical descriptions shown on-screen through spoken feedback or through a refreshable braille display.",
+        "a11y_readout_enable": "Enable Readout Navigation",
+
+        "a11y_readout_disableDialog_title": "Turn off Readout Navigation?",
+        "a11y_readout_disableDialog_description": "No text will be readable through spoken feedback or a refreshable braille display until Readout Navigation is enabled again.",
+        "a11y_readout_disableDialog_turnOff": "Turn off",
+
         "a11y_switch": "Switch Navigation",
         "a11y_switch_summary": "Full control and navigation with at least one switch",
-        "a11y_switch_description": "Switch Navigation allows you to access and navigate your device by using one or more switches — such as push buttons, foot pedals, sip-and-puff switches and more.",
+        "a11y_switch_description": "Switch Navigation lets you access and navigate your device by using one or more switches — such as push buttons, foot pedals, sip-and-puff switches and more.",
         "a11y_switch_enable": "Enable Switch Navigation",
 
         "a11y_switch_disableDialog_title": "Turn off Switch Navigation?",

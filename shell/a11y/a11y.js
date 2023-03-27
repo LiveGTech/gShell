@@ -17,6 +17,8 @@ export var options = {
 
     display_reduceMotion: false,
 
+    readout_enabled: false,
+
     switch_enabled: false,
     switch_scanColour: "blue",
     switch_itemScanPeriod: 500, // 500 milliseconds
@@ -63,6 +65,12 @@ export function load() {
 
 export function init() {
     gShell.call("system_getFlags").then(function(flags) {
+        if (flags.enableA11yReadout) {
+            options.readout_enabled = true;
+
+            update();
+        }
+
         if (flags.enableA11ySwitch) {
             options.switch_enabled = true;
 

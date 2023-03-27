@@ -61,7 +61,7 @@
                 {
                     "name": {
                         "en_GB": "Switch Navigation",
-                        "fr_FR": "Navigation au Interrupteur"
+                        "fr_FR": "Navigation par Interrupteur"
                     },
                     "url": "gshell://apps/settings/index.html?shortcut=a11y_switch"
                 },

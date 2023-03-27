@@ -115,12 +115,12 @@
         "a11y_readout_disableDialog_description": "Aucun texte ne sera lisible via la synthèse vocale ou un écran braille actualisable jusqu'à ce que la Navigation par Lecteur soit à nouveau activée.",
         "a11y_readout_disableDialog_turnOff": "Désactiver",
 
-        "a11y_switch": "Navigation au Interrupteur",
+        "a11y_switch": "Navigation par Interrupteur",
         "a11y_switch_summary": "Contrôle total et navigation avec au moins un interrupteur",
-        "a11y_switch_description": "La Navigation au Interrupteur vous permet d'accéder à votre appareil et de le parcourir à l'aide d'un ou plusieurs interrupteurs, tels que des boutons-poussoirs, des pédales, des interrupteurs sip-and-puff, etc.",
-        "a11y_switch_enable": "Activer la Navigation au Interrupteur",
+        "a11y_switch_description": "La Navigation par Interrupteur vous permet d'accéder à votre appareil et de le parcourir à l'aide d'un ou plusieurs interrupteurs, tels que des boutons-poussoirs, des pédales, des interrupteurs sip-and-puff, etc.",
+        "a11y_switch_enable": "Activer la Navigation par Interrupteur",
 
-        "a11y_switch_disableDialog_title": "Désactiver la Navigation au Interrupteur ?",
+        "a11y_switch_disableDialog_title": "Désactiver la Navigation par Interrupteur ?",
         "a11y_switch_disableDialog_description": "Vous ne pourrez pas naviguer à l'aide d'un interrupteur tant que l'interrupteur de navigation n'est pas réactivé.",
         "a11y_switch_disableDialog_turnOff": "Désactiver",
 

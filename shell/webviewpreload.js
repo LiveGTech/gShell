@@ -113,6 +113,9 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
     },
     onPrivilegedDataUpdate: function(callback) {
         privilegedDataUpdateCallbacks.push(callback);
+    },
+    _a11y_readout_announce: function(data) {
+        electron.ipcRenderer.sendToHost("a11y_readout_announce", data);
     }
 });
 

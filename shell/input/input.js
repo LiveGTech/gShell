@@ -1189,9 +1189,7 @@ export function show(mode = getBestInputMode()) {
     webviewComms.update();
 
     if (a11y.options.switch_enabled) {
-        a11y.assistiveTechnologies.filter((tech) => tech instanceof a11y.modules.switch?.SwitchNavigation).forEach(function(tech) {
-            tech.startItemScan();
-        });
+        a11y.callInAssistiveTechnology(a11y.modules.switch?.SwitchNavigation, "startItemScan");
 
         $g.sel(".input").removeAttribute("hidden");
 

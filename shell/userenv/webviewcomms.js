@@ -112,6 +112,10 @@ export function attach(webview, privileged) {
                 webview.emit("openframe", event.args[0]);
                 break;
 
+            case "a11y_readout_announce":
+                a11y.callInAssistiveTechnology(a11y.modules.readout?.ReadoutNavigation, "announce", event.args[0]);
+                break;
+
             case "input_show":
                 input.show();
                 break;

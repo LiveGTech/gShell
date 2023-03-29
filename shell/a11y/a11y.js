@@ -39,6 +39,16 @@ export function registerAssistiveTechnology(tech) {
     assistiveTechnologies.push(new tech());
 }
 
+export function callInAssistiveTechnology(techClass, identifier, ...args) {
+    if (!techClass) {
+        return null;
+    }
+
+    return assistiveTechnologies.filter((tech) => tech instanceof techClass).map(function(tech) {
+        return tech[identifier](...args);
+    });
+}
+
 export function setOption(optionName, value) {
     options[optionName] = value;
 
@@ -87,7 +97,8 @@ export function init() {
     });
 
     Promise.all([
-        import("gshell://a11y/switch.js")
+        import("gshell://a11y/switch.js"),
+        import("gshell://a11y/readout.js")
     ]).then(function(loadedModules) {
         loadedModules.forEach(function(module) {
             modules[module.NAME] = module;

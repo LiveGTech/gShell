@@ -75,6 +75,10 @@ $g.waitForLoad().then(function() {
         $g.sel("#lockScreenMain").screenFade();
     }
 
+    console.log(a11y.modules.readout?.ReadoutNavigation);
+
+    import("gshell://common.js");
+
     // TODO: Implement auth options in Settings from Debug Environment
     // users.get("test").then(function(user) {
     //     var credentials = new auth.UserAuthCredentials(user);

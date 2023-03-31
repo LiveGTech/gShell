@@ -447,10 +447,10 @@ export class InputMethod {
         this.nGramDictionary = {};
         this.wordDictionary = [];
 
-        this.wordInputs = [];
-        this.wordSearch = null;
+        this._wordInputs = [];
+        this._wordSearch = null;
 
-        this.reindexDictionaries();
+        this.dictionariesIndexed = false;
     }
 
     serialiseForOptionSelection() {
@@ -477,21 +477,37 @@ export class InputMethod {
         instance.nGramDictionary = data.nGramDictionary || {};
         instance.wordDictionary = data.wordDictionary || [];
 
-        instance.reindexDictionaries();
-
         return instance;
     }
 
     reindexDictionaries() {
-        this.wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
+        this._wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
 
-        this.wordSearch = new MiniSearch({
+        this._wordSearch = new MiniSearch({
             idField: "input",
             fields: ["input"],
             storeFields: ["input", "result", "weighting"]
         });
 
-        this.wordSearch.addAll(this.wordDictionary);
+        this._wordSearch.addAll(this.wordDictionary);
+
+        this.dictionariesIndexed = true;
+    }
+
+    get wordInputs() {
+        if (!this.dictionariesIndexed) {
+            this.reindexDictionaries();
+        }
+
+        return this._wordInputs;
+    }
+
+    get wordSearch() {
+        if (!this.dictionariesIndexed) {
+            this.reindexDictionaries();
+        }
+
+        return this._wordSearch;
     }
 
     getInputWord(buffer = inputEntryBuffer, wordLength = inputEntryWordLength) {

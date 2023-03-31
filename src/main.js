@@ -74,7 +74,7 @@ electron.app.on("ready", function() {
             fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
-                devTools: !flags.isRealHardware,
+                devTools: !flags.isRealHardware || flags.devTools,
                 preload: path.normalize(`${exports.rootDirectory}/shell/preload.js`),
                 webviewTag: true,
                 sandbox: true,

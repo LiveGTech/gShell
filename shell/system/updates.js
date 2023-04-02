@@ -17,16 +17,18 @@ export var shouldAutoCheckForUpdates = false;
 
 export function getUpdates() {
     // TODO: Implement update info retrieval here
+
+    console.log("System update information request made");
 }
 
-export function checkForUpdates() {
+export function startUpdateCheckTimer() {
     setTimeout(function() {
         if (!shouldAutoCheckForUpdates) {
             return;
         }
 
         getUpdates();
-        checkForUpdates();
+        startUpdateCheckTimer();
     }, UPDATE_CHECK_FREQUENCY_MIN + (Math.random() * UPDATE_CHECK_FREQUENCY_RANDOM));
 }
 
@@ -38,5 +40,9 @@ export function load() {
 }
 
 export function init() {
-    checkForUpdates();
+    startUpdateCheckTimer();
+
+    if (shouldAutoCheckForUpdates) {
+        getUpdates();
+    }
 }

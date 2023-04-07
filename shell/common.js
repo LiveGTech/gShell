@@ -13,7 +13,13 @@
 ])).then(function([
     a11y = null
 ]) {
-    const TARGET_ELEMENTS = "address, h1, h2, h3, h4, h5, h6, blockquote, dd, dt, figcaption, hr, li, p, pre, a, span, img, video, svg, math, caption, tr, button, input, progress, select, textarea, summary, marquee";
+    const READABLE_ELEMENTS = "img, button, input, progress, select, textarea, [aria-label]";
+
+    const elementDescriptionTypes = {
+        TEXTUAL: 0,
+        SPEECH: 1,
+        BRAILLE: 2 // TODO: Implement this
+    };
 
     var lastElement = null;
 
@@ -27,17 +33,65 @@
         a11y.callInAssistiveTechnology(a11y.modules.readout?.ReadoutNavigation, "announce", data);
     }
 
-    ["focusin", "mousemove"].forEach(function(type) {
+    function getElementDescription(element, type = elementDescriptionTypes.TEXTUAL) {
+        var descriptionParts = [];
+
+        if (element.nodeType == Node.TEXT_NODE) {
+            return element.textContent;
+        }
+
+        if (element.nodeType != Node.ELEMENT_NODE) {
+            return "";
+        }
+
+        if (element.hasAttribute("aria-label")) {
+            return element.getAttribute("aria-label");
+        }
+        
+        if (element.matches("img[alt]")) {
+            return element.getAttribute("alt");
+        }
+        
+        if (element.matches("input, progress, textarea")) {
+            return element.value;
+        }
+        
+        if (element.matches("select")) {
+            return [...element.querySelectorAll("option")]
+                .find((option) => option.value == element.value)
+                .textContent
+            ;
+        }
+
+        for (var i = 0; i < element.childNodes.length; i++) {
+            descriptionParts.push(getElementDescription(element.childNodes[i]).trim());
+        }
+
+        descriptionParts = descriptionParts.filter((part) => part != "");
+
+        return descriptionParts.join(type == elementDescriptionTypes.SPEECH ? " - " : " · ");
+    }
+
+    ["focus", "focusin", "mousemove"].forEach(function(type) {
         window.addEventListener(type, function(event) {
             if (lastElement == event.target) {
                 return;
             }
 
-            if (type != "focusin" && !event.target.matches(TARGET_ELEMENTS)) {
+            if (event.target.matches("span") && event.target.parentNode?.closest(READABLE_ELEMENTS)) {
                 return;
             }
 
-            if (event.target.matches("span") && event.target.parentNode?.closest(TARGET_ELEMENTS)) {
+            var children = event.target.childNodes;
+            var isTextual = false;
+
+            for (var i = 0; i < children.length; i++) {
+                isTextual ||= children[i].nodeType == Node.TEXT_NODE && children[i].textContent.trim() != "";
+            }
+
+            isTextual ||= event.target.matches(READABLE_ELEMENTS);
+
+            if (!isTextual) {
                 return;
             }
 
@@ -50,7 +104,9 @@
             announce({
                 type: "move",
                 elementType: event.target.tagName,
-                description: event.target.getAttribute("aria-label") || event.target.getAttribute("alt") || event.target.textContent
+                description: getElementDescription(event.target).trim(),
+                speechDescription: getElementDescription(event.target, elementDescriptionTypes.TEXTUAL).trim(),
+                brailleDescription: getElementDescription(event.target, elementDescriptionTypes.BRAILLE).trim()
             });
         });
     });

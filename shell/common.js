@@ -27,7 +27,7 @@
         a11y.callInAssistiveTechnology(a11y.modules.readout?.ReadoutNavigation, "announce", data);
     }
 
-    function getElementDescription(element, type = elementDescriptionTypes.TEXTUAL) {
+    function getElementDescription(element) {
         var descriptionParts = [];
 
         if (element.nodeType == Node.TEXT_NODE) {

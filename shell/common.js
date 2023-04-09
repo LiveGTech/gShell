@@ -57,6 +57,8 @@
             ;
         }
 
+        // TODO: Support `[aria-labelledby]` and `[aria-describedby]`
+
         for (var i = 0; i < element.childNodes.length; i++) {
             descriptionParts.push(getElementDescription(element.childNodes[i]).trim());
         }
@@ -64,6 +66,31 @@
         descriptionParts = descriptionParts.filter((part) => part != "");
 
         return descriptionParts.join(" · ");
+    }
+
+    function getElementLabel(element) {
+        if (element.nodeType != Node.ELEMENT_NODE) {
+            return null;
+        }
+
+        var id = element.getAttribute("id");
+        var labelElement = null;
+
+        if (id == null) {
+            return null;
+        }
+
+        [...document.querySelectorAll("label[for]")].forEach(function(element) {
+            if (element.getAttribute("for") == id) {
+                labelElement = element;
+            }
+        });
+
+        if (labelElement == null) {
+            return;
+        }
+
+        return getElementDescription(labelElement);
     }
 
     ["focus", "focusin", "mousemove"].forEach(function(type) {
@@ -98,7 +125,8 @@
             announce({
                 type: "move",
                 elementType: event.target.tagName,
-                description: getElementDescription(event.target).trim()
+                description: getElementDescription(event.target).trim(),
+                label: getElementLabel(event.target)?.trim() || null
             });
         });
     });

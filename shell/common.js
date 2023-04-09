@@ -15,12 +15,6 @@
 ]) {
     const READABLE_ELEMENTS = "img, button, input, progress, select, textarea, [aria-label]";
 
-    const elementDescriptionTypes = {
-        TEXTUAL: 0,
-        SPEECH: 1,
-        BRAILLE: 2 // TODO: Implement this
-    };
-
     var lastElement = null;
 
     function announce(data) {
@@ -69,7 +63,7 @@
 
         descriptionParts = descriptionParts.filter((part) => part != "");
 
-        return descriptionParts.join(type == elementDescriptionTypes.SPEECH ? " - " : " · ");
+        return descriptionParts.join(" · ");
     }
 
     ["focus", "focusin", "mousemove"].forEach(function(type) {
@@ -104,9 +98,7 @@
             announce({
                 type: "move",
                 elementType: event.target.tagName,
-                description: getElementDescription(event.target).trim(),
-                speechDescription: getElementDescription(event.target, elementDescriptionTypes.TEXTUAL).trim(),
-                brailleDescription: getElementDescription(event.target, elementDescriptionTypes.BRAILLE).trim()
+                description: getElementDescription(event.target).trim()
             });
         });
     });

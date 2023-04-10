@@ -15,6 +15,49 @@
 ]) {
     const READABLE_ELEMENTS = "img, button, input, progress, select, textarea, [aria-label]";
 
+    const TAG_NAMES_TO_ARIA_ROLES = {
+        "ARTICLE": "article",
+        "BUTTON": "button",
+        "TD": "cell",
+        "TH": "columnheader",
+        "DIALOG": "dialog",
+        "BODY": "document",
+        "SUMMARY": "expandable",
+        "FIGURE": "figure",
+        "FORM": "form",
+        "H1": "heading",
+        "H2": "heading",
+        "H3": "heading",
+        "H4": "heading",
+        "H5": "heading",
+        "H6": "heading",
+        "IMG": "img",
+        "INPUT": "input",
+        "A": "link",
+        "UL": "list",
+        "OL": "list",
+        "SELECT": "listbox",
+        "LI": "listitem",
+        "MAIN": "main",
+        "MARK": "mark",
+        "MARQUEE": "marquee",
+        "MATH": "math",
+        "NAV": "navigation",
+        "PROGRESS": "progressbar",
+        "TR": "row",
+        "SECTION": "section",
+        "TABLE": "table",
+        "TEXTAREA": "textarea"
+    };
+
+    const INPUT_TYPES_TO_ARIA_ROLES = {
+        "checkbox": "checkbox",
+        "radio": "radio",
+        "range": "range",
+        "search": "searchbox",
+        "text": "textbox"
+    };
+
     var lastElement = null;
 
     function announce(data) {
@@ -76,21 +119,23 @@
         var id = element.getAttribute("id");
         var labelElement = null;
 
-        if (id == null) {
-            return null;
+        if (id != null) {
+            [...document.querySelectorAll("label[for]")].forEach(function(element) {
+                if (element.getAttribute("for") == id) {
+                    labelElement = element;
+                }
+            });
         }
 
-        [...document.querySelectorAll("label[for]")].forEach(function(element) {
-            if (element.getAttribute("for") == id) {
-                labelElement = element;
-            }
-        });
-
-        if (labelElement == null) {
-            return;
+        if (labelElement != null) {
+            return getElementDescription(labelElement);
         }
 
-        return getElementDescription(labelElement);
+        if (element.hasAttribute("placeholder")) {
+            return element.getAttribute("placeholder");
+        }
+
+        return null;
     }
 
     ["focus", "focusin", "mousemove"].forEach(function(type) {
@@ -126,9 +171,21 @@
 
             lastElement = event.target;
 
+            var role = event.target.getAttribute("role");
+
+            Object.keys(INPUT_TYPES_TO_ARIA_ROLES).forEach(function(type) {
+                if (!role && event.target.matches(`input[type="${type}" i]`)) {
+                    role = INPUT_TYPES_TO_ARIA_ROLES[type.toLowerCase()];
+                }
+            });
+
+            if (!role) {
+                role = TAG_NAMES_TO_ARIA_ROLES[event.target.tagName];
+            }
+
             announce({
                 type: "move",
-                elementType: event.target.tagName,
+                role: role || null,
                 description: getElementDescription(event.target).trim(),
                 label: getElementLabel(event.target)?.trim() || null
             });

@@ -16,6 +16,26 @@ export const NAME = "readout";
 export class ReadoutNavigation extends a11y.AssistiveTechnology {
     init() {
         console.log("Readout Navigation loaded");
+
+        var readoutWasEnabled = false;
+
+        setInterval(function() {
+            if (!a11y.options.readout_enabled) {
+                if (readoutWasEnabled) {
+                    $g.sel(".a11y_panel.readout").fadeOut();
+                }
+
+                readoutWasEnabled = false;
+
+                return;
+            }
+
+            if (!readoutWasEnabled) {
+                $g.sel(".a11y_panel.readout").fadeIn();
+            }
+
+            readoutWasEnabled = true;
+        });
     }
 
     update() {
@@ -28,6 +48,44 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
         }
 
         console.log("Readout Navigation announcement received:", data);
+
+        var announcementElement = $g.sel(".a11y_readout_announcement");
+
+        function addSeparator() {
+            if (announcementElement.getText() == "") {
+                return;
+            }
+
+            announcementElement.add(
+                $g.create("span").setText(" · ")
+            );
+        }
+
+        announcementElement.clear();
+
+        if (data.description) {
+            addSeparator();
+
+            announcementElement.add(
+                $g.create("span").setText(data.description)
+            );
+        }
+
+        if (data.role) {
+            addSeparator();
+
+            announcementElement.add(
+                $g.create("strong").setText(data.role) // TODO: Localise ARIA roles
+            )
+        }
+
+        if (data.label) {
+            addSeparator();
+
+            announcementElement.add(
+                $g.create("em").setText(data.label)
+            )
+        }
     }
 }
 

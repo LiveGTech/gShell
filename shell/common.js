@@ -99,6 +99,10 @@
                 return;
             }
 
+            if (event.target.nodeType != Node.ELEMENT_NODE) {
+                return;
+            }
+
             if (event.target.matches("span") && event.target.parentNode?.closest(READABLE_ELEMENTS)) {
                 return;
             }

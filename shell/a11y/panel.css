@@ -10,6 +10,8 @@
 .a11y_panel {
     position: absolute;
     display: flex;
+    bottom: 3rem;
+    right: 0.5rem;
     width: 24rem;
     max-width: calc(100vw - 2rem);
     background-color: var(--secondaryBackground);

@@ -10,6 +10,7 @@
 import * as config from "gshell://config/config.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
+import * as panel from "gshell://a11y/panel.js";
 
 export var options = {
     touch_holdDelay: 500, // 500 milliseconds

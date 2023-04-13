@@ -83,6 +83,10 @@ electron.app.on("ready", function() {
             }
         });
 
+        if ((flags.isRealHardware && !flags.keepDevShortcuts) || flags.ignoreDevShortcuts) {
+            exports.window.setMenu(null);
+        }
+
         exports.window.once("ready-to-show", function() {
             exports.window.setMenuBarVisibility(false);
 

@@ -22,6 +22,7 @@ import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
 import * as updates from "gshell://system/updates.js";
+import * as interaction from "gshell://system/interaction.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
@@ -47,6 +48,8 @@ $g.waitForLoad().then(function() {
     return a11y.load();
 }).then(function() {
     return updates.load();
+}).then(function() {
+    return interaction.load();
 }).then(function() {
     return users.getList();
 }).then(function(userList) {

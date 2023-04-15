@@ -139,7 +139,7 @@
         "oobs_userProfile_displayNameLengthError": "Le nom que vous avez entré est trop long ; veuillez le raccourcir.",
 
         "oobs_interaction_title": "Choisissez comment vous souhaitez interagir avec LiveG",
-        "oobs_interaction_description": "C'est à vous de décider comment votre appareil peut contacter les services de LiveG sur l'internet pour aider à améliorer LiveG OS. Vous pouvez activer ou désactiver ces options à tout moment, et les données envoyées depuis votre appareil ne contiendront rien qui puisse vous identifier de manière unique.",
+        "oobs_interaction_description": "C'est à vous de décider comment votre appareil peut contacter les services de LiveG sur l'internet pour aider à améliorer LiveG OS. Vous pouvez activer ou désactiver ces options à tout moment, et toutes les données envoyées depuis votre appareil ne contiendront rien qui révélerait vos informations personnelles.",
         "oobs_interaction_checkForUpdates_title": "Vérifier automatiquement les mises à jour du système en arrière-plan",
         "oobs_interaction_checkForUpdates_description": "Votre appareil ne se mettra pas à jour automatiquement sans votre consentement, mais il est recommandé d'activer cette option afin d'être averti lorsqu'une nouvelle version ou mise à jour de sécurité de LiveG OS sort.",
         "oobs_interaction_researchTelemetry_title": "Optez pour la télémétrie de recherche sur l'utilisation de votre appareil",

@@ -117,6 +117,22 @@
 
         "a11y_reduceMotion": "Reduce animations and non-essential motion",
 
+        "interaction": "Interaction and privacy",
+        "interaction_summary": "Choose how you wish to interact with LiveG",
+
+        "interaction_checkForUpdates": "Automatically check for system updates in the background",
+        "interaction_checkForUpdates_description": "Your device won't update automatically without your consent, but it is recommended to enable this option so that you can be notified when a new version or security update of LiveG OS comes out.",
+
+        "interaction_researchTelemetry": "Device usage research telemetry",
+        "interaction_researchTelemetry_description1": "When enabled, information about how you use your device (such as what apps you have installed and what system settings you have enabled) will be sent to LiveG so that improvements to LiveG OS can be made based on your own usage.",
+        "interaction_researchTelemetry_description2": "Cumulative statistical results produced from the data collected as part of a large sample of devices may be shared publicly in the interest of openness. Research objectives may change between system updates, and you can choose whether you wish to be notified of such changes.",
+        "interaction_researchTelemetry_enable": "Enable research telemetry",
+        "interaction_researchTelemetry_notifyChanges": "Be notified when research objectives change",
+
+        "interaction_privacyInfo": "Privacy information",
+        "interaction_privacyInfo_description": "The information that LiveG collects from your device is used to help LiveG to determine what improvements to LiveG OS should be made or prioritised. When you have these interaction options enabled, any data sent from your device will not contain anything that would reveal your personal information. You can opt in or out of these options at any time.",
+        "interaction_privacyInfo_link": "Find out more about your privacy when using LiveG OS",
+
         "about": "About this device",
         "about_summary": "View OS and hardware information",
 

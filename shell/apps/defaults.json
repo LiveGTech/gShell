@@ -67,6 +67,27 @@
                 },
                 {
                     "name": {
+                        "en_GB": "Interaction and privacy",
+                        "fr_FR": "Interaction et confidentialité"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=interaction"
+                },
+                {
+                    "name": {
+                        "en_GB": "Device usage research telemetry",
+                        "fr_FR": "Télémétrie de recherche sur l'utilisation des appareils"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=interaction_researchTelemetry"
+                },
+                {
+                    "name": {
+                        "en_GB": "Privacy information",
+                        "fr_FR": "Informations de confidentialité"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=interaction_privacyInfo"
+                },
+                {
+                    "name": {
                         "en_GB": "About this device",
                         "fr_FR": "À propos de cet appareil"
                     },

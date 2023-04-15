@@ -13,6 +13,8 @@ import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 
 import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
+import * as updates from "gshell://system/updates.js";
+import * as interaction from "gshell://system/interaction.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
@@ -143,14 +145,11 @@ export function finish() {
             localeCode: l10n.currentLocale.localeCode
         });
     }).then(function() {
-        return config.write("updates.gsc", {
-            shouldAutoCheckForUpdates: $g.sel("#oobs_interaction_checkForUpdates").getValue()
-        });
+        return updates.setShouldAutoCheckForUpdates($g.sel("#oobs_interaction_checkForUpdates").getValue());
     }).then(function() {
-        return config.write("interaction.gsc", {
-            researchTelemetryEnabled: $g.sel("#oobs_interaction_researchTelemetry").getValue(),
-            notifyResearchChanges: $g.sel("#oobs_interaction_researchTelemetry_notifyChanges").getValue()
-        });
+        return interaction.setOption("researchTelemetryEnabled", $g.sel("#oobs_interaction_researchTelemetry").getValue());
+    }).then(function() {
+        return interaction.setOption("notifyResearchChanges", $g.sel("#oobs_interaction_researchTelemetry_notifyChanges").getValue());
     }).then(function() {
         return input.saveKeyboardLayoutsToConfig();
     }).then(function() {

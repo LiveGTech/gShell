@@ -143,6 +143,15 @@ export function finish() {
             localeCode: l10n.currentLocale.localeCode
         });
     }).then(function() {
+        return config.write("updates.gsc", {
+            shouldAutoCheckForUpdates: $g.sel("#oobs_interaction_checkForUpdates").getValue()
+        });
+    }).then(function() {
+        return config.write("interaction.gsc", {
+            researchTelemetryEnabled: $g.sel("#oobs_interaction_researchTelemetry").getValue(),
+            notifyResearchChanges: $g.sel("#oobs_interaction_researchTelemetry_notifyChanges").getValue()
+        });
+    }).then(function() {
         return input.saveKeyboardLayoutsToConfig();
     }).then(function() {
         return users.create(undefined, {
@@ -585,7 +594,9 @@ function checkDisplayName() {
 
     $g.sel(".oobs_userProfile_error").setText("");
 
-    selectStep("finish");
+    gShell.call("system_isInstallationMedia").then(function(isInstallationMedia) {
+        selectStep(isInstallationMedia ? "finish" : "interaction");
+    });
 }
 
 export function init() {
@@ -806,6 +817,15 @@ export function init() {
     $g.sel("#oobs_userProfile_displayName").on("keydown", function(event) {
         if (event.key == "Enter") {
             checkDisplayName();
+        }
+    });
+
+    $g.sel("#oobs_interaction_researchTelemetry").on("change", function() {
+        if ($g.sel("#oobs_interaction_researchTelemetry").getValue()) {
+            $g.sel(".oobs_interaction_researchTelemetry_dependency").removeAttribute("inert");
+        } else {
+            $g.sel(".oobs_interaction_researchTelemetry_dependency").setAttribute("inert", "dependent");
+            $g.sel("#oobs_interaction_researchTelemetry_notifyChanges").setValue(false);
         }
     });
 }

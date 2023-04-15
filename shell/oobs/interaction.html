@@ -1,0 +1,50 @@
+<!--
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+-->
+<div aui-stack="horizontal">
+    <div aui-display="full">
+        <video aria-hidden="true" class="oobs_featureMedia">
+            <source type="video/webm" src="gshell://media/oobs/interaction.webm">
+        </video>
+        <div class="oobs_systemOptions"></div>
+    </div>
+    <div>
+        <div class="oobs_content">
+            <div>
+                <h1 translate>oobs_interaction_title</h1>
+                <p translate>oobs_interaction_description</p>
+                <div>
+                    <input type="checkbox" checked="true" id="oobs_interaction_checkForUpdates">
+                    <label for="oobs_interaction_checkForUpdates">
+                        <strong translate>oobs_interaction_checkForUpdates_title</strong><br>
+                        <span translate>oobs_interaction_checkForUpdates_description</span>
+                    </label>
+                </div>
+                <div>
+                    <input type="checkbox" id="oobs_interaction_researchTelemetry">
+                    <label for="oobs_interaction_researchTelemetry">
+                        <strong translate>oobs_interaction_researchTelemetry_title</strong><br>
+                        <span translate>oobs_interaction_researchTelemetry_description</span>
+                    </label>
+                </div>
+                <aui-dependency inert="dependent" class="oobs_interaction_researchTelemetry_dependency">
+                    <input type="checkbox" id="oobs_interaction_researchTelemetry_notifyChanges">
+                    <label for="oobs_interaction_researchTelemetry_notifyChanges" translate>oobs_interaction_researchTelemetry_notifyChanges</label>
+                </aui-dependency>
+                <p>
+                    <span translate>oobs_interaction_privacy_title</span>
+                    <strong>liveg.tech/os/privacy</strong>
+                </p>
+            </div>
+        </div>
+        <aui-buttons aui-mode="end" class="oobs_options">
+            <button oobs-choosestep="finish" translate>oobs_next</button>
+            <button aui-mode="secondary" oobs-choosestep="userprofile" translate>oobs_previous</button>
+        </aui-buttons>
+    </div>
+</div>

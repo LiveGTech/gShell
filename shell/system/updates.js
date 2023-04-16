@@ -7,7 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-import * as openpgp from "gshell://lib/openpgp.min.js";
+import * as openpgp from "gshell://lib/openpgp.min.mjs";
 
 import * as about from "gshell://about.js";
 import * as device from "gshell://system/device.js";
@@ -60,8 +60,6 @@ export function findBestUpdate(updates = index.updates) {
 }
 
 export function getUpdates() {
-    // TODO: Implement update info retrieval here
-
     console.log("System update information request made");
 
     var publicKey;

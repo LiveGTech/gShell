@@ -11,6 +11,7 @@ Here is an example of the contents of a DDF, following the JSON format:
 ```json
 {
     "type": "mobile",
+    "platform": "arm64",
     "model": {
         "codename": "smartex",
         "serial": "STX12345678",
@@ -42,6 +43,9 @@ The form factor of the target device, such as whether the device is a smartphone
 Valid values include:
 
 * `"mobile"`: A mobile smartphone
+
+### `platform`
+The platform type of the target device, as specified in the [LiveG OS Bootstrap Toolchain](https://github.com/LiveGTech/OS-Bootstrap). For example, for x86-64 computers, this would be `x86_64`. This is used primarily to ensure that update scripts work correctly with their respective bootstrapped version of LiveG OS, as there can be minor differences between the versions.
 
 ### `model.codename`
 The codename of the target device. For example, for the LiveG Prism, its codename is `"prism"`. The codename is generally used for programmatic comparisons inside apps and other software, and so should not be set to be a locale object.

@@ -13,6 +13,8 @@ import * as a11y from "gshell://a11y/a11y.js";
 
 export const NAME = "readout";
 
+const VALID_ARIA_ROLES = ["article", "button", "cell", "checkbox", "columnheader", "dialog", "document", "expandable", "figure", "form", "heading", "img", "input", "link", "list", "listbox", "listitem", "main", "mark", "marquee", "math", "navigation", "progressbar", "radio", "row", "searchbox", "section", "slider", "switch", "table", "textbox", "textarea", "urlinput"];
+
 export class ReadoutNavigation extends a11y.AssistiveTechnology {
     init() {
         console.log("Readout Navigation loaded");
@@ -71,12 +73,14 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             );
         }
 
-        if (data.role) {
+        if (data.role && VALID_ARIA_ROLES.includes(data.role)) {
             addSeparator();
 
+            // TODO: Translate to French
+
             announcementElement.add(
-                $g.create("strong").setText(data.role) // TODO: Localise ARIA roles
-            )
+                $g.create("strong").setText(_(`a11y_readout_role_${data.role}`))
+            );
         }
 
         if (data.label) {

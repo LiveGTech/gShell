@@ -53,9 +53,10 @@
     const INPUT_TYPES_TO_ARIA_ROLES = {
         "checkbox": "checkbox",
         "radio": "radio",
-        "range": "range",
+        "range": "slider",
         "search": "searchbox",
-        "text": "textbox"
+        "text": "textbox",
+        "url": "urlinput"
     };
 
     var lastElement = null;
@@ -172,6 +173,10 @@
             lastElement = event.target;
 
             var role = event.target.getAttribute("role");
+
+            if (event.target.matches("input:not([type])")) {
+                role = "textbox";
+            }
 
             Object.keys(INPUT_TYPES_TO_ARIA_ROLES).forEach(function(type) {
                 if (!role && event.target.matches(`input[type="${type}" i]`)) {

@@ -141,6 +141,10 @@
 
     ["focus", "focusin", "mousemove"].forEach(function(type) {
         window.addEventListener(type, function(event) {
+            if (event.target == window) {
+                lastElement = null;
+            }
+
             if (lastElement == event.target) {
                 return;
             }

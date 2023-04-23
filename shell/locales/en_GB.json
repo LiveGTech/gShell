@@ -159,6 +159,8 @@
         "sphere_menu_installApp": "Install app",
 
         "a11y_readout": "Readout Navigation",
+        "a11y_readout_panel_settings": "Open Readout Navigation settings",
+        "a11y_readout_panel_menu": "Open options menu",
         "a11y_readout_role_article": "Article",
         "a11y_readout_role_button": "Button",
         "a11y_readout_role_cell": "Cell",

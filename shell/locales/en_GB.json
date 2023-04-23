@@ -192,7 +192,7 @@
         "a11y_readout_role_slider": "Slider input",
         "a11y_readout_role_switch": "Switch input",
         "a11y_readout_role_table": "Table",
-        "a11y_readout_role_textbox": "Text box",
+        "a11y_readout_role_textbox": "Text input",
         "a11y_readout_role_textarea": "Text editing area",
         "a11y_readout_role_urlinput": "Web address input",
 

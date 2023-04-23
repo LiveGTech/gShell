@@ -13,11 +13,15 @@
     bottom: 3rem;
     right: 0.5rem;
     width: 24rem;
-    max-width: calc(100vw - 2rem);
+    max-width: calc(100vw - 1rem);
     background-color: var(--secondaryBackground);
     outline: 0.2rem solid var(--menuOutline);
     border-radius: 0.5rem;
     z-index: 4;
+}
+
+body:not([device-type="desktop"]) .a11y_panel {
+    bottom: 3.3rem;
 }
 
 .a11y_panel_handle {

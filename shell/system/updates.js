@@ -64,6 +64,7 @@ export function getUpdates() {
 
     var publicKey;
     var indexData;
+    var indexMessage;
 
     return fetch("gshell://trust/liveg/public.pgp").then(function(response) {
         return response.text();
@@ -76,7 +77,11 @@ export function getUpdates() {
     }).then(function(response) {
         return response.text();
     }).then(function(data) {
-        data = indexData;
+        indexData = data;
+
+        return openpgp.createMessage({text: indexData});
+    }).then(function(message) {
+        indexMessage = message;
 
         return fetch("https://liveg.tech/os/updates/index.json.sig");
     }).then(function(response) {
@@ -87,7 +92,7 @@ export function getUpdates() {
         });
     }).then(function(signature) {
         return openpgp.verify({
-            message: indexData,
+            message: indexMessage,
             signature,
             verificationKeys: publicKey
         });
@@ -112,7 +117,6 @@ export function getUpdates() {
         privilegedInterface.setData("updates_indexSignedKeyHex", indexSignedKeyHex);
         privilegedInterface.setData("updates_bestUpdate", bestUpdate);
 
-
         return Promise.resolve(index);
     });
 }
@@ -133,6 +137,8 @@ export function load() {
         shouldAutoCheckForUpdates = !!data.shouldAutoCheckForUpdates;
 
         privilegedInterface.setData("updates_shouldAutoCheckForUpdates", shouldAutoCheckForUpdates);
+
+        return Promise.resolve();
     });
 }
 

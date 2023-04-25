@@ -22,6 +22,7 @@ export var shouldAutoCheckForUpdates = false;
 export var index = null;
 export var indexSignedKeyHex = null;
 export var bestUpdate = null;
+export var loadingIndex = false;
 
 export function findBestUpdate(updates = index.updates) {
     var bestUpdate = null;
@@ -65,6 +66,10 @@ export function getUpdates() {
     var publicKey;
     var indexData;
     var indexMessage;
+
+    loadingIndex = true;
+
+    privilegedInterface.setData("updates_loadingIndex", loadingIndex);
 
     return fetch("gshell://trust/liveg/public.pgp").then(function(response) {
         return response.text();
@@ -112,10 +117,12 @@ export function getUpdates() {
         }
 
         bestUpdate = findBestUpdate();
+        loadingIndex = false;
 
         privilegedInterface.setData("updates_index", index);
         privilegedInterface.setData("updates_indexSignedKeyHex", indexSignedKeyHex);
         privilegedInterface.setData("updates_bestUpdate", bestUpdate);
+        privilegedInterface.setData("updates_loadingIndex", loadingIndex);
 
         return Promise.resolve(index);
     });

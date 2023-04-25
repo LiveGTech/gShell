@@ -120,18 +120,21 @@
         "interaction": "Interaction et confidentialité",
         "interaction_summary": "Choisissez comment vous souhaitez interagir avec LiveG",
 
-        "interaction_checkForUpdates": "Vérifier automatiquement les mises à jour du système en arrière-plan",
+        "interaction_checkForUpdates": "Vérifier automatiquement les mises à jour système en arrière-plan",
         "interaction_checkForUpdates_description": "Votre appareil ne se mettra pas à jour automatiquement sans votre consentement, mais il est recommandé d'activer cette option afin d'être averti lorsqu'une nouvelle version ou mise à jour de sécurité de LiveG OS sort.",
 
         "interaction_researchTelemetry": "Télémétrie de recherche sur l'utilisation des appareils",
         "interaction_researchTelemetry_description1": "Lorsqu'elle est activée, des informations sur la façon dont vous utilisez votre appareil (telles que les applications que vous avez installées et les paramètres système que vous avez activés) seront envoyées à LiveG afin que des améliorations de LiveG OS puissent être apportées en fonction de votre propre utilisation.",
-        "interaction_researchTelemetry_description2": "Les résultats statistiques cumulés produits à partir des données collectées dans le cadre d'un large échantillon d'appareils peuvent être partagés publiquement dans un souci d'ouverture. Les objectifs de recherche peuvent changer entre les mises à jour du système, et vous pouvez choisir si vous souhaitez être informé de ces changements.",
+        "interaction_researchTelemetry_description2": "Les résultats statistiques cumulés produits à partir des données collectées dans le cadre d'un large échantillon d'appareils peuvent être partagés publiquement dans un souci d'ouverture. Les objectifs de recherche peuvent changer entre les mises à jour système, et vous pouvez choisir si vous souhaitez être informé de ces changements.",
         "interaction_researchTelemetry_enable": "Activer la télémétrie de recherche",
         "interaction_researchTelemetry_notifyChanges": "Soyez averti lorsque les objectifs de recherche changent",
 
         "interaction_privacyInfo": "Informations de confidentialité",
         "interaction_privacyInfo_description": "Les informations que LiveG collecte à partir de votre appareil sont utilisées pour aider LiveG à déterminer quelles améliorations de LiveG OS doivent être apportées ou priorisées. Lorsque ces options d'interaction sont activées, les données envoyées depuis votre appareil ne contiendront rien qui révélerait vos informations personnelles. Vous pouvez activer ou désactiver ces options à tout moment.",
         "interaction_privacyInfo_link": "En savoir plus sur votre confidentialité lorsque vous utilisez LiveG OS",
+
+        "updates": "Mises à jour système",
+        "updates_summary": "Installer des améliorations sur votre appareil",
 
         "about": "À propos de cet appareil",
         "about_summary": "Afficher les informations sur le système et le matériel",

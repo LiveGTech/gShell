@@ -135,6 +135,14 @@
 
         "updates": "System updates",
         "updates_summary": "Install updates that bring improvements to your device",
+        "updates_loading": "Loading update information...",
+        "updates_latest": "Latest update",
+        "updates_info_name": " LiveG OS",
+        "updates_info_version": " {version}",
+        "updates_updateNow": "Update now",
+        "updates_upToDate_title": "Your device is up to date",
+        "updates_upToDate_description": "The latest update for your device is already installed.",
+        "updates_upToDate_checkAgain": "Check again",
 
         "about": "About this device",
         "about_summary": "View OS and hardware information",

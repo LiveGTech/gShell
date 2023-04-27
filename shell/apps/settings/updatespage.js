@@ -49,8 +49,6 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
         page.clear();
 
-        // TODO: Translate into French
-
         switch (currentState) {
             case updateStates.LOADING_INDEX:
                 page.add(

@@ -27,6 +27,8 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         var data = _sphere.getPrivilegedData();
         var currentState = null;
 
+        // TODO: Add failure state (such as when there is no internet)
+
         if (data?.updates_loadingIndex) {
             currentState = updateStates.LOADING_INDEX;
         } else if (data?.updates_index) {
@@ -52,13 +54,15 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         switch (currentState) {
             case updateStates.LOADING_INDEX:
                 page.add(
-                    SkeletonLoader("Loading update information...") (
-                        Heading() (),
-                        Card (
-                            Heading(2) (),
-                            Paragraph() (),
-                            Paragraph() (),
-                            Paragraph() ()
+                    Section (
+                        SkeletonLoader("Loading update information...") (
+                            Heading() (),
+                            Card (
+                                Heading(2) (),
+                                Paragraph() (),
+                                Paragraph() (),
+                                Paragraph() ()
+                            )
                         )
                     )
                 );
@@ -99,6 +103,12 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 break;
 
             case updateStates.UP_TO_DATE:
+                var checkAgainButton = Button() (_("updates_upToDate_checkAgain"));
+
+                checkAgainButton.on("click", function() {
+                    _sphere.callPrivilegedCommand("updates_getUpdates");
+                });
+
                 page.add(
                     Section (
                         Message (
@@ -106,7 +116,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                             Heading() (_("updates_upToDate_title")),
                             Paragraph() (_("updates_upToDate_description")),
                             ButtonRow (
-                                Button() (_("updates_upToDate_checkAgain")) // TODO: Implement action
+                                checkAgainButton
                             )
                         )
                     )

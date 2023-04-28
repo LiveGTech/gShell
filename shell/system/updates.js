@@ -17,6 +17,12 @@ import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 const UPDATE_CHECK_FREQUENCY_MIN = 22 * 60 * 60 * 1_000; // 22 hours
 const UPDATE_CHECK_FREQUENCY_RANDOM = 2 * 60 * 60 * 1_000; // 2 hours
 
+const UPDATE_RETRIEVAL_OPTIONS = {
+    headers: {
+        "Cache-Control": "no-cache"
+    }
+};
+
 export var updateCircuit = null;
 export var shouldAutoCheckForUpdates = false;
 export var index = null;
@@ -78,7 +84,7 @@ export function getUpdates() {
     }).then(function(key) {
         publicKey = key;
 
-        return fetch("https://liveg.tech/os/updates/index.json");
+        return fetch("https://liveg.tech/os/updates/index.json", UPDATE_RETRIEVAL_OPTIONS);
     }).then(function(response) {
         return response.text();
     }).then(function(data) {
@@ -88,7 +94,7 @@ export function getUpdates() {
     }).then(function(message) {
         indexMessage = message;
 
-        return fetch("https://liveg.tech/os/updates/index.json.sig");
+        return fetch("https://liveg.tech/os/updates/index.json.sig", UPDATE_RETRIEVAL_OPTIONS);
     }).then(function(response) {
         return response.text();
     }).then(function(data) {

@@ -88,6 +88,13 @@
                 },
                 {
                     "name": {
+                        "en_GB": "System updates",
+                        "fr_FR": "Mises à jour système"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=updates"
+                },
+                {
+                    "name": {
                         "en_GB": "About this device",
                         "fr_FR": "À propos de cet appareil"
                     },

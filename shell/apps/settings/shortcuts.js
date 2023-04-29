@@ -77,6 +77,10 @@ export function run(name = getName()) {
             settings.switchToPage("interaction");
             break;
 
+        case "updates":
+            settings.switchToPage("updates");
+            break;
+
         case "about":
         case "about_deviceInfo":
             settings.switchToPage("about");

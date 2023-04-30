@@ -10,8 +10,6 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
-import * as shortcuts from "./shortcuts.js";
-
 export var UpdatesPage = astronaut.component("UpdatesPage", function(props, children) {
     const updateStates = {
         LOADING_INDEX: 0,

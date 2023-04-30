@@ -76,8 +76,6 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
         if (data.role && VALID_ARIA_ROLES.includes(data.role)) {
             addSeparator();
 
-            // TODO: Translate to French
-
             announcementElement.add(
                 $g.create("strong").setText(_(`a11y_readout_role_${data.role}`))
             );

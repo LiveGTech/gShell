@@ -70,6 +70,10 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             case updateStates.UPDATE_AVAILABLE:
                 var update = data?.updates_bestUpdate;
 
+                // TODO: Determine update size
+                // This can be done by calling `apt-cache show --no-all-versions` for each package to determine download size for packages
+                // This will be in addition to size of update archive to download
+
                 page.add(
                     Section (
                         Heading() (_("updates_latest")),

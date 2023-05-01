@@ -23,6 +23,31 @@ const UPDATE_RETRIEVAL_OPTIONS = {
     }
 };
 
+const DUMMY_APT_CACHE_DEPENDS_STDOUT = `\
+package-a
+  Depends: package-b
+  Depends: package-c
+package-b
+package-b:i386
+package-c
+  package-d
+<package-e>
+<package-e:i386>
+`;
+
+const DUMMY_APT_CACHE_SHOW_STDOUT = `\
+Package: package-a
+Architecture: amd64
+Version: 1.0.0
+Installed-Size: 123
+Depends: package-b (= 2.0.0), package-c (>= 3.0.0)
+Filename: pool/example/package-a_1.0.0-amd64.deb
+Size: 456789
+Description: A dummy package
+ This is a dummy package used for testing purposes only on
+ non-real hardware.
+`;
+
 export var updateCircuit = null;
 export var shouldAutoCheckForUpdates = false;
 export var index = null;
@@ -30,7 +55,42 @@ export var indexSignedKeyHex = null;
 export var bestUpdate = null;
 export var loadingIndex = false;
 
+var flags = {};
+
 // TODO: Refer to https://stackoverflow.com/questions/22008193/how-to-list-download-the-recursive-dependencies-of-a-debian-package for offline package installation
+
+export function getPackagesToDownload(packagesToInstall) {
+    var packages;
+
+    return Promise.all(packagesToInstall.map((name) => gShell.call("system_executeCommand", {
+        command: "apt-cache",
+        args: ["depends", "--recurse", "--no-suggests", "--no-conflicts", "--no-breaks", "--no-replaces", "--no-enhances", name]
+    }))).then(function(outputs) {
+        var names = [];
+
+        outputs.forEach(function(output) {
+            var stdout = flags.isRealHardware ? output.stdout : DUMMY_APT_CACHE_DEPENDS_STDOUT;
+
+            names.push(...[...stdout.matchAll(/^[a-z0-9+-.]+$/gm)].map((match) => match[0]));
+        });
+
+        packages = [...new Set(names)].map((name) => ({name}));
+
+        return Promise.all(names.map((name) => gShell.call("system_executeCommand", {
+            command: "apt-cache",
+            args: ["show", "--no-all-versions", name]
+        })));
+    }).then(function(outputs) {
+        outputs.forEach(function(output, i) {
+            var stdout = flags.isRealHardware ? output.stdout : DUMMY_APT_CACHE_SHOW_STDOUT;
+
+            packages[i].downloadSize = Number(stdout.match(/^Size: (\d+)$/m)[1]);
+            packages[i].installedSize = Number(stdout.match(/^Installed-Size: (\d+)$/m)[1]) * 1_024;
+        });
+
+        return packages;
+    });
+}
 
 export function findBestUpdate(updates = index.updates) {
     var bestUpdate = null;
@@ -172,9 +232,13 @@ export function setShouldAutoCheckForUpdates(value) {
 }
 
 export function init() {
-    startUpdateCheckTimer();
+    gShell.call("system_getFlags").then(function(result) {
+        flags = result;
 
-    if (shouldAutoCheckForUpdates) {
-        getUpdates();
-    }
+        startUpdateCheckTimer();
+
+        if (shouldAutoCheckForUpdates) {
+            getUpdates();
+        }
+    });
 }

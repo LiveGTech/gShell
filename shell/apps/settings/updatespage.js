@@ -92,6 +92,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                                 headerLevelStart: 3,
                                 openLinksInNewWindow: true
                             }).makeHtml(new showdown.Converter().makeHtml(update.description[$g.l10n.getSystemLocaleCode()] || update.description[update.fallbackLocale] || ""))),
+                            Separator() (),
                             Paragraph() (_("updates_info_estimatedDownloadSize", {size: sizeUnits.getString(update.estimatedDownloadSize, _)})),
                             ButtonRow (
                                 Button() (_("updates_updateNow")) // TODO: Implement action

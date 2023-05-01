@@ -14,6 +14,8 @@ import * as device from "gshell://system/device.js";
 import * as config from "gshell://config/config.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 
+export const UPDATE_SOURCE_URL_BASE = "https://liveg.tech/os/updates";
+
 const UPDATE_CHECK_FREQUENCY_MIN = 22 * 60 * 60 * 1_000; // 22 hours
 const UPDATE_CHECK_FREQUENCY_RANDOM = 2 * 60 * 60 * 1_000; // 2 hours
 
@@ -59,6 +61,25 @@ var flags = {};
 
 // TODO: Refer to https://stackoverflow.com/questions/22008193/how-to-list-download-the-recursive-dependencies-of-a-debian-package for offline package installation
 
+function filterConditions(update, items) {
+    return items.filter(function(item) {
+        if (!item.condition) {
+            return true;
+        }
+
+        var vars = {
+            platform: device.data?.platform,
+            modelCodename: device.data?.model?.codename,
+            vernum: update.vernum,
+            version: update.version,
+            oldVernum: about.VERNUM,
+            oldVersion: about.VERSION
+        };
+
+        return (new Function(...Object.keys(vars), `return ${item.condition};`))(...Object.values(vars));
+    });
+}
+
 export function getPackagesToDownload(packagesToInstall) {
     var packages;
 
@@ -89,6 +110,29 @@ export function getPackagesToDownload(packagesToInstall) {
         });
 
         return packages;
+    });
+}
+
+export function getPackagesToDownloadForUpdate(update) {
+    return getPackagesToDownload(filterConditions(update, update.packages)
+        .map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`)
+    );
+}
+
+export function getEstimatedUpdateDownloadSize(update) {
+    var archiveSize;
+
+    return fetch(new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`)).then(function(response) {
+        archiveSize = Number(response.headers.get("Content-Length"));
+
+        return getPackagesToDownloadForUpdate(update);
+    }).then(function(packages) {
+        archiveSize += packages
+            .map((updatePackage) => updatePackage.downloadSize)
+            .reduce((accumulator, value) => accumulator + value, 0)
+        ;
+
+        return Promise.resolve(archiveSize);
     });
 }
 
@@ -146,7 +190,7 @@ export function getUpdates() {
     }).then(function(key) {
         publicKey = key;
 
-        return fetch("https://liveg.tech/os/updates/index.json", UPDATE_RETRIEVAL_OPTIONS);
+        return fetch(`${UPDATE_SOURCE_URL_BASE}/index.json`, UPDATE_RETRIEVAL_OPTIONS);
     }).then(function(response) {
         return response.text();
     }).then(function(data) {
@@ -156,7 +200,7 @@ export function getUpdates() {
     }).then(function(message) {
         indexMessage = message;
 
-        return fetch("https://liveg.tech/os/updates/index.json.sig", UPDATE_RETRIEVAL_OPTIONS);
+        return fetch(`${UPDATE_SOURCE_URL_BASE}/index.json.sig`, UPDATE_RETRIEVAL_OPTIONS);
     }).then(function(response) {
         return response.text();
     }).then(function(data) {
@@ -186,6 +230,12 @@ export function getUpdates() {
 
         bestUpdate = findBestUpdate();
         loadingIndex = false;
+
+        return getEstimatedUpdateDownloadSize(bestUpdate);
+    }).then(function(size) {
+        bestUpdate.estimatedDownloadSize = size;
+
+        console.log("Best update found:", bestUpdate);
 
         privilegedInterface.setData("updates_index", index);
         privilegedInterface.setData("updates_indexSignedKeyHex", indexSignedKeyHex);

@@ -8,6 +8,7 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 export var UpdatesPage = astronaut.component("UpdatesPage", function(props, children) {
@@ -70,10 +71,6 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             case updateStates.UPDATE_AVAILABLE:
                 var update = data?.updates_bestUpdate;
 
-                // TODO: Determine update size
-                // This can be done by calling `apt-cache show --no-all-versions` for each package to determine download size for packages
-                // This will be in addition to size of update archive to download
-
                 page.add(
                     Section (
                         Heading() (_("updates_latest")),
@@ -95,6 +92,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                                 headerLevelStart: 3,
                                 openLinksInNewWindow: true
                             }).makeHtml(new showdown.Converter().makeHtml(update.description[$g.l10n.getSystemLocaleCode()] || update.description[update.fallbackLocale] || ""))),
+                            Paragraph() (_("updates_info_estimatedDownloadSize", {size: sizeUnits.getString(update.estimatedDownloadSize, _)})),
                             ButtonRow (
                                 Button() (_("updates_updateNow")) // TODO: Implement action
                             )

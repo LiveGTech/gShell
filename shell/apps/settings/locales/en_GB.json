@@ -18,6 +18,19 @@
         "none": "(None)",
         "optional": "(Optional)",
 
+        "size_bytes": {
+            "{size} == 1": "{size} byte",
+            "{size} != 1": "{size} bytes"
+        },
+        "size_kb": "{size} KB",
+        "size_mb": "{size} MB",
+        "size_gb": "{size} GB",
+        "size_tb": "{size} TB",
+        "size_kib": "{size} KiB",
+        "size_mib": "{size} MiB",
+        "size_gib": "{size} GiB",
+        "size_tib": "{size} TiB",
+
         "network": "Network",
 
         "network_summary": "Wi-Fi, Ethernet",
@@ -139,6 +152,7 @@
         "updates_latest": "Latest update",
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",
+        "updates_info_estimatedDownloadSize": "Download size (estimated): {size}",
         "updates_updateNow": "Update now",
         "updates_upToDate_title": "Your device is up to date",
         "updates_upToDate_description": "The latest update for your device is already installed.",

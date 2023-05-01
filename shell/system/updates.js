@@ -260,6 +260,8 @@ export function startUpdateCheckTimer() {
 
 export function load() {
     return config.read("updates.gsc").then(function(data) {
+        // TODO: Allow advanced users to change update circuit
+
         updateCircuit = data.updateCircuit || "alpha"; // TODO: Change when we make our first Beta or Main releases
         shouldAutoCheckForUpdates = !!data.shouldAutoCheckForUpdates;
 

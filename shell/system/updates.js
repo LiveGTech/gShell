@@ -30,6 +30,8 @@ export var indexSignedKeyHex = null;
 export var bestUpdate = null;
 export var loadingIndex = false;
 
+// TODO: Refer to https://stackoverflow.com/questions/22008193/how-to-list-download-the-recursive-dependencies-of-a-debian-package for offline package installation
+
 export function findBestUpdate(updates = index.updates) {
     var bestUpdate = null;
 

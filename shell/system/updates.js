@@ -231,9 +231,11 @@ export function getUpdates() {
         bestUpdate = findBestUpdate();
         loadingIndex = false;
 
-        return getEstimatedUpdateDownloadSize(bestUpdate);
+        return bestUpdate != null ? getEstimatedUpdateDownloadSize(bestUpdate) : Promise.resolve(null);
     }).then(function(size) {
-        bestUpdate.estimatedDownloadSize = size;
+        if (bestUpdate != null) {
+            bestUpdate.estimatedDownloadSize = size;
+        }
 
         console.log("Best update found:", bestUpdate);
 

@@ -157,6 +157,10 @@
         "updates_upToDate_title": "Your device is up to date",
         "updates_upToDate_description": "The latest update for your device is already installed.",
         "updates_upToDate_checkAgain": "Check again",
+        "updates_failed_title": "Couldn't check for updates",
+        "updates_failed_description": "Check your connection to the internet and try again.",
+        "updates_offline_title": "You're offline",
+        "updates_offline_description": "To check for updates, connect to the internet.",
 
         "about": "About this device",
         "about_summary": "View OS and hardware information",

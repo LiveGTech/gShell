@@ -56,6 +56,7 @@ export var index = null;
 export var indexSignedKeyHex = null;
 export var bestUpdate = null;
 export var loadingIndex = false;
+export var checkingFailed = false;
 
 var flags = {};
 
@@ -180,8 +181,12 @@ export function getUpdates() {
     var indexMessage;
 
     loadingIndex = true;
+    checkingFailed = false;
 
     privilegedInterface.setData("updates_loadingIndex", loadingIndex);
+    privilegedInterface.setData("updates_checkingFailed", checkingFailed);
+
+    console.log("ping");
 
     return fetch("gshell://trust/liveg/public.pgp").then(function(response) {
         return response.text();
@@ -245,6 +250,14 @@ export function getUpdates() {
         privilegedInterface.setData("updates_loadingIndex", loadingIndex);
 
         return Promise.resolve(index);
+    }).catch(function(error) {
+        loadingIndex = false;
+        checkingFailed = true;
+
+        privilegedInterface.setData("updates_checkingFailed", checkingFailed);
+        privilegedInterface.setData("updates_loadingIndex", loadingIndex);
+
+        return Promise.reject(error);
     });
 }
 

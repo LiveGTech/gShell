@@ -15,7 +15,9 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     const updateStates = {
         LOADING_INDEX: 0,
         UPDATE_AVAILABLE: 1,
-        UP_TO_DATE: 2
+        UP_TO_DATE: 2,
+        FAILED: 3,
+        OFFLINE: 4
     };
 
     var page = Page() ();
@@ -28,7 +30,15 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
         // TODO: Add failure state (such as when there is no internet)
 
-        if (data?.updates_loadingIndex) {
+        console.log(data);
+
+        if (data?.updates_checkingFailed) {
+            if (!navigator.onLine) {
+                currentState = updateStates.OFFLINE;
+            } else {
+                currentState = updateStates.FAILED;
+            }
+        } else if (data?.updates_loadingIndex) {
             currentState = updateStates.LOADING_INDEX;
         } else if (data?.updates_index) {
             if (data?.updates_bestUpdate) {
@@ -104,18 +114,34 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 break;
 
             case updateStates.UP_TO_DATE:
+            case updateStates.FAILED:
+            case updateStates.OFFLINE:
                 var checkAgainButton = Button() (_("updates_upToDate_checkAgain"));
 
                 checkAgainButton.on("click", function() {
                     _sphere.callPrivilegedCommand("updates_getUpdates");
                 });
 
+                // TODO: Translate failed and offline error messages
+
                 page.add(
                     Section (
                         Message (
-                            Icon("checkmark", "dark embedded") (),
-                            Heading() (_("updates_upToDate_title")),
-                            Paragraph() (_("updates_upToDate_description")),
+                            Icon({
+                                [updateStates.UP_TO_DATE]: "checkmark",
+                                [updateStates.FAILED]: "error",
+                                [updateStates.OFFLINE]: "offline"
+                            }[currentState], "dark embedded") (),
+                            Heading() ({
+                                [updateStates.UP_TO_DATE]: _("updates_upToDate_title"),
+                                [updateStates.FAILED]: _("updates_failed_title"),
+                                [updateStates.OFFLINE]: _("updates_offline_title")
+                            }[currentState]),
+                            Paragraph() ({
+                                [updateStates.UP_TO_DATE]: _("updates_upToDate_description"),
+                                [updateStates.FAILED]: _("updates_failed_description"),
+                                [updateStates.OFFLINE]: _("updates_offline_description")
+                            }[currentState]),
                             ButtonRow (
                                 checkAgainButton
                             )

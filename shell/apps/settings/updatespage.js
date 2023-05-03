@@ -116,13 +116,11 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             case updateStates.UP_TO_DATE:
             case updateStates.FAILED:
             case updateStates.OFFLINE:
-                var checkAgainButton = Button() (_("updates_upToDate_checkAgain"));
+                var checkAgainButton = Button() (_("updates_checkAgain"));
 
                 checkAgainButton.on("click", function() {
                     _sphere.callPrivilegedCommand("updates_getUpdates");
                 });
-
-                // TODO: Translate failed and offline error messages
 
                 page.add(
                     Section (

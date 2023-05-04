@@ -28,10 +28,6 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         var data = _sphere.getPrivilegedData();
         var currentState = null;
 
-        // TODO: Add failure state (such as when there is no internet)
-
-        console.log(data);
-
         if (data?.updates_checkingFailed) {
             if (!navigator.onLine) {
                 currentState = updateStates.OFFLINE;

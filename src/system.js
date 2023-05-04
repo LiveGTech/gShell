@@ -21,10 +21,11 @@ var mediaFeatures = {};
 var currentUserAgent = null;
 var currentLocale = null;
 var copyRsyncProcesses = [];
+var aptInstallationProcesses = [];
 
-exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
+exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}) {
     return new Promise(function(resolve, reject) {
-        var child = child_process.execFile(command, args, {maxBuffer: 8 * (1_024 ** 2)}, function(error, stdout, stderr) {
+        var child = child_process.execFile(command, args, {maxBuffer: 8 * (1_024 ** 2), ...options}, function(error, stdout, stderr) {
             if (error) {
                 console.error("error:", error);
                 console.error("stderr:", stderr);
@@ -53,7 +54,7 @@ exports.executeCommand = function(command, args = [], stdin = null, stdoutCallba
     });
 };
 
-exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
+exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}) {
     if (!flags.isRealHardware) {
         console.log(`Execute command: ${command} ${args.join(" ")}; stdin: ${stdin}`);
 
@@ -463,6 +464,58 @@ exports.networkConnectWifi = function(name) {
 
         return Promise.resolve("connected");
     });
+};
+
+exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
+    var args = ["apt-get", "install", "-o", "APT::Status-Fd=1"];
+
+    if (downloadOnly) {
+        args.push("--download-only");
+    }
+
+    args.push(...packageNames);
+
+    var id = aptInstallationProcesses.length;
+
+    aptInstallationProcesses.push({
+        status: "running",
+        stdout: "",
+        progress: null
+    });
+
+    function stdoutCallback(data) {
+        aptInstallationProcesses[id].stdout += data;
+
+        var lines = aptInstallationProcesses[id].stdout.split("\n");
+
+        aptInstallationProcesses[id].stdout = lines.slice(lines.length - 2).join("\n");
+
+        var match = lines.slice(lines.length - 2)[0]?.match(/^(?:dlstatus|pmstatus):(\d+\.\d+)/);
+
+        if (!match) {
+            return;
+        }
+
+        aptInstallationProcesses[id].progress = parseFloat(match[1]);
+    }
+
+    exports.executeCommand("sudo", args, null, stdoutCallback).then(function(output) {
+        aptInstallationProcesses[id].status = "success";
+    }).catch(function(error) {
+        console.error(error);
+
+        aptInstallationProcesses[id].status = "error";
+    });
+
+    return Promise.resolve(id);
+};
+
+exports.getAptInstallationInfo = function(id) {
+    if (id >= aptInstallationProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(aptInstallationProcesses[id]);
 };
 
 exports.devRestart = function() {

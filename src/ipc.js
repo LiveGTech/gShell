@@ -31,7 +31,7 @@ ipcMain.handle("system_getDevice", function(event, data) {
 });
 
 ipcMain.handle("system_executeCommand", function(event, data) {
-    return system.executeOrLogCommand(data.command, data.args, data.stdin);
+    return system.executeOrLogCommand(data.command, data.args, data.stdin, null, data.options);
 });
 
 ipcMain.handle("system_isInstallationMedia", function(event, data) {
@@ -44,6 +44,14 @@ ipcMain.handle("system_copyFiles", function(event, data) {
 
 ipcMain.handle("system_getCopyFileInfo", function(event, data) {
     return system.getCopyFileInfo(data.id);
+});
+
+ipcMain.handle("system_aptInstallPackages", function(event, data) {
+    return system.aptInstallPackages(data.packageNames, data.downloadOnly);
+});
+
+ipcMain.handle("system_getAptInstallationInfo", function(event, data) {
+    return system.getAptInstallationInfo(data.id);
 });
 
 ipcMain.handle("storage_read", function(event, data) {

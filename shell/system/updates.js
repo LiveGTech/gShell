@@ -60,8 +60,6 @@ export var checkingFailed = false;
 
 var flags = {};
 
-// TODO: Refer to https://stackoverflow.com/questions/22008193/how-to-list-download-the-recursive-dependencies-of-a-debian-package for offline package installation
-
 function filterConditions(update, items) {
     return items.filter(function(item) {
         if (!item.condition) {
@@ -79,6 +77,14 @@ function filterConditions(update, items) {
 
         return (new Function(...Object.keys(vars), `return ${item.condition};`))(...Object.values(vars));
     });
+}
+
+function makeError(code) {
+    return function(error) {
+        console.error(error);
+
+        return Promise.reject(code);
+    }
 }
 
 export function getPackagesToDownload(packagesToInstall) {
@@ -258,6 +264,86 @@ export function getUpdates() {
         privilegedInterface.setData("updates_loadingIndex", loadingIndex);
 
         return Promise.reject(error);
+    });
+}
+
+export function startUpdate(update) {
+    var packageNames = filterConditions(update, update.packages).map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`);
+
+    // TODO: Download update file before commencing package downloading
+
+    return gShell.call("system_executeCommand", {
+        command: "sudo",
+        args: ["apt-get", "update"]
+    }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(function() {
+        return gShell.call("system_aptInstallPackages", {
+            packageNames,
+            downloadOnly: true
+        });
+    }).then(function(id) {
+        return new Promise(function(resolve, reject) {
+            (function poll() {
+                gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
+                    // TODO: Report progress in Settings app
+
+                    switch (info.status) {
+                        case "running":
+                            setTimeout(poll);
+                            break;
+
+                        case "success":
+                            resolve();
+                            break;
+
+                        case "error":
+                            reject("GOS_UPDATE_FAIL_PKG_DL");
+                            break;
+
+                        default:
+                            reject("GOS_UPDATE_IMPL_BAD_PKG_DL_STATUS");
+                            break;
+                    }
+                });
+            })();
+        });
+    }).then(function() {
+        // Point of no return: cannot cancel update from this point onwards
+
+        // TODO: Run pre-install script
+
+        return gShell.call("system_aptInstallPackages", {
+            packageNames
+        });
+    }).then(function(id) {
+        return new Promise(function(resolve, reject) {
+            (function poll() {
+                gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
+                    // TODO: Report progress in Settings app
+
+                    switch (info.status) {
+                        case "running":
+                            setTimeout(poll);
+                            break;
+
+                        case "success":
+                            resolve();
+                            break;
+
+                        case "error":
+                            reject("GOS_UPDATE_FAIL_PKG_INSTALL");
+                            break;
+
+                        default:
+                            reject("GOS_UPDATE_IMPL_BAD_PKG_INSTALL_STATUS");
+                            break;
+                    }
+                });
+            })();
+        });
+    }).then(function() {
+        // TODO: Run post-install script and copy gShell AppImage to staged location before rebooting
+
+        return Promise.resolve();
     });
 }
 

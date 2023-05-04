@@ -107,6 +107,8 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                     )
                 );
 
+                // TODO: Add checkbox option to restart device after updating for unattended updates
+
                 break;
 
             case updateStates.UP_TO_DATE:

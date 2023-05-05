@@ -57,6 +57,7 @@ export var indexSignedKeyHex = null;
 export var bestUpdate = null;
 export var loadingIndex = false;
 export var checkingFailed = false;
+export var updateInProgress = false;
 
 var flags = {};
 
@@ -267,15 +268,28 @@ export function getUpdates() {
     });
 }
 
+function setUpdateProgress(status, progress = null) {
+    privilegedInterface.setData("updates_updateStatus", status);
+    privilegedInterface.setData("updates_updateProgress", progress);
+}
+
 export function startUpdate(update) {
     var packageNames = filterConditions(update, update.packages).map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`);
 
+    updateInProgress = true;
+
+    privilegedInterface.setData("updates_updateInProgress", updateInProgress);
+
     // TODO: Download update file before commencing package downloading
+
+    setUpdateProgress("updatingPackageList");
 
     return gShell.call("system_executeCommand", {
         command: "sudo",
         args: ["apt-get", "update"]
     }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(function() {
+        setUpdateProgress("downloadingPackages", 0);
+
         return gShell.call("system_aptInstallPackages", {
             packageNames,
             downloadOnly: true
@@ -284,7 +298,7 @@ export function startUpdate(update) {
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    // TODO: Report progress in Settings app
+                    setUpdateProgress("downloadingPackages", info.progress);
 
                     switch (info.status) {
                         case "running":
@@ -311,14 +325,14 @@ export function startUpdate(update) {
 
         // TODO: Run pre-install script
 
-        return gShell.call("system_aptInstallPackages", {
-            packageNames
-        });
+        setUpdateProgress("installingPackages", 0);
+
+        return gShell.call("system_aptInstallPackages", {packageNames});
     }).then(function(id) {
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    // TODO: Report progress in Settings app
+                    setUpdateProgress("installingPackages", info.progress);
 
                     switch (info.status) {
                         case "running":
@@ -343,7 +357,15 @@ export function startUpdate(update) {
     }).then(function() {
         // TODO: Run post-install script and copy gShell AppImage to staged location before rebooting
 
+        setUpdateProgress("readyToRestart");
+
         return Promise.resolve();
+    }).catch(function(error) {
+        updateInProgress = false;
+
+        privilegedInterface.setData("updates_updateInProgress", updateInProgress);
+
+        return Promise.reject(error);
     });
 }
 
@@ -387,6 +409,8 @@ export function setShouldAutoCheckForUpdates(value) {
 export function init() {
     gShell.call("system_getFlags").then(function(result) {
         flags = result;
+
+        setUpdateProgress("notStarted");
 
         startUpdateCheckTimer();
 

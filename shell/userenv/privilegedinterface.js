@@ -34,6 +34,7 @@ export var commands = {
     personalisation_setOption: (data) => personalisation.setOption(data.name, data.value, data.global),
     a11y_setOption: (data) => a11y.setOption(data.name, data.value),
     updates_getUpdates: updates.getUpdates,
+    updates_startUpdate: (data) => updates.startUpdate(data.update),
     updates_setShouldAutoCheckForUpdates: (data) => updates.setShouldAutoCheckForUpdates(data.value),
     interaction_setOption: (data) => interaction.setOption(data.name, data.value)
 };

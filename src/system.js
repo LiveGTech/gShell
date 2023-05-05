@@ -496,7 +496,7 @@ exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
             return;
         }
 
-        aptInstallationProcesses[id].progress = parseFloat(match[1]);
+        aptInstallationProcesses[id].progress = parseFloat(match[1]) / 100;
     }
 
     exports.executeCommand("sudo", args, null, stdoutCallback).then(function(output) {

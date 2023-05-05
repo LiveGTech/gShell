@@ -21,12 +21,47 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     };
 
     var page = Page() ();
+    var readyToUpdateContainer = Container() ();
+    var updateProgressIndicator = ProgressIndicator({mode: "secondary"}) ();
+    var updateStatusMessage = Paragraph() ();
+    var updateCancelButton = Button() (_("cancel")); // TODO: Add action
+
+    var updateInProgressContainer = Container() (
+        updateProgressIndicator,
+        updateStatusMessage,
+        ButtonRow (
+            updateCancelButton
+        )
+    );
+
+    updateInProgressContainer.hide();
 
     var lastState = null;
 
     function updateData() {
         var data = _sphere.getPrivilegedData();
         var currentState = null;
+
+        if (!data?.updates_canCancelUpdate) {
+            updateCancelButton.setAttribute("disabled", true);
+        } else {
+            updateCancelButton.removeAttribute("disabled");
+        }
+
+        if (data?.updates_updateInProgress) {
+            readyToUpdateContainer.hide();
+            updateInProgressContainer.show();
+
+            updateStatusMessage.setText(data?.updates_updateStatus); // TODO: Set text of status message using localised strings
+
+            if (data?.updates_updateProgress != null) {
+                updateProgressIndicator.setValue(data?.updates_updateProgress);
+            } else {
+                updateProgressIndicator.removeAttribute("value");
+            }
+
+            return;
+        }
 
         if (data?.updates_checkingFailed) {
             if (!navigator.onLine) {
@@ -77,6 +112,22 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             case updateStates.UPDATE_AVAILABLE:
                 var update = data?.updates_bestUpdate;
 
+                var updateNowButton = Button() (_("updates_updateNow"));
+
+                updateNowButton.on("click", function() {
+                    _sphere.callPrivilegedCommand("updates_startUpdate", {update});
+
+                    updateNowButton.setAttribute("disabled", true);
+                });
+
+                readyToUpdateContainer.clear().add(
+                    Separator() (),
+                    Paragraph() (_("updates_info_estimatedDownloadSize", {size: sizeUnits.getString(update.estimatedDownloadSize, _)})),
+                    ButtonRow (
+                        updateNowButton
+                    )
+                );
+
                 page.add(
                     Section (
                         Heading() (_("updates_latest")),
@@ -98,11 +149,8 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                                 headerLevelStart: 3,
                                 openLinksInNewWindow: true
                             }).makeHtml(new showdown.Converter().makeHtml(update.description[$g.l10n.getSystemLocaleCode()] || update.description[update.fallbackLocale] || ""))),
-                            Separator() (),
-                            Paragraph() (_("updates_info_estimatedDownloadSize", {size: sizeUnits.getString(update.estimatedDownloadSize, _)})),
-                            ButtonRow (
-                                Button() (_("updates_updateNow")) // TODO: Implement action
-                            )
+                            readyToUpdateContainer,
+                            updateInProgressContainer
                         )
                     )
                 );

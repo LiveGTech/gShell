@@ -58,6 +58,7 @@ export var bestUpdate = null;
 export var loadingIndex = false;
 export var checkingFailed = false;
 export var updateInProgress = false;
+export var canCancelUpdate = true;
 
 var flags = {};
 
@@ -86,6 +87,21 @@ function makeError(code) {
 
         return Promise.reject(code);
     }
+}
+
+// Dummy delay which is used for testing UI flow on non-real hardware only
+function dummyDelay() {
+    if (flags.isRealHardware) {
+        return Promise.resolve();
+    }
+
+    return new Promise(function(resolve, reject) {
+        console.log("Dummy delay enforced");
+
+        setTimeout(function() {
+            resolve();
+        }, 3_000);
+    });
 }
 
 export function getPackagesToDownload(packagesToInstall) {
@@ -193,8 +209,6 @@ export function getUpdates() {
     privilegedInterface.setData("updates_loadingIndex", loadingIndex);
     privilegedInterface.setData("updates_checkingFailed", checkingFailed);
 
-    console.log("ping");
-
     return fetch("gshell://trust/liveg/public.pgp").then(function(response) {
         return response.text();
     }).then(function(data) {
@@ -274,11 +288,17 @@ function setUpdateProgress(status, progress = null) {
 }
 
 export function startUpdate(update) {
+    if (updateInProgress) {
+        return makeError("GOS_UPDATE_ALREADY_IN_PROGRESS");
+    }
+
     var packageNames = filterConditions(update, update.packages).map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`);
 
     updateInProgress = true;
+    canCancelUpdate = true;
 
     privilegedInterface.setData("updates_updateInProgress", updateInProgress);
+    privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
     // TODO: Download update file before commencing package downloading
 
@@ -287,14 +307,18 @@ export function startUpdate(update) {
     return gShell.call("system_executeCommand", {
         command: "sudo",
         args: ["apt-get", "update"]
-    }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(function() {
+    }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay).then(function() {
         setUpdateProgress("downloadingPackages", 0);
 
         return gShell.call("system_aptInstallPackages", {
             packageNames,
             downloadOnly: true
-        });
+        }).then(dummyDelay);
     }).then(function(id) {
+        if (!flags.isRealHardware) {
+            return dummyDelay();
+        }
+
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
@@ -323,12 +347,20 @@ export function startUpdate(update) {
     }).then(function() {
         // Point of no return: cannot cancel update from this point onwards
 
+        canCancelUpdate = false;
+
+        privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
+
         // TODO: Run pre-install script
 
         setUpdateProgress("installingPackages", 0);
 
-        return gShell.call("system_aptInstallPackages", {packageNames});
+        return gShell.call("system_aptInstallPackages", {packageNames}).then(dummyDelay);
     }).then(function(id) {
+        if (!flags.isRealHardware) {
+            return dummyDelay();
+        }
+
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
@@ -362,8 +394,10 @@ export function startUpdate(update) {
         return Promise.resolve();
     }).catch(function(error) {
         updateInProgress = false;
+        canCancelUpdate = true;
 
         privilegedInterface.setData("updates_updateInProgress", updateInProgress);
+        privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
         return Promise.reject(error);
     });

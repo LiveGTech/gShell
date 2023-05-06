@@ -451,6 +451,7 @@ export class InputMethod {
         this._wordSearch = null;
 
         this.dictionariesIndexed = false;
+        this.nGramsFoundOnly = true;
     }
 
     serialiseForOptionSelection() {
@@ -567,8 +568,17 @@ export class InputMethod {
 
         var wordResultsMaxScore = wordResults.sort((a, b) => b.score - a.score)[0]?.score || 1;
 
+        this.nGramsFoundOnly = true;
+
         wordResults.forEach(function(result) {
             result = {...result};
+
+            if (showingMode == inputModes.IME_ONLY && result.result.match(/^[0-9]+/)) {
+                // Prevent candidates who start with digits from being entered when numbers are being entered
+                return;
+            }
+
+            thisScope.nGramsFoundOnly = false;
 
             result.score = result.weighting * (result.score / wordResultsMaxScore);
             result.source = candidateResultSources.WORD;
@@ -643,6 +653,8 @@ export class InputMethod {
         inputEntryWordLength = 0;
         inputTrailingText = this.wordSeparator;
 
+        inputEntryBuffer.push(this.wordSeparator);
+
         updateInputMethodEditor();
     }
 }
@@ -685,6 +697,12 @@ export function updateInputMethodEditor() {
                 )
         );
 
+        if (currentKeyboardLayout.currentInputMethod.nGramsFoundOnly) {
+            $g.sel(".input").addClass("nGramsFoundOnly");
+        } else {
+            $g.sel(".input").removeClass("nGramsFoundOnly");
+        }
+
         return Promise.resolve();
     });
 }
@@ -715,7 +733,8 @@ function keydownCallback(event) {
         if (
             event.keyCode >= 48 &&
             event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10) &&
-            !event.shiftKey
+            !event.shiftKey &&
+            !currentKeyboardLayout?.currentInputMethod?.nGramsFoundOnly
         ) {
             selectInputMethodEditorCandiate(event.keyCode - 48 - 1, 1);
 
@@ -725,7 +744,8 @@ function keydownCallback(event) {
         if (
             event.key == " " &&
             currentKeyboardLayout?.currentInputMethod?.wordSeparator != " " &&
-            !event.shiftKey
+            !event.shiftKey &&
+            !currentKeyboardLayout?.currentInputMethod?.nGramsFoundOnly
         ) {
             selectInputMethodEditorCandiate(0, 1);
 

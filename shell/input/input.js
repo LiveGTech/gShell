@@ -562,7 +562,20 @@ export class InputMethod {
     getCandidates(nGramLength = this.nGramLength) {
         var thisScope = this;
 
-        var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
+        var nGramResults = [];
+
+        for (var i = 2; i <= nGramLength; i++) {
+            var nGram = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, i).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
+
+            nGram.forEach(function(result) {
+                result = {...result};
+
+                result.weighting *= i / nGramLength;
+
+                nGramResults.push(result);
+            });
+        }
+
         var wordResults = this.wordSearch.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH), {prefix: true, fuzzy: 0.2});
         var allCandidates = [];
 
@@ -668,6 +681,17 @@ export function updateInputMethodEditor() {
 
     return currentKeyboardLayout.currentInputMethod.getAllCandidates().then(function(candidates) {
         var maxCandidates = currentKeyboardLayout.currentInputMethod.maxCandidates;
+        var addedCandidates = [];
+
+        candidates = candidates.filter(function(candidate) {
+            if (addedCandidates.includes(candidate.result)) {
+                return false;
+            }
+
+            addedCandidates.push(candidate.result);
+
+            return true;
+        });
 
         candidates = candidates.slice(0, maxCandidates);
 

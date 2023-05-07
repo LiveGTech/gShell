@@ -752,8 +752,6 @@ function keydownCallback(event) {
     }
 
     if (showing && showingMode == inputModes.IME_ONLY && !event.ctrlKey && !event.altKey) {
-        // TODO: Allow entry of numbers when there are no available candidates
-
         if (
             event.keyCode >= 48 &&
             event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10) &&

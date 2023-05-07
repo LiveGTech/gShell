@@ -302,13 +302,15 @@ export function startUpdate(update) {
 
     // TODO: Download update file before commencing package downloading
 
-    setUpdateProgress("updatingPackageList");
+    setUpdateProgress("updatingDownloadSources");
 
     return gShell.call("system_executeCommand", {
         command: "sudo",
         args: ["apt-get", "update"]
     }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay).then(function() {
-        setUpdateProgress("downloadingPackages", 0);
+        setUpdateProgress("downloading", 0);
+
+        // TODO: Include downloading of update archive
 
         return gShell.call("system_aptInstallPackages", {
             packageNames,
@@ -322,7 +324,7 @@ export function startUpdate(update) {
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    setUpdateProgress("downloadingPackages", info.progress);
+                    setUpdateProgress("downloading", info.progress);
 
                     switch (info.status) {
                         case "running":
@@ -353,7 +355,7 @@ export function startUpdate(update) {
 
         // TODO: Run pre-install script
 
-        setUpdateProgress("installingPackages", 0);
+        setUpdateProgress("installing", 0);
 
         return gShell.call("system_aptInstallPackages", {packageNames}).then(dummyDelay);
     }).then(function(id) {
@@ -364,7 +366,7 @@ export function startUpdate(update) {
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    setUpdateProgress("installingPackages", info.progress);
+                    setUpdateProgress("installing", info.progress);
 
                     switch (info.status) {
                         case "running":

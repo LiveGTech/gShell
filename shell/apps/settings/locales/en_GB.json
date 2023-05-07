@@ -148,19 +148,29 @@
 
         "updates": "System updates",
         "updates_summary": "Install updates that bring improvements to your device",
+
         "updates_loading": "Loading update information...",
         "updates_latest": "Latest update",
+
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",
         "updates_info_estimatedDownloadSize": "Download size (estimated): {size}",
+
         "updates_updateNow": "Update now",
         "updates_checkAgain": "Check again",
+
         "updates_upToDate_title": "Your device is up to date",
         "updates_upToDate_description": "The latest update for your device is already installed.",
+
         "updates_failed_title": "Couldn't check for updates",
         "updates_failed_description": "Check your connection to the internet and try again.",
+
         "updates_offline_title": "You're offline",
         "updates_offline_description": "To check for updates, connect to the internet.",
+
+        "updates_status_updatingDownloadSources": "Updating download source list...",
+        "updates_status_downloading": "Downloading required files for update... ({progress}%)",
+        "updates_status_installing": "Installing update... ({progress}%)",
 
         "about": "About this device",
         "about_summary": "View OS and hardware information",

@@ -52,7 +52,9 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             readyToUpdateContainer.hide();
             updateInProgressContainer.show();
 
-            updateStatusMessage.setText(data?.updates_updateStatus); // TODO: Set text of status message using localised strings
+            updateStatusMessage.setText(_(`updates_status_${data?.updates_updateStatus}`, {
+                progress: data?.updates_updateProgress != null ? Math.round(data?.updates_updateProgress * 100) : null
+            }));
 
             if (data?.updates_updateProgress != null) {
                 updateProgressIndicator.setValue(data?.updates_updateProgress);
@@ -60,7 +62,9 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 updateProgressIndicator.removeAttribute("value");
             }
 
-            return;
+            if (lastState != null) {
+                return;
+            }
         }
 
         if (data?.updates_checkingFailed) {
@@ -155,6 +159,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                     )
                 );
 
+                // TODO: Include custom UI for signifying ready to restart
                 // TODO: Add checkbox option to restart device after updating for unattended updates
 
                 break;

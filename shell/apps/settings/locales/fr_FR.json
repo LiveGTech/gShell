@@ -148,19 +148,29 @@
 
         "updates": "Mises à jour système",
         "updates_summary": "Installer des améliorations sur votre appareil",
+
         "updates_loading": "Chargement des informations de mise à jour...",
         "updates_latest": "Nouvelle mise à jour",
+
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",
         "updates_info_estimatedDownloadSize": "Taille du téléchargement (estimé) : {size}",
+
         "updates_updateNow": "Mettez à jour maintenant",
         "updates_checkAgain": "Revérifier",
+
         "updates_upToDate_title": "Votre appareil est à jour",
         "updates_upToDate_description": "La dernière mise à jour pour votre appareil est déjà installée.",
+
         "updates_failed_title": "Impossible de vérifier les mises à jour",
         "updates_failed_description": "Vérifiez votre connexion à internet et réessayez.",
+
         "updates_offline_title": "Vous êtes déconnecté",
         "updates_offline_description": "Pour vérifier les mises à jour, connectez-vous à internet.",
+
+        "updates_status_updatingDownloadSources": "Mise à jour de la liste des sources de téléchargement...",
+        "updates_status_downloading": "Téléchargement des fichiers requis pour la mise à jour... ({progress} %)",
+        "updates_status_installing": "Installation de mise à jour... ({progress} %)",
 
         "about": "À propos de cet appareil",
         "about_summary": "Afficher les informations sur le système et le matériel",

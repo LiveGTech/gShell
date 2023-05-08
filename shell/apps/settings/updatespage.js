@@ -68,7 +68,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 updateProgressIndicator.removeAttribute("value");
             }
 
-            if (lastState != null) {
+            if (lastState == updateStates.UPDATE_AVAILABLE) {
                 return;
             }
         }

@@ -151,13 +151,13 @@
 
         "updates_loading": "Loading update information...",
         "updates_latest": "Latest update",
+        "updates_updateNow": "Update now",
+        "updates_checkAgain": "Check again",
+        "updates_restartAfterComplete": "Restart device after update has been completed",
 
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",
         "updates_info_estimatedDownloadSize": "Download size (estimated): {size}",
-
-        "updates_updateNow": "Update now",
-        "updates_checkAgain": "Check again",
 
         "updates_upToDate_title": "Your device is up to date",
         "updates_upToDate_description": "The latest update for your device is already installed.",

@@ -26,9 +26,15 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     var updateStatusMessage = Paragraph() ();
     var updateCancelButton = Button() (_("cancel")); // TODO: Add action
 
+    var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) (); // TODO: Add action
+
     var updateInProgressContainer = Container() (
         updateProgressIndicator,
         updateStatusMessage,
+        Label (
+            restartAfterCompleteCheckbox,
+            _("updates_restartAfterComplete")
+        ),
         ButtonRow (
             updateCancelButton
         )
@@ -160,7 +166,6 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 );
 
                 // TODO: Include custom UI for signifying ready to restart
-                // TODO: Add checkbox option to restart device after updating for unattended updates
 
                 break;
 

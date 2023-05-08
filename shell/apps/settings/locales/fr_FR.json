@@ -151,13 +151,13 @@
 
         "updates_loading": "Chargement des informations de mise à jour...",
         "updates_latest": "Nouvelle mise à jour",
+        "updates_updateNow": "Mettez à jour maintenant",
+        "updates_checkAgain": "Revérifier",
+        "updates_restartAfterComplete": "Redémarrez l'appareil une fois la mise à jour terminée",
 
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",
         "updates_info_estimatedDownloadSize": "Taille du téléchargement (estimé) : {size}",
-
-        "updates_updateNow": "Mettez à jour maintenant",
-        "updates_checkAgain": "Revérifier",
 
         "updates_upToDate_title": "Votre appareil est à jour",
         "updates_upToDate_description": "La dernière mise à jour pour votre appareil est déjà installée.",

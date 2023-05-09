@@ -1,6 +1,8 @@
 {
     "localeCode": "zh_CN",
     "variant": "qwerty",
+    "physicalLayout": "cn",
+    "physicalVariant": "qwerty",
     "metadata": {
         "variantName": "QWERTY"
     },

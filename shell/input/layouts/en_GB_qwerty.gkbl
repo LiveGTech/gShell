@@ -1,6 +1,8 @@
 {
     "localeCode": "en_GB",
     "variant": "qwerty",
+    "physicalLayout": "gb",
+    "physicalVariant": "qwerty",
     "metadata": {
         "variantName": "British QWERTY"
     },

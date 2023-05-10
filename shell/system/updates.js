@@ -312,10 +312,14 @@ export function startUpdate(update) {
 
         // TODO: Include downloading of update archive
 
+        if (!flags.isRealHardware) {
+            return dummyDelay();
+        }
+
         return gShell.call("system_aptInstallPackages", {
             packageNames,
             downloadOnly: true
-        }).then(dummyDelay);
+        });
     }).then(function(id) {
         if (!flags.isRealHardware) {
             return dummyDelay();
@@ -357,7 +361,11 @@ export function startUpdate(update) {
 
         setUpdateProgress("installing", 0);
 
-        return gShell.call("system_aptInstallPackages", {packageNames}).then(dummyDelay);
+        if (!flags.isRealHardware) {
+            return dummyDelay();
+        }
+
+        return gShell.call("system_aptInstallPackages", {packageNames});
     }).then(function(id) {
         if (!flags.isRealHardware) {
             return dummyDelay();

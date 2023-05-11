@@ -300,8 +300,6 @@ export function startUpdate(update) {
     privilegedInterface.setData("updates_updateInProgress", updateInProgress);
     privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
-    // TODO: Download update file before commencing package downloading
-
     setUpdateProgress("updatingDownloadSources");
 
     return gShell.call("system_executeCommand", {
@@ -310,7 +308,7 @@ export function startUpdate(update) {
     }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay).then(function() {
         setUpdateProgress("downloading", 0);
 
-        // TODO: Include downloading of update archive
+        // TODO: Download update archive before commencing package downloading
 
         if (!flags.isRealHardware) {
             return dummyDelay();

@@ -128,10 +128,6 @@ ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
 });
 
-ipcMain.handle("network_fetch", function(event, data) {
-    return system.fetch(data.resource, data.options);
-});
-
 ipcMain.handle("network_list", function(event, data) {
     return system.networkList();
 });
@@ -154,6 +150,26 @@ ipcMain.handle("network_configureWifi", function(event, data) {
 
 ipcMain.handle("network_connectWifi", function(event, data) {
     return system.networkConnectWifi(data.name);
+});
+
+ipcMain.handle("network_downloadFile", function(event, data) {
+    return system.downloadFile(data.url, data.destination, data.getProcessId);
+});
+
+ipcMain.handle("network_getDownloadFileInfo", function(event, data) {
+    return system.getDownloadFileInfo(data.id);
+});
+
+ipcMain.handle("network_pauseFileDownload", function(event, data) {
+    return system.pauseFileDownload(data.id);
+});
+
+ipcMain.handle("network_resumeFileDownload", function(event, data) {
+    return system.resumeFileDownload(data.id);
+});
+
+ipcMain.handle("network_cancelFileDownload", function(event, data) {
+    return system.cancelFileDownload(data.id);
 });
 
 ipcMain.handle("io_input", function(event, data) {

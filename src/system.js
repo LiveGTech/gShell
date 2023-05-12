@@ -11,16 +11,20 @@ const child_process = require("child_process");
 const stream = require("stream");
 const fs = require("fs");
 const electron = require("electron");
+const electronDl = require("electron-dl");
 const bcryptjs = require("bcryptjs");
 
 var main = require("./main");
 var flags = require("./flags");
+var storage = require("./storage");
 var device = require("./device");
 
 var mediaFeatures = {};
 var currentUserAgent = null;
 var currentLocale = null;
 var copyRsyncProcesses = [];
+var downloadFileProcesses = [];
+var downloadFileItems = [];
 var aptInstallationProcesses = [];
 
 exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}) {
@@ -464,6 +468,86 @@ exports.networkConnectWifi = function(name) {
 
         return Promise.resolve("connected");
     });
+};
+
+exports.downloadFile = function(url, destination, getProcessId = false) {
+    var path = storage.getPath(destination).split("/");
+    var filename = path.pop();
+    var folder = path.join("/");
+
+    var id = downloadFileProcesses.length;
+
+    downloadFileProcesses.push({
+        status: "running",
+        downloadedBytes: null,
+        totalBytes: null,
+        progress: null
+    });
+
+    downloadFileItems.push(null);
+
+    var promise = electronDl.download(main.window, url, {
+        filename,
+        directory: folder,
+        onStarted: function(item) {
+            downloadFileItems[id] = item;
+        },
+        onProgress: function(data) {
+            downloadFileProcesses[id].downloadedBytes = data.transferredBytes;
+            downloadFileProcesses[id].totalBytes = data.transferredBytes;
+            downloadFileProcesses[id].progress = data.transferredBytes / data.totalBytes;
+        }
+    }).then(function() {
+        downloadFileProcesses[id].status = "success";
+    }).catch(function(error) {
+        console.error(error);
+
+        downloadFileProcesses[id].status = "error";
+    });
+
+    if (getProcessId) {
+        return Promise.resolve(id);
+    }
+
+    return promise;
+};
+
+exports.getDownloadFileInfo = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(downloadFileProcesses[id]);
+};
+
+exports.pauseFileDownload = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    downloadFileProcesses[id].status = "paused";
+
+    id.pause();
+};
+
+exports.resumeFileDownload = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    downloadFileProcesses[id].status = "running";
+
+    id.resume();
+};
+
+exports.cancelFileDownload = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    downloadFileProcesses[id].status = "cancelled";
+
+    id.cancel();
 };
 
 exports.aptInstallPackages = function(packageNames, downloadOnly = false) {

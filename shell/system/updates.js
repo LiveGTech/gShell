@@ -308,7 +308,13 @@ export function startUpdate(update) {
     }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay).then(function() {
         setUpdateProgress("downloading", 0);
 
-        // TODO: Download update archive before commencing package downloading
+        // TODO: Use polling to track file download by setting `getProcessId` to `true`
+        return gShell.call("network_downloadFile", {
+            url: new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`).href,
+            destination: "update.tar.gz"
+        });
+    }).then(function() {
+        // TODO: Extract archive
 
         if (!flags.isRealHardware) {
             return dummyDelay();

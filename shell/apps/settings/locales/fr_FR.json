@@ -170,6 +170,7 @@
 
         "updates_status_updatingDownloadSources": "Mise à jour de la liste des sources de téléchargement...",
         "updates_status_downloading": "Téléchargement des fichiers requis pour la mise à jour... ({progress} %)",
+        "updates_status_extracting": "Extraction des fichiers de mise à jour... ({progress} %)",
         "updates_status_installing": "Installation de mise à jour... ({progress} %)",
 
         "about": "À propos de cet appareil",

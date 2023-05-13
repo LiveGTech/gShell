@@ -46,12 +46,24 @@ ipcMain.handle("system_getCopyFileInfo", function(event, data) {
     return system.getCopyFileInfo(data.id);
 });
 
+ipcMain.handle("system_extractArchive", function(event, data) {
+    return system.extractArchive(data.source, data.destination, data.getProcessId);
+});
+
+ipcMain.handle("system_getExtractArchiveInfo", function(event, data) {
+    return system.getExtractArchiveInfo(data.id);
+});
+
 ipcMain.handle("system_aptInstallPackages", function(event, data) {
     return system.aptInstallPackages(data.packageNames, data.downloadOnly);
 });
 
 ipcMain.handle("system_getAptInstallationInfo", function(event, data) {
     return system.getAptInstallationInfo(data.id);
+});
+
+ipcMain.handle("storage_getFilesystemLocation", function(event, data) {
+    return Promise.resolve(storage.storageFilesystemLocation);
 });
 
 ipcMain.handle("storage_read", function(event, data) {

@@ -23,6 +23,7 @@ var mediaFeatures = {};
 var currentUserAgent = null;
 var currentLocale = null;
 var copyRsyncProcesses = [];
+var extractArchiveProcesses = [];
 var downloadFileProcesses = [];
 var downloadFileItems = [];
 var aptInstallationProcesses = [];
@@ -52,6 +53,10 @@ exports.executeCommand = function(command, args = [], stdin = null, stdoutCallba
 
         if (stdoutCallback != null) {
             child.stdout.on("data", function(data) {
+                stdoutCallback(data.toString());
+            });
+
+            child.stderr.on("data", function(data) {
                 stdoutCallback(data.toString());
             });
         }
@@ -151,6 +156,57 @@ exports.getCopyFileInfo = function(id) {
     }
 
     return Promise.resolve(copyRsyncProcesses[id]);
+};
+
+exports.extractArchive = function(source, destination, getProcessId = false) {
+    var args = [storage.getPath(source), storage.getPath(destination)];
+
+    var id = extractArchiveProcesses.length;
+
+    extractArchiveProcesses.push({
+        status: "running",
+        stdout: "",
+        progress: null
+    });
+
+    function stdoutCallback(data) {
+        extractArchiveProcesses[id].stdout += data;
+
+        var lines = extractArchiveProcesses[id].stdout.split("\n");
+        var lastCompleteLine = lines.slice(lines.length - 2)[0];
+
+        if (!lastCompleteLine?.match(/[0-9]+/)) {
+            return;
+        }
+
+        extractArchiveProcesses[id].progress = Number(parseInt(lastCompleteLine) / 100) || 0;
+    }
+
+    var promise = exports.executeCommand(`${main.rootDirectory}/src/scripts/extractarchive.sh`, args, null, stdoutCallback).then(function(output) {
+        extractArchiveProcesses[id].status = "success";
+
+        return Promise.resolve();
+    }).catch(function(error) {
+        console.error(error);
+
+        extractArchiveProcesses[id].status = "error";
+
+        return Promise.reject(error);
+    });
+
+    if (getProcessId) {
+        return Promise.resolve(id);
+    }
+
+    return promise;
+};
+
+exports.getExtractArchiveInfo = function(id) {
+    if (id >= extractArchiveProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(extractArchiveProcesses[id]);
 };
 
 exports.parseNmcliLine = function(line) {
@@ -481,7 +537,7 @@ exports.downloadFile = function(url, destination, getProcessId = false) {
         status: "running",
         downloadedBytes: null,
         totalBytes: null,
-        progress: null
+        progress: 0
     });
 
     downloadFileItems.push(null);
@@ -495,14 +551,18 @@ exports.downloadFile = function(url, destination, getProcessId = false) {
         onProgress: function(data) {
             downloadFileProcesses[id].downloadedBytes = data.transferredBytes;
             downloadFileProcesses[id].totalBytes = data.transferredBytes;
-            downloadFileProcesses[id].progress = data.transferredBytes / data.totalBytes;
+            downloadFileProcesses[id].progress = (data.transferredBytes / data.totalBytes) || 0;
         }
     }).then(function() {
         downloadFileProcesses[id].status = "success";
+
+        return Promise.resolve();
     }).catch(function(error) {
         console.error(error);
 
         downloadFileProcesses[id].status = "error";
+
+        return Promise.reject(error);
     });
 
     if (getProcessId) {

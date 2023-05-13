@@ -505,7 +505,7 @@ function processInstallation() {
 
                         switch (info.status) {
                             case "running":
-                                setTimeout(poll);
+                                requestAnimationFrame(poll);
                                 break;
 
                             case "success":

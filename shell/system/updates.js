@@ -151,12 +151,12 @@ export function getEstimatedUpdateDownloadSize(update) {
 
         return getPackagesToDownloadForUpdate(update);
     }).then(function(packages) {
-        archiveSize += packages
+        var packagesSize = packages
             .map((updatePackage) => updatePackage.downloadSize)
             .reduce((accumulator, value) => accumulator + value, 0)
         ;
 
-        return Promise.resolve(archiveSize);
+        return Promise.resolve({archiveSize, packagesSize, totalSize: archiveSize + packagesSize});
     });
 }
 
@@ -258,9 +258,9 @@ export function getUpdates() {
         loadingIndex = false;
 
         return bestUpdate != null ? getEstimatedUpdateDownloadSize(bestUpdate) : Promise.resolve(null);
-    }).then(function(size) {
+    }).then(function(sizeData) {
         if (bestUpdate != null) {
-            bestUpdate.estimatedDownloadSize = size;
+            bestUpdate.estimatedDownloadSize = sizeData.totalSize;
         }
 
         console.log("Best update found:", bestUpdate);
@@ -293,6 +293,7 @@ export function startUpdate(update) {
     }
 
     var packageNames = filterConditions(update, update.packages).map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`);
+    var downloadSizeData;
 
     updateInProgress = true;
     canCancelUpdate = true;
@@ -306,16 +307,44 @@ export function startUpdate(update) {
         command: "sudo",
         args: ["apt-get", "update"]
     }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay).then(function() {
+        return getEstimatedUpdateDownloadSize(update);
+    }).then(function(sizeData) {
+        downloadSizeData = sizeData;
+
         setUpdateProgress("downloading", 0);
 
-        // TODO: Use polling to track file download by setting `getProcessId` to `true`
         return gShell.call("network_downloadFile", {
             url: new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`).href,
-            destination: "update.tar.gz"
+            destination: "update.tar.gz",
+            getProcessId: true
+        });
+    }).then(function(id) {
+        return new Promise(function(resolve, reject) {
+            (function poll() {
+                gShell.call("network_getDownloadFileInfo", {id}).then(function(info) {
+                    setUpdateProgress("downloading", info.progress * (downloadSizeData.archiveSize / downloadSizeData.totalSize));
+
+                    switch (info.status) {
+                        case "running":
+                            requestAnimationFrame(poll);
+                            break;
+
+                        case "success":
+                            resolve();
+                            break;
+
+                        case "error":
+                            reject("GOS_UPDATE_FAIL_ARCHIVE_DL");
+                            break;
+
+                        default:
+                            reject("GOS_UPDATE_IMPL_BAD_ARCHIVE_DL_STATUS");
+                            break;
+                    }
+                });
+            })();
         });
     }).then(function() {
-        // TODO: Extract archive
-
         if (!flags.isRealHardware) {
             return dummyDelay();
         }
@@ -332,11 +361,14 @@ export function startUpdate(update) {
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    setUpdateProgress("downloading", info.progress);
+                    setUpdateProgress("downloading",
+                        (downloadSizeData.archiveSize / downloadSizeData.totalSize) +
+                        (info.progress * (downloadSizeData.packagesSize / downloadSizeData.totalSize))
+                    );
 
                     switch (info.status) {
                         case "running":
-                            setTimeout(poll);
+                            requestAnimationFrame(poll);
                             break;
 
                         case "success":
@@ -355,12 +387,55 @@ export function startUpdate(update) {
             })();
         });
     }).then(function() {
+        setUpdateProgress("extracting", 0);
+
+        return gShell.call("storage_delete", {
+            location: "update"
+        });
+    }).then(function() {
+        return gShell.call("storage_newFolder", {
+            location: "update"
+        });
+    }).then(function() {
+        return gShell.call("system_extractArchive", {
+            source: "update.tar.gz",
+            destination: "update",
+            getProcessId: true
+        });
+    }).then(function(id) {
+        return new Promise(function(resolve, reject) {
+            (function poll() {
+                gShell.call("system_getExtractArchiveInfo", {id}).then(function(info) {
+                    setUpdateProgress("extracting", info.progress || 0);
+
+                    switch (info.status) {
+                        case "running":
+                            requestAnimationFrame(poll);
+                            break;
+
+                        case "success":
+                            resolve();
+                            break;
+
+                        case "error":
+                            reject("GOS_UPDATE_FAIL_ARCHIVE_EXTRACT");
+                            break;
+
+                        default:
+                            reject("GOS_UPDATE_IMPL_BAD_ARCHIVE_EXTRACT_STATUS");
+                            break;
+                    }
+                });
+            })();
+        });
+    }).then(function() {
         // Point of no return: cannot cancel update from this point onwards
 
         canCancelUpdate = false;
 
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
+        // TODO: Delete archive, copy files from archive extract location to intended destinations and then delete archive extract location
         // TODO: Run pre-install script
 
         setUpdateProgress("installing", 0);
@@ -382,7 +457,7 @@ export function startUpdate(update) {
 
                     switch (info.status) {
                         case "running":
-                            setTimeout(poll);
+                            requestAnimationFrame(poll);
                             break;
 
                         case "success":

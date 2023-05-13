@@ -170,6 +170,7 @@
 
         "updates_status_updatingDownloadSources": "Updating download source list...",
         "updates_status_downloading": "Downloading required files for update... ({progress}%)",
+        "updates_status_extracting": "Extracting update files... ({progress}%)",
         "updates_status_installing": "Installing update... ({progress}%)",
 
         "about": "About this device",

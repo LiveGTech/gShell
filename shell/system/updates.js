@@ -429,13 +429,17 @@ export function startUpdate(update) {
             })();
         });
     }).then(function() {
+        return gShell.call("storage_delete", {
+            location: "update.tar.gz"
+        });
+    }).then(function() {
         // Point of no return: cannot cancel update from this point onwards
 
         canCancelUpdate = false;
 
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
-        // TODO: Delete archive, copy files from archive extract location to intended destinations and then delete archive extract location
+        // TODO: Copy files from archive extract location to intended destinations and then delete archive extract location
         // TODO: Run pre-install script
 
         setUpdateProgress("installing", 0);

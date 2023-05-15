@@ -62,8 +62,8 @@ ipcMain.handle("system_getAptInstallationInfo", function(event, data) {
     return system.getAptInstallationInfo(data.id);
 });
 
-ipcMain.handle("storage_getFilesystemLocation", function(event, data) {
-    return Promise.resolve(storage.storageFilesystemLocation);
+ipcMain.handle("storage_getPath", function(event, data) {
+    return storage.getPath(data.location);
 });
 
 ipcMain.handle("storage_read", function(event, data) {

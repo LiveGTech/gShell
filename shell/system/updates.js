@@ -293,6 +293,7 @@ export function startUpdate(update) {
     }
 
     var packageNames = filterConditions(update, update.packages).map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`);
+    var updateFiles = filterConditions(update, update.files);
     var downloadSizeData;
 
     updateInProgress = true;
@@ -317,7 +318,7 @@ export function startUpdate(update) {
             url: new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`).href,
             destination: "update.tar.gz",
             getProcessId: true
-        });
+        }).catch(makeError("GOS_UPDATE_FAIL_START_ARCHIVE_DL"));
     }).then(function(id) {
         return new Promise(function(resolve, reject) {
             (function poll() {
@@ -352,7 +353,7 @@ export function startUpdate(update) {
         return gShell.call("system_aptInstallPackages", {
             packageNames,
             downloadOnly: true
-        });
+        }).catch(makeError("GOS_UPDATE_FAIL_START_PKG_DL"));
     }).then(function(id) {
         if (!flags.isRealHardware) {
             return dummyDelay();
@@ -391,17 +392,17 @@ export function startUpdate(update) {
 
         return gShell.call("storage_delete", {
             location: "update"
-        });
+        }).catch(makeError("GOS_UPDATE_FAIL_DEL_FOLDER"));
     }).then(function() {
         return gShell.call("storage_newFolder", {
             location: "update"
-        });
+        }).catch(makeError("GOS_UPDATE_FAIL_NEW_FOLDER"));
     }).then(function() {
         return gShell.call("system_extractArchive", {
             source: "update.tar.gz",
             destination: "update",
             getProcessId: true
-        });
+        }).catch(makeError("GOS_UPDATE_FAIL_START_ARCHIVE_EXTRACT"));
     }).then(function(id) {
         return new Promise(function(resolve, reject) {
             (function poll() {
@@ -431,33 +432,117 @@ export function startUpdate(update) {
     }).then(function() {
         return gShell.call("storage_delete", {
             location: "update.tar.gz"
-        });
+        }).catch(makeError("GOS_UPDATE_FAIL_DEL_ARCHIVE"));
     }).then(function() {
+        // TODO: Allow cancellation of update before this point
+
         // Point of no return: cannot cancel update from this point onwards
 
         canCancelUpdate = false;
 
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
-        // TODO: Copy files from archive extract location to intended destinations and then delete archive extract location
+        setUpdateProgress("installing", null);
+
         // TODO: Run pre-install script
 
+        var promiseChain = Promise.resolve();
+        var fileSizes = {};
+
+        updateFiles.forEach(function(file) {
+            promiseChain = promiseChain.then(function() {
+                return gShell.call("storage_stat", {location: `update/${file.path}`}).then(function(stats) {
+                    fileSizes[file.path] = stats.size;
+    
+                    return Promise.resolve();
+                }).catch(makeError("GOS_UPDATE_FAIL_STAT_FILE"));
+            })
+        });
+
+        return promiseChain.then(function() {
+            return Promise.resolve(fileSizes);
+        });
+    }).then(function(fileSizes) {
         setUpdateProgress("installing", 0);
+
+        var promiseChain = Promise.resolve();
+        var totalFileSize = Object.values(fileSizes).reduce((accumulator, value) => accumulator + value, 0);
+        var completedFileSize = 0;
+
+        updateFiles.forEach(function(file) {
+            promiseChain = promiseChain.then(function() {
+                setUpdateProgress("installing",
+                    ((completedFileSize + fileSizes[file.path]) / totalFileSize) * (1 / 2)
+                );
+
+                if (!flags.isRealHardware) {
+                    return dummyDelay().then(function() {
+                        completedFileSize += fileSizes[file.path];
+
+                        return Promise.resolve();
+                    });
+                }
+
+                return gShell.call("storage_getPath", {location: `update/${file.path}`}).then(function(path) {
+                    return gShell.call("system_copyFiles", {
+                        source: path,
+                        destination: file.destinationPath,
+                        privileged: true
+                    }).catch(makeError("GOS_UPDATE_FAIL_START_COPY_FILES"));
+                }).then(function(id) {
+                    return new Promise(function(resolve, reject) {
+                        (function poll() {
+                            gShell.call("system_getCopyFileInfo", {id}).then(function(info) {
+                                setUpdateProgress("installing",
+                                    ((completedFileSize + (fileSizes[file.path] * info.progress)) / totalFileSize) * (1 / 2)
+                                );
+       
+                                switch (info.status) {
+                                    case "running":
+                                        requestAnimationFrame(poll);
+                                        break;
+        
+                                    case "success":
+                                        resolve();
+                                        break;
+        
+                                    case "error":
+                                        reject("GOS_UPDATE_FAIL_COPY_FILES");
+                                        break;
+        
+                                    default:
+                                        reject("GOS_UPDATE_IMPL_BAD_COPY_STATUS");
+                                        break;
+                                }
+                            });
+                        })();
+                    });
+                }).then(function() {
+                    completedFileSize += fileSizes[file.path];
+    
+                    return Promise.resolve();
+                });
+            })
+        });
+
+        return promiseChain;
+    }).then(function() {
+        setUpdateProgress("installing", 1 / 2);
 
         if (!flags.isRealHardware) {
             return dummyDelay();
         }
 
-        return gShell.call("system_aptInstallPackages", {packageNames});
+        return gShell.call("system_aptInstallPackages", {packageNames}).catch(makeError("GOS_UPDATE_FAIL_START_PKG_INSTALL"));
     }).then(function(id) {
         if (!flags.isRealHardware) {
-            return dummyDelay();
+            return Promise.resolve();
         }
 
         return new Promise(function(resolve, reject) {
             (function poll() {
                 gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    setUpdateProgress("installing", info.progress);
+                    setUpdateProgress("installing", (1 / 2) + (info.progress * (1 / 2)));
 
                     switch (info.status) {
                         case "running":
@@ -481,6 +566,7 @@ export function startUpdate(update) {
         });
     }).then(function() {
         // TODO: Run post-install script and copy gShell AppImage to staged location before rebooting
+        // TODO: Delete archive extract location
 
         setUpdateProgress("readyToRestart");
 
@@ -491,6 +577,8 @@ export function startUpdate(update) {
 
         privilegedInterface.setData("updates_updateInProgress", updateInProgress);
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
+
+        // TODO: Add client-side error reporting in Settings app with stability info dependent on retrospective ability to cancel
 
         return Promise.reject(error);
     });

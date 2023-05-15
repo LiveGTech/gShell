@@ -567,6 +567,7 @@ export function startUpdate(update) {
     }).then(function() {
         // TODO: Run post-install script and copy gShell AppImage to staged location before rebooting
         // TODO: Delete archive extract location
+        // TODO: Add update history and failures log
 
         setUpdateProgress("readyToRestart");
 

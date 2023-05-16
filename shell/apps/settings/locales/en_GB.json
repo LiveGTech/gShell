@@ -154,6 +154,8 @@
         "updates_updateNow": "Update now",
         "updates_checkAgain": "Check again",
         "updates_restartAfterComplete": "Restart device after update has been completed",
+        "updates_powerWarning": "This might take a while. Please do not power off this device.",
+        "updates_cannotCancel": "You cannot cancel the update at this stage.",
 
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",

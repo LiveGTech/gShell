@@ -154,6 +154,8 @@
         "updates_updateNow": "Mettez à jour maintenant",
         "updates_checkAgain": "Revérifier",
         "updates_restartAfterComplete": "Redémarrez l'appareil une fois la mise à jour terminée",
+        "updates_powerWarning": "Cela peut prendre un certain temps. Veuillez ne pas éteindre cet appareil.",
+        "updates_cannotCancel": "Vous ne pouvez pas annuler la mise à jour à ce stade.",
 
         "updates_info_name": " LiveG OS",
         "updates_info_version": " {version}",

@@ -24,6 +24,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     var readyToUpdateContainer = Container() ();
     var updateProgressIndicator = ProgressIndicator({mode: "secondary"}) ();
     var updateStatusMessage = Paragraph() ();
+    var updateNoPowerOffMessage = Paragraph() (BoldTextFragment() (_("updates_powerWarning")));
     var updateCancelButton = Button() (_("cancel"));
 
     var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) (); // TODO: Add action
@@ -31,6 +32,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     var updateInProgressContainer = Container() (
         updateProgressIndicator,
         updateStatusMessage,
+        updateNoPowerOffMessage,
         Label (
             restartAfterCompleteCheckbox,
             _("updates_restartAfterComplete")
@@ -56,8 +58,14 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
         if (!data?.updates_canCancelUpdate) {
             updateCancelButton.setAttribute("disabled", true);
+            updateCancelButton.setAttribute("title", _("updates_cannotCancel"));
+
+            updateNoPowerOffMessage.show();
         } else {
             updateCancelButton.removeAttribute("disabled");
+            updateCancelButton.removeAttribute("title");
+
+            updateNoPowerOffMessage.hide();
         }
 
         if (data?.updates_updateInProgress) {

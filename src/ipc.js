@@ -30,8 +30,16 @@ ipcMain.handle("system_getDevice", function(event, data) {
     return system.getDevice();
 });
 
+ipcMain.handle("system_registerAbortController", function(event, data) {
+    return system.registerAbortController();
+});
+
+ipcMain.handle("system_triggerAbortController", function(event, data) {
+    return system.triggerAbortController(data.id);
+});
+
 ipcMain.handle("system_executeCommand", function(event, data) {
-    return system.executeOrLogCommand(data.command, data.args, data.stdin, null, data.options);
+    return system.executeOrLogCommand(data.command, data.args, data.stdin, null, data.options, data.abortControllerId);
 });
 
 ipcMain.handle("system_isInstallationMedia", function(event, data) {

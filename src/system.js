@@ -22,13 +22,42 @@ var device = require("./device");
 var mediaFeatures = {};
 var currentUserAgent = null;
 var currentLocale = null;
+var abortControllers = [];
 var copyRsyncProcesses = [];
 var extractArchiveProcesses = [];
 var downloadFileProcesses = [];
 var downloadFileItems = [];
 var aptInstallationProcesses = [];
 
-exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}) {
+function createAbortControllerId() {
+    abortControllers.push(new AbortController());
+
+    return abortControllers.length - 1;
+}
+
+exports.registerAbortController = function() {
+    return Promise.resolve(createAbortControllerId());
+};
+
+exports.triggerAbortController = function(id) {
+    if (id >= abortControllers.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    abortControllers[id].abort();
+
+    return Promise.resolve();
+};
+
+exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}, abortControllerId = null) {
+    if (abortControllerId != null) {
+        if (abortControllerId >= abortControllers.length) {
+            return Promise.reject("ID does not exist");
+        }
+
+        options.signal = abortControllers[abortControllerId].signal;
+    }
+
     return new Promise(function(resolve, reject) {
         var child = child_process.execFile(command, args, {maxBuffer: 8 * (1_024 ** 2), ...options}, function(error, stdout, stderr) {
             if (error) {
@@ -63,7 +92,7 @@ exports.executeCommand = function(command, args = [], stdin = null, stdoutCallba
     });
 };
 
-exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}) {
+exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}, abortControllerId = null) {
     if (!flags.isRealHardware) {
         console.log(`Execute command: ${command} ${args.join(" ")}; stdin: ${stdin}`);
 
@@ -116,11 +145,13 @@ exports.copyFiles = function(source, destination, privileged = false, exclude = 
     args.push(source, destination);
 
     var id = copyRsyncProcesses.length;
+    var abortControllerId = createAbortControllerId();
 
     copyRsyncProcesses.push({
         status: "running",
         stdout: "",
-        progress: null
+        progress: null,
+        abortControllerId
     });
 
     function stdoutCallback(data) {
@@ -139,7 +170,7 @@ exports.copyFiles = function(source, destination, privileged = false, exclude = 
         copyRsyncProcesses[id].progress = Number(parseInt(parts[1]) / 100) || 0;
     }
 
-    exports.executeCommand(privileged ? "sudo" : "rsync", args, null, stdoutCallback).then(function(output) {
+    exports.executeCommand(privileged ? "sudo" : "rsync", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
         copyRsyncProcesses[id].status = "success";
     }).catch(function(error) {
         console.error(error);
@@ -162,11 +193,13 @@ exports.extractArchive = function(source, destination, getProcessId = false) {
     var args = [storage.getPath(source), storage.getPath(destination)];
 
     var id = extractArchiveProcesses.length;
+    var abortControllerId = createAbortControllerId();
 
     extractArchiveProcesses.push({
         status: "running",
         stdout: "",
-        progress: null
+        progress: null,
+        abortControllerId
     });
 
     function stdoutCallback(data) {
@@ -182,7 +215,7 @@ exports.extractArchive = function(source, destination, getProcessId = false) {
         extractArchiveProcesses[id].progress = Number(parseInt(lastCompleteLine) / 100) || 0;
     }
 
-    var promise = exports.executeCommand(`${main.rootDirectory}/src/scripts/extractarchive.sh`, args, null, stdoutCallback).then(function(output) {
+    var promise = exports.executeCommand(`${main.rootDirectory}/src/scripts/extractarchive.sh`, args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
         extractArchiveProcesses[id].status = "success";
 
         return Promise.resolve();
@@ -532,12 +565,14 @@ exports.downloadFile = function(url, destination, getProcessId = false) {
     var folder = path.join("/");
 
     var id = downloadFileProcesses.length;
+    var abortControllerId = createAbortControllerId();
 
     downloadFileProcesses.push({
         status: "running",
         downloadedBytes: null,
         totalBytes: null,
-        progress: 0
+        progress: 0,
+        abortControllerId
     });
 
     downloadFileItems.push(null);
@@ -546,6 +581,10 @@ exports.downloadFile = function(url, destination, getProcessId = false) {
         filename,
         directory: folder,
         onStarted: function(item) {
+            if (downloadFileProcesses[id].status == "cancelled") {
+                item.cancel();
+            }
+
             downloadFileItems[id] = item;
         },
         onProgress: function(data) {
@@ -564,6 +603,10 @@ exports.downloadFile = function(url, destination, getProcessId = false) {
 
         return Promise.reject(error);
     });
+
+    abortControllers[abortControllerId].signal.onabort = function() {
+        exports.cancelFileDownload(id);
+    };
 
     if (getProcessId) {
         return Promise.resolve(id);
@@ -587,7 +630,7 @@ exports.pauseFileDownload = function(id) {
 
     downloadFileProcesses[id].status = "paused";
 
-    id.pause();
+    downloadFileItems[id]?.pause();
 };
 
 exports.resumeFileDownload = function(id) {
@@ -597,7 +640,7 @@ exports.resumeFileDownload = function(id) {
 
     downloadFileProcesses[id].status = "running";
 
-    id.resume();
+    downloadFileItems[id]?.resume();
 };
 
 exports.cancelFileDownload = function(id) {
@@ -607,7 +650,7 @@ exports.cancelFileDownload = function(id) {
 
     downloadFileProcesses[id].status = "cancelled";
 
-    id.cancel();
+    downloadFileItems[id]?.cancel();
 };
 
 exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
@@ -620,11 +663,13 @@ exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
     args.push(...packageNames);
 
     var id = aptInstallationProcesses.length;
+    var abortControllerId = createAbortControllerId();
 
     aptInstallationProcesses.push({
         status: "running",
         stdout: "",
-        progress: null
+        progress: null,
+        abortControllerId
     });
 
     function stdoutCallback(data) {
@@ -643,7 +688,7 @@ exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
         aptInstallationProcesses[id].progress = parseFloat(match[1]) / 100;
     }
 
-    exports.executeCommand("sudo", args, null, stdoutCallback).then(function(output) {
+    exports.executeCommand("sudo", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
         aptInstallationProcesses[id].status = "success";
     }).catch(function(error) {
         console.error(error);

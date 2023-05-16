@@ -59,6 +59,8 @@ export var loadingIndex = false;
 export var checkingFailed = false;
 export var updateInProgress = false;
 export var canCancelUpdate = true;
+export var updateCancelled = false;
+export var currentUpdateAbortControllerId = null;
 
 var flags = {};
 
@@ -99,6 +101,12 @@ function dummyDelay() {
         console.log("Dummy delay enforced");
 
         setTimeout(function() {
+            if (updateCancelled) {
+                reject("GOS_UPDATE_CANCELLED");
+
+                return;
+            }
+
             resolve();
         }, 3_000);
     });
@@ -298,16 +306,23 @@ export function startUpdate(update) {
 
     updateInProgress = true;
     canCancelUpdate = true;
+    updateCancelled = false;
+    currentUpdateAbortControllerId = null;
 
     privilegedInterface.setData("updates_updateInProgress", updateInProgress);
     privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
     setUpdateProgress("updatingDownloadSources");
 
-    return gShell.call("system_executeCommand", {
-        command: "sudo",
-        args: ["apt-get", "update"]
-    }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay).then(function() {
+    return gShell.call("system_registerAbortController").then(function(abortControllerId) {
+        currentUpdateAbortControllerId = abortControllerId;
+
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["apt-get", "update"],
+            abortControllerId
+        }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay);
+    }).then(function() {
         return getEstimatedUpdateDownloadSize(update);
     }).then(function(sizeData) {
         downloadSizeData = sizeData;
@@ -325,6 +340,14 @@ export function startUpdate(update) {
                 gShell.call("network_getDownloadFileInfo", {id}).then(function(info) {
                     setUpdateProgress("downloading", info.progress * (downloadSizeData.archiveSize / downloadSizeData.totalSize));
 
+                    if (updateCancelled) {
+                        gShell.call("system_triggerAbortController", {id: info.abortControllerId});
+
+                        reject("GOS_UPDATE_CANCELLED");
+
+                        return;
+                    }
+
                     switch (info.status) {
                         case "running":
                             requestAnimationFrame(poll);
@@ -336,6 +359,10 @@ export function startUpdate(update) {
 
                         case "error":
                             reject("GOS_UPDATE_FAIL_ARCHIVE_DL");
+                            break;
+
+                        case "cancelled":
+                            reject("GOS_UPDATE_CANCELLED");
                             break;
 
                         default:
@@ -366,6 +393,14 @@ export function startUpdate(update) {
                         (downloadSizeData.archiveSize / downloadSizeData.totalSize) +
                         (info.progress * (downloadSizeData.packagesSize / downloadSizeData.totalSize))
                     );
+
+                    if (updateCancelled) {
+                        gShell.call("system_triggerAbortController", {id: info.abortControllerId});
+
+                        reject("GOS_UPDATE_CANCELLED");
+
+                        return;
+                    }
 
                     switch (info.status) {
                         case "running":
@@ -409,6 +444,14 @@ export function startUpdate(update) {
                 gShell.call("system_getExtractArchiveInfo", {id}).then(function(info) {
                     setUpdateProgress("extracting", info.progress || 0);
 
+                    if (updateCancelled) {
+                        gShell.call("system_triggerAbortController", {id: info.abortControllerId});
+
+                        reject("GOS_UPDATE_CANCELLED");
+
+                        return;
+                    }
+
                     switch (info.status) {
                         case "running":
                             requestAnimationFrame(poll);
@@ -434,11 +477,10 @@ export function startUpdate(update) {
             location: "update.tar.gz"
         }).catch(makeError("GOS_UPDATE_FAIL_DEL_ARCHIVE"));
     }).then(function() {
-        // TODO: Allow cancellation of update before this point
-
         // Point of no return: cannot cancel update from this point onwards
 
         canCancelUpdate = false;
+        updateCancelled = false;
 
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
@@ -575,6 +617,7 @@ export function startUpdate(update) {
     }).catch(function(error) {
         updateInProgress = false;
         canCancelUpdate = true;
+        updateCancelled = false;
 
         privilegedInterface.setData("updates_updateInProgress", updateInProgress);
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
@@ -583,6 +626,26 @@ export function startUpdate(update) {
 
         return Promise.reject(error);
     });
+}
+
+export function cancelUpdate() {
+    if (!updateInProgress) {
+        return Promise.reject("No update is in progress");
+    }
+
+    if (!canCancelUpdate) {
+        return Promise.reject("Cannot cancel update at this time");
+    }
+
+    if (!updateCancelled) {
+        updateCancelled = true;
+
+        if (currentUpdateAbortControllerId != null) {
+            return gShell.call("system_triggerAbortController", {id: currentUpdateAbortControllerId});
+        }
+    }
+
+    return Promise.resolve();
 }
 
 export function startUpdateCheckTimer() {

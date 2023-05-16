@@ -24,7 +24,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     var readyToUpdateContainer = Container() ();
     var updateProgressIndicator = ProgressIndicator({mode: "secondary"}) ();
     var updateStatusMessage = Paragraph() ();
-    var updateCancelButton = Button() (_("cancel")); // TODO: Add action
+    var updateCancelButton = Button() (_("cancel"));
 
     var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) (); // TODO: Add action
 
@@ -39,6 +39,12 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             updateCancelButton
         )
     );
+
+    updateCancelButton.on("click", function() {
+        _sphere.callPrivilegedCommand("updates_cancelUpdate");
+
+        updateCancelButton.setAttribute("disabled", true); // TODO: Recover UI after cancellation to allow restarting update
+    });
 
     updateInProgressContainer.hide();
 

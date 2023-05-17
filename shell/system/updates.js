@@ -477,6 +477,10 @@ export function startUpdate(update) {
             location: "update.tar.gz"
         }).catch(makeError("GOS_UPDATE_FAIL_DEL_ARCHIVE"));
     }).then(function() {
+        if (updateCancelled) {
+            return Promise.reject("GOS_UPDATE_CANCELLED");
+        }
+
         // Point of no return: cannot cancel update from this point onwards
 
         canCancelUpdate = false;
@@ -622,6 +626,10 @@ export function startUpdate(update) {
         privilegedInterface.setData("updates_updateInProgress", updateInProgress);
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
+        if (error == "GOS_UPDATE_CANCELLED") {
+            return Promise.resolve();
+        }
+
         // TODO: Add client-side error reporting in Settings app with stability info dependent on retrospective ability to cancel
 
         return Promise.reject(error);
@@ -639,6 +647,7 @@ export function cancelUpdate() {
 
     if (!updateCancelled) {
         updateCancelled = true;
+        canCancelUpdate = false;
 
         if (currentUpdateAbortControllerId != null) {
             return gShell.call("system_triggerAbortController", {id: currentUpdateAbortControllerId});

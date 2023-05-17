@@ -20,13 +20,15 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         OFFLINE: 4
     };
 
+    var updateBeingCancelled = false;
+
     var page = Page() ();
     var readyToUpdateContainer = Container() ();
     var updateProgressIndicator = ProgressIndicator({mode: "secondary"}) ();
     var updateStatusMessage = Paragraph() ();
     var updateNoPowerOffMessage = Paragraph() (BoldTextFragment() (_("updates_powerWarning")));
+    var updateNowButton = null;
     var updateCancelButton = Button() (_("cancel"));
-
     var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) (); // TODO: Add action
 
     var updateInProgressContainer = Container() (
@@ -45,7 +47,9 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     updateCancelButton.on("click", function() {
         _sphere.callPrivilegedCommand("updates_cancelUpdate");
 
-        updateCancelButton.setAttribute("disabled", true); // TODO: Recover UI after cancellation to allow restarting update
+        updateCancelButton.setAttribute("disabled", true);
+
+        updateBeingCancelled = true;
     });
 
     updateInProgressContainer.hide();
@@ -62,8 +66,14 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
             updateNoPowerOffMessage.show();
         } else {
-            updateCancelButton.removeAttribute("disabled");
+            if (updateBeingCancelled) {
+                updateCancelButton.setAttribute("disabled", true);
+            } else {
+                updateCancelButton.removeAttribute("disabled");
+            }
+
             updateCancelButton.removeAttribute("title");
+            updateCancelButton.removeAttribute("sphere-:title");
 
             updateNoPowerOffMessage.hide();
         }
@@ -81,12 +91,19 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             } else {
                 updateProgressIndicator.removeAttribute("value");
             }
-
+            
             if (lastState == updateStates.UPDATE_AVAILABLE) {
                 return;
             }
-        }
+        } else {
+            updateInProgressContainer.hide();
+            readyToUpdateContainer.show();
 
+            updateNowButton?.removeAttribute("disabled");
+
+            updateBeingCancelled = false;
+        }
+        
         if (data?.updates_checkingFailed) {
             if (!navigator.onLine) {
                 currentState = updateStates.OFFLINE;
@@ -136,7 +153,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             case updateStates.UPDATE_AVAILABLE:
                 var update = data?.updates_bestUpdate;
 
-                var updateNowButton = Button() (_("updates_updateNow"));
+                updateNowButton = Button() (_("updates_updateNow"));
 
                 updateNowButton.on("click", function() {
                     _sphere.callPrivilegedCommand("updates_startUpdate", {update});

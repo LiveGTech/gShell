@@ -11,6 +11,7 @@ const child_process = require("child_process");
 const stream = require("stream");
 const fs = require("fs");
 const electron = require("electron");
+const electronFetch = require("electron-fetch").default;
 const electronDl = require("electron-dl");
 const bcryptjs = require("bcryptjs");
 
@@ -559,6 +560,12 @@ exports.networkConnectWifi = function(name) {
     });
 };
 
+exports.getContentLength = function(url) {
+    return electronFetch(url, {method: "HEAD", cache: "no-store"}).then(function(response) {
+        return Promise.resolve(Number(response.headers.get("Content-Length")));
+    });
+};
+
 exports.downloadFile = function(url, destination, getProcessId = false) {
     var path = storage.getPath(destination).split("/");
     var filename = path.pop();
@@ -577,21 +584,25 @@ exports.downloadFile = function(url, destination, getProcessId = false) {
 
     downloadFileItems.push(null);
 
-    var promise = electronDl.download(main.window, url, {
-        filename,
-        directory: folder,
-        onStarted: function(item) {
-            if (downloadFileProcesses[id].status == "cancelled") {
-                item.cancel();
-            }
+    var promise = exports.getContentLength(url).then(function(downloadSize) {
+        return electronDl.download(main.window, url, {
+            filename,
+            directory: folder,
+            onStarted: function(item) {
+                if (downloadFileProcesses[id].status == "cancelled") {
+                    item.cancel();
+                }
 
-            downloadFileItems[id] = item;
-        },
-        onProgress: function(data) {
-            downloadFileProcesses[id].downloadedBytes = data.transferredBytes;
-            downloadFileProcesses[id].totalBytes = data.transferredBytes;
-            downloadFileProcesses[id].progress = (data.transferredBytes / data.totalBytes) || 0;
-        }
+                downloadFileItems[id] = item;
+            },
+            onProgress: function(data) {
+                var total = data.totalBytes || downloadSize;
+
+                downloadFileProcesses[id].downloadedBytes = data.transferredBytes;
+                downloadFileProcesses[id].totalBytes = total;
+                downloadFileProcesses[id].progress = total > 0 ? (data.transferredBytes / total) : 0;
+            }
+        })
     }).then(function() {
         downloadFileProcesses[id].status = "success";
 

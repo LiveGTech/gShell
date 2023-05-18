@@ -172,6 +172,10 @@ ipcMain.handle("network_connectWifi", function(event, data) {
     return system.networkConnectWifi(data.name);
 });
 
+ipcMain.handle("network_getContentLength", function(event, data) {
+    return system.getContentLength(data.url);
+});
+
 ipcMain.handle("network_downloadFile", function(event, data) {
     return system.downloadFile(data.url, data.destination, data.getProcessId);
 });

@@ -64,20 +64,24 @@ export var currentUpdateAbortControllerId = null;
 
 var flags = {};
 
+function getEnvironmentVariables(update, shell = false) {
+    return {
+        [shell ? "PLATFORM" : "platform"]: device.data?.platform,
+        [shell ? "MODEL_CODENAME" : "modelCodename"]: device.data?.model?.codename,
+        [shell ? "VERNUM" : "vernum"]: update.vernum,
+        [shell ? "VERSION" : "version"]: update.version,
+        [shell ? "OLD_VERNUM" : "oldVernum"]: about.VERNUM,
+        [shell ? "OLD_VERSION" : "oldVersion"]: about.VERSION
+    };
+}
+
 function filterConditions(update, items) {
     return items.filter(function(item) {
         if (!item.condition) {
             return true;
         }
 
-        var vars = {
-            platform: device.data?.platform,
-            modelCodename: device.data?.model?.codename,
-            vernum: update.vernum,
-            version: update.version,
-            oldVernum: about.VERNUM,
-            oldVersion: about.VERSION
-        };
+        var vars = getEnvironmentVariables(update);
 
         return (new Function(...Object.keys(vars), `return ${item.condition};`))(...Object.values(vars));
     });
@@ -154,8 +158,8 @@ export function getPackagesToDownloadForUpdate(update) {
 export function getEstimatedUpdateDownloadSize(update) {
     var archiveSize;
 
-    return fetch(new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`)).then(function(response) {
-        archiveSize = Number(response.headers.get("Content-Length"));
+    return gShell.call("network_getContentLength", {url: new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`).href}).then(function(size) {
+        archiveSize = size;
 
         return getPackagesToDownloadForUpdate(update);
     }).then(function(packages) {
@@ -489,9 +493,39 @@ export function startUpdate(update) {
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
         setUpdateProgress("installing", null);
+    }).then(function() {
+        if (update.rollbackScriptPath) {
+            return gShell.call("storage_getPath", {location: `update/${update.rollbackScriptPath}`}).then(function(path) {
+                return gShell.call("system_executeCommand", {
+                    command: "cp",
+                    args: [path, "/system/scripts/update-rollback.sh"],
+                    options: {
+                        env: getEnvironmentVariables(update, true)
+                    }
+                });
+            }).then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "touch",
+                    args: ["/system/gshell-staging-rollback"]
+                });
+            }).catch(makeError("GOS_UPDATE_FAIL_COPY_ROLLBACK_SCRIPT"));
+        }
 
-        // TODO: Run pre-install script
+        return Promise.resolve();
+    }).then(function() {
+        if (update.preinstallScriptPath) {
+            return gShell.call("storage_getPath", {location: `update/${update.preinstallScriptPath}`}).then(function(path) {
+                return gShell.call("system_executeCommand", {
+                    command: path,
+                    options: {
+                        env: getEnvironmentVariables(update, true)
+                    }
+                });
+            }).catch(makeError("GOS_UPDATE_FAIL_PREINSTALL_SCRIPT"));
+        }
 
+        return Promise.resolve();
+    }).then(function() {
         var promiseChain = Promise.resolve();
         var fileSizes = {};
 
@@ -611,7 +645,45 @@ export function startUpdate(update) {
             })();
         });
     }).then(function() {
-        // TODO: Run post-install script and copy gShell AppImage to staged location before rebooting
+        setUpdateProgress("installing", null);
+
+        if (update.postinstallScriptPath) {
+            return gShell.call("storage_getPath", {location: `update/${update.postinstallScriptPath}`}).then(function(path) {
+                return gShell.call("system_executeCommand", {
+                    command: path,
+                    options: {
+                        env: getEnvironmentVariables(update, true)
+                    }
+                });
+            }).catch(makeError("GOS_UPDATE_FAIL_POSTINSTALL_SCRIPT"));
+        }
+
+        return Promise.resolve();
+    }).then(function() {
+        if (update.rebootScriptPath) {
+            return gShell.call("storage_getPath", {location: `update/${update.rebootScriptPath}`}).then(function(path) {
+                return gShell.call("system_executeCommand", {
+                    command: "cp",
+                    args: [path, "/system/scripts/update-reboot.sh"],
+                    options: {
+                        env: getEnvironmentVariables(update, true)
+                    }
+                });
+            }).catch(makeError("GOS_UPDATE_FAIL_COPY_REBOOT_SCRIPT"));
+        }
+
+        return Promise.resolve();
+    }).then(function() {
+        return gShell.call("system_executeCommand", {
+            command: "touch",
+            args: ["/system/gshell-staging-ready"]
+        });
+    }).then(function() {
+        return gShell.call("system_executeCommand", {
+            command: "rm",
+            args: ["-f", "/system/gshell-staging-rollback"]
+        });
+    }).then(function() {
         // TODO: Delete archive extract location
         // TODO: Add update history and failures log
 

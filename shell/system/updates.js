@@ -526,6 +526,44 @@ export function startUpdate(update) {
 
         return Promise.resolve();
     }).then(function() {
+        setUpdateProgress("installing", 0);
+
+        if (!flags.isRealHardware) {
+            return dummyDelay();
+        }
+
+        return gShell.call("system_aptInstallPackages", {packageNames}).catch(makeError("GOS_UPDATE_FAIL_START_PKG_INSTALL"));
+    }).then(function(id) {
+        if (!flags.isRealHardware) {
+            return Promise.resolve();
+        }
+
+        return new Promise(function(resolve, reject) {
+            (function poll() {
+                gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
+                    setUpdateProgress("installing", info.progress * (1 / 2));
+
+                    switch (info.status) {
+                        case "running":
+                            requestAnimationFrame(poll);
+                            break;
+
+                        case "success":
+                            resolve();
+                            break;
+
+                        case "error":
+                            reject("GOS_UPDATE_FAIL_PKG_INSTALL");
+                            break;
+
+                        default:
+                            reject("GOS_UPDATE_IMPL_BAD_PKG_INSTALL_STATUS");
+                            break;
+                    }
+                });
+            })();
+        });
+    }).then(function() {
         var promiseChain = Promise.resolve();
         var fileSizes = {};
 
@@ -543,7 +581,7 @@ export function startUpdate(update) {
             return Promise.resolve(fileSizes);
         });
     }).then(function(fileSizes) {
-        setUpdateProgress("installing", 0);
+        setUpdateProgress("installing", 1 / 2);
 
         var promiseChain = Promise.resolve();
         var totalFileSize = Object.values(fileSizes).reduce((accumulator, value) => accumulator + value, 0);
@@ -552,8 +590,9 @@ export function startUpdate(update) {
         updateFiles.forEach(function(file) {
             promiseChain = promiseChain.then(function() {
                 setUpdateProgress("installing",
-                    ((completedFileSize + fileSizes[file.path]) / totalFileSize) * (1 / 2)
+                    (1 / 2) + (((completedFileSize + fileSizes[file.path]) / totalFileSize) * (1 / 2))
                 );
+                console.log(file.path, fileSizes, completedFileSize, totalFileSize);
 
                 if (!flags.isRealHardware) {
                     return dummyDelay().then(function() {
@@ -574,7 +613,7 @@ export function startUpdate(update) {
                         (function poll() {
                             gShell.call("system_getCopyFileInfo", {id}).then(function(info) {
                                 setUpdateProgress("installing",
-                                    ((completedFileSize + (fileSizes[file.path] * info.progress)) / totalFileSize) * (1 / 2)
+                                    (1 / 2) + (((completedFileSize + (fileSizes[file.path] * info.progress)) / totalFileSize) * (1 / 2))
                                 );
        
                                 switch (info.status) {
@@ -606,44 +645,6 @@ export function startUpdate(update) {
         });
 
         return promiseChain;
-    }).then(function() {
-        setUpdateProgress("installing", 1 / 2);
-
-        if (!flags.isRealHardware) {
-            return dummyDelay();
-        }
-
-        return gShell.call("system_aptInstallPackages", {packageNames}).catch(makeError("GOS_UPDATE_FAIL_START_PKG_INSTALL"));
-    }).then(function(id) {
-        if (!flags.isRealHardware) {
-            return Promise.resolve();
-        }
-
-        return new Promise(function(resolve, reject) {
-            (function poll() {
-                gShell.call("system_getAptInstallationInfo", {id}).then(function(info) {
-                    setUpdateProgress("installing", (1 / 2) + (info.progress * (1 / 2)));
-
-                    switch (info.status) {
-                        case "running":
-                            requestAnimationFrame(poll);
-                            break;
-
-                        case "success":
-                            resolve();
-                            break;
-
-                        case "error":
-                            reject("GOS_UPDATE_FAIL_PKG_INSTALL");
-                            break;
-
-                        default:
-                            reject("GOS_UPDATE_IMPL_BAD_PKG_INSTALL_STATUS");
-                            break;
-                    }
-                });
-            })();
-        });
     }).then(function() {
         setUpdateProgress("installing", null);
 

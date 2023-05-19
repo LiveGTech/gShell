@@ -592,7 +592,6 @@ export function startUpdate(update) {
                 setUpdateProgress("installing",
                     (1 / 2) + (((completedFileSize + fileSizes[file.path]) / totalFileSize) * (1 / 2))
                 );
-                console.log(file.path, fileSizes, completedFileSize, totalFileSize);
 
                 if (!flags.isRealHardware) {
                     return dummyDelay().then(function() {

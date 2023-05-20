@@ -684,7 +684,7 @@ export function startUpdate(update) {
             args: ["-f", "/system/gshell-staging-rollback"]
         });
     }).then(function() {
-        // TODO: Delete archive extract location
+        // TODO: Delete archive extract location after startup staging is complete
         // TODO: Add update history and failures log
 
         setUpdateProgress("readyToRestart");

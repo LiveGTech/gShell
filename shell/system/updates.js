@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as openpgp from "gshell://lib/openpgp.min.mjs";
 
 import * as about from "gshell://about.js";
@@ -304,6 +305,7 @@ export function startUpdate(update) {
         return makeError("GOS_UPDATE_ALREADY_IN_PROGRESS");
     }
 
+    var updateId = $g.core.generateKey();
     var packageNames = filterConditions(update, update.packages).map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`);
     var updateFiles = filterConditions(update, update.files);
     var downloadSizeData;
@@ -321,10 +323,24 @@ export function startUpdate(update) {
     return gShell.call("system_registerAbortController").then(function(abortControllerId) {
         currentUpdateAbortControllerId = abortControllerId;
 
+        return config.edit("updates.gsc", function(data) {
+            data.history ||= [];
+
+            data.history.push({
+                id: updateId,
+                vernum: update.vernum,
+                oldVernum: about.VERNUM,
+                status: "started",
+                startedAt: Date.now()
+            });
+
+            return Promise.resolve(data);
+        });
+    }).then(function() {
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["apt-get", "update"],
-            abortControllerId
+            currentUpdateAbortControllerId
         }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay);
     }).then(function() {
         return getEstimatedUpdateDownloadSize(update);
@@ -685,8 +701,20 @@ export function startUpdate(update) {
         });
     }).then(function() {
         // TODO: Delete archive extract location after startup staging is complete
-        // TODO: Add update history and failures log
 
+        return config.edit("updates.gsc", function(data) {
+            data.history ||= [];
+
+            var currentEntry = data.history.find((entry) => entry.id == updateId);
+
+            if (currentEntry) {
+                currentEntry.status = "successful";
+                currentEntry.completeAt = Date.now();
+            }
+
+            return Promise.resolve(data);
+        });
+    }).then(function() {
         setUpdateProgress("readyToRestart");
 
         return Promise.resolve();
@@ -699,12 +727,37 @@ export function startUpdate(update) {
         privilegedInterface.setData("updates_canCancelUpdate", canCancelUpdate);
 
         if (error == "GOS_UPDATE_CANCELLED") {
-            return Promise.resolve();
+            return config.edit("updates.gsc", function(data) {
+                data.history ||= [];
+    
+                var currentEntry = data.history.find((entry) => entry.id == updateId);
+    
+                if (currentEntry) {
+                    currentEntry.status = "cancelled";
+                    currentEntry.completeAt = Date.now();
+                }
+    
+                return Promise.resolve(data);
+            });
         }
 
         // TODO: Add client-side error reporting in Settings app with stability info dependent on retrospective ability to cancel
 
-        return Promise.reject(error);
+        return config.edit("updates.gsc", function(data) {
+            data.history ||= [];
+
+            var currentEntry = data.history.find((entry) => entry.id == updateId);
+
+            if (currentEntry) {
+                currentEntry.status = "failed";
+                currentEntry.error = error;
+                currentEntry.completeAt = Date.now();
+            }
+
+            return Promise.resolve(data);
+        }).then(function() {
+            return Promise.reject(error);
+        });
     });
 }
 
@@ -740,6 +793,8 @@ export function startUpdateCheckTimer() {
 }
 
 export function load() {
+    // TODO: Check update history log and mark any pending updates as failed
+
     return config.read("updates.gsc").then(function(data) {
         // TODO: Allow advanced users to change update circuit
 

@@ -331,7 +331,9 @@ export function startUpdate(update) {
 
             data.history.push({
                 id: updateId,
+                version: update.version,
                 vernum: update.vernum,
+                oldVersion: about.VERSION,
                 oldVernum: about.VERNUM,
                 status: "started",
                 startedAt: Date.now(),

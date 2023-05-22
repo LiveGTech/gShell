@@ -13,6 +13,7 @@ import * as openpgp from "gshell://lib/openpgp.min.mjs";
 import * as about from "gshell://about.js";
 import * as device from "gshell://system/device.js";
 import * as config from "gshell://config/config.js";
+import * as users from "gshell://config/users.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 
 export const UPDATE_SOURCE_URL_BASE = "https://liveg.tech/os/updates";
@@ -323,6 +324,8 @@ export function startUpdate(update) {
     return gShell.call("system_registerAbortController").then(function(abortControllerId) {
         currentUpdateAbortControllerId = abortControllerId;
 
+        return users.getCurrentUser();
+    }).then(function(user) {
         return config.edit("updates.gsc", function(data) {
             data.history ||= [];
 
@@ -331,7 +334,9 @@ export function startUpdate(update) {
                 vernum: update.vernum,
                 oldVernum: about.VERNUM,
                 status: "started",
-                startedAt: Date.now()
+                startedAt: Date.now(),
+                startedBy: user.uid,
+                updateCircuit
             });
 
             return Promise.resolve(data);
@@ -709,7 +714,7 @@ export function startUpdate(update) {
 
             if (currentEntry) {
                 currentEntry.status = "successful";
-                currentEntry.completeAt = Date.now();
+                currentEntry.completedAt = Date.now();
             }
 
             return Promise.resolve(data);
@@ -734,7 +739,7 @@ export function startUpdate(update) {
     
                 if (currentEntry) {
                     currentEntry.status = "cancelled";
-                    currentEntry.completeAt = Date.now();
+                    currentEntry.completedAt = Date.now();
                 }
     
                 return Promise.resolve(data);
@@ -751,7 +756,7 @@ export function startUpdate(update) {
             if (currentEntry) {
                 currentEntry.status = "failed";
                 currentEntry.error = error;
-                currentEntry.completeAt = Date.now();
+                currentEntry.completedAt = Date.now();
             }
 
             return Promise.resolve(data);

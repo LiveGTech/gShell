@@ -103,7 +103,7 @@
                 {
                     "name": {
                         "en_GB": "Device information",
-                        "fr_FR": "Informations sur l'appareil"
+                        "fr_FR": "Informations sur cet appareil"
                     },
                     "url": "gshell://apps/settings/index.html?shortcut=about_deviceInfo"
                 }

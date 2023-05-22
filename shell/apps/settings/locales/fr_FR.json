@@ -182,7 +182,7 @@
         "about_version": "Variante {version}",
         "about_copyright": "Droits d'auteur © LiveG. Tous les droits sont réservés.",
 
-        "about_deviceInfo": "Info appareil",
+        "about_deviceInfo": "Informations sur cet appareil",
         "about_deviceInfo_name": "Nom du produit",
         "about_deviceInfo_manufacturer": "Fabricant",
         "about_deviceInfo_serial": "Numéro de série"

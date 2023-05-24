@@ -8,6 +8,7 @@
     "source": {
         "percentage": "{value} %",
 
+        "ok": "OK",
         "unknown": "Inconnue",
 
         "size_bytes": {
@@ -166,6 +167,9 @@
         "sphere_openMenu": "Ouvrir le menu",
 
         "sphere_menu_installApp": "Installer l'application",
+
+        "updates_rolledBackDialog_title": "La mise à jour du système a échoué",
+        "updates_rolledBackDialog_description": "Un problème a empêché LiveG OS d'installer une mise à jour, et le système est donc revenu à la version précédente.",
 
         "a11y_switch": "Navigation par Interrupteur",
         "a11y_switch_openMainMenu": "Menu",

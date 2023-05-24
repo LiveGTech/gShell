@@ -798,6 +798,8 @@ export function startUpdateCheckTimer() {
 }
 
 export function load() {
+    var shouldNoteUpdateRolledBack = false;
+
     return config.read("updates.gsc").then(function(data) {
         // TODO: Allow advanced users to change update circuit
 
@@ -814,11 +816,28 @@ export function load() {
                     entry.status = "failed";
                     entry.error = "GOS_UPDATE_FAIL_UNSCHEDULED_SHUTDOWN";
                     entry.completedAt = Date.now();
+
+                    shouldNoteUpdateRolledBack = true;
                 }
             });
     
             return Promise.resolve(data);
         });
+    }).then(function() {
+        return gShell.call("storage_exists", {location: "update-rolled-back"});
+    }).then(function(rollbackFlagExists) {
+        if (!rollbackFlagExists) {
+            return Promise.resolve();
+        }
+
+        shouldNoteUpdateRolledBack = true;
+
+        return gShell.call("storage_delete", {location: "update-rolled-back"});
+    }).then(function() {
+        if (shouldNoteUpdateRolledBack) {
+            // TODO: It might be better to have this as a notification
+            $g.sel("#updates_rolledBackDialog").dialogOpen();
+        }
     });
 }
 

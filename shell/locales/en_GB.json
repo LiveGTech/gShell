@@ -8,6 +8,7 @@
     "source": {
         "percentage": "{value}%",
 
+        "ok": "OK",
         "unknown": "Unknown",
 
         "size_bytes": {
@@ -166,6 +167,9 @@
         "sphere_openMenu": "Open menu",
 
         "sphere_menu_installApp": "Install app",
+
+        "updates_rolledBackDialog_title": "System update was unsuccessful",
+        "updates_rolledBackDialog_description": "A problem prevented LiveG OS from installing an update, and so the system has been reverted to the previous version.",
 
         "a11y_switch": "Switch Navigation",
         "a11y_switch_openMainMenu": "Menu",

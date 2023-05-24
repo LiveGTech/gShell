@@ -35,6 +35,15 @@
                         </section>
                         <button class="lockScreen_unlockButton" translate>lockScreen_unlock</button>
                     </main>
+                    <dialog id="updates_rolledBackDialog">
+                        <aui-dialogcontent>
+                            <h1 translate>updates_rolledBackDialog_title</h1>
+                            <p translate>updates_rolledBackDialog_description</p>
+                        </aui-dialogcontent>
+                        <aui-buttons aui-mode="end">
+                            <button aui-bind="close" translate>ok</button>
+                        </aui-buttons>
+                    </dialog>
                 </div>
                 <div class="display"></div>
             </div>

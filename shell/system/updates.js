@@ -707,8 +707,6 @@ export function startUpdate(update) {
             args: ["-f", "/system/gshell-staging-rollback"]
         });
     }).then(function() {
-        // TODO: Delete archive extract location after startup staging is complete
-
         return config.edit("updates.gsc", function(data) {
             data.history ||= [];
 

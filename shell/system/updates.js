@@ -798,8 +798,6 @@ export function startUpdateCheckTimer() {
 }
 
 export function load() {
-    // TODO: Check update history log and mark any pending updates as failed
-
     return config.read("updates.gsc").then(function(data) {
         // TODO: Allow advanced users to change update circuit
 
@@ -808,7 +806,19 @@ export function load() {
 
         privilegedInterface.setData("updates_shouldAutoCheckForUpdates", shouldAutoCheckForUpdates);
 
-        return Promise.resolve();
+        return config.edit("updates.gsc", function(data) {
+            data.history ||= [];
+
+            data.history.forEach(function(entry) {
+                if (entry.status == "started") {
+                    entry.status = "failed";
+                    entry.error = "GOS_UPDATE_FAIL_UNSCHEDULED_SHUTDOWN";
+                    entry.completedAt = Date.now();
+                }
+            });
+    
+            return Promise.resolve(data);
+        });
     });
 }
 

@@ -136,13 +136,18 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             case updateStates.LOADING_INDEX:
                 page.add(
                     Section (
-                        SkeletonLoader("Loading update information...") (
+                        SkeletonLoader(_("updates_loading")) (
                             Heading() (),
                             Card (
                                 Heading(2) (),
                                 Paragraph() (),
                                 Paragraph() (),
-                                Paragraph() ()
+                                Paragraph() (),
+                                Separator() (),
+                                Paragraph() (),
+                                ButtonRow (
+                                    Button() ()
+                                )
                             )
                         )
                     )

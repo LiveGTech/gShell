@@ -94,11 +94,10 @@ electron.app.on("ready", function() {
 
             electron.nativeTheme.themeSource = "light";
 
+            exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
+
             if (flags.isRealHardware) {
                 exports.window.setPosition(0, 0);
-                exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
-            } else {
-                exports.window.webContents.setZoomFactor(1);
             }
 
             if (flags.emulateTouch) {

@@ -15,7 +15,6 @@ exports.isRealHardware = !!exports.argv["real"];
 exports.allowHostControl = !!exports.argv["allow-host-control"];
 exports.emulateInstallationMedia = !!exports.argv["im-emulation"];
 exports.emulateTouch = !exports.isRealHardware && exports.argv["touch-emulation"] != false;
-exports.emulateScaleFactor = !!exports.argv["scale-factor-emulation"];
 exports.deviceDescriptionLocation = exports.argv["device-desc-location"] || null;
 exports.deviceType = exports.argv["device-type"] || null;
 

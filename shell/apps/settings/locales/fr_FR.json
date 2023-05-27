@@ -170,6 +170,7 @@
         "updates_offline_title": "Vous êtes déconnecté",
         "updates_offline_description": "Pour vérifier les mises à jour, connectez-vous à internet.",
 
+        "updates_status_notStarted": "Lancement de la mise à jour...",
         "updates_status_updatingDownloadSources": "Mise à jour de la liste des sources de téléchargement...",
         "updates_status_downloading": "Téléchargement des fichiers requis pour la mise à jour... ({progress} %)",
         "updates_status_extracting": "Extraction des fichiers de mise à jour... ({progress} %)",

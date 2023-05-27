@@ -170,6 +170,7 @@
         "updates_offline_title": "You're offline",
         "updates_offline_description": "To check for updates, connect to the internet.",
 
+        "updates_status_notStarted": "Starting update...",
         "updates_status_updatingDownloadSources": "Updating download source list...",
         "updates_status_downloading": "Downloading required files for update... ({progress}%)",
         "updates_status_extracting": "Extracting update files... ({progress}%)",

@@ -746,8 +746,6 @@ export function startUpdate(update) {
             });
         }
 
-        // TODO: Add client-side error reporting in Settings app with stability info dependent on retrospective ability to cancel
-
         return config.edit("updates.gsc", function(data) {
             data.history ||= [];
 

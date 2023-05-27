@@ -161,7 +161,11 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 updateNowButton = Button() (_("updates_updateNow"));
 
                 updateNowButton.on("click", function() {
-                    _sphere.callPrivilegedCommand("updates_startUpdate", {update});
+                    _sphere.callPrivilegedCommand("updates_startUpdate", {update}).catch(function(error) {
+                        console.error("Error during update:", error);
+
+                        // TODO: Add client-side error reporting with stability info dependent on retrospective ability to cancel
+                    });
 
                     updateNowButton.setAttribute("disabled", true);
                 });

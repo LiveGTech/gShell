@@ -13,7 +13,8 @@
             "name": "English",
             "baseLocale": "en_GB",
             "locales": {
-                "en_GB": "English (United Kingdom)"
+                "en_GB": "English (United Kingdom)",
+                "en_US": null
             }
         },
         {

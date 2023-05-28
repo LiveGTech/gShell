@@ -3,6 +3,9 @@
         "en_GB": [
             "gshell://input/layouts/en_GB_qwerty.gkbl"
         ],
+        "en_US": [
+            "gshell://input/layouts/en_US_qwerty.gkbl"
+        ],
         "fr_FR": [
             "gshell://input/layouts/fr_FR_azerty.gkbl"
         ],
@@ -12,6 +15,7 @@
     },
     "languageNames": {
         "en_GB": "English (United Kingdom)",
+        "en_US": "English (United States)",
         "fr_FR": "Français (France)",
         "zh_CN": "中文（中国）"
     }

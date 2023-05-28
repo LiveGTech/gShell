@@ -186,14 +186,30 @@ function dummyDelay() {
     });
 }
 
-function getKeyboardLayouts() {
-    return input.getKeyboardLayoutDataForLocale($g.sel("#oobs_l10n_localeVariation").getValue()).then(function(data) {
+function updateKeyboardLayoutsList(language, preferredLayoutLocaleCode = $g.sel("#oobs_l10n_localeVariation").getValue()) {
+    return Promise.all(Object.keys(language.locales).map((localeCode) => input.getKeyboardLayoutDataForLocale(localeCode))).then(function(data) {
+        var layouts = data.flat();
+
         $g.sel("#oobs_l10n_keyboardLayout").clear().add(
-            ...data.map((layout) => $g.create("option")
+            ...layouts.map((layout) => $g.create("option")
                 .setAttribute("value", layout.path)
                 .setText(layout.layout.metadata.variantName)
             )
         );
+
+        var selectedPreferredLayout = false;
+
+        layouts.forEach(function(layout) {
+            if (selectedPreferredLayout) {
+                return;
+            }
+
+            if (layout.layout.localeCode == preferredLayoutLocaleCode) {
+                $g.sel("#oobs_l10n_keyboardLayout").setValue(layout.path);
+
+                selectedPreferredLayout = true;
+            }
+        })
 
         function setKeyboardLayout() {
             input.clearKeyboardLayouts();
@@ -651,10 +667,12 @@ export function init() {
                     l10n.apply(language.baseLocale);
 
                     $g.sel("#oobs_l10n_localeVariation").clear().add(
-                        ...Object.keys(language.locales).map((localeCode) => $g.create("option")
-                            .setAttribute("value", localeCode)
-                            .setText(language.locales[localeCode])
-                        )
+                        ...Object.keys(language.locales)
+                            .filter((localeCode) => language.locales[localeCode] != null) // Locale names marked as `null` have their keyboard layouts implemented but have no locale file
+                            .map((localeCode) => $g.create("option")
+                                .setAttribute("value", localeCode)
+                                .setText(language.locales[localeCode])
+                            )
                     );
 
                     $g.sel("#oobs_l10n_localeVariation").setValue(language.baseLocale);
@@ -662,10 +680,10 @@ export function init() {
                     $g.sel("#oobs_l10n_localeVariation").on("change", function() {
                         l10n.apply($g.sel("#oobs_l10n_localeVariation").getValue());
 
-                        getKeyboardLayouts();
+                        updateKeyboardLayoutsList(language);
                     });
 
-                    getKeyboardLayouts();
+                    updateKeyboardLayoutsList(language);
 
                     selectStep("l10n");
                 })

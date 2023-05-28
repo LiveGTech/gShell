@@ -407,6 +407,16 @@ exports.setLocale = function(localeCode = currentLocale) {
     }));
 };
 
+exports.setKeyboardLayout = function(layout, variant = null) {
+    var args = ["-layout", layout];
+
+    if (variant) {
+        args.push("-variant", variant);
+    }
+
+    return exports.executeCommand("setxkbmap", args);
+};
+
 exports.bcryptHash = function(data, saltRounds) {
     return new Promise(function(resolve, reject) {
         bcryptjs.hash(data, saltRounds, function(error, hash) {

@@ -1176,6 +1176,11 @@ export function render() {
                 )
         )
     ;
+
+    return gShell.call("io_setKeyboardLayout", {
+        layout: currentKeyboardLayout.metadata.physicalLayout,
+        variant: currentKeyboardLayout.metadata.physicalVariant
+    });
 }
 
 export function getBestInputMode() {

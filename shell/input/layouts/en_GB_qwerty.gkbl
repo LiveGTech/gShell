@@ -1,10 +1,9 @@
 {
     "localeCode": "en_GB",
     "variant": "qwerty",
-    "physicalLayout": "gb",
-    "physicalVariant": "qwerty",
     "metadata": {
-        "variantName": "British QWERTY"
+        "variantName": "British QWERTY",
+        "physicalLayout": "gb"
     },
     "inputMethodPaths": [
         "gshell://input/imedata/en_GB_default.gime"

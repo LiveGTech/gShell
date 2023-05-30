@@ -164,8 +164,8 @@
         "updates_upToDate_title": "Your device is up to date",
         "updates_upToDate_description": "The latest update for your device is already installed.",
 
-        "updates_failed_title": "Couldn't check for updates",
-        "updates_failed_description": "Check your connection to the internet and try again.",
+        "updates_checkingFailed_title": "Couldn't check for updates",
+        "updates_checkingFailed_description": "Check your connection to the internet and try again.",
 
         "updates_offline_title": "You're offline",
         "updates_offline_description": "To check for updates, connect to the internet.",
@@ -175,6 +175,11 @@
         "updates_status_downloading": "Downloading required files for update... ({progress}%)",
         "updates_status_extracting": "Extracting update files... ({progress}%)",
         "updates_status_installing": "Installing update... ({progress}%)",
+
+        "updates_failed_title": "Update was not successful",
+        "updates_failed_description_recoverable": "An error occurred which caused the update to be aborted, and no changes to the system were made. Check your connection to the internet and try again.",
+        "updates_failed_description_unstable": "An error occurred which caused the update to be aborted while changes to the system were being made. If you experience any system instability, then you may want to reinstall LiveG OS to this device.",
+        "updates_failed_error": "Error code:",
 
         "about": "About this device",
         "about_summary": "View OS and hardware information",

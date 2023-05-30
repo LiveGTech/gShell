@@ -164,8 +164,8 @@
         "updates_upToDate_title": "Votre appareil est à jour",
         "updates_upToDate_description": "La dernière mise à jour pour votre appareil est déjà installée.",
 
-        "updates_failed_title": "Impossible de vérifier les mises à jour",
-        "updates_failed_description": "Vérifiez votre connexion à internet et réessayez.",
+        "updates_checkingFailed_title": "Impossible de vérifier les mises à jour",
+        "updates_checkingFailed_description": "Vérifiez votre connexion à internet et réessayez.",
 
         "updates_offline_title": "Vous êtes déconnecté",
         "updates_offline_description": "Pour vérifier les mises à jour, connectez-vous à internet.",
@@ -175,6 +175,11 @@
         "updates_status_downloading": "Téléchargement des fichiers requis pour la mise à jour... ({progress} %)",
         "updates_status_extracting": "Extraction des fichiers de mise à jour... ({progress} %)",
         "updates_status_installing": "Installation de mise à jour... ({progress} %)",
+
+        "updates_failed_title": "La mise à jour a échoué",
+        "updates_failed_description_recoverable": "Une erreur s'est produite qui a provoqué l'abandon de la mise à jour, et aucune modification du système n'a été apportée. Vérifiez votre connexion à internet et réessayez.",
+        "updates_failed_description_unstable": "Une erreur s'est produite qui a provoqué l'abandon de la mise à jour pendant que des modifications étaient apportées au système. Si vous rencontrez une instabilité du système, vous souhaiterez peut-être réinstaller LiveG OS sur cet appareil.",
+        "updates_failed_error": "Error code:",
 
         "about": "À propos de cet appareil",
         "about_summary": "Afficher les informations sur le système et le matériel",

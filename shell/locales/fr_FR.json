@@ -129,7 +129,7 @@
         "oobs_installFinish_title": "Tout installé !",
         "oobs_installFinish_description": "LiveG OS est maintenant installé. Le système redémarrera dans 10 secondes afin que vous puissiez continuer à configurer LiveG OS.",
 
-        "oobs_installFail_title": "L'installation n'a pas réussi",
+        "oobs_installFail_title": "L'installation a échoué",
         "oobs_installFail_description": "Une erreur s'est produite qui a provoqué l'abandon de l'installation de LiveG OS. Vous voudrez peut-être revoir les options que vous avez choisies et réessayer.",
         "oobs_installFail_error": "Code d'erreur :",
 

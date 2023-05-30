@@ -11,6 +11,27 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
+import * as settings from "./script.js";
+
+const RECOVERABLE_ERRORS = [
+    "GOS_UPDATE_ALREADY_IN_PROGRESS",
+    "GOS_UPDATE_CANCELLED",
+    "GOS_UPDATE_FAIL_PKG_LIST",
+    "GOS_UPDATE_FAIL_GET_ARCHIVE_DL_SIZE",
+    "GOS_UPDATE_FAIL_START_ARCHIVE_DL",
+    "GOS_UPDATE_FAIL_ARCHIVE_DL",
+    "GOS_UPDATE_IMPL_BAD_ARCHIVE_DL_STATUS",
+    "GOS_UPDATE_FAIL_START_PKG_DL",
+    "GOS_UPDATE_FAIL_PKG_DL",
+    "GOS_UPDATE_IMPL_BAD_PKG_DL_STATUS",
+    "GOS_UPDATE_FAIL_DEL_FOLDER",
+    "GOS_UPDATE_FAIL_NEW_FOLDER",
+    "GOS_UPDATE_FAIL_START_ARCHIVE_EXTRACT",
+    "GOS_UPDATE_FAIL_ARCHIVE_EXTRACT",
+    "GOS_UPDATE_IMPL_BAD_ARCHIVE_EXTRACT_STATUS",
+    "GOS_UPDATE_FAIL_DEL_ARCHIVE"
+];
+
 export var UpdatesPage = astronaut.component("UpdatesPage", function(props, children) {
     const updateStates = {
         LOADING_INDEX: 0,
@@ -162,9 +183,13 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
                 updateNowButton.on("click", function() {
                     _sphere.callPrivilegedCommand("updates_startUpdate", {update}).catch(function(error) {
-                        console.error("Error during update:", error);
+                        console.error("Error occured during update:", error);
 
-                        // TODO: Add client-side error reporting with stability info dependent on retrospective ability to cancel
+                        var dialog = UpdateFailureDialog({error, isRecoverable: RECOVERABLE_ERRORS.includes(error)}) ();
+
+                        settings.registerDialog(dialog);
+
+                        dialog.dialogOpen();
                     });
 
                     updateNowButton.setAttribute("disabled", true);
@@ -228,12 +253,12 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                             }[currentState], "dark embedded") (),
                             Heading() ({
                                 [updateStates.UP_TO_DATE]: _("updates_upToDate_title"),
-                                [updateStates.FAILED]: _("updates_failed_title"),
+                                [updateStates.FAILED]: _("updates_checkingFailed_title"),
                                 [updateStates.OFFLINE]: _("updates_offline_title")
                             }[currentState]),
                             Paragraph() ({
                                 [updateStates.UP_TO_DATE]: _("updates_upToDate_description"),
-                                [updateStates.FAILED]: _("updates_failed_description"),
+                                [updateStates.FAILED]: _("updates_checkingFailed_description"),
                                 [updateStates.OFFLINE]: _("updates_offline_description")
                             }[currentState]),
                             ButtonRow (
@@ -249,4 +274,25 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     updateData();
 
     return page;
+});
+
+export var UpdateFailureDialog = astronaut.component("UpdateFailureDialog", function(props, children) {
+    return Dialog (
+        Heading() (_("updates_failed_title")),
+        DialogContent (
+            Paragraph() (props.isRecoverable ? _("updates_failed_description_recoverable") : _("updates_failed_description_unstable")),
+            Paragraph (
+                Text(_("updates_failed_error")),
+                Text(" "),
+                CodeSnippet() (props.error || "GOS_UPDATE_UNKNOWN")
+            )
+        ),
+        ButtonRow("end") (
+            Button({
+                attributes: {
+                    "aui-bind": "close"
+                }
+            }) (_("ok"))
+        )
+    );
 });

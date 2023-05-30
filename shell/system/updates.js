@@ -350,7 +350,7 @@ export function startUpdate(update) {
             currentUpdateAbortControllerId
         }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay);
     }).then(function() {
-        return getEstimatedUpdateDownloadSize(update);
+        return getEstimatedUpdateDownloadSize(update).catch(makeError("GOS_UPDATE_FAIL_GET_ARCHIVE_DL_SIZE"));
     }).then(function(sizeData) {
         downloadSizeData = sizeData;
 
@@ -724,6 +724,8 @@ export function startUpdate(update) {
 
         return Promise.resolve();
     }).catch(function(error) {
+        console.error("Error occured during update:", error);
+
         updateInProgress = false;
         canCancelUpdate = true;
         updateCancelled = false;

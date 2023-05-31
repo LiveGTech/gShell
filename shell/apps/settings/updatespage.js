@@ -65,6 +65,11 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         )
     );
 
+    var readyToRestartContainer = Container() (
+        Separator() (),
+        Paragraph() ("Ready to restart") // TODO: Translate and improve UI
+    );
+
     updateCancelButton.on("click", function() {
         _sphere.callPrivilegedCommand("updates_cancelUpdate");
 
@@ -74,6 +79,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     });
 
     updateInProgressContainer.hide();
+    readyToRestartContainer.hide();
 
     var lastState = null;
 
@@ -99,8 +105,13 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             updateNoPowerOffMessage.hide();
         }
 
-        if (data?.updates_updateInProgress) {
-            readyToUpdateContainer.hide();
+        readyToUpdateContainer.hide();
+        updateInProgressContainer.hide();
+        readyToRestartContainer.hide();
+
+        if (data?.updates_updateStatus == "readyToRestart") {
+            readyToRestartContainer.show();
+        } else if (data?.updates_updateInProgress) {
             updateInProgressContainer.show();
 
             updateStatusMessage.setText(_(`updates_status_${data?.updates_updateStatus}`, {
@@ -117,7 +128,6 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                 return;
             }
         } else {
-            updateInProgressContainer.hide();
             readyToUpdateContainer.show();
 
             updateNowButton?.removeAttribute("disabled");
@@ -225,12 +235,11 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
                                 openLinksInNewWindow: true
                             }).makeHtml(new showdown.Converter().makeHtml(update.description[$g.l10n.getSystemLocaleCode()] || update.description[update.fallbackLocale] || ""))),
                             readyToUpdateContainer,
-                            updateInProgressContainer
+                            updateInProgressContainer,
+                            readyToRestartContainer
                         )
                     )
                 );
-
-                // TODO: Include custom UI for signifying ready to restart
 
                 break;
 

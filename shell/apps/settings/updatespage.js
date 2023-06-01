@@ -67,7 +67,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
     var readyToRestartContainer = Container() (
         Separator() (),
-        Paragraph() ("Ready to restart") // TODO: Translate and improve UI
+        Paragraph() ("Ready to restart") // TODO: Translate and improve UI; start countdown timer if restart checkbox is checked
     );
 
     updateCancelButton.on("click", function() {

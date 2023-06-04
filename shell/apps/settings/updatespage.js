@@ -50,7 +50,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     var updateNoPowerOffMessage = Paragraph() (BoldTextFragment() (_("updates_powerWarning")));
     var updateNowButton = null;
     var updateCancelButton = Button() (_("cancel"));
-    var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) (); // TODO: Add action
+    var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) ();
 
     var updateInProgressContainer = Container() (
         updateProgressIndicator,

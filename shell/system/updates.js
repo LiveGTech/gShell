@@ -63,6 +63,7 @@ export var updateInProgress = false;
 export var canCancelUpdate = true;
 export var updateCancelled = false;
 export var currentUpdateAbortControllerId = null;
+export var shouldAutoRestart = false;
 
 var flags = {};
 
@@ -720,6 +721,30 @@ export function startUpdate(update) {
             return Promise.resolve(data);
         });
     }).then(function() {
+        if (shouldAutoRestart) {
+            var countdownValue = 10;
+
+            privilegedInterface.setData("updates_autoRestartCountdownValue", countdownValue);
+
+            var countdownInterval = setInterval(function() {
+                countdownValue--;
+
+                privilegedInterface.setData("updates_autoRestartCountdownValue", countdownValue);
+
+                if (!shouldAutoRestart) {
+                    clearInterval(countdownInterval);
+
+                    return;
+                }
+
+                if (countdownValue == 0) {
+                    clearInterval(countdownInterval);
+                    
+                    gShell.call("power_restart");
+                }
+            }, 1_000);
+        }
+
         setUpdateProgress("readyToRestart");
 
         return Promise.resolve();
@@ -855,11 +880,21 @@ export function setShouldAutoCheckForUpdates(value) {
     });
 }
 
+export function setShouldAutoRestart(value) {
+    shouldAutoRestart = value;
+
+    privilegedInterface.setData("updates_shouldAutoRestart", value);
+
+    return Promise.resolve();
+}
+
 export function init() {
     gShell.call("system_getFlags").then(function(result) {
         flags = result;
 
         setUpdateProgress("notStarted");
+
+        privilegedInterface.setData("updates_shouldAutoRestart", false);
 
         startUpdateCheckTimer();
 

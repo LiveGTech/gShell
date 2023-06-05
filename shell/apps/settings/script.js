@@ -108,6 +108,10 @@ $g.waitForLoad().then(function() {
         return locale.translate(...arguments);
     };
 
+    window._format = function() {
+        return locale.format(...arguments);
+    };
+
     $g.sel("title").setText(_("settings"));
 
     pages.network = network.NetworkPage() ();

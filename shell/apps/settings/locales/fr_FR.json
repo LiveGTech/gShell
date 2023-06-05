@@ -153,6 +153,8 @@
         "updates_latest": "Nouvelle mise à jour",
         "updates_updateNow": "Mettez à jour maintenant",
         "updates_checkAgain": "Revérifier",
+        "updates_restart": "Redémarrer",
+        "updates_cancelRestart": "Annuler le redémarrage",
         "updates_restartAfterComplete": "Redémarrez l'appareil une fois la mise à jour terminée",
         "updates_powerWarning": "Cela peut prendre un certain temps. Veuillez ne pas éteindre cet appareil.",
         "updates_cannotCancel": "Vous ne pouvez pas annuler la mise à jour à ce stade.",
@@ -179,7 +181,10 @@
         "updates_failed_title": "La mise à jour a échoué",
         "updates_failed_description_recoverable": "Une erreur s'est produite qui a provoqué l'abandon de la mise à jour, et aucune modification du système n'a été apportée. Vérifiez votre connexion à internet et réessayez.",
         "updates_failed_description_unstable": "Une erreur s'est produite qui a provoqué l'abandon de la mise à jour pendant que des modifications étaient apportées au système. Si vous rencontrez une instabilité du système, vous souhaiterez peut-être réinstaller LiveG OS sur cet appareil.",
-        "updates_failed_error": "Error code:",
+        "updates_failed_error": "Code d'erreur :",
+
+        "updates_readyToRestart_description": "Cette mise à jour est maintenant installée. Lorsque vous êtes prêt, redémarrez votre appareil pour appliquer la mise à jour.",
+        "updates_readyToRestart_autoRestartWarning": "Cet appareil a été configuré pour redémarrer automatiquement dans 10 secondes.",
 
         "about": "À propos de cet appareil",
         "about_summary": "Afficher les informations sur le système et le matériel",

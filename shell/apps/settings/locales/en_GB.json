@@ -153,6 +153,8 @@
         "updates_latest": "Latest update",
         "updates_updateNow": "Update now",
         "updates_checkAgain": "Check again",
+        "updates_restart": "Restart",
+        "updates_cancelRestart": "Cancel restart",
         "updates_restartAfterComplete": "Restart device after update has been completed",
         "updates_powerWarning": "This might take a while. Please do not power off this device.",
         "updates_cannotCancel": "You cannot cancel the update at this stage.",
@@ -180,6 +182,9 @@
         "updates_failed_description_recoverable": "An error occurred which caused the update to be aborted, and no changes to the system were made. Check your connection to the internet and try again.",
         "updates_failed_description_unstable": "An error occurred which caused the update to be aborted while changes to the system were being made. If you experience any system instability, then you may want to reinstall LiveG OS to this device.",
         "updates_failed_error": "Error code:",
+
+        "updates_readyToRestart_description": "This update has now been installed. When you're ready, restart your device to apply the update.",
+        "updates_readyToRestart_autoRestartWarning": "This device has been set to automatically restart in 10 seconds.",
 
         "about": "About this device",
         "about_summary": "View OS and hardware information",

@@ -19,6 +19,8 @@ import * as a11y from "gshell://a11y/a11y.js";
 export var data = {};
 
 export var commands = {
+    power_shutDown: () => gShell.call("power_shutDown"),
+    power_restart: () => gShell.call("power_restart"),
     network_getList: network.getList,
     network_scanWifi: network.scanWifi,
     network_disconnectWifi: (data) => network.disconnectWifi(data.name),
@@ -37,6 +39,7 @@ export var commands = {
     updates_startUpdate: (data) => updates.startUpdate(data.update),
     updates_cancelUpdate: updates.cancelUpdate,
     updates_setShouldAutoCheckForUpdates: (data) => updates.setShouldAutoCheckForUpdates(data.value),
+    updates_setShouldAutoRestart: (data) => updates.setShouldAutoRestart(data.value),
     interaction_setOption: (data) => interaction.setOption(data.name, data.value)
 };
 

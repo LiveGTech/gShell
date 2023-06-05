@@ -50,14 +50,16 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     var updateNoPowerOffMessage = Paragraph() (BoldTextFragment() (_("updates_powerWarning")));
     var updateNowButton = null;
     var updateCancelButton = Button() (_("cancel"));
-    var restartAfterCompleteCheckbox = CheckboxInput({mode: "secondary"}) ();
+    var autoRestartCheckbox = CheckboxInput({mode: "secondary"}) ();
+    var restartButton = Button() (_("updates_restart"));
+    var cancelRestartButton = Button({mode: "secondary"}) (_("updates_cancelRestart"));
 
-    var updateInProgressContainer = Container() (
+    var updateInProgressContainer = Container (
         updateProgressIndicator,
         updateStatusMessage,
         updateNoPowerOffMessage,
         Label (
-            restartAfterCompleteCheckbox,
+            autoRestartCheckbox,
             _("updates_restartAfterComplete")
         ),
         ButtonRow (
@@ -65,9 +67,27 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         )
     );
 
-    var readyToRestartContainer = Container() (
+    var autoRestartCountdown = Paragraph({
+        styles: {
+            textAlign: "center",
+            fontSize: "4rem",
+            fontWeight: "bold"
+        }
+    }) ();
+
+    var autoRestartContainer = Container (
+        Paragraph() (BoldTextFragment() (_("updates_readyToRestart_autoRestartWarning"))),
+        autoRestartCountdown
+    );
+
+    var readyToRestartContainer = Container (
         Separator() (),
-        Paragraph() ("Ready to restart") // TODO: Translate and improve UI; start countdown timer if restart checkbox is checked
+        Paragraph() (_("updates_readyToRestart_description")),
+        autoRestartContainer,
+        ButtonRow (
+            restartButton,
+            cancelRestartButton
+        )
     );
 
     updateCancelButton.on("click", function() {
@@ -78,6 +98,20 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
         updateBeingCancelled = true;
     });
 
+    restartButton.on("click", function() {
+        _sphere.callPrivilegedCommand("updates_setShouldAutoRestart", {value: false}).then(function() {
+            _sphere.callPrivilegedCommand("power_restart");
+        });
+    });
+
+    cancelRestartButton.on("click", function() {
+        _sphere.callPrivilegedCommand("updates_setShouldAutoRestart", {value: false});
+    })
+
+    autoRestartCheckbox.on("change", function() {
+        _sphere.callPrivilegedCommand("updates_setShouldAutoRestart", {value: autoRestartCheckbox.getValue()});
+    });
+
     updateInProgressContainer.hide();
     readyToRestartContainer.hide();
 
@@ -86,6 +120,17 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
     function updateData() {
         var data = _sphere.getPrivilegedData();
         var currentState = null;
+
+        autoRestartCheckbox.setValue(data?.updates_shouldAutoRestart);
+
+        if (data?.updates_shouldAutoRestart) {
+            autoRestartCountdown.setText(_format(data?.updates_autoRestartCountdownValue));
+            autoRestartContainer.show();
+            cancelRestartButton.show();
+        } else {
+            autoRestartContainer.hide();
+            cancelRestartButton.hide();
+        }
 
         if (!data?.updates_canCancelUpdate) {
             updateCancelButton.setAttribute("disabled", true);

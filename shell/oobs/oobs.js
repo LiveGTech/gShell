@@ -803,7 +803,7 @@ export function init() {
 
             $g.sel(".oobs_installFinish_countdown").setText(_format(countdownValue));
 
-            var countdownInterval = setInterval(function countdown() {
+            var countdownInterval = setInterval(function() {
                 countdownValue--;
 
                 $g.sel(".oobs_installFinish_countdown").setText(_format(countdownValue));

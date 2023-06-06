@@ -348,7 +348,7 @@ export function startUpdate(update) {
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["apt-get", "update"],
-            currentUpdateAbortControllerId
+            abortControllerId: currentUpdateAbortControllerId
         }).catch(makeError("GOS_UPDATE_FAIL_PKG_LIST")).then(dummyDelay);
     }).then(function() {
         return getEstimatedUpdateDownloadSize(update).catch(makeError("GOS_UPDATE_FAIL_GET_ARCHIVE_DL_SIZE"));

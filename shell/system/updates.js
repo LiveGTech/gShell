@@ -826,11 +826,10 @@ export function load() {
     var shouldNoteUpdateRolledBack = false;
 
     return config.read("updates.gsc").then(function(data) {
-        // TODO: Allow advanced users to change update circuit
-
         updateCircuit = data.updateCircuit || "alpha"; // TODO: Change when we make our first Beta or Main releases
         shouldAutoCheckForUpdates = !!data.shouldAutoCheckForUpdates;
 
+        privilegedInterface.setData("updates_updateCircuit", updateCircuit);
         privilegedInterface.setData("updates_shouldAutoCheckForUpdates", shouldAutoCheckForUpdates);
 
         return config.edit("updates.gsc", function(data) {
@@ -863,6 +862,20 @@ export function load() {
             // TODO: It might be better to have this as a notification
             $g.sel("#updates_rolledBackDialog").dialogOpen();
         }
+    });
+}
+
+export function setUpdateCircuit(value) {
+    updateCircuit = value;
+
+    privilegedInterface.setData("updates_updateCircuit", value);
+
+    getUpdates();
+
+    return config.edit("updates.gsc", function(data) {
+        data["updateCircuit"] = value;
+
+        return Promise.resolve(data);
     });
 }
 

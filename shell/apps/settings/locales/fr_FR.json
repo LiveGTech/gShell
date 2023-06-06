@@ -186,6 +186,14 @@
         "updates_readyToRestart_description": "Cette mise à jour est maintenant installée. Lorsque vous êtes prêt, redémarrez votre appareil pour appliquer la mise à jour.",
         "updates_readyToRestart_autoRestartWarning": "Cet appareil a été configuré pour redémarrer automatiquement dans 10 secondes.",
 
+        "advanced": "Options avancées",
+        "advanced_summary": "Paramètres supplémentaires pour les utilisateurs expérimentés et les développeurs",
+
+        "advanced_updates": "Mises à jour système",
+
+        "advanced_updates_updateCircuit": "Circuit de mise à jour",
+        "advanced_updates_updateCircuit_description": "Avoir accès aux fonctionnalités de pré-version en passant à un circuit de mise à jour différent. Le passage à d'autres circuits de mise à jour peut réduire la stabilité du système.",
+
         "about": "À propos de cet appareil",
         "about_summary": "Afficher les informations sur le système et le matériel",
 

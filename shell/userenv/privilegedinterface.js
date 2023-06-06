@@ -38,6 +38,7 @@ export var commands = {
     updates_getUpdates: updates.getUpdates,
     updates_startUpdate: (data) => updates.startUpdate(data.update),
     updates_cancelUpdate: updates.cancelUpdate,
+    updates_setUpdateCircuit: (data) => updates.setUpdateCircuit(data.circuit),
     updates_setShouldAutoCheckForUpdates: (data) => updates.setShouldAutoCheckForUpdates(data.value),
     updates_setShouldAutoRestart: (data) => updates.setShouldAutoRestart(data.value),
     interaction_setOption: (data) => interaction.setOption(data.name, data.value)

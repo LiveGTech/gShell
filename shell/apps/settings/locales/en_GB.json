@@ -186,6 +186,14 @@
         "updates_readyToRestart_description": "This update has now been installed. When you're ready, restart your device to apply the update.",
         "updates_readyToRestart_autoRestartWarning": "This device has been set to automatically restart in 10 seconds.",
 
+        "advanced": "Advanced options",
+        "advanced_summary": "Additional settings for power users and developers",
+
+        "advanced_updates": "System updates",
+
+        "advanced_updates_updateCircuit": "Update circuit",
+        "advanced_updates_updateCircuit_description": "Get access to pre-release features by switching to a different update circuit. Switching to other update circuits may reduce system stability.",
+
         "about": "About this device",
         "about_summary": "View OS and hardware information",
 

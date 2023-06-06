@@ -21,6 +21,7 @@ import * as personalisation from "./personalisationpage.js";
 import * as a11y from "./a11ypage.js";
 import * as interaction from "./interactionpage.js";
 import * as updates from "./updatespage.js";
+import * as advanced from "./advancedpage.js";
 import * as about from "./aboutpage.js";
 
 export const PAGE_ICONS = {
@@ -30,6 +31,7 @@ export const PAGE_ICONS = {
     a11y: "a11y",
     interaction: "interaction",
     updates: "update",
+    advanced: "quicksettings",
     about: "info"
 };
 
@@ -120,6 +122,7 @@ $g.waitForLoad().then(function() {
     pages.a11y = a11y.A11yPage() ();
     pages.interaction = interaction.InteractionPage() ();
     pages.updates = updates.UpdatesPage() ();
+    pages.advanced = advanced.AdvancedPage() ();
     pages.about = about.AboutPage() ();
 
     Object.keys(pages).forEach(function(pageId) {

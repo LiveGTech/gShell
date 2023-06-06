@@ -33,8 +33,6 @@ export var AdvancedPage = astronaut.component("AdvancedPage", function(props, ch
     _sphere.onPrivilegedDataUpdate(updateData);
     updateData();
 
-
-
     return Page (
         Section (
             Heading(2) (_("advanced_updates")),

@@ -709,6 +709,12 @@ exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
         aptInstallationProcesses[id].progress = parseFloat(match[1]) / 100;
     }
 
+    if (packageNames.length == 0) {
+        aptInstallationProcesses[id].status = "success";
+
+        return Promise.resolve(id);
+    }
+
     exports.executeCommand("sudo", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
         aptInstallationProcesses[id].status = "success";
     }).catch(function(error) {

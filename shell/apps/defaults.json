@@ -102,6 +102,13 @@
                 },
                 {
                     "name": {
+                        "en_GB": "Advanced options",
+                        "fr_FR": "Options avancées"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=advanced"
+                },
+                {
+                    "name": {
                         "en_GB": "Device information",
                         "fr_FR": "Informations sur cet appareil"
                     },

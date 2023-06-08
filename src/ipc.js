@@ -343,6 +343,10 @@ ipcMain.handle("webview_getManifest", function(event, data) {
     });
 });
 
+ipcMain.handle("dev_isDebugBuild", function(event, data) {
+    return Promise.resolve(main.IS_DEBUG_BUILD);
+});
+
 ipcMain.handle("dev_restart", function(event, data) {
     system.devRestart();
 

@@ -10,6 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as device from "gshell://system/device.js";
+import * as debug from "gshell://system/debug.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as pointer from "gshell://global/pointer.js";
@@ -40,6 +41,8 @@ $g.waitForLoad().then(function() {
     return $g.templates.apply();
 }).then(function() {
     return device.init();
+}).then(function() {
+    return debug.init();
 }).then(function() {
     return webviewManager.init();
 }).then(function() {

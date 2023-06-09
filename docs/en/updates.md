@@ -108,7 +108,7 @@ Here is a list of variables that are available for evaluation of conditions in t
 | Update index name | Script name | Description |
 |---|---|---|
 | `platform` | `$PLATFORM` | The name of the platform (for example, `"x86_64"`) |
-| `modelCodename` | `$MODEL_CODENAME` | The codename of the device model (listed in [DDF](https://docs.liveg.tech/?product=gshell&page=device.md); for example, `"prism"`) |
+| `modelCodename` | `$MODEL_CODENAME` | The codename of the device model (listed in [DDF](device.md); for example, `"prism"`) |
 | `vernum` | `$VERNUM` | The new version number integer for the update (for example, `4`) |
 | `version` | `$VERSION` | The new version string for the update (for example, `0.3.0`) |
 | `oldVernum` | `$OLD_VERNUM` | The version number integer for the current system (for example, `1`) |

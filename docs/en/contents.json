@@ -8,6 +8,7 @@
         "Device description file": "device.md",
         "Authentication mechanism": "auth.md",
         "Accessibility (a11y)": "a11y.md",
-        "Input Method Editor": "input.md"
+        "Input Method Editor": "input.md",
+        "System updates": "updates.md"
     }
 }

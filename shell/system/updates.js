@@ -688,10 +688,7 @@ export function startUpdate(update) {
             return gShell.call("storage_getPath", {location: `update/${update.rebootScriptPath}`}).then(function(path) {
                 return gShell.call("system_executeCommand", {
                     command: "cp",
-                    args: [path, "/system/scripts/update-reboot.sh"],
-                    options: {
-                        env: getEnvironmentVariables(update, true)
-                    }
+                    args: [path, "/system/scripts/update-reboot.sh"]
                 });
             }).catch(makeError("GOS_UPDATE_FAIL_COPY_REBOOT_SCRIPT"));
         }

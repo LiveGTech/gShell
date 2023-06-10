@@ -1,5 +1,5 @@
 # System updates
-The update system is responsible for downloading and installing packages and files that bring feature additions and improvements, bug fixes and security patches to LiveG OS without requiring LiveG OS to be reinstalled.
+The update system is responsible for downloading and installing packages and files that bring feature additions and improvements, bug fixes and security patches to LiveG OS without requiring LiveG OS to be reinstalled. System updates are initiated by the user via the Settings app.
 
 ## Update index
 For LiveG OS to discover what updates are available, an update index is hosted online at [liveg.tech/os/updates/index.json](https://liveg.tech/os/updates/index.json). The index file is PGP signed, and the signature is stored at [liveg.tech/os/updates/index.json.sig](https://liveg.tech/os/updates/index.json.sig).

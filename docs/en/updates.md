@@ -122,6 +122,6 @@ Before the installation process commences, the rollback script will be copied to
 To prevent any potential data loss when copying the gShell AppImage, the AppImage will be copied to `/system/bin/gshell-update.AppImage`, which essentially stages it to replace the current `gshell.AppImage`. The startup script is responsible for replacing `gshell.AppImage` with `gshell-update.AppImage` through renaming the files to make the process more atomic and less prone to data loss. This should only occur when the rollback script has not been executed.
 
 ## Security considerations
-APT does employ package signing, so we can rely on this to ensure that packages aren't modified through MITM attacks. However, we must ensure that all packages and package lists are downloaded over HTTPS to take advantage of SSL.
+APT does employ package signing, so we can rely on this to ensure that packages aren't modified through man-in-the-middle (MITM) attacks. However, we must ensure that all packages and package lists are downloaded over HTTPS to take advantage of SSL.
 
 To prevent the download of malicious update files from the LiveG website as a result of potential tampering, we can make use of PGP file signing, and verify the files within LiveG OS to ensure they are trusted files from LiveG.

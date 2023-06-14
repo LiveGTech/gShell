@@ -191,7 +191,7 @@ exports.getCopyFileInfo = function(id) {
 };
 
 exports.extractArchive = function(source, destination, getProcessId = false) {
-    var args = [storage.getPath(source), storage.getPath(destination)];
+    var args = [`${main.rootDirectory}/src/scripts/extractarchive.sh`, storage.getPath(source), storage.getPath(destination)];
 
     var id = extractArchiveProcesses.length;
     var abortControllerId = createAbortControllerId();
@@ -216,7 +216,7 @@ exports.extractArchive = function(source, destination, getProcessId = false) {
         extractArchiveProcesses[id].progress = Number(parseInt(lastCompleteLine) / 100) || 0;
     }
 
-    var promise = exports.executeCommand(`${main.rootDirectory}/src/scripts/extractarchive.sh`, args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
+    var promise = exports.executeCommand("bash", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
         extractArchiveProcesses[id].status = "success";
 
         return Promise.resolve();

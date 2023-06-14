@@ -10,8 +10,8 @@
         "dist": "electron-builder"
     },
     "devDependencies": {
-        "electron": "^22.0.0",
-        "electron-builder": "^22.10.3"
+        "electron": "^25.1.0",
+        "electron-builder": "^24.4.0"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
@@ -25,6 +25,10 @@
         "productName": "gShell",
         "copyright": "Copyright © LiveG. All Rights Reserved.",
         "extraResources": [
+            {
+                "from": "src",
+                "to": "src"
+            },
             {
                 "from": "shell",
                 "to": "shell"

@@ -65,6 +65,8 @@ export var updateCancelled = false;
 export var currentUpdateAbortControllerId = null;
 export var shouldAutoRestart = false;
 
+// TODO; Prevent starting updates in Installation Media
+
 var flags = {};
 
 function getEnvironmentVariables(update, shell = false) {
@@ -145,7 +147,12 @@ export function getPackagesToDownload(packagesToInstall) {
             var stdout = flags.isRealHardware ? output.stdout : DUMMY_APT_CACHE_SHOW_STDOUT;
 
             packages[i].downloadSize = Number(stdout.match(/^Size: (\d+)$/m)[1]);
-            packages[i].installedSize = Number(stdout.match(/^Installed-Size: (\d+)$/m)[1]) * 1_024;
+
+            if (stdout.match(/^Installed-Size: (\d+)$/m)) {
+                packages[i].installedSize = Number(stdout.match(/^Installed-Size: (\d+)$/m)[1]) * 1_024;
+            } else {
+                packages[i].installedSize = packages[i].downloadSize;
+            }
         });
 
         return packages;
@@ -300,6 +307,26 @@ export function getUpdates() {
 function setUpdateProgress(status, progress = null) {
     privilegedInterface.setData("updates_updateStatus", status);
     privilegedInterface.setData("updates_updateProgress", progress);
+}
+
+function executeScript(update, path, error = "GOS_UPDATE_FAIL_EXEC_SCRIPT") {
+    if (!path) {
+        return Promise.resolve();
+    }
+
+    return gShell.call("storage_getPath", {location: `update/${path}`}).then(function(path) {
+        return gShell.call("system_executeCommand", {
+            command: "chmod",
+            args: ["+x", path]
+        }).then(function() {
+            return gShell.call("system_executeCommand", {
+                command: path,
+                options: {
+                    env: getEnvironmentVariables(update, true)
+                }
+            });
+        });
+    });
 }
 
 export function startUpdate(update) {
@@ -537,18 +564,7 @@ export function startUpdate(update) {
 
         return Promise.resolve();
     }).then(function() {
-        if (update.preinstallScriptPath) {
-            return gShell.call("storage_getPath", {location: `update/${update.preinstallScriptPath}`}).then(function(path) {
-                return gShell.call("system_executeCommand", {
-                    command: path,
-                    options: {
-                        env: getEnvironmentVariables(update, true)
-                    }
-                });
-            }).catch(makeError("GOS_UPDATE_FAIL_PREINSTALL_SCRIPT"));
-        }
-
-        return Promise.resolve();
+        return executeScript(update, update.preinstallScriptPath).catch(makeError("GOS_UPDATE_FAIL_PREINSTALL_SCRIPT"));
     }).then(function() {
         setUpdateProgress("installing", 0);
 
@@ -671,18 +687,7 @@ export function startUpdate(update) {
     }).then(function() {
         setUpdateProgress("installing", null);
 
-        if (update.postinstallScriptPath) {
-            return gShell.call("storage_getPath", {location: `update/${update.postinstallScriptPath}`}).then(function(path) {
-                return gShell.call("system_executeCommand", {
-                    command: path,
-                    options: {
-                        env: getEnvironmentVariables(update, true)
-                    }
-                });
-            }).catch(makeError("GOS_UPDATE_FAIL_POSTINSTALL_SCRIPT"));
-        }
-
-        return Promise.resolve();
+        return executeScript(update, update.postinstallScriptPath).catch(makeError("GOS_UPDATE_FAIL_POSTINSTALL_SCRIPT"));
     }).then(function() {
         if (update.rebootScriptPath) {
             return gShell.call("storage_getPath", {location: `update/${update.rebootScriptPath}`}).then(function(path) {

@@ -27,6 +27,7 @@ export var AdvancedPage = astronaut.component("AdvancedPage", function(props, ch
     }
 
     updateCircuitInput.on("change", function() {
+        // TODO: Prevent changing update circuit if update is in progress or is ready to restart
         _sphere.callPrivilegedCommand("updates_setUpdateCircuit", {circuit: updateCircuitInput.getValue()});
     });
 

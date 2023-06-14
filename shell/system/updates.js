@@ -65,7 +65,7 @@ export var updateCancelled = false;
 export var currentUpdateAbortControllerId = null;
 export var shouldAutoRestart = false;
 
-// TODO; Prevent starting updates in Installation Media
+// TODO: Prevent starting updates in Installation Media
 
 var flags = {};
 

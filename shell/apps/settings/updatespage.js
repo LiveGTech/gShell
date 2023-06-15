@@ -127,8 +127,6 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             autoRestartCountdown.setText(_format(data?.updates_autoRestartCountdownValue));
             autoRestartContainer.show();
             cancelRestartButton.show();
-
-            _sphere.callPrivilegedCommand("updates_startAutoRestartCountdown");
         } else {
             autoRestartContainer.hide();
             cancelRestartButton.hide();

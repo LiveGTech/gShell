@@ -41,7 +41,6 @@ export var commands = {
     updates_setUpdateCircuit: (data) => updates.setUpdateCircuit(data.circuit),
     updates_setShouldAutoCheckForUpdates: (data) => updates.setShouldAutoCheckForUpdates(data.value),
     updates_setShouldAutoRestart: (data) => updates.setShouldAutoRestart(data.value),
-    updates_startAutoRestartCountdown: updates.startAutoRestartCountdown,
     interaction_setOption: (data) => interaction.setOption(data.name, data.value)
 };
 

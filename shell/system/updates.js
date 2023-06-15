@@ -64,6 +64,7 @@ export var canCancelUpdate = true;
 export var updateCancelled = false;
 export var currentUpdateAbortControllerId = null;
 export var shouldAutoRestart = false;
+export var autoRestartCountdownStarted = false;
 
 // TODO: Prevent starting updates in Installation Media
 
@@ -309,7 +310,7 @@ function setUpdateProgress(status, progress = null) {
     privilegedInterface.setData("updates_updateProgress", progress);
 }
 
-function executeScript(update, path, error = "GOS_UPDATE_FAIL_EXEC_SCRIPT") {
+function executeScript(update, path) {
     if (!path) {
         return Promise.resolve();
     }
@@ -680,7 +681,7 @@ export function startUpdate(update) {
     
                     return Promise.resolve();
                 });
-            })
+            });
         });
 
         return promiseChain;
@@ -729,6 +730,10 @@ export function startUpdate(update) {
             privilegedInterface.setData("updates_autoRestartCountdownValue", countdownValue);
 
             var countdownInterval = setInterval(function() {
+                if (!autoRestartCountdownStarted) {
+                    return;
+                }
+
                 countdownValue--;
 
                 privilegedInterface.setData("updates_autoRestartCountdownValue", countdownValue);
@@ -899,6 +904,12 @@ export function setShouldAutoRestart(value) {
     shouldAutoRestart = value;
 
     privilegedInterface.setData("updates_shouldAutoRestart", value);
+
+    return Promise.resolve();
+}
+
+export function startAutoRestartCountdown() {
+    autoRestartCountdownStarted = true;
 
     return Promise.resolve();
 }

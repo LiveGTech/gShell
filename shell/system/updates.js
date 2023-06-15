@@ -138,6 +138,7 @@ export function getPackagesToDownload(packagesToInstall) {
 
         packages = [...new Set(names)].map((name) => ({name}));
 
+        // FIXME: This is very bad for performance — we should instead call `apt-cache` once with all names inserted as args using spread operator
         return Promise.all(names.map((name) => gShell.call("system_executeCommand", {
             command: "apt-cache",
             args: ["show", "--no-all-versions", name]

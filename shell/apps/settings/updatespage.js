@@ -160,7 +160,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             updateInProgressContainer.show();
 
             updateStatusMessage.setText(_(`updates_status_${data?.updates_updateStatus}`, {
-                progress: data?.updates_updateProgress != null ? Math.round(data?.updates_updateProgress * 100) : null
+                progress: data?.updates_updateProgress != null ? Math.round(data?.updates_updateProgress * 100) : 0
             }));
 
             if (data?.updates_updateProgress != null) {

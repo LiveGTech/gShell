@@ -50,6 +50,28 @@ Size: 456789
 Description: A dummy package
  This is a dummy package used for testing purposes only on
  non-real hardware.
+
+Package: package-b
+Architecture: amd64
+Version: 1.0.0
+Installed-Size: 456
+Depends: package-a (= 2.0.0), package-c (>= 3.0.0)
+Filename: pool/example/package-b_1.0.0-amd64.deb
+Size: 789123
+Description: A dummy package
+ This is a dummy package used for testing purposes only on
+ non-real hardware.
+
+Package: package-c
+Architecture: amd64
+Version: 1.0.0
+Installed-Size: 789
+Depends: package-a (= 2.0.0), package-b (>= 3.0.0)
+Filename: pool/example/package-c_1.0.0-amd64.deb
+Size: 123456
+Description: A dummy package
+ This is a dummy package used for testing purposes only on
+ non-real hardware.
 `;
 
 export var updateCircuit = null;
@@ -65,9 +87,13 @@ export var updateCancelled = false;
 export var currentUpdateAbortControllerId = null;
 export var shouldAutoRestart = false;
 
-// TODO: Prevent starting updates in Installation Media
-
 var flags = {};
+var lastUpdateStatus = null;
+var lastUpdateProgress = null;
+var pendingUpdateStatus = null;
+var pendingUpdateProgress = null;
+
+// TODO: Prevent starting updates in Installation Media
 
 function getEnvironmentVariables(update, shell = false) {
     return {
@@ -123,11 +149,23 @@ function dummyDelay() {
 
 export function getPackagesToDownload(packagesToInstall) {
     var packages;
+    var promiseChain = Promise.resolve();
+    var outputs = [];
 
-    return Promise.all(packagesToInstall.map((name) => gShell.call("system_executeCommand", {
-        command: "apt-cache",
-        args: ["depends", "--recurse", "--no-suggests", "--no-conflicts", "--no-breaks", "--no-replaces", "--no-enhances", name]
-    }))).then(function(outputs) {
+    packagesToInstall.forEach(function(name) {
+        promiseChain = promiseChain.then(function() {
+            return gShell.call("system_executeCommand", {
+                command: "apt-cache",
+                args: ["depends", "--recurse", "--no-suggests", "--no-conflicts", "--no-breaks", "--no-replaces", "--no-enhances", name]
+            }).then(function(output) {
+                outputs.push(output);
+
+                return Promise.resolve();
+            });
+        });
+    });
+
+    return promiseChain.then(function() {
         var names = [];
 
         outputs.forEach(function(output) {
@@ -136,21 +174,22 @@ export function getPackagesToDownload(packagesToInstall) {
             names.push(...[...stdout.matchAll(/^[a-z0-9+-.]+$/gm)].map((match) => match[0]));
         });
 
-        packages = [...new Set(names)].map((name) => ({name}));
+        names = [...new Set(names)];
 
-        // FIXME: This is very bad for performance — we should instead call `apt-cache` once with all names inserted as args using spread operator
-        return Promise.all(names.map((name) => gShell.call("system_executeCommand", {
+        packages = names.map((name) => ({name}));
+
+        return gShell.call("system_executeCommand", {
             command: "apt-cache",
-            args: ["show", "--no-all-versions", name]
-        })));
-    }).then(function(outputs) {
-        outputs.forEach(function(output, i) {
-            var stdout = flags.isRealHardware ? output.stdout : DUMMY_APT_CACHE_SHOW_STDOUT;
+            args: ["show", "--no-all-versions", ...names]
+        });
+    }).then(function(output) {
+        var stdout = flags.isRealHardware ? output.stdout : DUMMY_APT_CACHE_SHOW_STDOUT;
 
-            packages[i].downloadSize = Number(stdout.match(/^Size: (\d+)$/m)[1]);
+        stdout.split(/\nPackage: /).forEach(function(packageResult, i) {
+            packages[i].downloadSize = Number(packageResult.match(/^Size: (\d+)$/m)[1]);
 
-            if (stdout.match(/^Installed-Size: (\d+)$/m)) {
-                packages[i].installedSize = Number(stdout.match(/^Installed-Size: (\d+)$/m)[1]) * 1_024;
+            if (packageResult.match(/^Installed-Size: (\d+)$/m)) {
+                packages[i].installedSize = Number(packageResult.match(/^Installed-Size: (\d+)$/m)[1]) * 1_024;
             } else {
                 packages[i].installedSize = packages[i].downloadSize;
             }
@@ -306,8 +345,16 @@ export function getUpdates() {
 }
 
 function setUpdateProgress(status, progress = null) {
-    privilegedInterface.setData("updates_updateStatus", status);
-    privilegedInterface.setData("updates_updateProgress", progress);
+    if (status != lastUpdateStatus) {
+        privilegedInterface.setData("updates_updateStatus", status);
+        privilegedInterface.setData("updates_updateProgress", progress);
+
+        lastUpdateStatus = status;
+        lastUpdateProgress = progress;
+    }
+
+    pendingUpdateStatus = status;
+    pendingUpdateProgress = progress;
 }
 
 function executeScript(update, path) {
@@ -754,6 +801,10 @@ export function startUpdate(update) {
     }).catch(function(error) {
         console.error("Error occured during update:", error);
 
+        if (updateCancelled) {
+            error = "GOS_UPDATE_CANCELLED";
+        }
+
         updateInProgress = false;
         canCancelUpdate = true;
         updateCancelled = false;
@@ -918,4 +969,16 @@ export function init() {
             getUpdates();
         }
     });
+
+    setInterval(function() {
+        if (pendingUpdateStatus == lastUpdateStatus && pendingUpdateProgress == lastUpdateProgress) {
+            return;
+        }
+
+        privilegedInterface.setData("updates_updateStatus", pendingUpdateStatus);
+        privilegedInterface.setData("updates_updateProgress", pendingUpdateProgress);
+
+        lastUpdateStatus = pendingUpdateStatus;
+        lastUpdateProgress = pendingUpdateProgress;
+    }, 500);
 }

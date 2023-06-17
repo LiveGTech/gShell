@@ -822,6 +822,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                 .setAttribute("title", _("switcher_closeTab"))
                 .setAttribute("aria-label", _("switcher_closeTab"))
                 .on("click", function() {
+                    if (app.ancestor(".switcher_screen").find(".switcher_app").getAll().length <= 1) {
+                        goHome();
+                    }
+
                     closeApp(app);
                 })
                 .add(
@@ -950,7 +954,7 @@ export function closeWindow(element, animate = true) {
 
         (isLastScreen ? goHome() : Promise.resolve()).then(function() {
             setTimeout(function() {
-                if (!isLastScreen && device.data?.type == "desktop") {
+                if (!isLastScreen) {
                     main.selectDesktop();
 
                     element.remove();

@@ -715,7 +715,11 @@ exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
         return Promise.resolve(id);
     }
 
-    exports.executeCommand("sudo", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
+    exports.executeCommand("sudo", args, null, stdoutCallback, {
+        env: {
+            "DEBIAN_FRONTEND": "noninteractive"
+        }
+    }, abortControllerId).then(function(output) {
         aptInstallationProcesses[id].status = "success";
     }).catch(function(error) {
         console.error(error);

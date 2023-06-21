@@ -955,10 +955,10 @@ export function closeWindow(element, animate = true) {
         (isLastScreen ? goHome() : Promise.resolve()).then(function() {
             setTimeout(function() {
                 if (!isLastScreen) {
-                    main.selectDesktop();
-
                     element.remove();
                 } else {
+                    main.selectDesktop();
+
                     goHome().then(function() {
                         element.remove();
                     });

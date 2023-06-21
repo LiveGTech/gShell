@@ -22,15 +22,15 @@ export function enter() {
     powerMenu.close();
 
     $g.sel("#off").fadeIn().then(function() {
-        (
+        return (
             !$g.sel("#oobs").hasAttribute("hidden") ?
             Promise.resolve() :
             $g.sel("#lockScreenMain").screenJump()
-        ).then(function() {
-            sleeping = true;
+        );
+    }).then(function() {
+        sleeping = true;
 
-            gShell.call("power_sleep");
-        });
+        return gShell.call("power_sleep");
     });
 }
 

@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as system from "gshell://system/system.js";
 import * as device from "gshell://system/device.js";
 import * as sleep from "gshell://system/sleep.js";
 
@@ -79,10 +80,10 @@ export function init() {
     });
 
     $g.sel(".powerMenu_shutDown").on("click", function() {
-        gShell.call("power_shutDown");
+        system.shutDown();
     });
 
     $g.sel(".powerMenu_restart").on("click", function() {
-        gShell.call("power_restart");
+        system.restart();
     });
 }

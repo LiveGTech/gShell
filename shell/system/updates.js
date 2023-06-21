@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as openpgp from "gshell://lib/openpgp.min.mjs";
 
 import * as about from "gshell://about.js";
+import * as system from "gshell://system/system.js";
 import * as device from "gshell://system/device.js";
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
@@ -790,7 +791,7 @@ export function startUpdate(update) {
                 if (countdownValue == 0) {
                     clearInterval(countdownInterval);
                     
-                    gShell.call("power_restart");
+                    system.restart("toFinishUpdate");
                 }
             }, 1_000);
         }

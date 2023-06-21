@@ -100,7 +100,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
     restartButton.on("click", function() {
         _sphere.callPrivilegedCommand("updates_setShouldAutoRestart", {value: false}).then(function() {
-            _sphere.callPrivilegedCommand("power_restart");
+            _sphere.callPrivilegedCommand("system_restart", {reason: "toFinishUpdate"});
         });
     });
 

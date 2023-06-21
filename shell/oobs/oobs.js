@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 
+import * as system from "gshell://system/system.js";
 import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as updates from "gshell://system/updates.js";
@@ -154,7 +155,8 @@ export function finish() {
         return input.saveKeyboardLayoutsToConfig();
     }).then(function() {
         return users.create(undefined, {
-            displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim()
+            displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim(),
+            isAdmin: true
         });
     }).then(function(user) {
         credentials = new auth.UserAuthCredentials(user);
@@ -811,7 +813,7 @@ export function init() {
                 if (countdownValue == 0) {
                     clearInterval(countdownInterval);
 
-                    gShell.call("power_restart");
+                    system.restart("installationFinished");
                 }
             }, 1_000);
         }).catch(function(error) {
@@ -824,7 +826,7 @@ export function init() {
     });
 
     $g.sel(".oobs_installFinish_restart").on("click", function() {
-        gShell.call("power_restart");
+        system.restart("installationFinished");
     });
 
     $g.sel(".oobs_userProfile_next").on("click", function() {

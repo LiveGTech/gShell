@@ -8,6 +8,7 @@
 */
 
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
+import * as system from "gshell://system/system.js";
 import * as network from "gshell://system/network.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as updates from "gshell://system/updates.js";
@@ -19,8 +20,8 @@ import * as a11y from "gshell://a11y/a11y.js";
 export var data = {};
 
 export var commands = {
-    power_shutDown: () => gShell.call("power_shutDown"),
-    power_restart: () => gShell.call("power_restart"),
+    system_shutDown: (data) => system.shutDown(data.reason),
+    system_restart: (data) => system.restart(data.reason),
     network_getList: network.getList,
     network_scanWifi: network.scanWifi,
     network_disconnectWifi: (data) => network.disconnectWifi(data.name),

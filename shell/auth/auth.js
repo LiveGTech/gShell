@@ -301,10 +301,20 @@ function showLockScreen(authMethod) {
     });
 }
 
-export function start(user) {
+export function signIn(user) {
+    if (user == currentUserAuthCredentials?.user) {
+        return Promise.resolve();
+    }
+
     currentUserAuthCredentials = new UserAuthCredentials(user);
 
     return currentUserAuthCredentials.load().then(function() {
+        return currentUserAuthCredentials.user.addToHistory("signedIn");        
+    });
+}
+
+export function start(user) {
+    return signIn(user).then(function() {
         if (currentUserAuthCredentials.authMethods.length == 0) {
             return Promise.reject("No authentication methods are available");
         }

@@ -13,12 +13,16 @@ import * as config from "gshell://config/config.js";
 import * as auth from "gshell://auth/auth.js";
 import * as info from "gshell://global/info.js";
 
-var userStateChangeCallbacks = [];
-
 export class User {
     constructor(uid, data) {
         this.uid = uid;
         this.displayName = data?.displayName;
+        this.isAdmin = data?.isAdmin;
+
+        this.history = data?.history || [
+            {eventType: "created", performedAt: Date.now()},
+            ...(this.isAdmin ? [{eventType: "givenAdminPrivileges", performedAt: Date.now()}] : [])
+        ];
     }
 
     getAuthData() {
@@ -29,6 +33,16 @@ export class User {
         return config.write(`users/${this.uid}/auth.gsc`, data);
     }
 
+    addToHistory(eventType, data = {}) {
+        this.history.push({
+            eventType,
+            ...data,
+            performedAt: Date.now()
+        });
+
+        return this.save();
+    }
+
     save() {
         var thisScope = this;
 
@@ -36,7 +50,9 @@ export class User {
             allData.users ||= {};
 
             allData.users[thisScope.uid] = {
-                displayName: thisScope.displayName
+                displayName: thisScope.displayName,
+                isAdmin: thisScope.isAdmin,
+                history: thisScope.history
             };
 
             return Promise.resolve(allData);

@@ -736,7 +736,7 @@ export function init() {
                     size: Number(parts[2]),
                     label: parts.slice(3).join(" ")
                 };
-            }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
+            }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && disk.label != "LiveG-OS-IM" && !disk.readOnly);
 
             systemSize = Number((lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
             systemSize += SYSTEM_SIZE_PADDING;

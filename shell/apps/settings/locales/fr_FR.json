@@ -18,6 +18,19 @@
         "none": "(Aucune)",
         "optional": "(Optionnel)",
 
+        "size_bytes": {
+            "{size} == 1": "{size} octet",
+            "{size} != 1": "{size} octets"
+        },
+        "size_kb": "{size} Ko",
+        "size_mb": "{size} Mo",
+        "size_gb": "{size} Go",
+        "size_tb": "{size} To",
+        "size_kib": "{size} Kio",
+        "size_mib": "{size} Mio",
+        "size_gib": "{size} Gio",
+        "size_tib": "{size} Tio",
+
         "network": "Réseau",
 
         "network_summary": "Wi-Fi, Ethernet",
@@ -126,6 +139,70 @@
 
         "a11y_reduceMotion": "Réduisez les animations et les mouvements non essentiels",
 
+        "interaction": "Interaction et confidentialité",
+        "interaction_summary": "Choisissez comment vous souhaitez interagir avec LiveG",
+
+        "interaction_checkForUpdates": "Vérifier automatiquement les mises à jour système en arrière-plan",
+        "interaction_checkForUpdates_description": "Votre appareil ne se mettra pas à jour automatiquement sans votre consentement, mais il est recommandé d'activer cette option afin d'être averti lorsqu'une nouvelle version ou mise à jour de sécurité de LiveG OS sort.",
+
+        "interaction_researchTelemetry": "Télémétrie de recherche sur l'utilisation des appareils",
+        "interaction_researchTelemetry_description1": "Lorsqu'elle est activée, des informations sur la façon dont vous utilisez votre appareil (telles que les applications que vous avez installées et les paramètres système que vous avez activés) seront envoyées à LiveG afin que des améliorations de LiveG OS puissent être apportées en fonction de votre propre utilisation.",
+        "interaction_researchTelemetry_description2": "Les résultats statistiques cumulés produits à partir des données collectées dans le cadre d'un large échantillon d'appareils peuvent être partagés publiquement dans un souci d'ouverture. Les objectifs de recherche peuvent changer entre les mises à jour système, et vous pouvez choisir si vous souhaitez être informé de ces changements.",
+        "interaction_researchTelemetry_enable": "Activer la télémétrie de recherche",
+        "interaction_researchTelemetry_notifyChanges": "Soyez averti lorsque les objectifs de recherche changent",
+
+        "interaction_privacyInfo": "Informations de confidentialité",
+        "interaction_privacyInfo_description": "Les informations que LiveG collecte à partir de votre appareil sont utilisées pour aider LiveG à déterminer quelles améliorations de LiveG OS doivent être apportées ou priorisées. Lorsque ces options d'interaction sont activées, les données envoyées depuis votre appareil ne contiendront rien qui révélerait vos informations personnelles. Vous pouvez activer ou désactiver ces options à tout moment.",
+        "interaction_privacyInfo_link": "En savoir plus sur votre confidentialité lorsque vous utilisez LiveG OS",
+
+        "updates": "Mises à jour système",
+        "updates_summary": "Installer des améliorations sur votre appareil",
+
+        "updates_loading": "Chargement des informations de mise à jour...",
+        "updates_latest": "Nouvelle mise à jour",
+        "updates_updateNow": "Mettez à jour maintenant",
+        "updates_checkAgain": "Revérifier",
+        "updates_restart": "Redémarrer",
+        "updates_cancelRestart": "Annuler le redémarrage",
+        "updates_restartAfterComplete": "Redémarrez l'appareil une fois la mise à jour terminée",
+        "updates_powerWarning": "Cela peut prendre un certain temps. Veuillez ne pas éteindre cet appareil.",
+        "updates_cannotCancel": "Vous ne pouvez pas annuler la mise à jour à ce stade.",
+
+        "updates_info_name": " LiveG OS",
+        "updates_info_version": " {version}",
+        "updates_info_estimatedDownloadSize": "Taille du téléchargement (estimé) : {size}",
+
+        "updates_upToDate_title": "Votre appareil est à jour",
+        "updates_upToDate_description": "La dernière mise à jour pour votre appareil est déjà installée.",
+
+        "updates_checkingFailed_title": "Impossible de vérifier les mises à jour",
+        "updates_checkingFailed_description": "Vérifiez votre connexion à internet et réessayez.",
+
+        "updates_offline_title": "Vous êtes déconnecté",
+        "updates_offline_description": "Pour vérifier les mises à jour, connectez-vous à internet.",
+
+        "updates_status_notStarted": "Lancement de la mise à jour...",
+        "updates_status_updatingDownloadSources": "Mise à jour de la liste des sources de téléchargement...",
+        "updates_status_downloading": "Téléchargement des fichiers requis pour la mise à jour... ({progress} %)",
+        "updates_status_extracting": "Extraction des fichiers de mise à jour... ({progress} %)",
+        "updates_status_installing": "Installation de mise à jour... ({progress} %)",
+
+        "updates_failed_title": "La mise à jour a échoué",
+        "updates_failed_description_recoverable": "Une erreur s'est produite qui a provoqué l'abandon de la mise à jour, et aucune modification du système n'a été apportée. Vérifiez votre connexion à internet et réessayez.",
+        "updates_failed_description_unstable": "Une erreur s'est produite qui a provoqué l'abandon de la mise à jour pendant que des modifications étaient apportées au système. Si vous rencontrez une instabilité du système, vous souhaiterez peut-être réinstaller LiveG OS sur cet appareil.",
+        "updates_failed_error": "Code d'erreur :",
+
+        "updates_readyToRestart_description": "Cette mise à jour est maintenant installée. Lorsque vous êtes prêt, redémarrez votre appareil pour appliquer la mise à jour.",
+        "updates_readyToRestart_autoRestartWarning": "Cet appareil a été configuré pour redémarrer automatiquement dans 10 secondes.",
+
+        "advanced": "Options avancées",
+        "advanced_summary": "Paramètres supplémentaires pour les utilisateurs expérimentés et les développeurs",
+
+        "advanced_updates": "Mises à jour système",
+
+        "advanced_updates_updateCircuit": "Circuit de mise à jour",
+        "advanced_updates_updateCircuit_description": "Avoir accès aux fonctionnalités de pré-version en passant à un circuit de mise à jour différent. Le passage à d'autres circuits de mise à jour peut réduire la stabilité du système.",
+
         "about": "À propos de cet appareil",
         "about_summary": "Afficher les informations sur le système et le matériel",
 
@@ -133,7 +210,7 @@
         "about_version": "Variante {version}",
         "about_copyright": "Droits d'auteur © LiveG. Tous les droits sont réservés.",
 
-        "about_deviceInfo": "Info appareil",
+        "about_deviceInfo": "Informations sur cet appareil",
         "about_deviceInfo_name": "Nom du produit",
         "about_deviceInfo_manufacturer": "Fabricant",
         "about_deviceInfo_serial": "Numéro de série"

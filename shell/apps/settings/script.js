@@ -17,15 +17,21 @@ astronaut.unpack();
 import * as shortcuts from "./shortcuts.js";
 import * as network from "./networkpage.js";
 import * as l10n from "./l10npage.js";
-import * as a11y from "./a11ypage.js";
-import * as about from "./aboutpage.js";
 import * as personalisation from "./personalisationpage.js";
+import * as a11y from "./a11ypage.js";
+import * as interaction from "./interactionpage.js";
+import * as updates from "./updatespage.js";
+import * as advanced from "./advancedpage.js";
+import * as about from "./aboutpage.js";
 
 export const PAGE_ICONS = {
     network: "wifi",
     l10n: "language",
     personalisation: "brush",
     a11y: "a11y",
+    interaction: "interaction",
+    updates: "update",
+    advanced: "quicksettings",
     about: "info"
 };
 
@@ -104,12 +110,19 @@ $g.waitForLoad().then(function() {
         return locale.translate(...arguments);
     };
 
+    window._format = function() {
+        return locale.format(...arguments);
+    };
+
     $g.sel("title").setText(_("settings"));
 
     pages.network = network.NetworkPage() ();
     pages.l10n = l10n.L10nPage() ();
     pages.personalisation = personalisation.PersonalisationPage() ();
     pages.a11y = a11y.A11yPage() ();
+    pages.interaction = interaction.InteractionPage() ();
+    pages.updates = updates.UpdatesPage() ();
+    pages.advanced = advanced.AdvancedPage() ();
     pages.about = about.AboutPage() ();
 
     Object.keys(pages).forEach(function(pageId) {

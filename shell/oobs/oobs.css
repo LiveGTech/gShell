@@ -41,6 +41,7 @@
 }
 
 .oobs_content > div {
+    max-height: 100%;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
 }

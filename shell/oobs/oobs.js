@@ -11,8 +11,11 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import * as sizeUnits from "gshell://lib/adaptui/src/sizeunits.js";
 
+import * as system from "gshell://system/system.js";
 import * as config from "gshell://config/config.js";
 import * as l10n from "gshell://config/l10n.js";
+import * as updates from "gshell://system/updates.js";
+import * as interaction from "gshell://system/interaction.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as users from "gshell://config/users.js";
 import * as auth from "gshell://auth/auth.js";
@@ -143,10 +146,17 @@ export function finish() {
             localeCode: l10n.currentLocale.localeCode
         });
     }).then(function() {
+        return updates.setShouldAutoCheckForUpdates($g.sel("#oobs_interaction_checkForUpdates").getValue());
+    }).then(function() {
+        return interaction.setOption("researchTelemetryEnabled", $g.sel("#oobs_interaction_researchTelemetry").getValue());
+    }).then(function() {
+        return interaction.setOption("notifyResearchChanges", $g.sel("#oobs_interaction_researchTelemetry_notifyChanges").getValue());
+    }).then(function() {
         return input.saveKeyboardLayoutsToConfig();
     }).then(function() {
         return users.create(undefined, {
-            displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim()
+            displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim(),
+            isAdmin: true
         });
     }).then(function(user) {
         credentials = new auth.UserAuthCredentials(user);
@@ -178,14 +188,30 @@ function dummyDelay() {
     });
 }
 
-function getKeyboardLayouts() {
-    return input.getKeyboardLayoutDataForLocale($g.sel("#oobs_l10n_localeVariation").getValue()).then(function(data) {
+function updateKeyboardLayoutsList(language, preferredLayoutLocaleCode = $g.sel("#oobs_l10n_localeVariation").getValue()) {
+    return Promise.all(Object.keys(language.locales).map((localeCode) => input.getKeyboardLayoutDataForLocale(localeCode))).then(function(data) {
+        var layouts = data.flat();
+
         $g.sel("#oobs_l10n_keyboardLayout").clear().add(
-            ...data.map((layout) => $g.create("option")
+            ...layouts.map((layout) => $g.create("option")
                 .setAttribute("value", layout.path)
                 .setText(layout.layout.metadata.variantName)
             )
         );
+
+        var selectedPreferredLayout = false;
+
+        layouts.forEach(function(layout) {
+            if (selectedPreferredLayout) {
+                return;
+            }
+
+            if (layout.layout.localeCode == preferredLayoutLocaleCode) {
+                $g.sel("#oobs_l10n_keyboardLayout").setValue(layout.path);
+
+                selectedPreferredLayout = true;
+            }
+        })
 
         function setKeyboardLayout() {
             input.clearKeyboardLayouts();
@@ -497,7 +523,7 @@ function processInstallation() {
 
                         switch (info.status) {
                             case "running":
-                                setTimeout(poll);
+                                requestAnimationFrame(poll);
                                 break;
 
                             case "success":
@@ -585,7 +611,9 @@ function checkDisplayName() {
 
     $g.sel(".oobs_userProfile_error").setText("");
 
-    selectStep("finish");
+    gShell.call("system_isInstallationMedia").then(function(isInstallationMedia) {
+        selectStep(isInstallationMedia ? "finish" : "interaction");
+    });
 }
 
 export function init() {
@@ -641,10 +669,12 @@ export function init() {
                     l10n.apply(language.baseLocale);
 
                     $g.sel("#oobs_l10n_localeVariation").clear().add(
-                        ...Object.keys(language.locales).map((localeCode) => $g.create("option")
-                            .setAttribute("value", localeCode)
-                            .setText(language.locales[localeCode])
-                        )
+                        ...Object.keys(language.locales)
+                            .filter((localeCode) => language.locales[localeCode] != null) // Locale names marked as `null` have their keyboard layouts implemented but have no locale file
+                            .map((localeCode) => $g.create("option")
+                                .setAttribute("value", localeCode)
+                                .setText(language.locales[localeCode])
+                            )
                     );
 
                     $g.sel("#oobs_l10n_localeVariation").setValue(language.baseLocale);
@@ -652,10 +682,10 @@ export function init() {
                     $g.sel("#oobs_l10n_localeVariation").on("change", function() {
                         l10n.apply($g.sel("#oobs_l10n_localeVariation").getValue());
 
-                        getKeyboardLayouts();
+                        updateKeyboardLayoutsList(language);
                     });
 
-                    getKeyboardLayouts();
+                    updateKeyboardLayoutsList(language);
 
                     selectStep("l10n");
                 })
@@ -706,9 +736,9 @@ export function init() {
                     size: Number(parts[2]),
                     label: parts.slice(3).join(" ")
                 };
-            }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && !disk.readOnly);
+            }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && disk.label != "LiveG-OS-IM" && !disk.readOnly);
 
-            systemSize = Number((lines.find((line) => line.startsWith("sr0")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
+            systemSize = Number((lines.find((line) => line.endsWith(" LiveG-OS-IM")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
             systemSize += SYSTEM_SIZE_PADDING;
 
             if (installDisks.length > 0) {
@@ -775,7 +805,7 @@ export function init() {
 
             $g.sel(".oobs_installFinish_countdown").setText(_format(countdownValue));
 
-            var countdownInterval = setInterval(function countdown() {
+            var countdownInterval = setInterval(function() {
                 countdownValue--;
 
                 $g.sel(".oobs_installFinish_countdown").setText(_format(countdownValue));
@@ -783,7 +813,7 @@ export function init() {
                 if (countdownValue == 0) {
                     clearInterval(countdownInterval);
 
-                    gShell.call("power_restart");
+                    system.restart("installationFinished");
                 }
             }, 1_000);
         }).catch(function(error) {
@@ -796,7 +826,7 @@ export function init() {
     });
 
     $g.sel(".oobs_installFinish_restart").on("click", function() {
-        gShell.call("power_restart");
+        system.restart("installationFinished");
     });
 
     $g.sel(".oobs_userProfile_next").on("click", function() {
@@ -806,6 +836,15 @@ export function init() {
     $g.sel("#oobs_userProfile_displayName").on("keydown", function(event) {
         if (event.key == "Enter") {
             checkDisplayName();
+        }
+    });
+
+    $g.sel("#oobs_interaction_researchTelemetry").on("change", function() {
+        if ($g.sel("#oobs_interaction_researchTelemetry").getValue()) {
+            $g.sel(".oobs_interaction_researchTelemetry_dependency").removeAttribute("inert");
+        } else {
+            $g.sel(".oobs_interaction_researchTelemetry_dependency").setAttribute("inert", "dependent");
+            $g.sel("#oobs_interaction_researchTelemetry_notifyChanges").setValue(false);
         }
     });
 }

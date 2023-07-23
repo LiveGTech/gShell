@@ -11,20 +11,56 @@ const child_process = require("child_process");
 const stream = require("stream");
 const fs = require("fs");
 const electron = require("electron");
+const electronFetch = require("electron-fetch").default;
+const electronDl = require("electron-dl");
 const bcryptjs = require("bcryptjs");
 
 var main = require("./main");
 var flags = require("./flags");
+var storage = require("./storage");
 var device = require("./device");
 
 var mediaFeatures = {};
 var currentUserAgent = null;
 var currentLocale = null;
+var abortControllers = [];
 var copyRsyncProcesses = [];
+var extractArchiveProcesses = [];
+var downloadFileProcesses = [];
+var downloadFileItems = [];
+var aptInstallationProcesses = [];
 
-exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
+function createAbortControllerId() {
+    abortControllers.push(new AbortController());
+
+    return abortControllers.length - 1;
+}
+
+exports.registerAbortController = function() {
+    return Promise.resolve(createAbortControllerId());
+};
+
+exports.triggerAbortController = function(id) {
+    if (id >= abortControllers.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    abortControllers[id].abort();
+
+    return Promise.resolve();
+};
+
+exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}, abortControllerId = null) {
+    if (abortControllerId != null) {
+        if (abortControllerId >= abortControllers.length) {
+            return Promise.reject("ID does not exist");
+        }
+
+        options.signal = abortControllers[abortControllerId].signal;
+    }
+
     return new Promise(function(resolve, reject) {
-        var child = child_process.execFile(command, args, {maxBuffer: 8 * (1_024 ** 2)}, function(error, stdout, stderr) {
+        var child = child_process.execFile(command, args, {maxBuffer: 8 * (1_024 ** 2), ...options}, function(error, stdout, stderr) {
             if (error) {
                 console.error("error:", error);
                 console.error("stderr:", stderr);
@@ -49,11 +85,15 @@ exports.executeCommand = function(command, args = [], stdin = null, stdoutCallba
             child.stdout.on("data", function(data) {
                 stdoutCallback(data.toString());
             });
+
+            child.stderr.on("data", function(data) {
+                stdoutCallback(data.toString());
+            });
         }
     });
 };
 
-exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null) {
+exports.executeOrLogCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}, abortControllerId = null) {
     if (!flags.isRealHardware) {
         console.log(`Execute command: ${command} ${args.join(" ")}; stdin: ${stdin}`);
 
@@ -106,11 +146,13 @@ exports.copyFiles = function(source, destination, privileged = false, exclude = 
     args.push(source, destination);
 
     var id = copyRsyncProcesses.length;
+    var abortControllerId = createAbortControllerId();
 
     copyRsyncProcesses.push({
         status: "running",
         stdout: "",
-        progress: null
+        progress: null,
+        abortControllerId
     });
 
     function stdoutCallback(data) {
@@ -129,7 +171,7 @@ exports.copyFiles = function(source, destination, privileged = false, exclude = 
         copyRsyncProcesses[id].progress = Number(parseInt(parts[1]) / 100) || 0;
     }
 
-    exports.executeCommand(privileged ? "sudo" : "rsync", args, null, stdoutCallback).then(function(output) {
+    exports.executeCommand(privileged ? "sudo" : "rsync", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
         copyRsyncProcesses[id].status = "success";
     }).catch(function(error) {
         console.error(error);
@@ -146,6 +188,59 @@ exports.getCopyFileInfo = function(id) {
     }
 
     return Promise.resolve(copyRsyncProcesses[id]);
+};
+
+exports.extractArchive = function(source, destination, getProcessId = false) {
+    var args = [`${main.rootDirectory}/src/scripts/extractarchive.sh`, storage.getPath(source), storage.getPath(destination)];
+
+    var id = extractArchiveProcesses.length;
+    var abortControllerId = createAbortControllerId();
+
+    extractArchiveProcesses.push({
+        status: "running",
+        stdout: "",
+        progress: null,
+        abortControllerId
+    });
+
+    function stdoutCallback(data) {
+        extractArchiveProcesses[id].stdout += data;
+
+        var lines = extractArchiveProcesses[id].stdout.split("\n");
+        var lastCompleteLine = lines.slice(lines.length - 2)[0];
+
+        if (!lastCompleteLine?.match(/[0-9]+/)) {
+            return;
+        }
+
+        extractArchiveProcesses[id].progress = Number(parseInt(lastCompleteLine) / 100) || 0;
+    }
+
+    var promise = exports.executeCommand("bash", args, null, stdoutCallback, {}, abortControllerId).then(function(output) {
+        extractArchiveProcesses[id].status = "success";
+
+        return Promise.resolve();
+    }).catch(function(error) {
+        console.error(error);
+
+        extractArchiveProcesses[id].status = "error";
+
+        return Promise.reject(error);
+    });
+
+    if (getProcessId) {
+        return Promise.resolve(id);
+    }
+
+    return promise;
+};
+
+exports.getExtractArchiveInfo = function(id) {
+    if (id >= extractArchiveProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(extractArchiveProcesses[id]);
 };
 
 exports.parseNmcliLine = function(line) {
@@ -312,6 +407,16 @@ exports.setLocale = function(localeCode = currentLocale) {
     }));
 };
 
+exports.setKeyboardLayout = function(layout, variant = null) {
+    var args = ["-layout", layout];
+
+    if (variant) {
+        args.push("-variant", variant);
+    }
+
+    return exports.executeCommand("setxkbmap", args);
+};
+
 exports.bcryptHash = function(data, saltRounds) {
     return new Promise(function(resolve, reject) {
         bcryptjs.hash(data, saltRounds, function(error, hash) {
@@ -463,6 +568,174 @@ exports.networkConnectWifi = function(name) {
 
         return Promise.resolve("connected");
     });
+};
+
+exports.getContentLength = function(url) {
+    return electronFetch(url, {method: "HEAD", cache: "no-store"}).then(function(response) {
+        return Promise.resolve(Number(response.headers.get("Content-Length")));
+    });
+};
+
+exports.downloadFile = function(url, destination, getProcessId = false) {
+    var path = storage.getPath(destination).split("/");
+    var filename = path.pop();
+    var folder = path.join("/");
+
+    var id = downloadFileProcesses.length;
+    var abortControllerId = createAbortControllerId();
+
+    downloadFileProcesses.push({
+        status: "running",
+        downloadedBytes: null,
+        totalBytes: null,
+        progress: 0,
+        abortControllerId
+    });
+
+    downloadFileItems.push(null);
+
+    var promise = exports.getContentLength(url).then(function(downloadSize) {
+        return electronDl.download(main.window, url, {
+            filename,
+            directory: folder,
+            onStarted: function(item) {
+                if (downloadFileProcesses[id].status == "cancelled") {
+                    item.cancel();
+                }
+
+                downloadFileItems[id] = item;
+            },
+            onProgress: function(data) {
+                var total = data.totalBytes || downloadSize;
+
+                downloadFileProcesses[id].downloadedBytes = data.transferredBytes;
+                downloadFileProcesses[id].totalBytes = total;
+                downloadFileProcesses[id].progress = total > 0 ? (data.transferredBytes / total) : 0;
+            }
+        })
+    }).then(function() {
+        downloadFileProcesses[id].status = "success";
+
+        return Promise.resolve();
+    }).catch(function(error) {
+        console.error(error);
+
+        downloadFileProcesses[id].status = "error";
+
+        return Promise.reject(error);
+    });
+
+    abortControllers[abortControllerId].signal.onabort = function() {
+        exports.cancelFileDownload(id);
+    };
+
+    if (getProcessId) {
+        return Promise.resolve(id);
+    }
+
+    return promise;
+};
+
+exports.getDownloadFileInfo = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(downloadFileProcesses[id]);
+};
+
+exports.pauseFileDownload = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    downloadFileProcesses[id].status = "paused";
+
+    downloadFileItems[id]?.pause();
+};
+
+exports.resumeFileDownload = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    downloadFileProcesses[id].status = "running";
+
+    downloadFileItems[id]?.resume();
+};
+
+exports.cancelFileDownload = function(id) {
+    if (id >= downloadFileProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    downloadFileProcesses[id].status = "cancelled";
+
+    downloadFileItems[id]?.cancel();
+};
+
+exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
+    var args = ["apt-get", "install", "-o", "APT::Status-Fd=1"];
+
+    if (downloadOnly) {
+        args.push("--download-only");
+    }
+
+    args.push(...packageNames);
+
+    var id = aptInstallationProcesses.length;
+    var abortControllerId = createAbortControllerId();
+
+    aptInstallationProcesses.push({
+        status: "running",
+        stdout: "",
+        progress: null,
+        abortControllerId
+    });
+
+    function stdoutCallback(data) {
+        aptInstallationProcesses[id].stdout += data;
+
+        var lines = aptInstallationProcesses[id].stdout.split("\n");
+
+        aptInstallationProcesses[id].stdout = lines.slice(lines.length - 2).join("\n");
+
+        var match = lines.slice(lines.length - 2)[0]?.match(/^(?:dlstatus|pmstatus):(\d+\.\d+)/);
+
+        if (!match) {
+            return;
+        }
+
+        aptInstallationProcesses[id].progress = parseFloat(match[1]) / 100;
+    }
+
+    if (packageNames.length == 0) {
+        aptInstallationProcesses[id].status = "success";
+
+        return Promise.resolve(id);
+    }
+
+    exports.executeCommand("sudo", args, null, stdoutCallback, {
+        env: {
+            "DEBIAN_FRONTEND": "noninteractive"
+        }
+    }, abortControllerId).then(function(output) {
+        aptInstallationProcesses[id].status = "success";
+    }).catch(function(error) {
+        console.error(error);
+
+        aptInstallationProcesses[id].status = "error";
+    });
+
+    return Promise.resolve(id);
+};
+
+exports.getAptInstallationInfo = function(id) {
+    if (id >= aptInstallationProcesses.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    return Promise.resolve(aptInstallationProcesses[id]);
 };
 
 exports.devRestart = function() {

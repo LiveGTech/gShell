@@ -2,7 +2,8 @@
     "localeCode": "zh_CN",
     "variant": "qwerty",
     "metadata": {
-        "variantName": "QWERTY"
+        "variantName": "QWERTY",
+        "physicalLayout": "cn"
     },
     "inputMethodPaths": [
         "gshell://input/imedata/zh_CN_pinyin.gime"

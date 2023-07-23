@@ -92,16 +92,11 @@ export var L10nPage = astronaut.component("L10nPage", function(props, children) 
         localeSelectionInput.setValue($g.l10n.getSystemLocaleCode());
     });
 
-    function updateData() {
-        _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
-            layoutOptions = options;
+    _sphere.callPrivilegedCommand("input_getAllKeyboardLayoutOptions").then(function(options) {
+        layoutOptions = options;
 
-            renderLayoutsList();
-        });
-    }
-
-    _sphere.onPrivilegedDataUpdate(updateData);
-    updateData();
+        renderLayoutsList();
+    });
 
     setInterval(function() {
         if (layoutsListIsDirty) {

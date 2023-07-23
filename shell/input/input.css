@@ -38,6 +38,10 @@
     bottom: unset;
 }
 
+.input.imeOnly.nGramsFoundOnly {
+    display: none;
+}
+
 .input.floating {
     width: 22rem;
     height: 18rem;

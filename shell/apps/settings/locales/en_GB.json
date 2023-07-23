@@ -18,6 +18,19 @@
         "none": "(None)",
         "optional": "(Optional)",
 
+        "size_bytes": {
+            "{size} == 1": "{size} byte",
+            "{size} != 1": "{size} bytes"
+        },
+        "size_kb": "{size} KB",
+        "size_mb": "{size} MB",
+        "size_gb": "{size} GB",
+        "size_tb": "{size} TB",
+        "size_kib": "{size} KiB",
+        "size_mib": "{size} MiB",
+        "size_gib": "{size} GiB",
+        "size_tib": "{size} TiB",
+
         "network": "Network",
 
         "network_summary": "Wi-Fi, Ethernet",
@@ -126,6 +139,70 @@
 
         "a11y_reduceMotion": "Reduce animations and non-essential motion",
 
+        "interaction": "Interaction and privacy",
+        "interaction_summary": "Choose how you wish to interact with LiveG",
+
+        "interaction_checkForUpdates": "Automatically check for system updates in the background",
+        "interaction_checkForUpdates_description": "Your device won't update automatically without your consent, but it is recommended to enable this option so that you can be notified when a new version or security update of LiveG OS comes out.",
+
+        "interaction_researchTelemetry": "Device usage research telemetry",
+        "interaction_researchTelemetry_description1": "When enabled, information about how you use your device (such as what apps you have installed and what system settings you have enabled) will be sent to LiveG so that improvements to LiveG OS can be made based on your own usage.",
+        "interaction_researchTelemetry_description2": "Cumulative statistical results produced from the data collected as part of a large sample of devices may be shared publicly in the interest of openness. Research objectives may change between system updates, and you can choose whether you wish to be notified of such changes.",
+        "interaction_researchTelemetry_enable": "Enable research telemetry",
+        "interaction_researchTelemetry_notifyChanges": "Be notified when research objectives change",
+
+        "interaction_privacyInfo": "Privacy information",
+        "interaction_privacyInfo_description": "The information that LiveG collects from your device is used to help LiveG to determine what improvements to LiveG OS should be made or prioritised. When you have these interaction options enabled, any data sent from your device will not contain anything that would reveal your personal information. You can opt in or out of these options at any time.",
+        "interaction_privacyInfo_link": "Find out more about your privacy when using LiveG OS",
+
+        "updates": "System updates",
+        "updates_summary": "Install updates that bring improvements to your device",
+
+        "updates_loading": "Loading update information...",
+        "updates_latest": "Latest update",
+        "updates_updateNow": "Update now",
+        "updates_checkAgain": "Check again",
+        "updates_restart": "Restart",
+        "updates_cancelRestart": "Cancel restart",
+        "updates_restartAfterComplete": "Restart device after update has been completed",
+        "updates_powerWarning": "This might take a while. Please do not power off this device.",
+        "updates_cannotCancel": "You cannot cancel the update at this stage.",
+
+        "updates_info_name": " LiveG OS",
+        "updates_info_version": " {version}",
+        "updates_info_estimatedDownloadSize": "Download size (estimated): {size}",
+
+        "updates_upToDate_title": "Your device is up to date",
+        "updates_upToDate_description": "The latest update for your device is already installed.",
+
+        "updates_checkingFailed_title": "Couldn't check for updates",
+        "updates_checkingFailed_description": "Check your connection to the internet and try again.",
+
+        "updates_offline_title": "You're offline",
+        "updates_offline_description": "To check for updates, connect to the internet.",
+
+        "updates_status_notStarted": "Starting update...",
+        "updates_status_updatingDownloadSources": "Updating download source list...",
+        "updates_status_downloading": "Downloading required files for update... ({progress}%)",
+        "updates_status_extracting": "Extracting update files... ({progress}%)",
+        "updates_status_installing": "Installing update... ({progress}%)",
+
+        "updates_failed_title": "Update was not successful",
+        "updates_failed_description_recoverable": "An error occurred which caused the update to be aborted, and no changes to the system were made. Check your connection to the internet and try again.",
+        "updates_failed_description_unstable": "An error occurred which caused the update to be aborted while changes to the system were being made. If you experience any system instability, then you may want to reinstall LiveG OS to this device.",
+        "updates_failed_error": "Error code:",
+
+        "updates_readyToRestart_description": "This update has now been installed. When you're ready, restart your device to apply the update.",
+        "updates_readyToRestart_autoRestartWarning": "This device has been set to automatically restart in 10 seconds.",
+
+        "advanced": "Advanced options",
+        "advanced_summary": "Additional settings for power users and developers",
+
+        "advanced_updates": "System updates",
+
+        "advanced_updates_updateCircuit": "Update circuit",
+        "advanced_updates_updateCircuit_description": "Get access to pre-release features by switching to a different update circuit. Switching to other update circuits may reduce system stability.",
+
         "about": "About this device",
         "about_summary": "View OS and hardware information",
 
@@ -133,7 +210,7 @@
         "about_version": "Version {version}",
         "about_copyright": "Copyright © LiveG. All Rights Reserved.",
 
-        "about_deviceInfo": "Device info",
+        "about_deviceInfo": "Device information",
         "about_deviceInfo_name": "Product name",
         "about_deviceInfo_manufacturer": "Manufacturer",
         "about_deviceInfo_serial": "Serial number"

@@ -9,7 +9,9 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as system from "gshell://system/system.js";
 import * as device from "gshell://system/device.js";
+import * as debug from "gshell://system/debug.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as pointer from "gshell://global/pointer.js";
@@ -21,6 +23,8 @@ import * as info from "gshell://global/info.js";
 import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
+import * as updates from "gshell://system/updates.js";
+import * as interaction from "gshell://system/interaction.js";
 import * as input from "gshell://input/input.js";
 import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as auth from "gshell://auth/auth.js";
@@ -37,13 +41,21 @@ var oobsActivated = false;
 $g.waitForLoad().then(function() {
     return $g.templates.apply();
 }).then(function() {
+    return system.init();
+}).then(function() {
     return device.init();
+}).then(function() {
+    return debug.init();
 }).then(function() {
     return webviewManager.init();
 }).then(function() {
     return l10n.loadFromConfig();
 }).then(function() {
     return a11y.load();
+}).then(function() {
+    return updates.load();
+}).then(function() {
+    return interaction.load();
 }).then(function() {
     return users.getList();
 }).then(function(userList) {
@@ -62,6 +74,7 @@ $g.waitForLoad().then(function() {
     info.init();
     powerMenu.init();
     network.init();
+    updates.init();
     input.init();
     personalisation.init();
     home.init();

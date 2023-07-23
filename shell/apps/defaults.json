@@ -74,6 +74,34 @@
                 },
                 {
                     "name": {
+                        "en_GB": "Interaction and privacy",
+                        "fr_FR": "Interaction et confidentialité"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=interaction"
+                },
+                {
+                    "name": {
+                        "en_GB": "Device usage research telemetry",
+                        "fr_FR": "Télémétrie de recherche sur l'utilisation des appareils"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=interaction_researchTelemetry"
+                },
+                {
+                    "name": {
+                        "en_GB": "Privacy information",
+                        "fr_FR": "Informations de confidentialité"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=interaction_privacyInfo"
+                },
+                {
+                    "name": {
+                        "en_GB": "System updates",
+                        "fr_FR": "Mises à jour système"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=updates"
+                },
+                {
+                    "name": {
                         "en_GB": "About this device",
                         "fr_FR": "À propos de cet appareil"
                     },
@@ -81,8 +109,15 @@
                 },
                 {
                     "name": {
-                        "en_GB": "Device info",
-                        "fr_FR": "Info appareil"
+                        "en_GB": "Advanced options",
+                        "fr_FR": "Options avancées"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=advanced"
+                },
+                {
+                    "name": {
+                        "en_GB": "Device information",
+                        "fr_FR": "Informations sur cet appareil"
                     },
                     "url": "gshell://apps/settings/index.html?shortcut=about_deviceInfo"
                 }

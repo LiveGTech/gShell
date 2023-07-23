@@ -156,7 +156,7 @@ export function init() {
         var query = $g.sel(".home_appMenuSearchInput").getValue();
         var results = searcher.search(query);
 
-        if (query == "") {
+        if (query.trim() == "") {
             searchLastView.select();
 
             return;

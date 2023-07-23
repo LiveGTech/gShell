@@ -447,10 +447,11 @@ export class InputMethod {
         this.nGramDictionary = {};
         this.wordDictionary = [];
 
-        this.wordInputs = [];
-        this.wordSearch = null;
+        this._wordInputs = [];
+        this._wordSearch = null;
 
-        this.reindexDictionaries();
+        this.dictionariesIndexed = false;
+        this.nGramsFoundOnly = true;
     }
 
     serialiseForOptionSelection() {
@@ -477,21 +478,37 @@ export class InputMethod {
         instance.nGramDictionary = data.nGramDictionary || {};
         instance.wordDictionary = data.wordDictionary || [];
 
-        instance.reindexDictionaries();
-
         return instance;
     }
 
     reindexDictionaries() {
-        this.wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
+        this._wordInputs = [...new Set(this.wordDictionary.map((result) => result.input))];
 
-        this.wordSearch = new MiniSearch({
+        this._wordSearch = new MiniSearch({
             idField: "input",
             fields: ["input"],
             storeFields: ["input", "result", "weighting"]
         });
 
-        this.wordSearch.addAll(this.wordDictionary);
+        this._wordSearch.addAll(this.wordDictionary);
+
+        this.dictionariesIndexed = true;
+    }
+
+    get wordInputs() {
+        if (!this.dictionariesIndexed) {
+            this.reindexDictionaries();
+        }
+
+        return this._wordInputs;
+    }
+
+    get wordSearch() {
+        if (!this.dictionariesIndexed) {
+            this.reindexDictionaries();
+        }
+
+        return this._wordSearch;
     }
 
     getInputWord(buffer = inputEntryBuffer, wordLength = inputEntryWordLength) {
@@ -545,14 +562,36 @@ export class InputMethod {
     getCandidates(nGramLength = this.nGramLength) {
         var thisScope = this;
 
-        var nGramResults = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, nGramLength).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
+        var nGramResults = [];
+
+        for (var i = 2; i <= nGramLength; i++) {
+            var nGram = this.nGramDictionary[this.getNGram(inputEntryBuffer, inputEntryWordLength, i).join(N_GRAM_DICTIONARY_SEPARATOR)] || [];
+
+            nGram.forEach(function(result) {
+                result = {...result};
+
+                result.weighting *= i / nGramLength;
+
+                nGramResults.push(result);
+            });
+        }
+
         var wordResults = this.wordSearch.search(this.getPartialWord(this.getInputWord()).substring(0, MAX_WORD_MATCH_LENGTH), {prefix: true, fuzzy: 0.2});
         var allCandidates = [];
 
         var wordResultsMaxScore = wordResults.sort((a, b) => b.score - a.score)[0]?.score || 1;
 
+        this.nGramsFoundOnly = true;
+
         wordResults.forEach(function(result) {
             result = {...result};
+
+            if (showingMode == inputModes.IME_ONLY && result.result.match(/^[0-9]+/)) {
+                // Prevent candidates who start with digits from being entered when numbers are being entered
+                return;
+            }
+
+            thisScope.nGramsFoundOnly = false;
 
             result.score = result.weighting * (result.score / wordResultsMaxScore);
             result.source = candidateResultSources.WORD;
@@ -627,6 +666,8 @@ export class InputMethod {
         inputEntryWordLength = 0;
         inputTrailingText = this.wordSeparator;
 
+        inputEntryBuffer.push(this.wordSeparator);
+
         updateInputMethodEditor();
     }
 }
@@ -640,6 +681,17 @@ export function updateInputMethodEditor() {
 
     return currentKeyboardLayout.currentInputMethod.getAllCandidates().then(function(candidates) {
         var maxCandidates = currentKeyboardLayout.currentInputMethod.maxCandidates;
+        var addedCandidates = [];
+
+        candidates = candidates.filter(function(candidate) {
+            if (addedCandidates.includes(candidate.result)) {
+                return false;
+            }
+
+            addedCandidates.push(candidate.result);
+
+            return true;
+        });
 
         candidates = candidates.slice(0, maxCandidates);
 
@@ -669,6 +721,12 @@ export function updateInputMethodEditor() {
                 )
         );
 
+        if (currentKeyboardLayout.currentInputMethod.nGramsFoundOnly) {
+            $g.sel(".input").addClass("nGramsFoundOnly");
+        } else {
+            $g.sel(".input").removeClass("nGramsFoundOnly");
+        }
+
         return Promise.resolve();
     });
 }
@@ -694,12 +752,11 @@ function keydownCallback(event) {
     }
 
     if (showing && showingMode == inputModes.IME_ONLY && !event.ctrlKey && !event.altKey) {
-        // TODO: Allow entry of numbers when there are no available candidates
-
         if (
             event.keyCode >= 48 &&
             event.keyCode <= 48 + Math.min(currentKeyboardLayout?.currentInputMethod?.maxCandidates || 3, 10) &&
-            !event.shiftKey
+            !event.shiftKey &&
+            !currentKeyboardLayout?.currentInputMethod?.nGramsFoundOnly
         ) {
             selectInputMethodEditorCandiate(event.keyCode - 48 - 1, 1);
 
@@ -709,7 +766,8 @@ function keydownCallback(event) {
         if (
             event.key == " " &&
             currentKeyboardLayout?.currentInputMethod?.wordSeparator != " " &&
-            !event.shiftKey
+            !event.shiftKey &&
+            !currentKeyboardLayout?.currentInputMethod?.nGramsFoundOnly
         ) {
             selectInputMethodEditorCandiate(0, 1);
 
@@ -1118,6 +1176,11 @@ export function render() {
                 )
         )
     ;
+
+    return gShell.call("io_setKeyboardLayout", {
+        layout: currentKeyboardLayout.metadata.physicalLayout,
+        variant: currentKeyboardLayout.metadata.physicalVariant
+    });
 }
 
 export function getBestInputMode() {

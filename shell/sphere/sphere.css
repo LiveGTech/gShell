@@ -53,7 +53,7 @@ webview {
         --primaryUI: rgb(64, 64, 64);
         --primaryUIText: white;
         --primaryUIPress: rgb(55, 55, 55);
-        --secondaryBackground: black;
+        --secondaryBackground: rgb(37, 37, 37);
         --secondaryText: white;
     }
 }

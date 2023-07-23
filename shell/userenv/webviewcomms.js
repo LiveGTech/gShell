@@ -133,7 +133,6 @@ export function attach(webview, privileged) {
                 break;
 
             case "select_open":
-                console.log(event.args);
                 select.setFakeArea(webview, event.args[0]);
                 select.setCallbackFromWebview(webview);
                 select.open(undefined, select.itemObjectsToElements(event.args[1]));

@@ -8,6 +8,7 @@
     "source": {
         "percentage": "{value}%",
 
+        "ok": "OK",
         "unknown": "Unknown",
 
         "size_bytes": {
@@ -138,6 +139,15 @@
         "oobs_userProfile_displayNameEmptyError": "Please enter your name.",
         "oobs_userProfile_displayNameLengthError": "The name you entered is too long; please shorten it.",
 
+        "oobs_interaction_title": "Choose how you wish to interact with LiveG",
+        "oobs_interaction_description": "It's up to you as to how your device may contact LiveG's services over the internet to help enhance LiveG OS. You can opt in or out of these options at any time, and any data sent from your device will not contain anything that would reveal your personal information.",
+        "oobs_interaction_checkForUpdates_title": "Automatically check for system updates in the background",
+        "oobs_interaction_checkForUpdates_description": "Your device won't update automatically without your consent, but it is recommended to enable this option so that you can be notified when a new version or security update of LiveG OS comes out.",
+        "oobs_interaction_researchTelemetry_title": "Opt into device usage research telemetry",
+        "oobs_interaction_researchTelemetry_description": "Information about how you use your device (such as what apps you have installed and what system settings you have enabled) will be sent to LiveG so that improvements to LiveG OS can be made based on your own usage.",
+        "oobs_interaction_researchTelemetry_notifyChanges": "Be notified when research objectives change",
+        "oobs_interaction_privacy_title": "Find out more about your privacy when using LiveG OS:",
+
         "oobs_finish_title": "All done!",
         "oobs_finish_description1": "That's all we need from you to set up your device. When you're ready, you can start using your device right away.",
         "oobs_finish_description2": "Now is the best time to review the choices you have made on the previous steps before your device's configuration is finalised. You can always change the options you've chosen later in the Settings app.",
@@ -157,6 +167,9 @@
         "sphere_openMenu": "Open menu",
 
         "sphere_menu_installApp": "Install app",
+
+        "updates_rolledBackDialog_title": "System update was not successful",
+        "updates_rolledBackDialog_description": "A problem prevented LiveG OS from installing an update, and so the system has been reverted to the previous version.",
 
         "a11y_readout": "Readout Navigation",
         "a11y_readout_panel_settings": "Open Readout Navigation settings",

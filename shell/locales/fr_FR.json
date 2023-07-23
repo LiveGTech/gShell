@@ -8,6 +8,7 @@
     "source": {
         "percentage": "{value} %",
 
+        "ok": "OK",
         "unknown": "Inconnue",
 
         "size_bytes": {
@@ -128,7 +129,7 @@
         "oobs_installFinish_title": "Tout installé !",
         "oobs_installFinish_description": "LiveG OS est maintenant installé. Le système redémarrera dans 10 secondes afin que vous puissiez continuer à configurer LiveG OS.",
 
-        "oobs_installFail_title": "L'installation n'a pas réussi",
+        "oobs_installFail_title": "L'installation a échoué",
         "oobs_installFail_description": "Une erreur s'est produite qui a provoqué l'abandon de l'installation de LiveG OS. Vous voudrez peut-être revoir les options que vous avez choisies et réessayer.",
         "oobs_installFail_error": "Code d'erreur :",
 
@@ -137,6 +138,15 @@
         "oobs_userProfile_displayNameHint": "Nous vous recommandons d'entrer votre nom complet, mais n'importe quel nom (comme un surnom ou un nom d'utilisateur) convient.",
         "oobs_userProfile_displayNameEmptyError": "S'il vous plaît entrez votre nom.",
         "oobs_userProfile_displayNameLengthError": "Le nom que vous avez entré est trop long ; veuillez le raccourcir.",
+
+        "oobs_interaction_title": "Choisissez comment vous souhaitez interagir avec LiveG",
+        "oobs_interaction_description": "C'est à vous de décider comment votre appareil peut contacter les services de LiveG sur l'internet pour aider à améliorer LiveG OS. Vous pouvez activer ou désactiver ces options à tout moment, et toutes les données envoyées depuis votre appareil ne contiendront rien qui révélerait vos informations personnelles.",
+        "oobs_interaction_checkForUpdates_title": "Vérifier automatiquement les mises à jour système en arrière-plan",
+        "oobs_interaction_checkForUpdates_description": "Votre appareil ne se mettra pas à jour automatiquement sans votre consentement, mais il est recommandé d'activer cette option afin d'être averti lorsqu'une nouvelle version ou mise à jour de sécurité de LiveG OS sort.",
+        "oobs_interaction_researchTelemetry_title": "Optez pour la télémétrie de recherche sur l'utilisation de votre appareil",
+        "oobs_interaction_researchTelemetry_description": "Des informations sur la façon dont vous utilisez votre appareil (telles que les applications que vous avez installées et les paramètres système que vous avez activés) seront envoyées à LiveG afin que des améliorations de LiveG OS puissent être apportées en fonction de votre propre utilisation.",
+        "oobs_interaction_researchTelemetry_notifyChanges": "Soyez averti lorsque les objectifs de recherche changent",
+        "oobs_interaction_privacy_title": "En savoir plus sur votre confidentialité lorsque vous utilisez LiveG OS :",
 
         "oobs_finish_title": "Complété !",
         "oobs_finish_description1": "C'est tout ce dont nous avons besoin de votre part pour configurer votre appareil. Lorsque vous êtes prêt, vous pouvez commencer à utiliser votre appareil immédiatement.",
@@ -157,6 +167,9 @@
         "sphere_openMenu": "Ouvrir le menu",
 
         "sphere_menu_installApp": "Installer l'application",
+
+        "updates_rolledBackDialog_title": "La mise à jour du système a échoué",
+        "updates_rolledBackDialog_description": "Un problème a empêché LiveG OS d'installer une mise à jour, et le système est donc revenu à la version précédente.",
 
         "a11y_readout": "Navigation par Lecteur",
         "a11y_readout_panel_settings": "Ouvrir les paramètres de Navigation par Lecteur",

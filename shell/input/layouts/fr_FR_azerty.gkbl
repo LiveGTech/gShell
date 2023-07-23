@@ -2,7 +2,8 @@
     "localeCode": "fr_FR",
     "variant": "azerty",
     "metadata": {
-        "variantName": "AZERTY"
+        "variantName": "AZERTY",
+        "physicalLayout": "fr"
     },
     "inputMethodPaths": [],
     "states": {

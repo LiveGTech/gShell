@@ -17,6 +17,7 @@ exports.init = function(location = "device.gsc") {
         exports.data = data;
 
         exports.data.type = flags.deviceType || exports.data.type || "mobile";
+        exports.data.platform ||= null;
 
         exports.data.model ||= {};
         exports.data.model.codename ||= "generic";

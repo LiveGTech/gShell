@@ -80,6 +80,20 @@ export function run(name = getName()) {
 
             break;
 
+        case "interaction":
+        case "interaction_researchTelemetry":
+        case "interaction_privacyInfo":
+            settings.switchToPage("interaction");
+            break;
+
+        case "updates":
+            settings.switchToPage("updates");
+            break;
+
+        case "advanced":
+            settings.switchToPage("advanced");
+            break;
+
         case "about":
         case "about_deviceInfo":
             settings.switchToPage("about");

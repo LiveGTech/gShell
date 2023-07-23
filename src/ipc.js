@@ -30,8 +30,16 @@ ipcMain.handle("system_getDevice", function(event, data) {
     return system.getDevice();
 });
 
+ipcMain.handle("system_registerAbortController", function(event, data) {
+    return system.registerAbortController();
+});
+
+ipcMain.handle("system_triggerAbortController", function(event, data) {
+    return system.triggerAbortController(data.id);
+});
+
 ipcMain.handle("system_executeCommand", function(event, data) {
-    return system.executeOrLogCommand(data.command, data.args, data.stdin);
+    return system.executeOrLogCommand(data.command, data.args, data.stdin, null, data.options, data.abortControllerId);
 });
 
 ipcMain.handle("system_isInstallationMedia", function(event, data) {
@@ -44,6 +52,26 @@ ipcMain.handle("system_copyFiles", function(event, data) {
 
 ipcMain.handle("system_getCopyFileInfo", function(event, data) {
     return system.getCopyFileInfo(data.id);
+});
+
+ipcMain.handle("system_extractArchive", function(event, data) {
+    return system.extractArchive(data.source, data.destination, data.getProcessId);
+});
+
+ipcMain.handle("system_getExtractArchiveInfo", function(event, data) {
+    return system.getExtractArchiveInfo(data.id);
+});
+
+ipcMain.handle("system_aptInstallPackages", function(event, data) {
+    return system.aptInstallPackages(data.packageNames, data.downloadOnly);
+});
+
+ipcMain.handle("system_getAptInstallationInfo", function(event, data) {
+    return system.getAptInstallationInfo(data.id);
+});
+
+ipcMain.handle("storage_getPath", function(event, data) {
+    return storage.getPath(data.location);
 });
 
 ipcMain.handle("storage_read", function(event, data) {
@@ -120,10 +148,6 @@ ipcMain.handle("power_getState", function(event, data) {
     return system.getPowerState();
 });
 
-ipcMain.handle("network_fetch", function(event, data) {
-    return system.fetch(data.resource, data.options);
-});
-
 ipcMain.handle("network_list", function(event, data) {
     return system.networkList();
 });
@@ -148,6 +172,30 @@ ipcMain.handle("network_connectWifi", function(event, data) {
     return system.networkConnectWifi(data.name);
 });
 
+ipcMain.handle("network_getContentLength", function(event, data) {
+    return system.getContentLength(data.url);
+});
+
+ipcMain.handle("network_downloadFile", function(event, data) {
+    return system.downloadFile(data.url, data.destination, data.getProcessId);
+});
+
+ipcMain.handle("network_getDownloadFileInfo", function(event, data) {
+    return system.getDownloadFileInfo(data.id);
+});
+
+ipcMain.handle("network_pauseFileDownload", function(event, data) {
+    return system.pauseFileDownload(data.id);
+});
+
+ipcMain.handle("network_resumeFileDownload", function(event, data) {
+    return system.resumeFileDownload(data.id);
+});
+
+ipcMain.handle("network_cancelFileDownload", function(event, data) {
+    return system.cancelFileDownload(data.id);
+});
+
 ipcMain.handle("io_input", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 
@@ -164,6 +212,10 @@ ipcMain.handle("io_focus", function(event, data) {
     setTimeout(function() {
         return Promise.resolve();        
     });
+});
+
+ipcMain.handle("io_setKeyboardLayout", function(event, data) {
+    return system.setKeyboardLayout(data.layout, data.variant);
 });
 
 ipcMain.handle("io_getPointerPosition", function(event, data) {
@@ -202,7 +254,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         width: 0,
         height: 0,
         deviceScaleFactor: device.data.display.scaleFactor,
-        scale: flags.isRealHardware && device.data.display.scaleFactor != 1 ? (1.2 ** (2 * (device.data.display.scaleFactor - 0.5))) : undefined,
+        scale: device.data.display.scaleFactor,
         mobile: device.data?.type == "mobile"
     }).then(function() {
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
@@ -289,6 +341,10 @@ ipcMain.handle("webview_getManifest", function(event, data) {
 
         return Promise.resolve(returnData);
     });
+});
+
+ipcMain.handle("dev_isDebugBuild", function(event, data) {
+    return Promise.resolve(main.IS_DEBUG_BUILD);
 });
 
 ipcMain.handle("dev_restart", function(event, data) {

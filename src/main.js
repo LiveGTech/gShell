@@ -13,6 +13,8 @@ const path = require("path");
 const fs = require("fs");
 const electron = require("electron");
 
+exports.IS_DEBUG_BUILD = false;
+
 exports.rootDirectory = electron.app.isPackaged ? process.resourcesPath : path.join(__dirname, "/..");
 
 var flags = require("./flags");
@@ -74,7 +76,7 @@ electron.app.on("ready", function() {
             fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
-                devTools: !flags.isRealHardware,
+                devTools: !flags.isRealHardware || exports.IS_DEBUG_BUILD || flags.devTools,
                 preload: path.normalize(`${exports.rootDirectory}/shell/preload.js`),
                 webviewTag: true,
                 sandbox: true,
@@ -83,6 +85,10 @@ electron.app.on("ready", function() {
             }
         });
 
+        if ((flags.isRealHardware && !exports.IS_DEBUG_BUILD && !flags.keepDevShortcuts) || flags.ignoreDevShortcuts) {
+            exports.window.setMenu(null);
+        }
+
         exports.window.once("ready-to-show", function() {
             exports.window.setMenuBarVisibility(false);
 
@@ -90,11 +96,10 @@ electron.app.on("ready", function() {
 
             electron.nativeTheme.themeSource = "light";
 
+            exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
+
             if (flags.isRealHardware) {
                 exports.window.setPosition(0, 0);
-                exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
-            } else {
-                exports.window.webContents.setZoomFactor(1);
             }
 
             if (flags.emulateTouch) {

@@ -8,4 +8,4 @@
 */
 
 export const VERSION = "0.3.0";
-export const VERNUM = 2;
+export const VERNUM = 3;

@@ -132,7 +132,7 @@
                 "fr_FR": "Calculatrice"
             },
             "url": "gshell://apps/calculator/index.html",
-            "icon": "gshell://media/appdefault.svg"
+            "icon": "gshell://apps/calculator/icon.svg"
         }
     }
 }

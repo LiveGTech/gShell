@@ -7,18 +7,22 @@
     "repository": "https://github.com/LiveGTech/gShell",
     "scripts": {
         "gshell": "electron .",
-        "dist": "electron-builder"
+        "dist": "electron-builder",
+        "rebuild": "electron-rebuild"
     },
     "devDependencies": {
         "electron": "^25.1.0",
         "electron-builder": "^24.4.0"
     },
     "dependencies": {
+        "@electron/rebuild": "^3.3.0",
         "bcryptjs": "^2.4.3",
         "electron-dl": "^3.5.0",
         "electron-fetch": "^1.9.1",
         "minimist": "^1.2.7",
-        "mkdirp": "^0.5.6"
+        "mkdirp": "^0.5.6",
+        "node-pty": "^1.0.0",
+        "x11": "^2.3.0"
     },
     "build": {
         "appId": "tech.liveg.gshell",

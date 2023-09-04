@@ -15,6 +15,7 @@ var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
 var config = require("./config");
+var term = require("./term");
 
 var ipcMain = electron.ipcMain;
 
@@ -341,6 +342,38 @@ ipcMain.handle("webview_getManifest", function(event, data) {
 
         return Promise.resolve(returnData);
     });
+});
+
+ipcMain.handle("term_spawn", function(event, data) {
+    var id = null;
+
+    return term.spawn(
+        data.file,
+        function(data) {
+            main.window.webContents.send("term_read", {id, data});
+        },
+        function(exitCode, signal) {
+            main.window.webContents.send("term_exit", {id, exitCode, signal});
+        },
+        data.args,
+        data.options
+    ).then(function(idValue) {
+        id = idValue;
+
+        return Promise.resolve(id);
+    });
+});
+
+ipcMain.handle("term_kill", function(event, data) {
+    return term.kill(data.id, data.signal);
+});
+
+ipcMain.handle("term_write", function(event, data) {
+    return term.write(data.id, data.data);
+});
+
+ipcMain.handle("term_setSize", function(event, data) {
+    return term.setSize(data.id, data.columns, data.rows);
 });
 
 ipcMain.handle("dev_isDebugBuild", function(event, data) {

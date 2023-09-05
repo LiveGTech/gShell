@@ -154,10 +154,22 @@ function userAgent() {
             });
         }
 
+        kill(signal = 9) {
+            this.#ensureAccess();
+
+            return _sphere.callPrivilegedCommand("term_kill", {key: this.#key, signal});
+        }
+
         write(data) {
             this.#ensureAccess();
 
             return _sphere.callPrivilegedCommand("term_write", {key: this.#key, data});
+        }
+
+        setSize(columns, rows) {
+            this.#ensureAccess();
+
+            return _sphere.callPrivilegedCommand("term_setSize", {key: this.#key, columns, rows});
         }
 
         addEventListener(eventType, callback) {

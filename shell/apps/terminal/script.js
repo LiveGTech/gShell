@@ -35,6 +35,12 @@ $g.waitForLoad().then(function() {
         styleSets: [FONT_STYLES]
     }) ();
 
+    var resizeObserver = new ResizeObserver(function(entries) {
+        xtermFitAddonInstance.fit();
+    });
+
+    resizeObserver.observe(terminalContainer.get());
+
     astronaut.render(terminalContainer);
 
     xtermTerminal.loadAddon(xtermFitAddonInstance);
@@ -48,8 +54,9 @@ $g.waitForLoad().then(function() {
         sphereTerminal.write(data);
     });
 
-    setInterval(function() {
-        xtermFitAddonInstance.fit();        
+    xtermTerminal.onResize(function(event) {
+        console.log(event);
+        sphereTerminal.setSize(event.cols, event.rows);
     });
 
     sphereTerminal.spawn();

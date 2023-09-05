@@ -47,7 +47,9 @@ export var commands = {
     term_create: (data, metadata) => term.createForPrivilegedInterface(metadata.webview, data.file, data.args, data.options),
     term_isRunning: (data) => Promise.resolve(term.getTerminalByKey(data.key).isRunning),
     term_spawn: (data) => term.getTerminalByKey(data.key).spawn(),
-    term_write: (data) => term.getTerminalByKey(data.key).write(data.data)
+    term_kill: (data) => term.getTerminalByKey(data.key).kill(data.signal),
+    term_write: (data) => term.getTerminalByKey(data.key).write(data.data),
+    term_setSize: (data) => term.getTerminalByKey(data.key).setSize(data.columns, data.rows)
 };
 
 export function setData(name, dataValue) {

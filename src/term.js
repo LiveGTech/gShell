@@ -38,7 +38,7 @@ exports.spawn = function(file = "bash", readCallback = function(data) {}, exitCa
     return Promise.resolve(exports.allProcesses.length - 1);
 };
 
-exports.kill = function(id, signal) {
+exports.kill = function(id, signal = 9) {
     if (id >= exports.allProcesses.length) {
         return Promise.reject("ID does not exist");
     }

@@ -56,7 +56,19 @@ export class Terminal {
     }
 
     onExit(callback) {
+        this._running = false;
+
         this._exitCallbacks.push(callback);
+    }
+
+    kill(signal = 9) {
+        var thisScope = this;
+
+        return gShell.call("term_kill", {id: this._id, signal}).then(function() {
+            thisScope._running = false;
+
+            return Promise.resolve();
+        });
     }
 
     write(data) {
@@ -65,6 +77,14 @@ export class Terminal {
         }
 
         return gShell.call("term_write", {id: this._id, data});
+    }
+
+    setSize(columns, rows) {
+        if (!this._running) {
+            return Promise.reject("Terminal process is not running");
+        }
+
+        return gShell.call("term_setSize", {id: this._id, columns, rows});
     }
 }
 

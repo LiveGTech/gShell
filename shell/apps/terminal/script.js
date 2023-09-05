@@ -19,6 +19,8 @@ const FONT_STYLES = new astronaut.StyleSet({
 astronaut.unpack();
 
 $g.waitForLoad().then(function() {
+    var sphereTerminal = new sphere.Terminal("bash");
+
     var xtermTerminal = new xterm.Terminal({
         fontFamily: "var(--font-code)"
     });
@@ -38,11 +40,17 @@ $g.waitForLoad().then(function() {
     xtermTerminal.loadAddon(xtermFitAddonInstance);
     xtermTerminal.open(terminalContainer.get());
 
+    sphereTerminal.addEventListener("data", function(event) {
+        xtermTerminal.write(event.data);
+    })
+
     xtermTerminal.onData(function(data) {
-        xtermTerminal.write(data); // Echo for now as a test
+        sphereTerminal.write(data);
     });
 
     setInterval(function() {
         xtermFitAddonInstance.fit();        
     });
+
+    sphereTerminal.spawn();
 });

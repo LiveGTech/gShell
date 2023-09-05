@@ -76,7 +76,7 @@ export function attach(webview, privileged) {
                 }
 
                 if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
-                    privilegedInterface.commands[event.args[0]](event.args[1]).then(function(data) {
+                    privilegedInterface.commands[event.args[0]](event.args[1], {webview}).then(function(data) {
                         send(webview, "callback", {
                             id: event.args[1]._id,
                             resolved: true,

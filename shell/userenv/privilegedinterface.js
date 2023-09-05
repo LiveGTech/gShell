@@ -13,6 +13,7 @@ import * as network from "gshell://system/network.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as updates from "gshell://system/updates.js";
 import * as interaction from "gshell://system/interaction.js";
+import * as term from "gshell://system/term.js";
 import * as input from "gshell://input/input.js";
 import * as personalisation from "gshell://config/personalisation.js";
 import * as a11y from "gshell://a11y/a11y.js";
@@ -42,7 +43,11 @@ export var commands = {
     updates_setUpdateCircuit: (data) => updates.setUpdateCircuit(data.circuit),
     updates_setShouldAutoCheckForUpdates: (data) => updates.setShouldAutoCheckForUpdates(data.value),
     updates_setShouldAutoRestart: (data) => updates.setShouldAutoRestart(data.value),
-    interaction_setOption: (data) => interaction.setOption(data.name, data.value)
+    interaction_setOption: (data) => interaction.setOption(data.name, data.value),
+    term_create: (data, metadata) => term.createForPrivilegedInterface(metadata.webview, data.file, data.args, data.options),
+    term_isRunning: (data) => Promise.resolve(term.getTerminalByKey(data.key).isRunning),
+    term_spawn: (data) => term.getTerminalByKey(data.key).spawn(),
+    term_write: (data) => term.getTerminalByKey(data.key).write(data.data)
 };
 
 export function setData(name, dataValue) {

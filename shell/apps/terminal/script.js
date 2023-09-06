@@ -13,6 +13,8 @@ import xterm from "gshell://lib/xterm.esm.js";
 import xtermFitAddon from "gshell://lib/xterm-addon-fit.esm.js";
 import xtermCanvasAddon from "gshell://lib/xterm-addon-canvas.esm.js";
 
+window.devicePixelRatio = 1;
+
 astronaut.unpack();
 
 $g.waitForLoad().then(function() {

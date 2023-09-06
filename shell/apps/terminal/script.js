@@ -46,7 +46,6 @@ $g.waitForLoad().then(function() {
     xtermTerminal.open(terminalContainer.get());
 
     sphereTerminal.addEventListener("data", function(event) {
-        console.log("read", Date.now());
         xtermTerminal.write(event.data);
     })
 

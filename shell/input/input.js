@@ -213,7 +213,7 @@ export class KeyboardLayout {
                     }
 
                     function keyEventFactory(keyCode, modifiers = [], interpretShift = false) {
-                        if (interpretShift && keyCode.toUpperCase() == keyCode) {
+                        if (interpretShift && keyCode.toUpperCase() == keyCode && keyCode.toLowerCase() != keyCode) {
                             modifiers.push("Shift");
                         }
 

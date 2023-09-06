@@ -19,7 +19,12 @@ $g.waitForLoad().then(function() {
     var sphereTerminal = new sphere.Terminal("bash");
 
     var xtermTerminal = new xterm.Terminal({
-        fontFamily: "Noto Sans Mono"
+        columns: 80,
+        rows: 24,
+        fontFamily: "Noto Sans Mono",
+        theme: {
+            background: "rgb(20, 20, 20)"
+        }
     });
 
     var xtermFitAddonInstance = new xtermFitAddon.FitAddon();
@@ -27,8 +32,10 @@ $g.waitForLoad().then(function() {
 
     var terminalContainer = Container({
         styles: {
+            position: "fixed",
+            width: "100%",
             height: "100%",
-            backgroundColor: "black"
+            backgroundColor: "rgb(20, 20, 20)"
         }
     }) ();
 
@@ -46,6 +53,7 @@ $g.waitForLoad().then(function() {
     xtermTerminal.open(terminalContainer.get());
 
     sphereTerminal.addEventListener("data", function(event) {
+        xtermFitAddonInstance.fit();
         xtermTerminal.write(event.data);
     })
 

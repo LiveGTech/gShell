@@ -131,7 +131,8 @@
                 "en_GB": "Terminal",
                 "fr_FR": "Terminal"
             },
-            "url": "gshell://apps/terminal/index.html"
+            "url": "gshell://apps/terminal/index.html",
+            "icon": "gshell://apps/terminal/icon.svg"
         },
         "calculator": {
             "fallbackLocale": "en_GB",

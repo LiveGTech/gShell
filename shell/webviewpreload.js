@@ -134,7 +134,6 @@ function userAgent() {
         }
     
         #ensureAccess() {
-            console.log(_sphere);
             if (!_sphere.isPrivileged()) {
                 throw new Error("Permission denied for access to terminal");
             }

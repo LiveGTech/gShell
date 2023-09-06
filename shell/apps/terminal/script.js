@@ -11,10 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 import xterm from "gshell://lib/xterm.esm.js";
 import xtermFitAddon from "gshell://lib/xterm-addon-fit.esm.js";
-
-const FONT_STYLES = new astronaut.StyleSet({
-    "font-family": "var(--fontCode)"
-}, undefined, "*");
+import xtermCanvasAddon from "gshell://lib/xterm-addon-canvas.esm.js";
 
 astronaut.unpack();
 
@@ -22,17 +19,17 @@ $g.waitForLoad().then(function() {
     var sphereTerminal = new sphere.Terminal("bash");
 
     var xtermTerminal = new xterm.Terminal({
-        fontFamily: "var(--font-code)"
+        fontFamily: "Noto Sans Mono"
     });
 
     var xtermFitAddonInstance = new xtermFitAddon.FitAddon();
+    var xtermCanvasAddonInstance = new xtermCanvasAddon.CanvasAddon();
 
     var terminalContainer = Container({
         styles: {
             height: "100%",
             backgroundColor: "black"
-        },
-        styleSets: [FONT_STYLES]
+        }
     }) ();
 
     var resizeObserver = new ResizeObserver(function(entries) {
@@ -44,9 +41,12 @@ $g.waitForLoad().then(function() {
     astronaut.render(terminalContainer);
 
     xtermTerminal.loadAddon(xtermFitAddonInstance);
+    xtermTerminal.loadAddon(xtermCanvasAddonInstance);
+
     xtermTerminal.open(terminalContainer.get());
 
     sphereTerminal.addEventListener("data", function(event) {
+        console.log("read", Date.now());
         xtermTerminal.write(event.data);
     })
 
@@ -55,7 +55,6 @@ $g.waitForLoad().then(function() {
     });
 
     xtermTerminal.onResize(function(event) {
-        console.log(event);
         sphereTerminal.setSize(event.cols, event.rows);
     });
 

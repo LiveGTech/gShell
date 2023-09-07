@@ -18,6 +18,23 @@ window.devicePixelRatio = 1;
 astronaut.unpack();
 
 $g.waitForLoad().then(function() {
+    return $g.l10n.selectLocaleFromResources({
+        "en_GB": "locales/en_GB.json",
+        "fr_FR": "locales/fr_FR.json"
+    }, "en_GB", {
+        "fr_FR": "en_GB"
+    });
+}).then(function(locale) {
+    window._ = function() {
+        return locale.translate(...arguments);
+    };
+
+    window._format = function() {
+        return locale.format(...arguments);
+    };
+
+    $g.sel("title").setText(_("terminal"));
+
     var sphereTerminal = new sphere.Terminal("bash");
 
     var xtermTerminal = new xterm.Terminal({
@@ -58,6 +75,10 @@ $g.waitForLoad().then(function() {
         xtermFitAddonInstance.fit();
         xtermTerminal.write(event.data);
     })
+
+    xtermTerminal.onTitleChange(function(title) {
+        $g.sel("title").setText(_("title", {title}));
+    });
 
     xtermTerminal.onData(function(data) {
         sphereTerminal.write(data);

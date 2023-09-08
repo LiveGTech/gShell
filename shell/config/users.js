@@ -17,12 +17,17 @@ export class User {
     constructor(uid, data) {
         this.uid = uid;
         this.displayName = data?.displayName;
-        this.isAdmin = data?.isAdmin;
+        this.permissionLevel = data?.permissionLevel;
+        this.linuxUsername = data?.linuxUsername;
 
         this.history = data?.history || [
             {eventType: "created", performedAt: Date.now()},
             ...(this.isAdmin ? [{eventType: "givenAdminPrivileges", performedAt: Date.now()}] : [])
         ];
+    }
+
+    get isAdmin() {
+        return this.permissionLevel == "admin";
     }
 
     getAuthData() {
@@ -43,6 +48,49 @@ export class User {
         return this.save();
     }
 
+    ensureLinuxUsername() {
+        var thisScope = this;
+
+        if (this.linuxUsername) {
+            return Promise.resolve();
+        }
+
+        var potentialUsername = this.displayName
+            .toLocaleLowerCase()
+            .replace(/[^a-zA-Z0-9-_]/g, "-")
+            .replace(/--+/g, "-")
+            .substring(0, 32)
+        ;
+
+        if (!potentialUsername.match(/^[a-zA-Z][a-zA-Z0-9-_]*\$?$/)) {
+            potentialUsername = "user";
+        }
+
+        var existingUsernames = [];
+        var finalUsername = potentialUsername;
+        var usernameSuffixCounter = 1;
+
+        return gShell.call("system_getLinuxUsersList").then(function(usernames) {
+            existingUsernames.push(...usernames);
+
+            return getList();
+        }).then(function(users) {
+            existingUsernames.push(...users.map((user) => user.linuxUsername));
+
+            existingUsernames.forEach(function(username) {
+                if (finalUsername == username) {
+                    usernameSuffixCounter++;
+
+                    finalUsername = `${potentialUsername}-${usernameSuffixCounter}`;
+                }
+            });
+
+            thisScope.linuxUsername = finalUsername;
+
+            return Promise.resolve();
+        });
+    }
+
     save() {
         var thisScope = this;
 
@@ -51,7 +99,8 @@ export class User {
 
             allData.users[thisScope.uid] = {
                 displayName: thisScope.displayName,
-                isAdmin: thisScope.isAdmin,
+                linuxUsername: thisScope.linuxUsername,
+                permissionLevel: thisScope.permissionLevel,
                 history: thisScope.history
             };
 
@@ -113,5 +162,23 @@ export function create(uid = $g.core.generateKey(), data = {}) {
 
     return user.save().then(function() {
         return Promise.resolve(user);
+    });
+}
+
+export function init() {
+    return getList().then(function(users) {
+        var promiseChain = Promise.resolve();
+
+        users.forEach(function(user) {
+            if (!user.linuxUsername) {
+                promiseChain = promiseChain.then(function() {
+                    return user.ensureLinuxUsername();
+                }).then(function() {
+                    return user.save();
+                });
+            }
+        });
+
+        return promiseChain;
     });
 }

@@ -71,6 +71,10 @@ ipcMain.handle("system_getAptInstallationInfo", function(event, data) {
     return system.getAptInstallationInfo(data.id);
 });
 
+ipcMain.handle("system_getLinuxUsersList", function(event, data) {
+    return system.getLinuxUsersList();
+});
+
 ipcMain.handle("storage_getPath", function(event, data) {
     return storage.getPath(data.location);
 });

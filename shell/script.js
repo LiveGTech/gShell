@@ -57,6 +57,8 @@ $g.waitForLoad().then(function() {
 }).then(function() {
     return interaction.load();
 }).then(function() {
+    return users.init();
+}).then(function() {
     return users.getList();
 }).then(function(userList) {
     if (userList.length == 0) {

@@ -738,6 +738,20 @@ exports.getAptInstallationInfo = function(id) {
     return Promise.resolve(aptInstallationProcesses[id]);
 };
 
+exports.getLinuxUsersList = function() {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve([]);
+    }
+
+    var passwdEntries = fs.readFileSync("/etc/passwd", "utf8");
+
+    return Promise.resolve(passwdEntries
+        .split("\n")
+        .filter((line) => line != "")
+        .map((line) => line.split(":")[0])
+    );
+};
+
 exports.devRestart = function() {
     if (!flags.isRealHardware) {
         electron.app.relaunch();

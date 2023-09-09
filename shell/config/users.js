@@ -13,6 +13,8 @@ import * as config from "gshell://config/config.js";
 import * as auth from "gshell://auth/auth.js";
 import * as info from "gshell://global/info.js";
 
+export const RE_LINUX_USERNAME = /^[a-zA-Z][a-zA-Z0-9-_]*\$?$/;
+
 export class User {
     constructor(uid, data) {
         this.uid = uid;
@@ -62,7 +64,7 @@ export class User {
             .substring(0, 32)
         ;
 
-        if (!potentialUsername.match(/^[a-zA-Z][a-zA-Z0-9-_]*\$?$/)) {
+        if (!potentialUsername.match(RE_LINUX_USERNAME)) {
             potentialUsername = "user";
         }
 
@@ -77,6 +79,8 @@ export class User {
         }).then(function(users) {
             existingUsernames.push(...users.map((user) => user.linuxUsername));
 
+            console.log(existingUsernames);
+
             existingUsernames.forEach(function(username) {
                 if (finalUsername == username) {
                     usernameSuffixCounter++;
@@ -87,8 +91,12 @@ export class User {
 
             thisScope.linuxUsername = finalUsername;
 
-            return Promise.resolve();
+            return thisScope.save();
         });
+    }
+
+    init() {
+        return this.ensureLinuxUsername();
     }
 
     save() {
@@ -170,13 +178,9 @@ export function init() {
         var promiseChain = Promise.resolve();
 
         users.forEach(function(user) {
-            if (!user.linuxUsername) {
-                promiseChain = promiseChain.then(function() {
-                    return user.ensureLinuxUsername();
-                }).then(function() {
-                    return user.save();
-                });
-            }
+            promiseChain = promiseChain.then(function() {
+                return user.ensureLinuxUsername();
+            });
         });
 
         return promiseChain;

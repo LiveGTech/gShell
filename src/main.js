@@ -13,7 +13,7 @@ const path = require("path");
 const fs = require("fs");
 const electron = require("electron");
 
-exports.IS_DEBUG_BUILD = true;
+exports.IS_DEBUG_BUILD = false;
 
 exports.rootDirectory = electron.app.isPackaged ? process.resourcesPath : path.join(__dirname, "/..");
 

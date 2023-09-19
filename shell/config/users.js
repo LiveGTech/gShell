@@ -96,7 +96,14 @@ export class User {
     }
 
     init() {
-        return this.ensureLinuxUsername();
+        var thisScope = this;
+
+        return this.ensureLinuxUsername().then(function() {
+            return gShell.call("system_initLinuxUser", {
+                uid: thisScope.uid,
+                username: thisScope.linuxUsername
+            });
+        });
     }
 
     save() {
@@ -179,7 +186,7 @@ export function init() {
 
         users.forEach(function(user) {
             promiseChain = promiseChain.then(function() {
-                return user.ensureLinuxUsername();
+                return user.init();
             });
         });
 

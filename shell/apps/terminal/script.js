@@ -35,7 +35,12 @@ $g.waitForLoad().then(function() {
 
     $g.sel("title").setText(_("terminal"));
 
-    var sphereTerminal = new sphere.Terminal("bash");
+    var sphereTerminal = new sphere.Terminal(null, [], {
+        env: {
+            TERM: "xterm-256color",
+            IN_GOS_TERM: true
+        }
+    });
 
     var xtermTerminal = new xterm.Terminal({
         columns: 80,

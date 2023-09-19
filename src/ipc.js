@@ -75,10 +75,6 @@ ipcMain.handle("system_getLinuxUsersList", function(event, data) {
     return system.getLinuxUsersList();
 });
 
-ipcMain.handle("system_initLinuxUser", function(event, data) {
-    return system.initLinuxUser(data.uid, data.username);
-});
-
 ipcMain.handle("storage_getPath", function(event, data) {
     return storage.getPath(data.location);
 });

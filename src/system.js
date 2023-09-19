@@ -752,33 +752,6 @@ exports.getLinuxUsersList = function() {
     );
 };
 
-exports.initLinuxUser = function(uid, username) {
-    return exports.getLinuxUsersList().then(function(usernames) {
-        if (usernames.includes(username)) {
-            return Promise.resolve();
-        }
-
-        const USER_FOLDER_LOCATION = `/system/storage/users/${uid}/files`;
-
-        var promiseChain = Promise.resolve();
-
-        [
-            ["sudo", ["useradd", username]],
-            ["sudo", ["mkdir", "-p", USER_FOLDER_LOCATION]],
-            ["sudo", ["ln", "-s", USER_FOLDER_LOCATION, `/home/${username}`]],
-            ["sudo", ["cp", "-r", "/etc/skel/.", `/home/${username}`]],
-            ["sudo", ["chown", "-R", `${username}:${username}`, `/home/${username}/.`]],
-            ["sudo", ["usermod", "-a", "-G", "liveg,cdrom,floppy,audio,dip,video,plugdev,users,netdev", username]]
-        ].forEach(function(command) {
-            promiseChain = promiseChain.then(function() {
-                return exports.executeOrLogCommand(...command);
-            });
-        });
-    
-        return promiseChain;
-    });
-};
-
 exports.devRestart = function() {
     if (!flags.isRealHardware) {
         electron.app.relaunch();

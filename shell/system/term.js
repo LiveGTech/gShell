@@ -96,18 +96,42 @@ export function getTerminalByKey(key) {
     return allTerminals.find((terminal) => terminal.key == key);
 }
 
-export function createForPrivilegedInterface(webview, file, args, options) {
-    var terminal = new Terminal(file, args, options);
+export function createForPrivilegedInterface(metadata, file, args, options) {
+    return gShell.call("system_getFlags").then(function(flags) {
+        if (metadata.user != null) {   
+            var newArgs;
+            var envArgs = [];
 
-    terminal.onRead(function(data) {
-        webview.get().send("term_read", {key: terminal.key, data});
+            Object.keys(options.env || {}).forEach(function(key) {
+                envArgs.push(`${key}=${options.env[key]}`);
+            });
+ 
+            if (file != null) {
+                newArgs = ["-u", metadata.user.linuxUsername, ...envArgs, file, ...args];
+            } else {
+                newArgs = ["-i", "-u", metadata.user.linuxUsername, ...envArgs];
+            }
+
+            if (flags.isRealHardware) {
+                file = "sudo";
+                args = newArgs;
+            } else {
+                console.log(`Would run if on real hardware: sudo ${newArgs.join(" ")}`);
+            }
+        }
+    
+        var terminal = new Terminal(file || "bash", args, options);
+    
+        terminal.onRead(function(data) {
+            metadata.webview.get().send("term_read", {key: terminal.key, data});
+        });
+    
+        terminal.onExit(function(exitCode, signal) {
+            metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
+        });
+    
+        return Promise.resolve(terminal.key);
     });
-
-    terminal.onExit(function(exitCode, signal) {
-        webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
-    });
-
-    return Promise.resolve(terminal.key);
 }
 
 gShell.on("term_read", function(event, data) {

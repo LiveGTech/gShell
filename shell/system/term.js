@@ -98,14 +98,18 @@ export function getTerminalByKey(key) {
 
 export function createForPrivilegedInterface(metadata, file, args, options) {
     return gShell.call("system_getFlags").then(function(flags) {
-        if (metadata.user != null) {   
+        if (!flags.isRealHardware && options.env) {
+            delete options.env;
+        }
+
+        if (metadata.user != null) {
             var newArgs;
             var envArgs = [];
 
             Object.keys(options.env || {}).forEach(function(key) {
                 envArgs.push(`${key}=${options.env[key]}`);
             });
- 
+
             if (file != null) {
                 newArgs = ["-u", metadata.user.linuxUsername, ...envArgs, file, ...args];
             } else {
@@ -119,17 +123,17 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
                 console.log(`Would run if on real hardware: sudo ${newArgs.join(" ")}`);
             }
         }
-    
+
         var terminal = new Terminal(file || "bash", args, options);
-    
+
         terminal.onRead(function(data) {
             metadata.webview.get().send("term_read", {key: terminal.key, data});
         });
-    
+
         terminal.onExit(function(exitCode, signal) {
             metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
         });
-    
+
         return Promise.resolve(terminal.key);
     });
 }

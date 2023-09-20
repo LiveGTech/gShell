@@ -111,7 +111,7 @@ export class User {
                 command: "sudo",
                 args: ["groupadd", "liveg"]
             }).catch(function() {
-                return Promise.resolve(); // Group may have already been created 
+                return Promise.resolve(); // Group may have already been created
             });
 
             [

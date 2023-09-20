@@ -483,5 +483,9 @@ window.addEventListener("DOMContentLoaded", function() {
         triggerPrivilegedDataEvent("term_read", data);
     });
 
+    electron.ipcRenderer.on("term_exit", function(event, data) {
+        triggerPrivilegedDataEvent("term_exit", data);
+    });
+
     electron.ipcRenderer.sendToHost("ready");
 });

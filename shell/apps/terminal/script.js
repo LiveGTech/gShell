@@ -81,6 +81,11 @@ $g.waitForLoad().then(function() {
         xtermTerminal.write(event.data);
     })
 
+    sphereTerminal.addEventListener("exit", function() {
+        console.log("Close");
+        window.close();
+    });
+
     xtermTerminal.onTitleChange(function(title) {
         $g.sel("title").setText(_("title", {title}));
     });

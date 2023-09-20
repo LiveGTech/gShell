@@ -134,6 +134,10 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
             metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
         });
 
+        metadata.webview.on("switcherclose", function() {
+            terminal.kill("SIGHUP");
+        });
+
         return Promise.resolve(terminal.key);
     });
 }
@@ -145,7 +149,7 @@ gShell.on("term_read", function(event, data) {
 });
 
 gShell.on("term_exit", function(event, data) {
-    getTerminalById(data.id)?._readCallbacks.forEach(function(callback) {
+    getTerminalById(data.id)?._exitCallbacks.forEach(function(callback) {
         callback(data.exitCode, data.signal);
     });
 });

@@ -82,7 +82,6 @@ $g.waitForLoad().then(function() {
     })
 
     sphereTerminal.addEventListener("exit", function() {
-        console.log("Close");
         window.close();
     });
 

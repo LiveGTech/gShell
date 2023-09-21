@@ -57,7 +57,7 @@ export class User {
             return Promise.resolve();
         }
 
-        var potentialUsername = this.displayName
+        var potentialUsername = (this.displayName || "user")
             .toLocaleLowerCase()
             .replace(/[^a-zA-Z0-9-_]/g, "-")
             .replace(/--+/g, "-")
@@ -147,6 +147,10 @@ export class User {
                 args: ["usermod", "-aG", "sudo", USERNAME]
             });
         }).then(function() {
+            if (!thisScope.displayName) {
+                return Promise.resolve();
+            }
+
             return gShell.call("system_executeCommand", {
                 command: "sudo",
                 args: ["usermod", "-c", thisScope.displayName, USERNAME]

@@ -1,24 +1,28 @@
 {
     "name": "gshell",
-    "version": "0.2.0",
+    "version": "0.2.2",
     "description": "Interactive graphical desktop environment for LiveG OS.",
     "main": "src/main.js",
     "author": "LiveG Technologies",
     "repository": "https://github.com/LiveGTech/gShell",
     "scripts": {
         "gshell": "electron .",
-        "dist": "electron-builder"
+        "dist": "electron-builder",
+        "rebuild": "electron-rebuild"
     },
     "devDependencies": {
         "electron": "^25.1.0",
-        "electron-builder": "^24.4.0"
+        "electron-builder": "^24.4.0",
+        "@electron/rebuild": "^3.3.0"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "electron-dl": "^3.5.0",
         "electron-fetch": "^1.9.1",
         "minimist": "^1.2.7",
-        "mkdirp": "^0.5.6"
+        "mkdirp": "^0.5.6",
+        "node-pty": "^1.0.0",
+        "x11": "^2.3.0"
     },
     "build": {
         "appId": "tech.liveg.gshell",

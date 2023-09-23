@@ -16,7 +16,6 @@
         "@electron/rebuild": "^3.3.0"
     },
     "dependencies": {
-        "@electron/rebuild": "^3.3.0",
         "bcryptjs": "^2.4.3",
         "electron-dl": "^3.5.0",
         "electron-fetch": "^1.9.1",

@@ -952,16 +952,22 @@ export function closeWindow(element, animate = true) {
         element.addClass("closing");
         listButton.addClass("transitioning");
 
+        function removeScreen() {
+            element.find("webview").emit("switcherclose");
+
+            element.remove();
+        }
+
         (isLastScreen ? goHome() : Promise.resolve()).then(function() {
             setTimeout(function() {
                 if (isLastScreen) {
                     main.selectDesktop();
 
                     goHome().then(function() {
-                        element.remove();
+                        removeScreen();
                     });
                 } else {
-                    element.remove();
+                    removeScreen();
                 }
     
                 resolve();
@@ -1019,6 +1025,10 @@ export function openApp(url, appDetails = null, targetWindow = null) {
 
         return openWindow(contents, appDetails, function(parentWindow) {
             bindOpenWindowEvent(parentWindow);
+
+            webview.on("close", function() {
+                closeWindow(parentWindow);
+            });
         });
     });
 }

@@ -153,6 +153,10 @@ export function getPackagesToDownload(packagesToInstall) {
     var promiseChain = Promise.resolve();
     var outputs = [];
 
+    if (packagesToInstall.length == 0) {
+        return Promise.resolve([]);
+    }
+
     packagesToInstall.forEach(function(name) {
         promiseChain = promiseChain.then(function() {
             return gShell.call("system_executeCommand", {

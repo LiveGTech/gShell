@@ -7,4 +7,10 @@
 # https://liveg.tech
 # Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 
-npm run gshell -- $@
+Xephyr +xinerama -ac -screen 1200x800 :1 &
+
+xephyrProcess=$!
+
+DISPLAY=:1.0 npm run gshell -- --in-xephyr $@
+
+kill $xephyrProcess

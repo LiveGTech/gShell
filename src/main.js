@@ -70,10 +70,10 @@ electron.app.on("ready", function() {
         return system.getScreenResolution();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({
-            width: resolution.width,
-            height: resolution.height,
+            width: resolution.width + 1,
+            height: resolution.height + 1,
             show: false,
-            fullscreen: flags.isRealHardware,
+            fullscreen: flags.allowXorgWindowManagement,
             backgroundColor: "#000000",
             webPreferences: {
                 devTools: !flags.isRealHardware || exports.IS_DEBUG_BUILD || flags.devTools,
@@ -98,7 +98,7 @@ electron.app.on("ready", function() {
 
             exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
 
-            if (flags.isRealHardware) {
+            if (flags.allowXorgWindowManagement) {
                 exports.window.setPosition(0, 0);
             }
 

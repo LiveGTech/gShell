@@ -17,8 +17,8 @@ exports.emulateInstallationMedia = !!exports.argv["im-emulation"];
 exports.emulateTouch = !exports.isRealHardware && exports.argv["touch-emulation"] != false;
 exports.deviceDescriptionLocation = exports.argv["device-desc-location"] || null;
 exports.deviceType = exports.argv["device-type"] || null;
-exports.inXephyr = exports.argv["in-xephyr"] != false;
-exports.allowXorgWindowManagement = exports.isRealHardware || exports.inXephyr || exports.argv["allow-xorg-window-management"] != false;
+exports.inXephyr = !!exports.argv["in-xephyr"];
+exports.allowXorgWindowManagement = exports.isRealHardware || exports.inXephyr || !!exports.argv["allow-xorg-window-management"];
 
 exports.enableA11ySwitch = !!exports.argv["enable-a11y-switch"];
 

@@ -35,7 +35,7 @@ exports.init = function() {
     if (!flags.allowXorgWindowManagement) {
         return Promise.resolve();
     }
-
+    
     return new Promise(function(resolve, reject) {
         x11.createClient(function(error, displayResult) {
             if (error) {

@@ -289,7 +289,7 @@ exports.getScreenResolution = function() {
     return exports.executeCommand("xdpyinfo").then(function(output) {
         var matches = output.stdout.match(/^\s*dimensions:\s+([0-9]+)x([0-9]+) pixels/m);
 
-        return Promise.resolve({width: Number(matches[1]) * 2, height: Number(matches[2])});
+        return Promise.resolve({width: Number(matches[1]), height: Number(matches[2])});
     });
 };
 

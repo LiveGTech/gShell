@@ -73,7 +73,6 @@ electron.app.on("ready", function() {
             width: resolution.width + 1,
             height: resolution.height + 1,
             show: false,
-            fullscreen: flags.allowXorgWindowManagement,
             backgroundColor: "#000000",
             webPreferences: {
                 devTools: !flags.isRealHardware || exports.IS_DEBUG_BUILD || flags.devTools,

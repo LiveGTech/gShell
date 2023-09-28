@@ -68,8 +68,6 @@ electron.app.on("ready", function() {
     storage.init().then(function() {
         return device.init(flags.deviceDescriptionLocation || undefined);
     }).then(function() {
-        return xorg.init();
-    }).then(function() {
         return system.getScreenResolution();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({
@@ -117,8 +115,10 @@ electron.app.on("ready", function() {
 
             exports.window.show();
             exports.window.focus();
+
+            xorg.init();
         });
-    
+
         exports.window.loadFile("shell/index.html");
     });
 });

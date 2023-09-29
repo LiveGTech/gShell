@@ -54,8 +54,6 @@ function releaseWindow(windowId) {
         return;
     }
 
-    X.ReleaseID(windowId);
-
     trackedWindows[id] = null;
 }
 

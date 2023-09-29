@@ -280,7 +280,7 @@ exports.parseNmcliLine = function(line) {
 };
 
 exports.getScreenResolution = function() {
-    if (!flags.isRealHardware) {
+    if (!flags.allowXorgWindowManagement) {
         return Promise.resolve({
             "desktop": {width: 1024, height: 768}
         }[device.data?.type] || {width: 360, height: 720});

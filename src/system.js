@@ -280,7 +280,7 @@ exports.parseNmcliLine = function(line) {
 };
 
 exports.getScreenResolution = function() {
-    if (!flags.isRealHardware) {
+    if (!flags.allowXorgWindowManagement) {
         return Promise.resolve({
             "desktop": {width: 1024, height: 768}
         }[device.data?.type] || {width: 360, height: 720});
@@ -736,6 +736,20 @@ exports.getAptInstallationInfo = function(id) {
     }
 
     return Promise.resolve(aptInstallationProcesses[id]);
+};
+
+exports.getLinuxUsersList = function() {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve([]);
+    }
+
+    var passwdEntries = fs.readFileSync("/etc/passwd", "utf8");
+
+    return Promise.resolve(passwdEntries
+        .split("\n")
+        .filter((line) => line != "")
+        .map((line) => line.split(":")[0])
+    );
 };
 
 exports.devRestart = function() {

@@ -21,6 +21,7 @@ var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
+var xorg = require("./xorg");
 var ipc = require("./ipc");
 
 exports.window = null;
@@ -70,10 +71,9 @@ electron.app.on("ready", function() {
         return system.getScreenResolution();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({
-            width: resolution.width,
-            height: resolution.height,
+            width: resolution.width + 1,
+            height: resolution.height + 1,
             show: false,
-            fullscreen: flags.isRealHardware,
             backgroundColor: "#000000",
             webPreferences: {
                 devTools: !flags.isRealHardware || exports.IS_DEBUG_BUILD || flags.devTools,
@@ -98,7 +98,7 @@ electron.app.on("ready", function() {
 
             exports.window.webContents.setZoomFactor(device.data.display.scaleFactor);
 
-            if (flags.isRealHardware) {
+            if (flags.allowXorgWindowManagement) {
                 exports.window.setPosition(0, 0);
             }
 
@@ -115,8 +115,10 @@ electron.app.on("ready", function() {
 
             exports.window.show();
             exports.window.focus();
+
+            xorg.init();
         });
-    
+
         exports.window.loadFile("shell/index.html");
     });
 });

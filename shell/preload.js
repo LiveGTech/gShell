@@ -12,5 +12,8 @@ const electron = require("electron");
 electron.contextBridge.exposeInMainWorld("gShell", {
     call: function(command, data = {}) {
         return electron.ipcRenderer.invoke(command, data);
+    },
+    on: function(eventName, callback) {
+        electron.ipcRenderer.on(eventName, callback);
     }
 });

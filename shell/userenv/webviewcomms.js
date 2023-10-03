@@ -37,7 +37,7 @@ export function onEvent(eventNames, callback) {
     eventNames.split(" ").forEach((eventName) => webviewEvents.push({eventName, callback}));
 }
 
-export function attach(webview, privileged) {
+export function attach(webview, privileged, user = null) {
     webview.getAll().forEach(function(element) {
         element.isPrivileged = !!privileged;
 
@@ -76,7 +76,7 @@ export function attach(webview, privileged) {
                 }
 
                 if (Object.keys(privilegedInterface.commands).includes(event.args[0])) {
-                    privilegedInterface.commands[event.args[0]](event.args[1]).then(function(data) {
+                    privilegedInterface.commands[event.args[0]](event.args[1], {webview, user}).then(function(data) {
                         send(webview, "callback", {
                             id: event.args[1]._id,
                             resolved: true,

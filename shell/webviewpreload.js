@@ -38,11 +38,14 @@ var mainState = {};
 var isPrivileged = false;
 var privilegedDataIdCounter = 0;
 var privilegedDataUpdateCallbacks = [];
+var privilegedDataEventListeners = [];
 var privilegedDataResponseQueue = {};
+var privilegedDataAccessWaitQueue = [];
 var lastInputScrollLeft = 0;
 var shouldSkipNextInputShow = false;
 var lastTooltip = null;
 var currentSelectElement = null;
+var privilegedDataUpdated = false;
 
 function isTextualInput(element) {
     return element.matches(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
@@ -84,6 +87,130 @@ function openSelect(element) {
     }, items);
 }
 
+function triggerPrivilegedDataEvent(eventType, data) {
+    privilegedDataEventListeners.forEach(function(listener) {
+        if (listener.eventType != eventType) {
+            return;
+        }
+
+        listener.callback(data);
+    });
+}
+
+function userAgent() {
+    var allTerminals = [];
+
+    class TerminalDataEvent extends Event {
+        constructor(data) {
+            super("data");
+
+            this.data = data;
+        }
+    }
+
+    class TerminalExitEvent extends Event {
+        constructor(exitCode, signal) {
+            super("exit");
+
+            this.exitCode = exitCode;
+            this.signal = signal;
+        }
+    }
+
+    class Terminal {
+        #key = null;
+        #eventListeners = [];
+    
+        constructor(file, args = [], options = {}) {
+            this.file = file;
+            this.args = args;
+            this.options = options;
+
+            allTerminals.push(this);
+        }
+
+        get key() {
+            return this.#key;
+        }
+    
+        #ensureAccess() {
+            if (!_sphere.isPrivileged()) {
+                throw new Error("Permission denied for access to terminal");
+            }
+        }
+    
+        spawn() {
+            var thisScope = this;
+    
+            return waitForPrivilegedDataAccess().then(function() {
+                thisScope.#ensureAccess();
+
+                return _sphere.callPrivilegedCommand("term_create", {file: thisScope.file, args: thisScope.args, options: thisScope.options});
+            }).then(function(key) {
+                thisScope.#key = key;
+    
+                return _sphere.callPrivilegedCommand("term_spawn", {key});
+            });
+        }
+
+        kill(signal = 9) {
+            this.#ensureAccess();
+
+            return _sphere.callPrivilegedCommand("term_kill", {key: this.#key, signal});
+        }
+
+        write(data) {
+            this.#ensureAccess();
+
+            return _sphere.callPrivilegedCommand("term_write", {key: this.#key, data});
+        }
+
+        setSize(columns, rows) {
+            this.#ensureAccess();
+
+            return _sphere.callPrivilegedCommand("term_setSize", {key: this.#key, columns, rows});
+        }
+
+        addEventListener(eventType, callback) {
+            this.#eventListeners.push({eventType, callback});
+        }
+
+        dispatchEvent(event) {
+            this.#eventListeners.forEach(function(listener) {
+                if (listener.eventType != event.type) {
+                    return;
+                }
+
+                listener.callback(event);
+            });
+        }
+    }
+
+    function waitForPrivilegedDataAccess() {
+        return new Promise(function(resolve, reject) {
+            _sphere.waitForPrivilegedDataAccess(resolve);
+        });
+    }
+
+    function dispatchEventForTerminal(key, event) {
+        allTerminals.find((terminal) => terminal.key == key).dispatchEvent(event);
+    }
+
+    _sphere.onPrivilegedDataEvent("term_read", function(data) {
+        dispatchEventForTerminal(data.key, new TerminalDataEvent(data.data));
+    });
+
+    _sphere.onPrivilegedDataEvent("term_exit", function(data) {
+        dispatchEventForTerminal(data.key, new TerminalExitEvent(data.exitCode, data.signal));
+    });
+
+    window.sphere = {
+        TerminalDataEvent,
+        TerminalExitEvent,
+        Terminal
+    };
+}
+
 electron.contextBridge.exposeInMainWorld("_sphere", {
     isSystemApp: function() {
         return window.location.href.startsWith("gshell://");
@@ -114,6 +241,18 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
     onPrivilegedDataUpdate: function(callback) {
         privilegedDataUpdateCallbacks.push(callback);
     },
+    onPrivilegedDataEvent: function(eventType, callback) {
+        privilegedDataEventListeners.push({eventType, callback});
+    },
+    waitForPrivilegedDataAccess: function(callback) {
+        if (privilegedDataUpdated) {
+            callback();
+
+            return;
+        }
+
+        privilegedDataAccessWaitQueue.push(callback);
+    },
     _a11y_readout_announce: function(data) {
         if (!mainState.a11y_options?.readout_enabled) {
             return;
@@ -122,6 +261,8 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
         electron.ipcRenderer.sendToHost("a11y_readout_announce", data);
     }
 });
+
+electron.webFrame.executeJavaScript(`(${userAgent.toString()})();`);
 
 window.addEventListener("DOMContentLoaded", function() {
     setInterval(function() {
@@ -319,6 +460,12 @@ window.addEventListener("DOMContentLoaded", function() {
         } else {
             mainState.privilegedData = null;
         }
+
+        privilegedDataUpdated = true;
+
+        privilegedDataAccessWaitQueue.forEach((callback) => callback());
+
+        privilegedDataAccessWaitQueue = [];
     });
 
     electron.ipcRenderer.on("callback", function(event, data) {
@@ -337,6 +484,14 @@ window.addEventListener("DOMContentLoaded", function() {
         currentSelectElement.value = data.value;
 
         currentSelectElement.dispatchEvent(new CustomEvent("change"));
+    });
+
+    electron.ipcRenderer.on("term_read", function(event, data) {
+        triggerPrivilegedDataEvent("term_read", data);
+    });
+
+    electron.ipcRenderer.on("term_exit", function(event, data) {
+        triggerPrivilegedDataEvent("term_exit", data);
     });
 
     electron.ipcRenderer.sendToHost("ready");

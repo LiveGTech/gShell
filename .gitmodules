@@ -1,3 +1,6 @@
 [submodule "shell/lib/adaptui"]
 	path = shell/lib/adaptui
 	url = https://github.com/LiveGTech/Adapt-UI.git
+[submodule "shell/apps/calculator"]
+	path = shell/apps/calculator
+	url = https://github.com/LiveGTech/Calculator

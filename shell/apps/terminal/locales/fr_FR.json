@@ -1,0 +1,12 @@
+{
+    "localeCode": "fr_FR",
+    "metadata": {
+        "name": "Français (France)",
+        "nameShort": "Français",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "terminal": "Terminal",
+        "title": "{title} - Terminal"
+    }
+}

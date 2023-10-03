@@ -52,7 +52,7 @@ export var preloadPath = null;
 export function spawn(url, options = {}) {
     var webview = $g.create("webview");
 
-    webviewComms.attach(webview, !!options.privileged);
+    webviewComms.attach(webview, !!options.privileged, options.user || null);
 
     if (options.private) {
         options.partition = "private";
@@ -110,6 +110,8 @@ export function spawn(url, options = {}) {
 
 export function spawnAsUser(url, user = null, options = {}) {
     return (user == null ? users.getCurrentUser() : Promise.resolve(user)).then(function(user) {
+        options.user = user;
+
         if (typeof(user.uid) == "string") {
             options.partition = `persist:${user.uid}`;
         } else {

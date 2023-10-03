@@ -61,6 +61,14 @@
 
     var lastElement = null;
 
+    function isEnabled() {
+        if (window._sphere) {
+            return _sphere._a11y_readout_enabled();
+        }
+
+        return a11y.options.readout_enabled;
+    }
+
     function announce(data) {
         if (window._sphere) {
             _sphere._a11y_readout_announce(data);
@@ -69,6 +77,22 @@
         }
 
         a11y.callInAssistiveTechnology(a11y.modules.readout?.ReadoutNavigation, "announce", data);
+    }
+
+    function isElementVisible(element) {
+        if (element.offsetWidth == 0) {
+            return false;
+        }
+
+        if (element.offsetHeight == 0) {
+            return false;
+        }
+
+        if (element.getClientRects().length == 0) {
+            return false;
+        }
+
+        return true;
     }
 
     function getElementDescription(element) {
@@ -139,65 +163,117 @@
         return null;
     }
 
+    function moveToElement(element) {
+        if (element == window) {
+            lastElement = null;
+        }
+
+        if (lastElement == element) {
+            return false;
+        }
+
+        if (element.nodeType != Node.ELEMENT_NODE) {
+            return false;
+        }
+
+        if (element.matches("span") && element.parentNode?.closest(READABLE_ELEMENTS)) {
+            return false;
+        }
+
+        var children = element.childNodes;
+        var isTextual = false;
+
+        for (var i = 0; i < children.length; i++) {
+            isTextual ||= children[i].nodeType == Node.TEXT_NODE && children[i].textContent.trim() != "";
+        }
+
+        isTextual ||= element.matches(READABLE_ELEMENTS);
+
+        if (!isTextual) {
+            return false;
+        }
+
+        if (element.matches("[aria-hidden], [aria-hidden] *, [aria-label] *")) {
+            return false;
+        }
+
+        if (!isElementVisible(element)) {
+            return false;
+        }
+
+        lastElement = element;
+
+        var role = element.getAttribute("role");
+
+        if (element.matches("input:not([type])")) {
+            role = "textbox";
+        }
+
+        Object.keys(INPUT_TYPES_TO_ARIA_ROLES).forEach(function(type) {
+            if (!role && element.matches(`input[type="${type}" i]`)) {
+                role = INPUT_TYPES_TO_ARIA_ROLES[type.toLowerCase()];
+            }
+        });
+
+        if (!role) {
+            role = TAG_NAMES_TO_ARIA_ROLES[element.tagName];
+        }
+
+        announce({
+            type: "move",
+            role: role || null,
+            description: getElementDescription(element).trim(),
+            label: getElementLabel(element)?.trim() || null
+        });
+
+        return true;
+    }
+
     ["focus", "focusin", "mousemove"].forEach(function(type) {
         window.addEventListener(type, function(event) {
-            if (event.target == window) {
-                lastElement = null;
-            }
-
-            if (lastElement == event.target) {
+            if (!isEnabled()) {
                 return;
             }
 
-            if (event.target.nodeType != Node.ELEMENT_NODE) {
-                return;
-            }
-
-            if (event.target.matches("span") && event.target.parentNode?.closest(READABLE_ELEMENTS)) {
-                return;
-            }
-
-            var children = event.target.childNodes;
-            var isTextual = false;
-
-            for (var i = 0; i < children.length; i++) {
-                isTextual ||= children[i].nodeType == Node.TEXT_NODE && children[i].textContent.trim() != "";
-            }
-
-            isTextual ||= event.target.matches(READABLE_ELEMENTS);
-
-            if (!isTextual) {
-                return;
-            }
-
-            if (event.target.matches("[aria-hidden], [aria-hidden] *, [aria-label] *")) {
-                return;
-            }
-
-            lastElement = event.target;
-
-            var role = event.target.getAttribute("role");
-
-            if (event.target.matches("input:not([type])")) {
-                role = "textbox";
-            }
-
-            Object.keys(INPUT_TYPES_TO_ARIA_ROLES).forEach(function(type) {
-                if (!role && event.target.matches(`input[type="${type}" i]`)) {
-                    role = INPUT_TYPES_TO_ARIA_ROLES[type.toLowerCase()];
-                }
-            });
-
-            if (!role) {
-                role = TAG_NAMES_TO_ARIA_ROLES[event.target.tagName];
-            }
-
-            announce({
-                type: "move",
-                role: role || null,
-                description: getElementDescription(event.target).trim(),
-                label: getElementLabel(event.target)?.trim() || null
-            });
+            moveToElement(event.target);
         });
+    });
+
+    window.addEventListener("keydown", function(event) {
+        if (!isEnabled()) {
+            return;
+        }
+
+        if (!event.metaKey) {
+            return;
+        }
+
+        if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
+            var allElements = [...document.querySelectorAll("*")];
+            var lastIndex = allElements.findIndex((element) => element === lastElement);
+            var currentIndex = lastIndex;
+
+            do {
+                if (event.key == "ArrowLeft") {
+                    currentIndex--;
+                } else {
+                    currentIndex++;
+                }
+
+                if (currentIndex < 0) {
+                    currentIndex = allElements.length - 1;
+                }
+
+                if (currentIndex >= allElements.length) {
+                    currentIndex = 0;
+                }
+
+                if (currentIndex == lastIndex) {
+                    return; // Looped through all elements, so we can't find any matches
+                }
+            } while (!moveToElement(allElements[currentIndex]));
+
+            allElements[currentIndex].focus(); // TODO: Maybe don't focus and instead send a click event
+        }
     });
 });

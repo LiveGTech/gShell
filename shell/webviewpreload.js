@@ -253,6 +253,9 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
 
         privilegedDataAccessWaitQueue.push(callback);
     },
+    _a11y_readout_enabled: function() {
+        return mainState.a11y_options?.readout_enabled;
+    },
     _a11y_readout_announce: function(data) {
         if (!mainState.a11y_options?.readout_enabled) {
             return;

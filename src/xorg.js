@@ -40,14 +40,20 @@ function trackWindow(windowId) {
     X.RaiseWindow(mainWindowId);
 
     var pixmapId = X.AllocID();
+    var damageId = X.AllocID();
     
     Composite.NameWindowPixmap(windowId, pixmapId);
+    Damage.Create(damageId, windowId, Damage.ReportLevel.NonEmpty);
 
-    trackedWindows.push({windowId, pixmapId});
+    trackedWindows.push({windowId, pixmapId, damageId});
+}
+
+function findTrackedWindowIndexByWindowId(windowId) {
+    return trackedWindows.findIndex((trackedWindow) => trackedWindow?.windowId == windowId);
 }
 
 function releaseWindow(windowId) {
-    var id = trackedWindows.findIndex((trackedWindow) => trackedWindow?.windowId == windowId);
+    var id = findTrackedWindowIndexByWindowId(windowId);
     var trackedWindow = trackedWindows[id];
 
     if (!trackedWindow) {
@@ -76,10 +82,6 @@ exports.getWindowSurfaceImage = function(id) {
         return promisify(X.GetGeometry, X, trackedWindow.pixmapId);
     }).then(function(geometry) {
         return promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF);
-    }).then(function(image) {
-        console.log(image);
-
-        // TODO: Mask to allow transparency and convert to bitmap
     });
 };
 
@@ -107,12 +109,19 @@ exports.init = function() {
             switch (event.name) {
                 case "MapRequest":
                     trackWindow(event.wid);
+                    break;
 
-                    // TODO: Track for repaints using Damage extension
+                case "DamageNotify":
+                    var id = findTrackedWindowIndexByWindowId(event.drawable);
+                    var trackedWindow = trackedWindows[id];
 
-                    setInterval(function() {
-                        exports.getWindowSurfaceImage(0);
-                    }, 1000);
+                    if (!trackedWindow) {
+                        break;
+                    }
+
+                    exports.getWindowSurfaceImage(id).then(console.log); // TODO: Emit event to renderer
+
+                    Damage.Subtract(trackedWindow.damageId, 0, 0);
 
                     break;
 

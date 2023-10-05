@@ -119,7 +119,9 @@ exports.init = function() {
                         break;
                     }
 
-                    exports.getWindowSurfaceImage(id).then(console.log); // TODO: Emit event to renderer
+                    exports.getWindowSurfaceImage(id).then(function(image) {
+                        main.window.webContents.send("xorg_repaintWindow", {id, image});
+                    });
 
                     Damage.Subtract(trackedWindow.damageId, 0, 0);
 

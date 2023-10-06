@@ -80,6 +80,10 @@
     }
 
     function isElementVisible(element) {
+        if (getComputedStyle(element).display == "none") {
+            return false;
+        }
+
         if (element.offsetWidth == 0) {
             return false;
         }
@@ -198,6 +202,16 @@
         }
 
         if (!isElementVisible(element)) {
+            return false;
+        }
+        
+        var possiblyOpenModalElement = document.querySelector("dialog[open], aui-menu:not([hidden])");
+
+        if (
+            possiblyOpenModalElement &&
+            isElementVisible(possiblyOpenModalElement) &&
+            !element.matches("dialog[open] *, aui-menu:not([hidden]) *")
+        ) {
             return false;
         }
 

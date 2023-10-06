@@ -19,6 +19,7 @@ export var options = {
     display_reduceMotion: false,
 
     readout_enabled: false,
+    readout_scanColour: "blue",
 
     switch_enabled: false,
     switch_scanColour: "blue",
@@ -116,6 +117,15 @@ export function update() {
         name: "prefers-reduced-motion",
         value: options.display_reduceMotion ? "reduce" : "no-preference"
     });
+
+    $g.sel("body").setAttribute("liveg-a11y-readout", options.readout_enabled);
+    $g.sel("body").setAttribute("liveg-a11y-switch", options.switch_enabled);
+
+    $g.sel("body").setAttribute("liveg-a11y-scancolour", (
+        (options.readout_enabled && options.readout_scanColour) ||
+        (options.switch_enabled && options.switch_scanColour) ||
+        ""
+    ));
 
     assistiveTechnologies.forEach((tech) => tech.update());
 

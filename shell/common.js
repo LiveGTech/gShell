@@ -217,6 +217,10 @@
 
         lastElement = element;
 
+        document.querySelectorAll("[liveg-a11y-selected]").forEach((element) => element.removeAttribute("liveg-a11y-selected"));
+
+        element.setAttribute("liveg-a11y-selected", true);
+
         var role = element.getAttribute("role");
 
         if (element.matches("input:not([type])")) {
@@ -262,6 +266,13 @@
             return;
         }
 
+        if (event.key == " " && lastElement != null) {
+            lastElement.focus();
+            lastElement.click();
+
+            event.preventDefault();
+        }
+
         if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
             var allElements = [...document.querySelectorAll("*")];
             var lastIndex = allElements.findIndex((element) => element === lastElement);
@@ -287,7 +298,7 @@
                 }
             } while (!moveToElement(allElements[currentIndex]));
 
-            allElements[currentIndex].focus(); // TODO: Maybe don't focus and instead send a click event
+            lastElement.scrollIntoViewIfNeeded();
         }
     });
 });

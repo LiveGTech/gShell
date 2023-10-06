@@ -35,9 +35,8 @@ function promisify(call, scope = this, ...args) {
 }
 
 function trackWindow(windowId) {
-    Composite.RedirectWindow(windowId, Composite.Redirect.Manual);
+    Composite.RedirectWindow(windowId, Composite.Redirect.Automatic);
     X.MapWindow(windowId);
-    X.RaiseWindow(mainWindowId);
 
     var pixmapId = X.AllocID();
     var damageId = X.AllocID();
@@ -121,6 +120,8 @@ exports.init = function() {
 
                     exports.getWindowSurfaceImage(id).then(function(image) {
                         main.window.webContents.send("xorg_repaintWindow", {id, image});
+
+                        console.log("Repaint:", id, image);
                     });
 
                     Damage.Subtract(trackedWindow.damageId, 0, 0);
@@ -142,6 +143,10 @@ exports.init = function() {
         return promisify(X.require, X, "damage");
     }).then(function(extension) {
         Damage = extension;
+
+        return promisify(Composite.GetOverlayWindow, X, root);
+    }).then(function(overlayWindowId) {
+        X.ReparentWindow(mainWindowId, overlayWindowId, 0, 0);
 
         return Promise.resolve();
     });

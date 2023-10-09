@@ -49,3 +49,18 @@ Here's a list of arguments that can be supplied to gShell:
 * `--allow-host-control`: Allow gShell to configure the host system's hardware configuration (such as Wi-Fi connections).
 * `--enable-a11y-switch`: Force the [Switch Navigation](https://docs.liveg.tech/?product=gshell&page=a11y.md) accessibility feature to be enabled.
 * `--im-emulation`: Emulate gShell being used as if it were booted on installation media.
+
+## Building gShell
+To build gShell, first install the dependencies:
+
+```bash
+sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+```
+
+Then run the builder:
+
+```bash
+npm run dist
+```
+
+The built AppImage files will be available in the `dist` folder.

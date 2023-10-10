@@ -156,7 +156,7 @@ export function finish() {
     }).then(function() {
         return users.create(undefined, {
             displayName: $g.sel("#oobs_userProfile_displayName").getValue().trim(),
-            isAdmin: true
+            permissionLevel: "admin"
         });
     }).then(function(user) {
         credentials = new auth.UserAuthCredentials(user);

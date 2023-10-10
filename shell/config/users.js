@@ -269,7 +269,12 @@ export function create(uid = $g.core.generateKey(), data = {}) {
 }
 
 export function init() {
-    return getList().then(function(users) {
+    return gShell.call("system_executeCommand", {
+        command: "sudo",
+        args: ["chmod", "a+rx", "/system"]
+    }).then(function() {
+        return getList();
+    }).then(function(users) {
         var promiseChain = Promise.resolve();
 
         users.forEach(function(user) {

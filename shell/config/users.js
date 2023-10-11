@@ -187,6 +187,20 @@ export class User {
             }).catch(function() {
                 return Promise.resolve(); // User's display name may not have changed
             });
+        }).then(function() {
+            // Give user the Xorg auth cookie
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["cp", "/system/.Xauthority", `/home/${USERNAME}/.Xauthority`]
+            });
+        }).then(function() {
+            // Make the user own the Xorg auth cookie
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["chown", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}/.Xauthority`]
+            });
         });
     }
 

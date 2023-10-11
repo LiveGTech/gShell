@@ -103,6 +103,11 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
         }
 
         if (metadata.user != null) {
+            if (flags.isRealHardware) {
+                options.env ||= {};
+                options.env["XAUTHORITY"] ||= `/home/${metadata.user.linuxUsername}/.Xauthority`;
+            }
+
             var newArgs;
             var envArgs = [];
 

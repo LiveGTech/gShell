@@ -98,10 +98,6 @@ export function getTerminalByKey(key) {
 
 export function createForPrivilegedInterface(metadata, file, args, options) {
     return gShell.call("system_getFlags").then(function(flags) {
-        if (!flags.isRealHardware && options.env) {
-            delete options.env;
-        }
-
         if (metadata.user != null) {
             if (flags.isRealHardware) {
                 options.env ||= {};

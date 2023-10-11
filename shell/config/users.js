@@ -283,6 +283,8 @@ export function create(uid = $g.core.generateKey(), data = {}) {
 }
 
 export function init() {
+    // TODO: Write current LiveG OS version to /etc/os-release
+
     return gShell.call("system_executeCommand", {
         command: "sudo",
         args: ["chmod", "a+rx", "/system"]

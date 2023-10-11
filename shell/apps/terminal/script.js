@@ -35,10 +35,15 @@ $g.waitForLoad().then(function() {
 
     $g.sel("title").setText(_("terminal"));
 
+    // TODO: Move desktop-environment-specific env vars to better location
     var sphereTerminal = new sphere.Terminal(null, [], {
         env: {
             TERM: "xterm-256color",
-            IN_GOS_TERM: true
+            IN_GOS_TERM: true,
+            TERM_PROGRAM: "gshell-term",
+            DESKTOP_SESSION: "gshell",
+            XDG_SESSION_DESKTOP: "gshell",
+            XDG_CURRENT_DESKTOP: "gShell"
         }
     });
 

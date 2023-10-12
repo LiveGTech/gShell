@@ -45,6 +45,8 @@ function trackWindow(windowId) {
     Damage.Create(damageId, windowId, Damage.ReportLevel.NonEmpty);
 
     trackedWindows.push({windowId, pixmapId, damageId});
+
+    main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1});
 }
 
 function findTrackedWindowIndexByWindowId(windowId) {
@@ -60,6 +62,8 @@ function releaseWindow(windowId) {
     }
 
     trackedWindows[id] = null;
+
+    main.window.webContents.send("xorg_releaseWindow", {id});
 }
 
 function getTrackedWindowById(id) {

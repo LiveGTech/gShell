@@ -76,15 +76,23 @@ function getTrackedWindowById(id) {
     return Promise.resolve(trackedWindow);
 }
 
+function mustBeTracking(id, callback) {
+    if (!trackedWindows[id]) {
+        return Promise.reject("Window is no longer tracked");
+    }
+
+    return callback();
+}
+
 exports.getWindowSurfaceImage = function(id) {
     var trackedWindow;
 
     return getTrackedWindowById(id).then(function(trackedWindowResult) {
         trackedWindow = trackedWindowResult;
     
-        return promisify(X.GetGeometry, X, trackedWindow.pixmapId);
+        return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
     }).then(function(geometry) {
-        return promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF);
+        return mustBeTracking(id, () => promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF));
     });
 };
 
@@ -126,9 +134,14 @@ exports.init = function() {
                         main.window.webContents.send("xorg_repaintWindow", {id, image});
 
                         console.log("Repaint:", id, image);
-                    });
 
-                    Damage.Subtract(trackedWindow.damageId, 0, 0);
+                        if (!trackedWindows[id]) {
+                            // Don't subtract damage from a window that has since been released
+                            return Promise.resolve();
+                        }
+
+                        Damage.Subtract(trackedWindow.damageId, 0, 0);
+                    });
 
                     break;
 

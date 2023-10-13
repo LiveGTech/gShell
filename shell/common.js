@@ -60,6 +60,7 @@
     };
 
     var lastElement = null;
+    var modifierKeyDown = false;
 
     function isEnabled() {
         if (window._sphere) {
@@ -262,7 +263,15 @@
             return;
         }
 
-        if (!event.metaKey) {
+        if (event.key == "CapsLock") {
+            // TODO: Ensure that normal Caps Lock functionality is not activated
+
+            modifierKeyDown = true;
+
+            return;
+        }
+
+        if (!modifierKeyDown) {
             return;
         }
 
@@ -301,4 +310,10 @@
             lastElement.scrollIntoViewIfNeeded();
         }
     });
+
+    window.addEventListener("keyup", function(event) {
+        if (event.key == "CapsLock") {
+            modifierKeyDown = false;
+        }
+    })
 });

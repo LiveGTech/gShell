@@ -148,7 +148,7 @@ function dummyDelay() {
     });
 }
 
-export function getPackagesToDownload(packagesToInstall) {
+export function getPackagesToDownload(packagesToInstall, skipUnknowns = false) {
     var packages;
     var promiseChain = Promise.resolve();
     var outputs = [];
@@ -167,6 +167,12 @@ export function getPackagesToDownload(packagesToInstall) {
 
                 return Promise.resolve();
             });
+        }).catch(function(error) {
+            if (skipUnknowns) {
+                return Promise.resolve();
+            }
+
+            return Promise.reject(error);
         });
     });
 
@@ -204,9 +210,12 @@ export function getPackagesToDownload(packagesToInstall) {
     });
 }
 
-export function getPackagesToDownloadForUpdate(update) {
-    return getPackagesToDownload(filterConditions(update, update.packages)
-        .map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`)
+export function getPackagesToDownloadForUpdate(update, skipUnknowns = false) {
+    return getPackagesToDownload(
+        filterConditions(update, update.packages)
+            .map((updatePackage) => `${updatePackage.name}=${updatePackage.version}`)
+        ,
+        skipUnknowns
     );
 }
 
@@ -216,7 +225,7 @@ export function getEstimatedUpdateDownloadSize(update) {
     return gShell.call("network_getContentLength", {url: new URL(update.archivePath, `${UPDATE_SOURCE_URL_BASE}/`).href}).then(function(size) {
         archiveSize = size;
 
-        return getPackagesToDownloadForUpdate(update);
+        return getPackagesToDownloadForUpdate(update, true);
     }).then(function(packages) {
         var packagesSize = packages
             .map((updatePackage) => updatePackage.downloadSize)

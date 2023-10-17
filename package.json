@@ -28,6 +28,7 @@
         "appId": "tech.liveg.gshell",
         "productName": "gShell",
         "copyright": "Copyright © LiveG. All Rights Reserved.",
+        "beforeBuild": "buildhooks/beforeBuild.js",
         "extraResources": [
             {
                 "from": "src",

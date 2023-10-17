@@ -35,19 +35,26 @@ function promisify(call, scope = this, ...args) {
 }
 
 function trackWindow(windowId) {
-    Composite.RedirectWindow(windowId, Composite.Redirect.Manual);
+    Composite.RedirectWindow(windowId, Composite.Redirect.Automatic);
     X.MapWindow(windowId);
-    X.RaiseWindow(mainWindowId);
 
     var pixmapId = X.AllocID();
+    var damageId = X.AllocID();
     
     Composite.NameWindowPixmap(windowId, pixmapId);
+    Damage.Create(damageId, windowId, Damage.ReportLevel.NonEmpty);
 
-    trackedWindows.push({windowId, pixmapId});
+    trackedWindows.push({windowId, pixmapId, damageId});
+
+    main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1});
+}
+
+function findTrackedWindowIndexByWindowId(windowId) {
+    return trackedWindows.findIndex((trackedWindow) => trackedWindow?.windowId == windowId);
 }
 
 function releaseWindow(windowId) {
-    var id = trackedWindows.findIndex((trackedWindow) => trackedWindow?.windowId == windowId);
+    var id = findTrackedWindowIndexByWindowId(windowId);
     var trackedWindow = trackedWindows[id];
 
     if (!trackedWindow) {
@@ -55,6 +62,8 @@ function releaseWindow(windowId) {
     }
 
     trackedWindows[id] = null;
+
+    main.window.webContents.send("xorg_releaseWindow", {id});
 }
 
 function getTrackedWindowById(id) {
@@ -67,19 +76,23 @@ function getTrackedWindowById(id) {
     return Promise.resolve(trackedWindow);
 }
 
+function mustBeTracking(id, callback) {
+    if (!trackedWindows[id]) {
+        return Promise.reject("Window is no longer tracked");
+    }
+
+    return callback();
+}
+
 exports.getWindowSurfaceImage = function(id) {
     var trackedWindow;
 
     return getTrackedWindowById(id).then(function(trackedWindowResult) {
         trackedWindow = trackedWindowResult;
     
-        return promisify(X.GetGeometry, X, trackedWindow.pixmapId);
+        return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
     }).then(function(geometry) {
-        return promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF);
-    }).then(function(image) {
-        console.log(image);
-
-        // TODO: Mask to allow transparency and convert to bitmap
+        return mustBeTracking(id, () => promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF));
     });
 };
 
@@ -107,12 +120,28 @@ exports.init = function() {
             switch (event.name) {
                 case "MapRequest":
                     trackWindow(event.wid);
+                    break;
 
-                    // TODO: Track for repaints using Damage extension
+                case "DamageNotify":
+                    var id = findTrackedWindowIndexByWindowId(event.drawable);
+                    var trackedWindow = trackedWindows[id];
 
-                    setInterval(function() {
-                        exports.getWindowSurfaceImage(0);
-                    }, 1000);
+                    if (!trackedWindow) {
+                        break;
+                    }
+
+                    exports.getWindowSurfaceImage(id).then(function(image) {
+                        main.window.webContents.send("xorg_repaintWindow", {id, image});
+
+                        console.log("Repaint:", id, image);
+
+                        if (!trackedWindows[id]) {
+                            // Don't subtract damage from a window that has since been released
+                            return Promise.resolve();
+                        }
+
+                        Damage.Subtract(trackedWindow.damageId, 0, 0);
+                    });
 
                     break;
 
@@ -131,6 +160,10 @@ exports.init = function() {
         return promisify(X.require, X, "damage");
     }).then(function(extension) {
         Damage = extension;
+
+        return promisify(Composite.GetOverlayWindow, X, root);
+    }).then(function(overlayWindowId) {
+        X.ReparentWindow(mainWindowId, overlayWindowId, 0, 0);
 
         return Promise.resolve();
     });

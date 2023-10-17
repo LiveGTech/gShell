@@ -98,11 +98,20 @@ export function getTerminalByKey(key) {
 
 export function createForPrivilegedInterface(metadata, file, args, options) {
     return gShell.call("system_getFlags").then(function(flags) {
-        if (!flags.isRealHardware && options.env) {
-            delete options.env;
-        }
-
         if (metadata.user != null) {
+            options.env ||= {};
+
+            options.env["TERM"] ||= "xterm-256color";
+            options.env["TERM_PROGRAM"] ||= "sphere-term";
+            options.env["DESKTOP_SESSION"] ||= "gshell";
+            options.env["XDG_SESSION_TYPE"] ||= "x11";
+            options.env["XDG_SESSION_DESKTOP"] ||= "gshell";
+            options.env["XDG_CURRENT_DESKTOP"] ||= "gShell";
+
+            if (flags.isRealHardware) {
+                options.env["XAUTHORITY"] ||= `/home/${metadata.user.linuxUsername}/.Xauthority`;
+            }
+
             var newArgs;
             var envArgs = [];
 

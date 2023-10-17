@@ -37,8 +37,7 @@ $g.waitForLoad().then(function() {
 
     var sphereTerminal = new sphere.Terminal(null, [], {
         env: {
-            TERM: "xterm-256color",
-            IN_GOS_TERM: true
+            TERM_PROGRAM: "gshell-term"
         }
     });
 

@@ -22,6 +22,11 @@ export class User {
         this.permissionLevel = data?.permissionLevel;
         this.linuxUsername = data?.linuxUsername;
 
+        if (data.isAdmin) {
+            // This is for backwards compatibility from V0.2.0 where `users.gsc` will still reference `isAdmin`
+            this.permissionLevel = "admin";
+        }
+
         this.history = data?.history || [
             {eventType: "created", performedAt: Date.now()},
             ...(this.isAdmin ? [{eventType: "givenAdminPrivileges", performedAt: Date.now()}] : [])
@@ -119,7 +124,6 @@ export class User {
                 ["sudo", ["mkdir", "-p", USER_FOLDER_LOCATION]],
                 ["sudo", ["ln", "-s", USER_FOLDER_LOCATION, `/home/${USERNAME}`]],
                 ["sudo", ["cp", "-r", "/etc/skel/.", `/home/${USERNAME}`]],
-                ["sudo", ["chown", "-R", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}/.`]],
                 ["sudo", ["usermod", "-aG", "liveg,users", USERNAME]],
                 ["sudo", ["usermod", "-s", "/bin/bash", USERNAME]]
             ].forEach(function(command) {
@@ -133,6 +137,22 @@ export class User {
 
             return promiseChain;
         }).then(function() {
+            // Ensure that user permissions for user folder are set
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["chown", "-R", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}`]
+            });
+        }).then(function() {
+            // Ensure that user permissions for current files inside user folder are set
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["chown", "-R", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}/.`]
+            });
+        }).then(function() {
+            // Ensure that user is added to or removed from the `sudo` group
+
             if (!thisScope.isAdmin) {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
@@ -147,6 +167,16 @@ export class User {
                 args: ["usermod", "-aG", "sudo", USERNAME]
             });
         }).then(function() {
+            // Set the user's password
+            // TODO: All user passwords are currently empty; we should set the user's password based on auth settings
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["usermod", "-p", "", USERNAME]
+            });
+        }).then(function() {
+            // Sync user's display name
+
             if (!thisScope.displayName) {
                 return Promise.resolve();
             }
@@ -156,6 +186,20 @@ export class User {
                 args: ["usermod", "-c", thisScope.displayName, USERNAME]
             }).catch(function() {
                 return Promise.resolve(); // User's display name may not have changed
+            });
+        }).then(function() {
+            // Give user the Xorg auth cookie
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["cp", "/system/.Xauthority", `/home/${USERNAME}/.Xauthority`]
+            });
+        }).then(function() {
+            // Make the user own the Xorg auth cookie
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["chown", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}/.Xauthority`]
             });
         });
     }
@@ -239,7 +283,14 @@ export function create(uid = $g.core.generateKey(), data = {}) {
 }
 
 export function init() {
-    return getList().then(function(users) {
+    // TODO: Write current LiveG OS version to /etc/os-release
+
+    return gShell.call("system_executeCommand", {
+        command: "sudo",
+        args: ["chmod", "a+rx", "/system"]
+    }).then(function() {
+        return getList();
+    }).then(function(users) {
         var promiseChain = Promise.resolve();
 
         users.forEach(function(user) {

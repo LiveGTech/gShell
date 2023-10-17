@@ -208,6 +208,9 @@
         "a11y_readout_role_textbox": "Entrée de texte",
         "a11y_readout_role_textarea": "Zone d'édition de texte",
         "a11y_readout_role_urlinput": "Entrée d'adresse web",
+        "a11y_readout_state_on": "Activé",
+        "a11y_readout_state_off": "Désactivé",
+        "a11y_readout_state_indeterminate": "Partiellement sélectionné",
 
         "a11y_switch": "Navigation par Interrupteur",
         "a11y_switch_openMainMenu": "Menu",

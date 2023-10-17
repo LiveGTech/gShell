@@ -16,6 +16,19 @@ export const NAME = "readout";
 
 const VALID_ARIA_ROLES = ["article", "button", "cell", "checkbox", "columnheader", "dialog", "document", "expandable", "figure", "form", "heading", "img", "input", "link", "list", "listbox", "listitem", "main", "mark", "marquee", "math", "navigation", "progressbar", "radio", "row", "searchbox", "section", "slider", "switch", "table", "textbox", "textarea", "urlinput"];
 
+const ROLES_TO_EARCONS = {
+    "button": "button",
+    "checkbox": "switch-off",
+    "input": "input",
+    "listbox": "select",
+    "radio": "switch-off",
+    "searchbox": "input",
+    "switch": "switch-off",
+    "textbox": "input",
+    "textarea": "input",
+    "urlinput": "input"
+};
+
 export class ReadoutNavigation extends a11y.AssistiveTechnology {
     lastUsedVoice = null;
     lastLocaleCode = null;
@@ -113,6 +126,18 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
         });
     }
 
+    playEarcon(earcon) {
+        var audio = new Audio(`gshell://media/readout-earcons/${earcon}.wav`);
+
+        return new Promise(function(resolve, reject) {
+            audio.addEventListener("ended", function() {
+                resolve();
+            });
+
+            audio.play();
+        });
+    }
+
     announceViaPanel(data, announcementId) {
         var announcementElement = $g.sel(".a11y_readout_announcement");
 
@@ -144,6 +169,14 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             );
         }
 
+        if (data.state) {
+            addSeparator();
+
+            announcementElement.add(
+                $g.create("span").setText(_(`a11y_readout_state_${data.state}`))
+            );
+        }
+
         if (data.label) {
             addSeparator();
 
@@ -157,12 +190,27 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
         var thisScope = this;
 
         function interruptable(callback, ...args) {
-            console.log(args);
             if (thisScope.currentAnnouncementId != announcementId) {
                 return Promise.resolve();
             }
 
             return callback.apply(thisScope, args);
+        }
+
+        speechSynthesis.cancel();
+
+        if (data.role in ROLES_TO_EARCONS) {
+            switch (data.role) {
+                case "checkbox":
+                case "radio":
+                case "switch":
+                    await interruptable(this.playEarcon, ["on", "indeterminate"].includes(data.state) ? "switch-on" : "switch-off");
+                    break;
+
+                default:
+                    await interruptable(this.playEarcon, ROLES_TO_EARCONS[data.role]);
+                    break;
+            }
         }
 
         if (data.description) {
@@ -171,6 +219,10 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
         if (data.role && VALID_ARIA_ROLES.includes(data.role)) {
             await interruptable(this.speak, _(`a11y_readout_role_${data.role}`));
+        }
+
+        if (data.state) {
+            await interruptable(this.speak, _(`a11y_readout_state_${data.state}`));
         }
 
         if (data.label) {

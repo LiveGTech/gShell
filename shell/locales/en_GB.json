@@ -208,6 +208,9 @@
         "a11y_readout_role_textbox": "Text input",
         "a11y_readout_role_textarea": "Text editing area",
         "a11y_readout_role_urlinput": "Web address input",
+        "a11y_readout_state_on": "On",
+        "a11y_readout_state_off": "Off",
+        "a11y_readout_state_indeterminate": "Partially selected",
 
         "a11y_switch": "Switch Navigation",
         "a11y_switch_openMainMenu": "Menu",

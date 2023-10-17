@@ -118,7 +118,11 @@
         if (element.matches("img[alt]")) {
             return element.getAttribute("alt");
         }
-        
+
+        if (element.matches("input[type='checkbox'], input[type='radio']")) {
+            return "";
+        }
+
         if (element.matches("input, progress, textarea")) {
             return element.value;
         }
@@ -223,9 +227,12 @@
         element.setAttribute("liveg-a11y-selected", true);
 
         var role = element.getAttribute("role");
+        var state = null;
 
         if (element.matches("input:not([type])")) {
             role = "textbox";
+        } else if (element.matches("input[type='checkbox'], input[type='radio']")) {
+            state = element.indeterminate ? "indeterminate" : (element.checked ? "on" : "off");
         }
 
         Object.keys(INPUT_TYPES_TO_ARIA_ROLES).forEach(function(type) {
@@ -242,7 +249,8 @@
             type: "move",
             role: role || null,
             description: getElementDescription(element).trim(),
-            label: getElementLabel(element)?.trim() || null
+            label: getElementLabel(element)?.trim() || null,
+            state
         });
 
         return true;

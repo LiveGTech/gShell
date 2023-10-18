@@ -97,6 +97,10 @@
             return false;
         }
 
+        if (element.matches("details:not([open]) *:not(details > summary, details > summary *)")) {
+            return false;
+        }
+
         return true;
     }
 

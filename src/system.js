@@ -417,6 +417,16 @@ exports.setKeyboardLayout = function(layout, variant = null) {
     return exports.executeCommand("setxkbmap", args);
 };
 
+exports.setCapsLockEnabled = function(enabled) {
+    if (enabled) {
+        return exports.executeCommand("setxkbmap", ["-option"]);
+    }
+
+    // TODO: Turn off Caps Lock if it is currently on
+
+    return exports.executeCommand("setxkbmap", ["-option", "caps:none"]);
+};
+
 exports.bcryptHash = function(data, saltRounds) {
     return new Promise(function(resolve, reject) {
         bcryptjs.hash(data, saltRounds, function(error, hash) {

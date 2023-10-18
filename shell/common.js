@@ -275,10 +275,10 @@
             return;
         }
 
-        if (event.key == "CapsLock") {
-            // TODO: Ensure that normal Caps Lock functionality is not activated
-
+        if (event.code == "CapsLock") {
             modifierKeyDown = true;
+
+            toggleCapsLock();
 
             return;
         }
@@ -287,11 +287,11 @@
             return;
         }
 
+        event.preventDefault();
+
         if (event.key == " " && lastElement != null) {
             lastElement.focus();
             lastElement.click();
-
-            event.preventDefault();
         }
 
         if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
@@ -324,7 +324,7 @@
     });
 
     window.addEventListener("keyup", function(event) {
-        if (event.key == "CapsLock") {
+        if (event.code == "CapsLock") {
             modifierKeyDown = false;
         }
     })

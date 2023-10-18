@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as a11y from "gshell://a11y/a11y.js";
 import * as l10n from "gshell://config/l10n.js";
+import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export const NAME = "readout";
 
@@ -35,8 +36,6 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
     currentAnnouncementId = 0;
 
     init() {
-        console.log("Readout Navigation loaded");
-
         var readoutWasEnabled = false;
 
         setInterval(function() {
@@ -56,10 +55,21 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
             readoutWasEnabled = true;
         });
+
+        function keydownCallback(event) {
+            if (!a11y.options.readout_enabled) {
+                return;
+            }
+
+            console.log(event);
+        }
+
+        $g.sel("body").on("keydown", keydownCallback);
+        webviewComms.onEvent("keydown", keydownCallback);
     }
 
     update() {
-        console.log("Readout Navigation state updated:", a11y.options.readout_enabled);
+        gShell.call("io_setCapsLockEnabled", {enabled: !a11y.options.readout_enabled});
     }
 
     getSuitableVoice() {

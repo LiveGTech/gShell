@@ -172,8 +172,10 @@
         "updates_rolledBackDialog_description": "Un problème a empêché LiveG OS d'installer une mise à jour, et le système est donc revenu à la version précédente.",
 
         "a11y_readout": "Navigation par Lecteur",
+
         "a11y_readout_panel_settings": "Ouvrir les paramètres de Navigation par Lecteur",
         "a11y_readout_panel_menu": "Ouvrir le menu des options",
+
         "a11y_readout_role_article": "Article",
         "a11y_readout_role_button": "Bouton",
         "a11y_readout_role_cell": "Cellule",
@@ -208,9 +210,15 @@
         "a11y_readout_role_textbox": "Entrée de texte",
         "a11y_readout_role_textarea": "Zone d'édition de texte",
         "a11y_readout_role_urlinput": "Entrée d'adresse web",
+
         "a11y_readout_state_on": "Activé",
         "a11y_readout_state_off": "Désactivé",
         "a11y_readout_state_indeterminate": "Partiellement sélectionné",
+
+        "a11y_readout_message_enterContext": "Contexte entré",
+        "a11y_readout_message_exitContext": "Contexte sorti",
+
+        "a11y_readout_hint_toLeaveContext": "Pour revenir au contexte principal, appuyez sur Caps Lock et Escape.",
 
         "a11y_switch": "Navigation par Interrupteur",
         "a11y_switch_openMainMenu": "Menu",

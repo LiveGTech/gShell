@@ -34,8 +34,10 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
     lastUsedVoice = null;
     lastLocaleCode = null;
     currentAnnouncementId = 0;
+    modifierKeyDown = false;
 
     init() {
+        var thisScope = this;
         var readoutWasEnabled = false;
 
         setInterval(function() {
@@ -56,13 +58,35 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             readoutWasEnabled = true;
         });
 
+        function keyupCallback(event) {
+            if (event.code == "CapsLock") {
+                thisScope.modifierKeyDown = false;
+            }
+        }
+
         function keydownCallback(event) {
             if (!a11y.options.readout_enabled) {
                 return;
             }
 
-            console.log(event);
+            if (event.code == "CapsLock") {
+                thisScope.modifierKeyDown = true;
+            }
+
+            if (thisScope.modifierKeyDown && event.key == "Escape") {
+                $g.sel(".switcher_home").focus();
+
+                setTimeout(function() {
+                    thisScope.announce({
+                        type: "message",
+                        message: "exitContext"
+                    });
+                });
+            }
         }
+
+        $g.sel("body").on("keyup", keyupCallback);
+        webviewComms.onEvent("keyup", keyupCallback);
 
         $g.sel("body").on("keydown", keydownCallback);
         webviewComms.onEvent("keydown", keydownCallback);
@@ -163,6 +187,14 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
         announcementElement.clear();
 
+        if (data.message) {
+            addSeparator();
+
+            announcementElement.add(
+                $g.create("span").setText(_(`a11y_readout_message_${data.message}`))
+            );
+        }
+
         if (data.description) {
             addSeparator();
 
@@ -194,6 +226,14 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
                 $g.create("em").setText(data.label)
             )
         }
+
+        if (data.hint) {
+            addSeparator();
+
+            announcementElement.add(
+                $g.create("em").setText(_(`a11y_readout_hint_${data.hint}`))
+            );
+        }
     }
 
     async announceViaVoice(data, announcementId) {
@@ -205,6 +245,14 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             }
 
             return callback.apply(thisScope, args);
+        }
+
+        function pauseForDuration(milliseconds) {
+            return new Promise(function(resolve, reject) {
+                setTimeout(function() {
+                    resolve();
+                }, milliseconds);
+            });
         }
 
         speechSynthesis.cancel();
@@ -223,6 +271,10 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             }
         }
 
+        if (data.message) {
+            await interruptable(this.speak, _(`a11y_readout_message_${data.message}`));
+        }
+
         if (data.description) {
             await interruptable(this.speak, data.description);
         }
@@ -237,6 +289,11 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
         if (data.label) {
             await interruptable(this.speak, data.label, 0);
+        }
+
+        if (data.hint) {
+            await interruptable(pauseForDuration, 1_000);
+            await interruptable(this.speak, _(`a11y_readout_hint_${data.hint}`), 0.5);
         }
     }
 

@@ -172,8 +172,10 @@
         "updates_rolledBackDialog_description": "A problem prevented LiveG OS from installing an update, and so the system has been reverted to the previous version.",
 
         "a11y_readout": "Readout Navigation",
+
         "a11y_readout_panel_settings": "Open Readout Navigation settings",
         "a11y_readout_panel_menu": "Open options menu",
+
         "a11y_readout_role_article": "Article",
         "a11y_readout_role_button": "Button",
         "a11y_readout_role_cell": "Cell",
@@ -208,9 +210,15 @@
         "a11y_readout_role_textbox": "Text input",
         "a11y_readout_role_textarea": "Text editing area",
         "a11y_readout_role_urlinput": "Web address input",
+
         "a11y_readout_state_on": "On",
         "a11y_readout_state_off": "Off",
         "a11y_readout_state_indeterminate": "Partially selected",
+
+        "a11y_readout_message_enterContext": "Entered context",
+        "a11y_readout_message_exitContext": "Exited context",
+
+        "a11y_readout_hint_toLeaveContext": "To return to the main context, press Caps Lock and Escape.",
 
         "a11y_switch": "Switch Navigation",
         "a11y_switch_openMainMenu": "Menu",

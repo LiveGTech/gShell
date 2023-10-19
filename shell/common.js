@@ -80,6 +80,25 @@
         a11y.callInAssistiveTechnology(a11y.modules.readout?.ReadoutNavigation, "announce", data);
     }
 
+    function enterContext(element) {
+        element.focus();
+
+        announce({
+            type: "message",
+            message: "enterContext",
+            hint: "toLeaveContext"
+        });
+
+        if (window._sphere) {
+            return;
+        }
+
+        if (modifierKeyDown) {
+            // Propagate modifier key state to child frame
+            gShell.call("io_input", {webContentsId: element.getWebContentsId(), event: {type: "keydown", keyCode: "CapsLock"}});
+        }
+    }
+
     function isElementVisible(element) {
         if (getComputedStyle(element).display == "none") {
             return false;
@@ -202,7 +221,7 @@
 
         isTextual ||= element.matches(READABLE_ELEMENTS);
 
-        if (!isTextual) {
+        if (!isTextual && !element.matches("webview")) {
             return false;
         }
 
@@ -249,14 +268,18 @@
             role = TAG_NAMES_TO_ARIA_ROLES[element.tagName];
         }
 
-        announce({
-            type: "move",
-            role: role || null,
-            description: getElementDescription(element).trim(),
-            label: getElementLabel(element)?.trim() || null,
-            state
-        });
-
+        if (element.matches("webview")) {
+            enterContext(element);
+        } else {
+            announce({
+                type: "move",
+                role: role || null,
+                description: getElementDescription(element).trim(),
+                label: getElementLabel(element)?.trim() || null,
+                state
+            });
+        }
+        
         return true;
     }
 
@@ -269,6 +292,12 @@
             moveToElement(event.target);
         });
     });
+    
+    window.addEventListener("keyup", function(event) {
+        if (event.code == "CapsLock") {
+            modifierKeyDown = false;
+        }
+    });
 
     window.addEventListener("keydown", function(event) {
         if (!isEnabled()) {
@@ -277,8 +306,6 @@
 
         if (event.code == "CapsLock") {
             modifierKeyDown = true;
-
-            toggleCapsLock();
 
             return;
         }
@@ -322,10 +349,4 @@
             lastElement.scrollIntoViewIfNeeded();
         }
     });
-
-    window.addEventListener("keyup", function(event) {
-        if (event.code == "CapsLock") {
-            modifierKeyDown = false;
-        }
-    })
 });

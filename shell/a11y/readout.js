@@ -44,6 +44,12 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             if (!a11y.options.readout_enabled) {
                 if (readoutWasEnabled) {
                     $g.sel(".a11y_panel.readout").fadeOut();
+
+                    thisScope.announce({
+                        type: "message",
+                        earcon: "off",
+                        message: "off"
+                    }, true);
                 }
 
                 readoutWasEnabled = false;
@@ -53,6 +59,12 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
             if (!readoutWasEnabled) {
                 $g.sel(".a11y_panel.readout").fadeIn();
+
+                thisScope.announce({
+                    type: "message",
+                    earcon: "on",
+                    message: "on"
+                });
             }
 
             readoutWasEnabled = true;
@@ -257,7 +269,9 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
         speechSynthesis.cancel();
 
-        if (data.role in ROLES_TO_EARCONS) {
+        if (data.earcon) {
+            await interruptable(this.playEarcon, data.earcon);
+        } if (data.role in ROLES_TO_EARCONS) {
             switch (data.role) {
                 case "checkbox":
                 case "radio":
@@ -297,8 +311,8 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
         }
     }
 
-    announce(data) {
-        if (!a11y.options.readout_enabled) {
+    announce(data, force = false) {
+        if (!a11y.options.readout_enabled && !force) {
             return;
         }
 

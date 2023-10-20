@@ -215,6 +215,8 @@
         "a11y_readout_state_off": "Off",
         "a11y_readout_state_indeterminate": "Partially selected",
 
+        "a11y_readout_message_on": "Readout Navigation is on",
+        "a11y_readout_message_off": "Readout Navigation is off",
         "a11y_readout_message_enterContext": "Entered context",
         "a11y_readout_message_exitContext": "Exited context",
 

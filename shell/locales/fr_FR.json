@@ -215,6 +215,8 @@
         "a11y_readout_state_off": "Désactivé",
         "a11y_readout_state_indeterminate": "Partiellement sélectionné",
 
+        "a11y_readout_message_on": "Navigation par Lecteur est activée",
+        "a11y_readout_message_off": "Navigation par Lecteur est désactivée",
         "a11y_readout_message_enterContext": "Contexte entré",
         "a11y_readout_message_exitContext": "Contexte sorti",
 

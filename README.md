@@ -47,6 +47,7 @@ Here's a list of arguments that can be supplied to gShell:
 * `--device-desc-location`: Set the location of the [device description file](https://docs.liveg.tech/?product=gshell&page=device.md) to be used to the path specified.
 * `--device-type`: Override the device description file's [`type` value](https://docs.liveg.tech/?product=gshell&page=device.md#type) with the value specified.
 * `--allow-host-control`: Allow gShell to configure the host system's hardware configuration (such as Wi-Fi connections).
+* `--allow-xorg-window-management`: Allow gShell to act as an Xorg compositing window manager.
 * `--enable-a11y-switch`: Force the [Switch Navigation](https://docs.liveg.tech/?product=gshell&page=a11y.md) accessibility feature to be enabled.
 * `--im-emulation`: Emulate gShell being used as if it were booted on installation media.
 

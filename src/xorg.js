@@ -139,8 +139,6 @@ exports.init = function() {
                     exports.getWindowSurfaceImage(id).then(function(image) {
                         main.window.webContents.send("xorg_repaintWindow", {id, image});
 
-                        console.log("Repaint:", id, image);
-
                         if (!trackedWindows[id]) {
                             // Don't subtract damage from a window that has since been released
                             return Promise.resolve();

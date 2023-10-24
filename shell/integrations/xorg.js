@@ -53,8 +53,6 @@ export function init() {
         canvasElement.width = data.image.width;
         canvasElement.height = data.image.height;
 
-        console.log(canvasElement);
-
         var context = canvasElement.getContext("2d");
         var source = data.image.data;
         var destination = context.createImageData(data.image.width, data.image.height);
@@ -74,8 +72,6 @@ export function init() {
                 destinationIndex += 4;
             }
         }
-
-        console.log(destinationIndex);
 
         context.putImageData(destination, 0, 0);
     });

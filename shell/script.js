@@ -33,6 +33,7 @@ import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as oobs from "gshell://oobs/oobs.js";
 import * as sphere from "gshell://sphere/sphere.js";
+import * as xorg from "gshell://integrations/xorg.js";
 
 window.$g = $g;
 
@@ -83,6 +84,7 @@ $g.waitForLoad().then(function() {
     switcher.init();
     oobs.init();
     sphere.init();
+    xorg.init();
 
     if (oobsActivated) {
         $g.sel("#oobs").screenFade();

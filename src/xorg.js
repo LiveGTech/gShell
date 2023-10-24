@@ -92,7 +92,13 @@ exports.getWindowSurfaceImage = function(id) {
     
         return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
     }).then(function(geometry) {
-        return mustBeTracking(id, () => promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF));
+        return mustBeTracking(id, () => promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF)).then(function(data) {
+            return Promise.resolve({
+                ...data,
+                width: geometry.width,
+                height: geometry.height
+            });
+        });
     });
 };
 

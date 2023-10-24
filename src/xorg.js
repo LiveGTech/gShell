@@ -121,6 +121,10 @@ exports.init = function() {
             root = display.screen[0].root;
             X = display.client;
 
+            X.on("error", function(error) {
+                console.error(error);
+            });
+
             resolve();
         }).on("event", function(event) {
             switch (event.name) {

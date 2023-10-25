@@ -308,9 +308,19 @@ export function getWindowGeometry(element) {
     };
 }
 
-export function setWindowGeometry(element, geometry = getWindowGeometry(element)) {
+export function setWindowGeometry(element, geometry = getWindowGeometry(element), directResize = false) {
     if (device.data?.type != "desktop") {
         return;
+    }
+
+    var canResizeDirectly = directResize || !element.is(".switcher_indirectResize");
+
+    if (geometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
+        geometry.width = DESKTOP_MIN_WINDOW_WIDTH;
+    }
+
+    if (geometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
+        geometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
     }
 
     element.get().geometry = geometry;
@@ -327,9 +337,39 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
     } else {
         element.setStyle("left", `${geometry.x || 0}px`);
         element.setStyle("top", `${geometry.y || 0}px`);
-        element.setStyle("width", `${geometry.width || 0}px`);
-        element.setStyle("height", `${geometry.height || 0}px`);
+
+        if (canResizeDirectly) {
+            element.setStyle("width", `${geometry.width || 0}px`);
+            element.setStyle("height", `${geometry.height || 0}px`);
+        }
     }
+}
+
+export function getWindowContentsGeometry(element) {
+    return getWindowGeometry(element.find(".switcher_apps"));
+}
+
+export function getWindowContentsOffsets(element) {
+    var windowGeometry = getWindowGeometry(element);
+    var windowContentsGeometry = getWindowContentsGeometry(element);
+
+    return {
+        contentsX: windowContentsGeometry.x - windowGeometry.x,
+        contentsY: windowContentsGeometry.y - windowGeometry.y,
+        windowWidth: windowGeometry.width - windowContentsGeometry.width,
+        windowHeight: windowGeometry.height - windowContentsGeometry.height
+    };
+}
+
+export function setWindowContentsGeometry(element, geometry = getWindowContentsGeometry(), directResize = false) {
+    var offsets = getWindowContentsOffsets(element);
+
+    setWindowGeometry(element, {
+        x: geometry.x - offsets.contentsX,
+        y: geometry.y - offsets.contentsY,
+        width: geometry.width + offsets.windowWidth,
+        height: geometry.height + offsets.windowHeight
+    }, directResize);
 }
 
 export function openWindow(windowContents, appDetails = null, elementCallback = function() {}) {
@@ -675,6 +715,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         handleHorizontal();
 
         setWindowGeometry(screenElement, newGeometry);
+
+        if (newGeometry.width != initialGeometry.width || newGeometry.height != initialGeometry.height) {
+            screenElement.emit("switcherresize", {geometry: newGeometry});
+        }
     });
 
     $g.sel("body").on("pointerup", function() {

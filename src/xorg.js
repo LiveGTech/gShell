@@ -102,6 +102,20 @@ exports.getWindowSurfaceImage = function(id) {
     });
 };
 
+exports.resizeWindow = function(id, width, height) {
+    return getTrackedWindowById(id).then(function(trackedWindow) {
+        X.ResizeWindow(trackedWindow.windowId, Math.floor(width), Math.floor(height));
+
+        var pixmapId = X.AllocID();
+
+        Composite.NameWindowPixmap(trackedWindow.windowId, pixmapId);
+
+        trackedWindow.pixmapId = pixmapId;
+
+        return Promise.resolve();
+    });
+};
+
 exports.init = function() {
     if (!flags.allowXorgWindowManagement) {
         return Promise.resolve();

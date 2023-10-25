@@ -60,17 +60,15 @@ export function init() {
         var sourceIndex = 0;
         var destinationIndex = 0;
 
-        for (var y = 0; y < data.image.height; y++) {
-            for (var x = 0; x < data.image.width; x++) {
-                destination.data[destinationIndex + 2] = source[sourceIndex++]; // Blue
-                destination.data[destinationIndex + 1] = source[sourceIndex++]; // Green
-                destination.data[destinationIndex + 0] = source[sourceIndex++]; // Red
-                destination.data[destinationIndex + 3] = 255; // Alpha
+        for (var i = 0; i < data.image.width * data.image.height; i++) {
+            destination.data[destinationIndex + 2] = source[sourceIndex++]; // Blue
+            destination.data[destinationIndex + 1] = source[sourceIndex++]; // Green
+            destination.data[destinationIndex + 0] = source[sourceIndex++]; // Red
+            destination.data[destinationIndex + 3] = 255; // Alpha
 
-                sourceIndex++; // TODO: Figure out what fourth channel value is meant to represent
+            sourceIndex++; // TODO: Figure out what fourth channel value is meant to represent
 
-                destinationIndex += 4;
-            }
+            destinationIndex += 4;
         }
 
         context.putImageData(destination, 0, 0);

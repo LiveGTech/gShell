@@ -323,7 +323,13 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
         geometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
     }
 
-    element.get().geometry = geometry;
+    if (canResizeDirectly) {
+        element.get().geometry = geometry;
+    } else {
+        element.get().geometry ||= {width: geometry.width, height: geometry.height};
+        element.get().geometry.x = geometry.x;
+        element.get().geometry.y = geometry.y;
+    }
 
     if ($g.sel("#switcherView .switcher").is(".allowSelect")) {
         return;

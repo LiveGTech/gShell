@@ -557,6 +557,7 @@ body[device-type="desktop"] .switcher_screenOptions {
     flex-direction: column;
     height: 100%;
     gap: 0.5rem;
+    overflow: hidden;
 }
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_apps {

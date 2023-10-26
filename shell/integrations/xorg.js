@@ -13,12 +13,32 @@ import * as switcher from "gshell://userenv/switcher.js";
 
 export var trackedWindows = {};
 
+function ensureWindowSize(trackedWindow) {
+    var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();
+    var windowContentsRect = trackedWindow.screenElement.find(".switcher_apps").get().getBoundingClientRect();
+    
+    if (windowContentsRect.width == canvasElement.width && windowContentsRect.height == canvasElement.height) {
+        return;
+    }
+
+    var currentWindowContentsGeometry = switcher.getWindowContentsGeometry(trackedWindow.screenElement, true);
+
+    switcher.setWindowContentsGeometry(trackedWindow.screenElement, {
+        x: currentWindowContentsGeometry.x,
+        y: currentWindowContentsGeometry.y,
+        width: canvasElement.width,
+        height: canvasElement.height
+    }, true);
+
+    requestAnimationFrame(function() {
+        ensureWindowSize(trackedWindow);
+    });
+}
+
 export function init() {
     gShell.on("xorg_trackWindow", function(event, data) {
         var surfaceContainer = $g.create("div").add(
-            $g.create("main").add(
-                $g.create("canvas")
-            )
+            $g.create("canvas")
         );
 
         var details = {
@@ -29,7 +49,8 @@ export function init() {
         var trackedWindow = {
             surfaceContainer,
             lastWidth: null,
-            lastHeight: null
+            lastHeight: null,
+            processingResize: false
         };
 
         trackedWindows[data.id] = trackedWindow;
@@ -43,11 +64,15 @@ export function init() {
             var lastEventWidth = null;
             var lastEventHeight = null;
 
-            screenElement.on("switcherresize", function(event) {
+            screenElement.on("switcherresize", function resizeEventHandler(event) {
                 if (lastEventWidth == event.detail.geometry.width && lastEventHeight == event.detail.geometry.height) {
                     return;
                 }
 
+                if (trackedWindow.processingResize) {
+                    return;
+                }
+                
                 var offsets = switcher.getWindowContentsOffsets(screenElement);
 
                 gShell.call("xorg_resizeWindow", {
@@ -58,6 +83,8 @@ export function init() {
 
                 lastEventWidth = event.detail.geometry.width;
                 lastEventHeight = event.detail.geometry.height;
+
+                trackedWindow.processingResize = true;
             });
         });
     });
@@ -84,17 +111,6 @@ export function init() {
         canvasElement.width = data.image.width;
         canvasElement.height = data.image.height;
 
-        if (data.image.width != trackedWindow.lastWidth || data.image.height != trackedWindow.lastHeight) {
-            var currentWindowContentsGeometry = switcher.getWindowContentsGeometry(trackedWindow.screenElement);
-
-            switcher.setWindowContentsGeometry(trackedWindow.screenElement, {
-                x: currentWindowContentsGeometry.x,
-                y: currentWindowContentsGeometry.y,
-                width: data.image.width,
-                height: data.image.height
-            }, true);
-        }
-
         var context = canvasElement.getContext("2d");
         var source = data.image.data;
         var destination = context.createImageData(data.image.width, data.image.height);
@@ -117,5 +133,11 @@ export function init() {
 
         trackedWindow.lastWidth = data.image.width;
         trackedWindow.lastHeight = data.image.height;
+
+        ensureWindowSize(trackedWindow);
+
+        // FIXME: Xorg still crashes due to too many resize requests
+        // We could compare widths and heights against requested resize to ensure that resize has been processed
+        trackedWindow.processingResize = false;
     });
 }

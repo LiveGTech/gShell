@@ -19,6 +19,7 @@ var Composite;
 var Damage;
 var mainWindowId = null;
 var trackedWindows = [];
+var requestLock = false;
 
 function promisify(call, scope = this, ...args) {
     return new Promise(function(resolve, reject) {
@@ -84,10 +85,40 @@ function mustBeTracking(id, callback) {
     return callback();
 }
 
+function waitForTurn() {
+    if (!requestLock) {
+        requestLock = true;
+
+        return Promise.resolve();
+    }
+
+    return new Promise(function(resolve, reject) {
+        setTimeout(function check() {
+            if (!requestLock) {
+                requestLock = true;
+
+                resolve();
+
+                return;
+            }
+
+            setTimeout(check);
+        });
+    });
+}
+
+function releaseTurn() {
+    requestLock = false;
+
+    return Promise.resolve(...arguments);
+}
+
 exports.getWindowSurfaceImage = function(id) {
     var trackedWindow;
 
-    return getTrackedWindowById(id).then(function(trackedWindowResult) {
+    return waitForTurn().then(function() {
+        return getTrackedWindowById(id);
+    }).then(function(trackedWindowResult) {
         trackedWindow = trackedWindowResult;
     
         return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
@@ -98,12 +129,14 @@ exports.getWindowSurfaceImage = function(id) {
                 width: geometry.width,
                 height: geometry.height
             });
-        });
+        }).then(releaseTurn);
     });
 };
 
 exports.resizeWindow = function(id, width, height) {
-    return getTrackedWindowById(id).then(function(trackedWindow) {
+    return waitForTurn().then(function() {
+        return getTrackedWindowById(id);
+    }).then(function(trackedWindow) {
         X.ResizeWindow(trackedWindow.windowId, Math.floor(width), Math.floor(height));
 
         var pixmapId = X.AllocID();
@@ -113,7 +146,7 @@ exports.resizeWindow = function(id, width, height) {
         trackedWindow.pixmapId = pixmapId;
 
         return Promise.resolve();
-    });
+    }).then(releaseTurn);
 };
 
 exports.init = function() {
@@ -146,6 +179,17 @@ exports.init = function() {
                     trackWindow(event.wid);
                     break;
 
+                case "ResizeRequest":
+                    var id = findTrackedWindowIndexByWindowId(event.window);
+                    var trackedWindow = trackedWindows[id];
+
+                    if (!trackedWindow) {
+                        break;
+                    }
+
+                    main.window.webContents.send("xorg_resizeWindow", {id, width: event.width, height: event.height});
+                    break;
+
                 case "DamageNotify":
                     var id = findTrackedWindowIndexByWindowId(event.drawable);
                     var trackedWindow = trackedWindows[id];
@@ -173,7 +217,7 @@ exports.init = function() {
             }
         });
     }).then(function() {
-        return X.ChangeWindowAttributes(root, {eventMask: x11.eventMask.SubstructureNotify | x11.eventMask.SubstructureRedirect});
+        return X.ChangeWindowAttributes(root, {eventMask: x11.eventMask.SubstructureNotify | x11.eventMask.SubstructureRedirect | x11.eventMask.ResizeRedirect});
     }).then(function() {
         return promisify(X.require, X, "composite");
     }).then(function(extension) {

@@ -14,10 +14,9 @@ import * as switcher from "gshell://userenv/switcher.js";
 export var trackedWindows = {};
 
 function ensureWindowSize(trackedWindow) {
-    var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();
     var windowContentsRect = trackedWindow.screenElement.find(".switcher_apps").get().getBoundingClientRect();
     
-    if (windowContentsRect.width == canvasElement.width && windowContentsRect.height == canvasElement.height) {
+    if (windowContentsRect.width == trackedWindow.width && windowContentsRect.height == trackedWindow.height) {
         return;
     }
 
@@ -26,8 +25,8 @@ function ensureWindowSize(trackedWindow) {
     switcher.setWindowContentsGeometry(trackedWindow.screenElement, {
         x: currentWindowContentsGeometry.x,
         y: currentWindowContentsGeometry.y,
-        width: canvasElement.width,
-        height: canvasElement.height
+        width: trackedWindow.width,
+        height: trackedWindow.height
     }, true);
 
     requestAnimationFrame(function() {
@@ -46,10 +45,11 @@ export function init() {
             instantLaunch: true
         };
 
+        // TODO: Get initial width and height
         var trackedWindow = {
             surfaceContainer,
-            lastWidth: null,
-            lastHeight: null,
+            width: 200,
+            height: 200,
             processingResize: false
         };
 
@@ -75,11 +75,18 @@ export function init() {
                 
                 var offsets = switcher.getWindowContentsOffsets(screenElement);
 
+                trackedWindow.width = event.detail.geometry.width - offsets.windowWidth;
+                trackedWindow.height = event.detail.geometry.height - offsets.windowHeight;
+
                 gShell.call("xorg_resizeWindow", {
                     id: data.id,
-                    width: event.detail.geometry.width - offsets.windowWidth,
-                    height: event.detail.geometry.height - offsets.windowHeight
+                    width: trackedWindow.width,
+                    height: trackedWindow.height
                 });
+
+                // TODO: Ensure repaint at end of resizing to prevent surface size mismatches
+
+                ensureWindowSize(trackedWindow);
 
                 lastEventWidth = event.detail.geometry.width;
                 lastEventHeight = event.detail.geometry.height;
@@ -87,6 +94,8 @@ export function init() {
                 trackedWindow.processingResize = true;
             });
         });
+
+        ensureWindowSize(trackedWindow);
     });
 
     gShell.on("xorg_releaseWindow", function(event, data) {
@@ -99,6 +108,21 @@ export function init() {
         trackedWindow = null;
     });
 
+    gShell.on("xorg_resizeWindow", function(event, data) {
+        var trackedWindow = trackedWindows[data.id];
+
+        if (!trackedWindow) {
+            return;
+        }
+
+        var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();
+
+        canvasElement.width = data.width;
+        canvasElement.height = data.height;
+
+        ensureWindowSize(trackedWindow);
+    });
+
     gShell.on("xorg_repaintWindow", function(event, data) {
         var trackedWindow = trackedWindows[data.id];
 
@@ -108,8 +132,8 @@ export function init() {
 
         var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();
 
-        canvasElement.width = data.image.width;
-        canvasElement.height = data.image.height;
+        canvasElement.width = trackedWindow.width;
+        canvasElement.height = trackedWindow.height;
 
         var context = canvasElement.getContext("2d");
         var source = data.image.data;
@@ -131,13 +155,6 @@ export function init() {
 
         context.putImageData(destination, 0, 0);
 
-        trackedWindow.lastWidth = data.image.width;
-        trackedWindow.lastHeight = data.image.height;
-
-        ensureWindowSize(trackedWindow);
-
-        // FIXME: Xorg still crashes due to too many resize requests
-        // We could compare widths and heights against requested resize to ensure that resize has been processed
         trackedWindow.processingResize = false;
     });
 }

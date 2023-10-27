@@ -383,7 +383,7 @@ ipcMain.handle("term_setSize", function(event, data) {
 
 ipcMain.handle("xorg_resizeWindow", function(event, data) {
     return xorg.resizeWindow(data.id, data.width, data.height);
-})
+});
 
 ipcMain.handle("dev_isDebugBuild", function(event, data) {
     return Promise.resolve(main.IS_DEBUG_BUILD);

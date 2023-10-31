@@ -84,8 +84,6 @@ export function init() {
                     height: trackedWindow.height
                 });
 
-                // TODO: Ensure repaint at end of resizing to prevent surface size mismatches
-
                 ensureWindowSize(trackedWindow);
 
                 lastEventWidth = event.detail.geometry.width;
@@ -127,6 +125,12 @@ export function init() {
         var trackedWindow = trackedWindows[data.id];
 
         if (!trackedWindow) {
+            return;
+        }
+
+        if (data.justResized) {
+            trackedWindow.processingResize = false;
+
             return;
         }
 

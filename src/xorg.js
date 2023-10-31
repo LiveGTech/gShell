@@ -45,7 +45,12 @@ function trackWindow(windowId) {
     Composite.NameWindowPixmap(windowId, pixmapId);
     Damage.Create(damageId, windowId, Damage.ReportLevel.NonEmpty);
 
-    trackedWindows.push({windowId, pixmapId, damageId});
+    trackedWindows.push({
+        windowId,
+        pixmapId,
+        damageId,
+        justResized: false
+    });
 
     main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1});
 }
@@ -144,6 +149,7 @@ exports.resizeWindow = function(id, width, height) {
         Composite.NameWindowPixmap(trackedWindow.windowId, pixmapId);
 
         trackedWindow.pixmapId = pixmapId;
+        trackedWindow.justResized = true;
 
         return Promise.resolve();
     }).then(releaseTurn);
@@ -199,7 +205,13 @@ exports.init = function() {
                     }
 
                     exports.getWindowSurfaceImage(id).then(function(image) {
-                        main.window.webContents.send("xorg_repaintWindow", {id, image});
+                        main.window.webContents.send("xorg_repaintWindow", {id, image, justResized: trackedWindow.justResized});
+
+                        if (trackedWindow.justResized) {
+                            X.ClearArea(trackedWindow.windowId, 0, 0, image.width, image.height, true);
+
+                            trackedWindow.justResized = false;
+                        }
 
                         if (!trackedWindows[id]) {
                             // Don't subtract damage from a window that has since been released

@@ -22,6 +22,7 @@ function ensureWindowSize(trackedWindow) {
 
     var currentWindowContentsGeometry = switcher.getWindowContentsGeometry(trackedWindow.screenElement, true);
 
+    // TODO: Override minimum size constraint for small Xorg apps (as in geometry, like xeyes)
     switcher.setWindowContentsGeometry(trackedWindow.screenElement, {
         x: currentWindowContentsGeometry.x,
         y: currentWindowContentsGeometry.y,
@@ -50,6 +51,7 @@ export function init() {
             surfaceContainer,
             width: 200,
             height: 200,
+            initiallyResized: false,
             processingResize: false
         };
 
@@ -113,10 +115,9 @@ export function init() {
             return;
         }
 
-        var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();
-
-        canvasElement.width = data.width;
-        canvasElement.height = data.height;
+        trackedWindow.width = data.width;
+        trackedWindow.height = data.height;
+        trackedWindow.initiallyResized = true;
 
         ensureWindowSize(trackedWindow);
     });
@@ -132,6 +133,15 @@ export function init() {
             trackedWindow.processingResize = false;
 
             return;
+        }
+
+        if (!trackedWindow.initiallyResized) {
+            console.log("fixed resize");
+            trackedWindow.width = data.image.width;
+            trackedWindow.height = data.image.height;
+            trackedWindow.initiallyResized = true;
+
+            ensureWindowSize(trackedWindow);
         }
 
         var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();

@@ -20,6 +20,7 @@ var Damage;
 var mainWindowId = null;
 var trackedWindows = [];
 var requestLock = false;
+var configureRequestQueue = [];
 
 function promisify(call, scope = this, ...args) {
     return new Promise(function(resolve, reject) {
@@ -53,6 +54,16 @@ function trackWindow(windowId) {
     });
 
     main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1});
+
+    var configureRequestIndex = configureRequestQueue.findIndex((event) => event.wid == windowId);
+
+    if (configureRequestIndex >= 0) {
+        var event = configureRequestQueue[configureRequestIndex];
+
+        main.window.webContents.send("xorg_resizeWindow", {id: trackedWindows.length - 1, width: event.width, height: event.height});
+
+        configureRequestQueue.splice(configureRequestIndex, 1);
+    }
 }
 
 function findTrackedWindowIndexByWindowId(windowId) {
@@ -183,6 +194,21 @@ exports.init = function() {
             switch (event.name) {
                 case "MapRequest":
                     trackWindow(event.wid);
+
+                    break;
+
+                case "ConfigureRequest":
+                    var id = findTrackedWindowIndexByWindowId(event.window);
+                    var trackedWindow = trackedWindows[id];
+
+                    if (!trackedWindow) {
+                        configureRequestQueue.push(event);
+
+                        break;
+                    }
+
+                    main.window.webContents.send("xorg_resizeWindow", {id, width: event.width, height: event.height});
+
                     break;
 
                 case "ResizeRequest":
@@ -194,6 +220,7 @@ exports.init = function() {
                     }
 
                     main.window.webContents.send("xorg_resizeWindow", {id, width: event.width, height: event.height});
+
                     break;
 
                 case "DamageNotify":

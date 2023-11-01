@@ -39,6 +39,7 @@ export function init() {
     gShell.on("xorg_trackWindow", function(event, data) {
         var surfaceContainer = $g.create("div").add(
             $g.create("canvas")
+                .addClass("switcher_renderSurface")
         );
 
         var details = {

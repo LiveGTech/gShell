@@ -16,6 +16,10 @@ export var trackedWindows = {};
 function ensureWindowSize(trackedWindow) {
     var windowContentsRect = trackedWindow.screenElement.find(".switcher_apps").get().getBoundingClientRect();
     
+    if (trackedWindow.width == null || trackedWindow.height == null) {
+        return;
+    }
+
     if (windowContentsRect.width == trackedWindow.width && windowContentsRect.height == trackedWindow.height) {
         return;
     }
@@ -47,11 +51,10 @@ export function init() {
             instantLaunch: true
         };
 
-        // TODO: Get initial width and height
         var trackedWindow = {
             surfaceContainer,
-            width: 200,
-            height: 200,
+            width: null,
+            height: null,
             initiallyResized: false,
             processingResize: false
         };

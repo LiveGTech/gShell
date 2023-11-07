@@ -90,7 +90,9 @@ export function init() {
                     height: trackedWindow.height
                 });
 
-                ensureWindowSize(trackedWindow);
+                if (!event.detail.maximising) {
+                    ensureWindowSize(trackedWindow);
+                }
 
                 lastEventWidth = event.detail.geometry.width;
                 lastEventHeight = event.detail.geometry.height;

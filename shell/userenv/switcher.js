@@ -105,7 +105,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
             this.screenSelected = true;
 
-            this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+            this.element.find(":scope > *").forEach((element) => setWindowGeometry(element, getWindowGeometry(element), true));
 
             this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
             screenElement.find("*:is(.switcher_titleBar, .switcher_apps)").removeAttribute("inert");
@@ -162,7 +162,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
         $g.sel(".desktop_appListButton").removeClass("selected");
 
-        this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+        this.element.find(":scope > *").forEach((element) => setWindowGeometry(element, getWindowGeometry(element), true));
     }
 }
 
@@ -293,8 +293,8 @@ export function init() {
     }
 }
 
-export function getWindowGeometry(element) {
-    if (element.get().geometry) {
+export function getWindowGeometry(element, forceRecalculation = false) {
+    if (element.get().geometry && !forceRecalculation) {
         return element.get().geometry;
     }
 
@@ -351,23 +351,28 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
     }
 }
 
+export function sendResizeEvent(element, geometry = getWindowGeometry(element, true), otherDetail = {}) {
+    element.emit("switcherresize", {geometry, ...otherDetail});
+}
+
 export function getWindowContentsGeometry(element) {
-    return getWindowGeometry(element.find(".switcher_apps"));
+    return getWindowGeometry(element.find(".switcher_apps"), true);
 }
 
 export function getWindowContentsOffsets(element) {
-    var windowGeometry = getWindowGeometry(element);
+    var windowGeometry = getWindowGeometry(element); // Use cached value for position values to prevent window from moving
+    var recalculatedWindowGeometry = getWindowGeometry(element, true); // Use recaluclated value to get actual geometry when maximised
     var windowContentsGeometry = getWindowContentsGeometry(element);
 
     return {
         contentsX: windowContentsGeometry.x - windowGeometry.x,
         contentsY: windowContentsGeometry.y - windowGeometry.y,
-        windowWidth: windowGeometry.width - windowContentsGeometry.width,
-        windowHeight: windowGeometry.height - windowContentsGeometry.height
+        windowWidth: recalculatedWindowGeometry.width - windowContentsGeometry.width,
+        windowHeight: recalculatedWindowGeometry.height - windowContentsGeometry.height
     };
 }
 
-export function setWindowContentsGeometry(element, geometry = getWindowContentsGeometry(), directResize = false) {
+export function setWindowContentsGeometry(element, geometry = getWindowContentsGeometry(element), directResize = false) {
     var offsets = getWindowContentsOffsets(element);
 
     setWindowGeometry(element, {
@@ -723,7 +728,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         setWindowGeometry(screenElement, newGeometry);
 
         if (newGeometry.width != initialGeometry.width || newGeometry.height != initialGeometry.height) {
-            screenElement.emit("switcherresize", {geometry: newGeometry});
+            sendResizeEvent(screenElement, newGeometry);
         }
     });
 
@@ -970,11 +975,15 @@ export function maximiseWindow(element, animated = true) {
     }
 
     element.addClass("maximised");
-    setWindowGeometry(element);
+
+    setWindowGeometry(element, getWindowGeometry(element), true);
+    sendResizeEvent(element, getWindowGeometry(element.ancestor(".switcher"), true), {maximising: true});
 
     if (animated) {
         setTimeout(function() {
             element.removeClass("transitioning");
+
+            sendResizeEvent(element);
         }, aui_a11y.prefersReducedMotion() ? 0 : 500);
     }
 }
@@ -985,11 +994,14 @@ export function restoreWindow(element, animated = true) {
     }
 
     element.removeClass("maximised");
-    setWindowGeometry(element);
+
+    setWindowGeometry(element, getWindowGeometry(element), true);
 
     if (animated) {
         setTimeout(function() {
             element.removeClass("transitioning");
+
+            sendResizeEvent(element);
         }, aui_a11y.prefersReducedMotion() ? 0 : 500);
     }
 }

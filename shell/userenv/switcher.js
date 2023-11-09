@@ -727,6 +727,14 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
         setWindowGeometry(screenElement, newGeometry);
 
+        new ResizeObserver(function() {
+            if (!screenElement.hasClass("maximised") || screenElement.hasClass("transitioning")) {
+                return;
+            }
+
+            sendResizeEvent(screenElement, getWindowGeometry(screenElement, true));
+        }).observe(screenElement.get());
+
         if (newGeometry.width != initialGeometry.width || newGeometry.height != initialGeometry.height) {
             sendResizeEvent(screenElement, newGeometry);
         }

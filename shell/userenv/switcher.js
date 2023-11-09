@@ -351,6 +351,10 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
     }
 }
 
+export function sendMoveEvent(element, geometry = getWindowGeometry(element, true), otherDetail = {}) {
+    element.emit("switchermove", {geometry, ...otherDetail});
+}
+
 export function sendResizeEvent(element, geometry = getWindowGeometry(element, true), otherDetail = {}) {
     element.emit("switcherresize", {geometry, ...otherDetail});
 }
@@ -359,8 +363,8 @@ export function getWindowContentsGeometry(element) {
     return getWindowGeometry(element.find(".switcher_apps"), true);
 }
 
-export function getWindowContentsOffsets(element) {
-    var windowGeometry = getWindowGeometry(element); // Use cached value for position values to prevent window from moving
+export function getWindowContentsOffsets(element, forceRecalculation = false) {
+    var windowGeometry = getWindowGeometry(element, forceRecalculation);
     var recalculatedWindowGeometry = getWindowGeometry(element, true); // Use recaluclated value to get actual geometry when maximised
     var windowContentsGeometry = getWindowContentsGeometry(element);
 
@@ -664,6 +668,9 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 x: event.clientX - (getWindowGeometry(screenElement).width / 2),
                 y: event.clientY - (screenElement.find(".switcher_titleBar").get().getBoundingClientRect().height / 2)
             });
+
+            sendMoveEvent(screenElement);
+            sendResizeEvent(screenElement);
             
             initialGeometry = {...getWindowGeometry(screenElement)};
         }
@@ -732,8 +739,12 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 return;
             }
 
-            sendResizeEvent(screenElement, getWindowGeometry(screenElement, true));
+            sendResizeEvent(screenElement);
         }).observe(screenElement.get());
+
+        if (newGeometry.x != initialGeometry.x || newGeometry.y != initialGeometry.y) {
+            sendMoveEvent(screenElement, newGeometry);
+        }
 
         if (newGeometry.width != initialGeometry.width || newGeometry.height != initialGeometry.height) {
             sendResizeEvent(screenElement, newGeometry);
@@ -985,12 +996,14 @@ export function maximiseWindow(element, animated = true) {
     element.addClass("maximised");
 
     setWindowGeometry(element, getWindowGeometry(element), true);
+    sendMoveEvent(element, element.ancestor(".switcher"), true, {maximising: true});
     sendResizeEvent(element, getWindowGeometry(element.ancestor(".switcher"), true), {maximising: true});
 
     if (animated) {
         setTimeout(function() {
             element.removeClass("transitioning");
 
+            sendMoveEvent(element);
             sendResizeEvent(element);
         }, aui_a11y.prefersReducedMotion() ? 0 : 500);
     }
@@ -1009,6 +1022,7 @@ export function restoreWindow(element, animated = true) {
         setTimeout(function() {
             element.removeClass("transitioning");
 
+            sendMoveEvent(element);
             sendResizeEvent(element);
         }, aui_a11y.prefersReducedMotion() ? 0 : 500);
     }

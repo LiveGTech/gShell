@@ -67,10 +67,32 @@ export function init() {
 
             screenElement.addClass("switcher_indirectResize");
 
+            var lastEventX = null;
+            var lastEventY = null;
             var lastEventWidth = null;
             var lastEventHeight = null;
 
-            screenElement.on("switcherresize", function resizeEventHandler(event) {
+            screenElement.on("switchermove", function(event) {
+                if (lastEventX == event.detail.geometry.x && lastEventY == event.detail.geometry.y) {
+                    return;
+                }
+
+                var offsets = switcher.getWindowContentsOffsets(screenElement, true);
+
+                trackedWindow.x = event.detail.geometry.x + offsets.contentsX;
+                trackedWindow.y = event.detail.geometry.y + offsets.contentsY;
+
+                gShell.call("xorg_moveWindow", {
+                    id: data.id,
+                    x: trackedWindow.x,
+                    y: trackedWindow.y
+                });
+
+                lastEventX = event.detail.geometry.x;
+                lastEventY = event.detail.geometry.y;
+            });
+
+            screenElement.on("switcherresize", function(event) {
                 if (lastEventWidth == event.detail.geometry.width && lastEventHeight == event.detail.geometry.height) {
                     return;
                 }
@@ -99,6 +121,16 @@ export function init() {
 
                 trackedWindow.processingResize = true;
             });
+
+            setTimeout(function() {
+                var initialGeometry = switcher.getWindowContentsGeometry(screenElement);
+
+                gShell.call("xorg_moveWindow", {
+                    id: data.id,
+                    x: initialGeometry.x,
+                    y: initialGeometry.y
+                });
+            }, 500);
         });
 
         ensureWindowSize(trackedWindow);
@@ -142,7 +174,6 @@ export function init() {
         }
 
         if (!trackedWindow.initiallyResized) {
-            console.log("fixed resize");
             trackedWindow.width = data.image.width;
             trackedWindow.height = data.image.height;
             trackedWindow.initiallyResized = true;

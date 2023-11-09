@@ -149,6 +149,16 @@ exports.getWindowSurfaceImage = function(id) {
     });
 };
 
+exports.moveWindow = function(id, x, y) {
+    return waitForTurn().then(function() {
+        return getTrackedWindowById(id);
+    }).then(function(trackedWindow) {
+        X.MoveWindow(trackedWindow.windowId, Math.floor(x), Math.floor(y));
+
+        return Promise.resolve();
+    }).then(releaseTurn);
+};
+
 exports.resizeWindow = function(id, width, height) {
     return waitForTurn().then(function() {
         return getTrackedWindowById(id);

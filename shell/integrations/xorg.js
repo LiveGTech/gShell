@@ -39,6 +39,23 @@ function ensureWindowSize(trackedWindow) {
     });
 }
 
+function updateXorgWindowPosition(trackedWindow) {
+    var canvasRect = trackedWindow.surfaceContainer.find("canvas").get().getBoundingClientRect();
+
+    if (canvasRect.x == trackedWindow.x && canvasRect.y == trackedWindow.y) {
+        return;
+    }
+
+    trackedWindow.x = canvasRect.x;
+    trackedWindow.y = canvasRect.y;
+
+    gShell.call("xorg_moveWindow", {
+        id: trackedWindow.id,
+        x: trackedWindow.x,
+        y: trackedWindow.y
+    });
+}
+
 export function init() {
     gShell.on("xorg_trackWindow", function(event, data) {
         var surfaceContainer = $g.create("div").add(
@@ -52,6 +69,7 @@ export function init() {
         };
 
         var trackedWindow = {
+            id: data.id,
             surfaceContainer,
             width: null,
             height: null,
@@ -121,19 +139,10 @@ export function init() {
 
                 trackedWindow.processingResize = true;
             });
-
-            setTimeout(function() {
-                var initialGeometry = switcher.getWindowContentsGeometry(screenElement);
-
-                gShell.call("xorg_moveWindow", {
-                    id: data.id,
-                    x: initialGeometry.x,
-                    y: initialGeometry.y
-                });
-            }, 500);
         });
 
         ensureWindowSize(trackedWindow);
+        updateXorgWindowPosition(trackedWindow);
     });
 
     gShell.on("xorg_releaseWindow", function(event, data) {
@@ -166,6 +175,8 @@ export function init() {
         if (!trackedWindow) {
             return;
         }
+
+        updateXorgWindowPosition(trackedWindow);
 
         if (data.justResized) {
             trackedWindow.processingResize = false;

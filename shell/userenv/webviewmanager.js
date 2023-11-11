@@ -96,6 +96,15 @@ export function spawn(url, options = {}) {
         });
     });
 
+    webview.on("did-start-loading", function() {
+        // Apply common code shared between gShell and `webview`s
+        fetch("gshell://common.js").then(function(response) {
+            return response.text();
+        }).then(function(scriptCode) {
+            webview.get().executeJavaScript(scriptCode);
+        });
+    });
+
     return webview;
 }
 

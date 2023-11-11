@@ -7,30 +7,42 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-body[liveg-a11y-scancolour="red"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour="red"] *:is(:focus, [aria-role="group"]:focus-within),
+body[liveg-a11y-readout="true"][liveg-a11y-scancolour="red"] [liveg-a11y-selected]
+{
     outline: 0.3rem ridge #ff0000!important;
 }
 
-body[liveg-a11y-scancolour="green"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour="green"] *:is(:focus, [aria-role="group"]:focus-within),
+body[liveg-a11y-readout="true"][liveg-a11y-scancolour="green"] [liveg-a11y-selected]
+{
     outline: 0.3rem ridge #00ff00!important;
 }
 
-body[liveg-a11y-scancolour="blue"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour="blue"] *:is(:focus, [aria-role="group"]:focus-within),
+body[liveg-a11y-readout="true"][liveg-a11y-scancolour="blue"] [liveg-a11y-selected]
+{
     outline: 0.3rem ridge #0000ff!important;
 }
 
-body[liveg-a11y-scancolour="yellow"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour="yellow"] *:is(:focus, [aria-role="group"]:focus-within),
+body[liveg-a11y-readout="true"][liveg-a11y-scancolour="yellow"] [liveg-a11y-selected]
+{
     outline: 0.3rem ridge #ffff00!important;
 }
 
-body[liveg-a11y-scancolour="pink"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour="pink"] *:is(:focus, [aria-role="group"]:focus-within),
+body[liveg-a11y-readout="true"][liveg-a11y-scancolour="pink"] [liveg-a11y-selected]
+{
     outline: 0.3rem ridge #ff00ff!important;
 }
 
-body[liveg-a11y-scancolour="aqua"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour="aqua"] *:is(:focus, [aria-role="group"]:focus-within),
+body[liveg-a11y-readout="true"][liveg-a11y-scancolour="aqua"] [liveg-a11y-selected]
+{
     outline: 0.3rem ridge #00ffff!important;
 }
 
-body[liveg-a11y-scancolour]:not([liveg-a11y-scancolour=""]) [aria-role="group"]:focus-within:not(:focus) {
+body[liveg-a11y-switch="true"][liveg-a11y-scancolour]:not([liveg-a11y-scancolour=""]) [aria-role="group"]:focus-within:not(:focus) {
     outline-style: dashed!important;
 }

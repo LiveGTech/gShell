@@ -1,0 +1,72 @@
+/*
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+*/
+
+.a11y_panel {
+    position: absolute;
+    display: flex;
+    bottom: 3rem;
+    right: 0.5rem;
+    width: 24rem;
+    max-width: calc(100vw - 1rem);
+    background-color: var(--secondaryBackground);
+    outline: 0.2rem solid var(--menuOutline);
+    border-radius: 0.5rem;
+    z-index: 4;
+}
+
+body:not([device-type="desktop"]) .a11y_panel {
+    bottom: 3.3rem;
+}
+
+.a11y_panel_handle {
+    width: 1.6rem;
+    padding: 0.2rem;
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.a11y_panel_handle img {
+    width: 100%;
+}
+
+.a11y_panel_content {
+    height: 3rem;
+    padding: 0.2rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.a11y_panel_content p {
+    margin: 0;
+}
+
+.a11y_panel_options {
+    width: 1.8rem;
+    padding: 0.2rem;
+    flex-shrink: 0;
+}
+
+.a11y_panel_options button {
+    width: 100%;
+    height: 1.4rem;
+    margin: 0;
+    padding: 0.19rem;
+    background-color: transparent;
+    color: inherit;
+}
+
+html[aui-istouch="false"] .a11y_panel_options button:hover, .a11y_panel_options button:active {
+    background-color: var(--secondarySelected);
+}
+
+.a11y_panel_options button img {
+    width: 100%;
+}

@@ -129,6 +129,12 @@ function releaseTurn() {
     return Promise.resolve(...arguments);
 }
 
+function releaseTurnAnyway() {
+    requestLock = false;
+
+    return Promise.reject(...arguments);
+}
+
 exports.getWindowSurfaceImage = function(id) {
     var trackedWindow;
 
@@ -145,7 +151,7 @@ exports.getWindowSurfaceImage = function(id) {
                 width: geometry.width,
                 height: geometry.height
             });
-        }).then(releaseTurn);
+        }).then(releaseTurn).catch(releaseTurnAnyway);
     });
 };
 
@@ -156,7 +162,7 @@ exports.moveWindow = function(id, x, y) {
         X.MoveWindow(trackedWindow.windowId, Math.floor(x), Math.floor(y));
 
         return Promise.resolve();
-    }).then(releaseTurn);
+    }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 
 exports.resizeWindow = function(id, width, height) {
@@ -173,7 +179,41 @@ exports.resizeWindow = function(id, width, height) {
         trackedWindow.justResized = true;
 
         return Promise.resolve();
-    }).then(releaseTurn);
+    }).then(releaseTurn).catch(releaseTurnAnyway);
+};
+
+exports.sendWindowInputEvent = function(id, eventType, eventData) {
+    return waitForTurn().then(function() {
+        return getTrackedWindowById(id);
+    }).then(function(trackedWindow) {
+        var eventBuffer = Buffer.alloc(32);
+        var offset = 0;
+
+        switch (eventType) {
+            case "mouseMove":
+                // `xcb_motion_notify_event_t`
+                offset = eventBuffer.writeUInt8(6, offset); // `response_type`
+                offset = eventBuffer.writeUInt8(0, offset); // `detail`
+                offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
+                offset = eventBuffer.writeUInt32LE(0, offset); // `time`
+                offset = eventBuffer.writeUInt32LE(root, offset); // `root`
+                offset = eventBuffer.writeUInt32LE(trackedWindow.windowId, offset); // `event`
+                offset = eventBuffer.writeUInt32LE(0, offset); // `child`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteX) || 0, offset); // `root_x`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteY) || 0, offset); // `root_y`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.x), offset); // `event_x`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.y), offset); // `event_y`
+                offset = eventBuffer.writeUInt16LE(x11.eventMask.EnterWindow, offset); // `state`
+                offset = eventBuffer.writeUint8(1, offset); // `same_screen`
+
+                X.SendEvent(trackedWindow.windowId, 0, x11.eventMask.PointerMotion, eventBuffer);
+
+                return Promise.resolve();
+
+            default:
+                return Promise.reject(`Unknown event type \`${eventType}\``)
+        }
+    }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 
 exports.init = function() {

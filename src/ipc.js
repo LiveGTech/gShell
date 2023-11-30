@@ -389,6 +389,10 @@ ipcMain.handle("xorg_resizeWindow", function(event, data) {
     return xorg.resizeWindow(data.id, data.width, data.height);
 });
 
+ipcMain.handle("xorg_sendWindowInputEvent", function(event, data) {
+    return xorg.sendWindowInputEvent(data.id, data.eventType, data.eventData);
+});
+
 ipcMain.handle("dev_isDebugBuild", function(event, data) {
     return Promise.resolve(main.IS_DEBUG_BUILD);
 });

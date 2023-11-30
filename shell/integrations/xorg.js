@@ -58,10 +58,26 @@ function updateXorgWindowPosition(trackedWindow) {
 
 export function init() {
     gShell.on("xorg_trackWindow", function(event, data) {
-        var surfaceContainer = $g.create("div").add(
-            $g.create("canvas")
-                .addClass("switcher_renderSurface")
-        );
+        var canvas = $g.create("canvas");
+
+        canvas.addClass("switcher_renderSurface");
+
+        canvas.on("mousemove", function(event) {
+            var canvasRect = canvas.get().getBoundingClientRect();
+
+            gShell.call("xorg_sendWindowInputEvent", {
+                id: data.id,
+                eventType: "mouseMove",
+                eventData: {
+                    x: event.clientX - canvasRect.x,
+                    y: event.clientY - canvasRect.y,
+                    absoluteX: event.clientX,
+                    absoluteY: event.clientY
+                }
+            });
+        });
+
+        var surfaceContainer = $g.create("div").add(canvas);
 
         var details = {
             displayName: "Xorg window",

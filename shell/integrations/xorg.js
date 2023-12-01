@@ -62,18 +62,27 @@ export function init() {
 
         canvas.addClass("switcher_renderSurface");
 
-        canvas.on("mousemove", function(event) {
-            var canvasRect = canvas.get().getBoundingClientRect();
+        ["mousedown", "mouseup", "mousemove"].forEach(function(eventType) {
+            canvas.on(eventType, function(event) {
+                var canvasRect = canvas.get().getBoundingClientRect();
 
-            gShell.call("xorg_sendWindowInputEvent", {
-                id: data.id,
-                eventType: "mouseMove",
-                eventData: {
-                    x: event.clientX - canvasRect.x,
-                    y: event.clientY - canvasRect.y,
-                    absoluteX: event.clientX,
-                    absoluteY: event.clientY
-                }
+                updateXorgWindowPosition(trackedWindow);
+
+                gShell.call("xorg_sendWindowInputEvent", {
+                    id: data.id,
+                    eventType: "focuswindow"
+                });
+    
+                gShell.call("xorg_sendWindowInputEvent", {
+                    id: data.id,
+                    eventType,
+                    eventData: {
+                        x: event.clientX - canvasRect.x,
+                        y: event.clientY - canvasRect.y,
+                        absoluteX: event.clientX,
+                        absoluteY: event.clientY
+                    }
+                });
             });
         });
 

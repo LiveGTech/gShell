@@ -17,6 +17,7 @@ var root;
 var X;
 var Composite;
 var Damage;
+var Input;
 var mainWindowId = null;
 var trackedWindows = [];
 var requestLock = false;
@@ -183,30 +184,71 @@ exports.resizeWindow = function(id, width, height) {
 };
 
 exports.sendWindowInputEvent = function(id, eventType, eventData) {
+    var trackedWindow;
+
     return waitForTurn().then(function() {
         return getTrackedWindowById(id);
-    }).then(function(trackedWindow) {
+    }).then(function(trackedWindowResult) {
+        trackedWindow = trackedWindowResult;
+
+        if (!["mousedown", "mouseup", "mousemove"].includes(eventType)) {
+            return Promise.resolve(null);
+        }
+
+        return mustBeTracking(id, () => promisify(X.TranslateCoordinates, X, root, trackedWindow.windowId, eventData.absoluteX, eventData.absoluteY));
+    }).then(function(translatedCoordinates) {
         var eventBuffer = Buffer.alloc(32);
         var offset = 0;
 
         switch (eventType) {
-            case "mouseMove":
+            case "mousedown":
+            case "mouseup":
+            case "mousemove":
+                var state = 0;
+
+                state |= x11.eventMask.EnterWindow;
+
+                if (eventType == "mouseup") {
+                    state |= x11.eventMask.Button1Motion; // TODO: Make this correspond to what button has been pressed
+                }
+
                 // `xcb_motion_notify_event_t`
-                offset = eventBuffer.writeUInt8(6, offset); // `response_type`
-                offset = eventBuffer.writeUInt8(0, offset); // `detail`
+                offset = eventBuffer.writeUInt8({
+                    "mousedown": 4,
+                    "mouseup": 5,
+                    "mousemove": 6
+                }[eventType], offset); // `response_type`: `MotionNotify`
+                offset = eventBuffer.writeUInt8(1, offset); // `detail` TODO: Make this correspond to what button has been pressed
                 offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
                 offset = eventBuffer.writeUInt32LE(0, offset); // `time`
                 offset = eventBuffer.writeUInt32LE(root, offset); // `root`
                 offset = eventBuffer.writeUInt32LE(trackedWindow.windowId, offset); // `event`
-                offset = eventBuffer.writeUInt32LE(0, offset); // `child`
+                offset = eventBuffer.writeUInt32LE(translatedCoordinates.child, offset); // `child`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteX) || 0, offset); // `root_x`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteY) || 0, offset); // `root_y`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.x), offset); // `event_x`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.y), offset); // `event_y`
-                offset = eventBuffer.writeUInt16LE(x11.eventMask.EnterWindow, offset); // `state`
-                offset = eventBuffer.writeUint8(1, offset); // `same_screen`
+                offset = eventBuffer.writeUInt16LE(state, offset); // `state`
+                offset = eventBuffer.writeUint8(translatedCoordinates.sameScreen, offset); // `same_screen`
 
-                X.SendEvent(trackedWindow.windowId, 0, x11.eventMask.PointerMotion, eventBuffer);
+                X.SendEvent(trackedWindow.windowId, true, {
+                    "mousedown": x11.eventMask.ButtonPress,
+                    "mouseup": x11.eventMask.ButtonRelease,
+                    "mousemove": x11.eventMask.PointerMotion
+                }[eventType], eventBuffer);
+
+                return Promise.resolve();
+
+            case "focuswindow":
+                // Sending XInput `SetDeviceFocus`
+                // FIXME: Getting error 129 (`BadDevice`) error at the moment
+
+                // X.seq_num++;
+
+                // `focus` (window ID), `time`, `revert_to`, `device_id` (which always seems to be `2`)
+                // Reference: https://refspecs.linuxbase.org/Xorg/Xiproto.pdf
+                // X.pack_stream.pack("CCSLLCCx", [Input.majorOpcode, 21, 4, trackedWindow.windowId, 0, 0, 2]); // TODO: Use a non-hardcoded device ID
+                // X.pack_stream.flush();
 
                 return Promise.resolve();
 
@@ -315,6 +357,21 @@ exports.init = function() {
         return promisify(X.require, X, "damage");
     }).then(function(extension) {
         Damage = extension;
+
+        return promisify(X.QueryExtension, X, "XInputExtension");
+    }).then(function(inputExtension) {
+        if (!inputExtension.present) {
+            return Promise.reject("XInput extension not available");
+        }
+
+        Input = inputExtension;
+
+        X.seq_num++;
+
+        // `device_id`
+        // Reference: https://refspecs.linuxbase.org/Xorg/Xiproto.pdf
+        X.pack_stream.pack("CCSL", [Input.majorOpcode, 3, 2, 7]); // TODO: Use a non-hardcoded device ID
+        X.pack_stream.flush();
 
         return promisify(Composite.GetOverlayWindow, X, root);
     }).then(function(overlayWindowId) {

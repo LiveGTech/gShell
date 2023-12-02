@@ -12,12 +12,14 @@ const x11 = require("x11");
 var main = require("./main");
 var flags = require("./flags");
 
+const REQUIRED_ATOMS = ["_NET_SUPPORTED", "_NET_ACTIVE_WINDOW"];
+
 var display;
 var root;
 var X;
 var Composite;
 var Damage;
-var Input;
+var atoms = {};
 var mainWindowId = null;
 var trackedWindows = [];
 var requestLock = false;
@@ -212,12 +214,12 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                     state |= x11.eventMask.Button1Motion; // TODO: Make this correspond to what button has been pressed
                 }
 
-                // `xcb_motion_notify_event_t`
+                // `xcb_button_press_event_t`/`xcb_button_release_event_t`/`xcb_motion_notify_event_t`
                 offset = eventBuffer.writeUInt8({
-                    "mousedown": 4,
-                    "mouseup": 5,
-                    "mousemove": 6
-                }[eventType], offset); // `response_type`: `MotionNotify`
+                    "mousedown": 4, // `response_type`: `ButtonPress`
+                    "mouseup": 5, // `response_type`: `ButtonRelease`
+                    "mousemove": 6 // `response_type`: `MotionNotify`
+                }[eventType], offset);
                 offset = eventBuffer.writeUInt8(1, offset); // `detail` TODO: Make this correspond to what button has been pressed
                 offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
                 offset = eventBuffer.writeUInt32LE(0, offset); // `time`
@@ -240,15 +242,13 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 return Promise.resolve();
 
             case "focuswindow":
-                // Sending XInput `SetDeviceFocus`
-                // FIXME: Getting error 129 (`BadDevice`) error at the moment
+                X.SetInputFocus(trackedWindow.windowId, 0, 0);
 
-                // X.seq_num++;
+                var windowIdBuffer = Buffer.alloc(4);
 
-                // `focus` (window ID), `time`, `revert_to`, `device_id` (which always seems to be `2`)
-                // Reference: https://refspecs.linuxbase.org/Xorg/Xiproto.pdf
-                // X.pack_stream.pack("CCSLLCCx", [Input.majorOpcode, 21, 4, trackedWindow.windowId, 0, 0, 2]); // TODO: Use a non-hardcoded device ID
-                // X.pack_stream.flush();
+                windowIdBuffer.writeUInt32LE(trackedWindow.windowId, 0);
+
+                X.ChangeProperty(0, root, atoms["_NET_ACTIVE_WINDOW"], X.atoms.WINDOW, 32, windowIdBuffer);
 
                 return Promise.resolve();
 
@@ -262,8 +262,6 @@ exports.init = function() {
     if (!flags.allowXorgWindowManagement) {
         return Promise.resolve();
     }
-
-    mainWindowId = main.window.getNativeWindowHandle().readUint32LE();
 
     return new Promise(function(resolve, reject) {
         x11.createClient(function(error, displayResult) {
@@ -358,24 +356,31 @@ exports.init = function() {
     }).then(function(extension) {
         Damage = extension;
 
-        return promisify(X.QueryExtension, X, "XInputExtension");
-    }).then(function(inputExtension) {
-        if (!inputExtension.present) {
-            return Promise.reject("XInput extension not available");
-        }
-
-        Input = inputExtension;
-
-        X.seq_num++;
-
-        // `device_id`
-        // Reference: https://refspecs.linuxbase.org/Xorg/Xiproto.pdf
-        X.pack_stream.pack("CCSL", [Input.majorOpcode, 3, 2, 7]); // TODO: Use a non-hardcoded device ID
-        X.pack_stream.flush();
-
         return promisify(Composite.GetOverlayWindow, X, root);
     }).then(function(overlayWindowId) {
+        mainWindowId = main.window.getNativeWindowHandle().readUint32LE();
+
         X.ReparentWindow(mainWindowId, overlayWindowId, 0, 0);
+
+        var promiseChain = Promise.resolve();
+
+        REQUIRED_ATOMS.forEach(function(atomToCreate) {
+            promiseChain = promiseChain.then(function() {
+                return promisify(X.InternAtom, X, false, atomToCreate);
+            }).then(function(atomId) {
+                atoms[atomToCreate] = atomId;
+
+                return Promise.resolve();
+            });
+        });
+
+        return promiseChain;
+    }).then(function() {
+        var supportedAtomsBuffer = Buffer.alloc(4);
+
+        supportedAtomsBuffer.writeUInt32LE(atoms["_NET_ACTIVE_WINDOW"], 0);
+
+        X.ChangeProperty(0, root, atoms["_NET_SUPPORTED"], X.atoms.ATOM, 32, supportedAtomsBuffer);
 
         return Promise.resolve();
     });

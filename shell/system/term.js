@@ -107,6 +107,7 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
             options.env["XDG_SESSION_TYPE"] ||= "x11";
             options.env["XDG_SESSION_DESKTOP"] ||= "gshell";
             options.env["XDG_CURRENT_DESKTOP"] ||= "gShell";
+            options.env["GDK_CORE_DEVICE_EVENTS"] ||= "1";
 
             if (flags.isRealHardware) {
                 options.env["XAUTHORITY"] ||= `/home/${metadata.user.linuxUsername}/.Xauthority`;

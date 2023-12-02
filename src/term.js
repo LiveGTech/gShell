@@ -9,6 +9,7 @@
 
 const pty = require("node-pty");
 
+var main = require("./main");
 var flags = require("./flags");
 var storage = require("./storage");
 
@@ -22,6 +23,7 @@ exports.spawn = function(file = "bash", readCallback = function(data) {}, exitCa
 
     options.env = {
         ...process.env,
+        "LD_PRELOAD": `${main.rootDirectory}/src/clib/libgslai.so`,
         ...(options.env || {})
     };
 

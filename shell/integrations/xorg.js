@@ -68,10 +68,12 @@ export function init() {
 
                 updateXorgWindowPosition(trackedWindow);
 
-                gShell.call("xorg_sendWindowInputEvent", {
-                    id: data.id,
-                    eventType: "focuswindow"
-                });
+                if (eventType == "mousedown" || eventType == "mouseup") {
+                    gShell.call("xorg_sendWindowInputEvent", {
+                        id: data.id,
+                        eventType: "focuswindow"
+                    });
+                }
     
                 gShell.call("xorg_sendWindowInputEvent", {
                     id: data.id,
@@ -83,6 +85,8 @@ export function init() {
                         absoluteY: event.clientY
                     }
                 });
+
+                event.preventDefault();
             });
         });
 

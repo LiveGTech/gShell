@@ -7,9 +7,8 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-// Library for gShell Linux App Integration (libgslai)
+// Library for gShell Linux app integration (libgslai)
 
-#define _GNU_SOURCE
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdbool.h>

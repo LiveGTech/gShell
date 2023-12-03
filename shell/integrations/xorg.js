@@ -11,6 +11,16 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as switcher from "gshell://userenv/switcher.js";
 
+const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to a Xorg mouse button ID
+    0: 1, // Main (typically left)
+    1: 2, // Auxiliary (typically middle)
+    2: 3, // Secondary (typically right)
+    3: 8, // Button 4 (typically back)
+    4: 9 // Button 5 (typically forward)
+};
+
+var currentMouseButton = null;
+
 export var trackedWindows = {};
 
 function ensureWindowSize(trackedWindow) {
@@ -57,6 +67,10 @@ function updateXorgWindowPosition(trackedWindow) {
 }
 
 export function init() {
+    $g.sel("body").on("mouseup", function() {
+        currentMouseButton = null;
+    })
+
     gShell.on("xorg_trackWindow", function(event, data) {
         var canvas = $g.create("canvas");
 
@@ -68,7 +82,9 @@ export function init() {
 
                 updateXorgWindowPosition(trackedWindow);
 
-                if (eventType == "mousedown" || eventType == "mouseup") {
+                if (eventType == "mousedown") {
+                    currentMouseButton = event.button;
+
                     gShell.call("xorg_sendWindowInputEvent", {
                         id: data.id,
                         eventType: "focuswindow"
@@ -82,7 +98,8 @@ export function init() {
                         x: event.clientX - canvasRect.x,
                         y: event.clientY - canvasRect.y,
                         absoluteX: event.clientX,
-                        absoluteY: event.clientY
+                        absoluteY: event.clientY,
+                        button: MOUSE_BUTTON_MAPPINGS[currentMouseButton]
                     }
                 });
 

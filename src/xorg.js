@@ -210,8 +210,12 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
 
                 state |= x11.eventMask.EnterWindow;
 
-                if (eventType == "mouseup") {
-                    state |= x11.eventMask.Button1Motion; // TODO: Make this correspond to what button has been pressed
+                if (eventData.button != null) {
+                    state |= {
+                        1: x11.eventMask.Button1Motion,
+                        2: x11.eventMask.Button2Motion,
+                        3: x11.eventMask.Button3Motion
+                    }[eventData.button];
                 }
 
                 // `xcb_button_press_event_t`/`xcb_button_release_event_t`/`xcb_motion_notify_event_t`
@@ -220,7 +224,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                     "mouseup": 5, // `response_type`: `ButtonRelease`
                     "mousemove": 6 // `response_type`: `MotionNotify`
                 }[eventType], offset);
-                offset = eventBuffer.writeUInt8(1, offset); // `detail` TODO: Make this correspond to what button has been pressed
+                offset = eventBuffer.writeUInt8(eventData.button || 0, offset); // `detail`
                 offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
                 offset = eventBuffer.writeUInt32LE(0, offset); // `time`
                 offset = eventBuffer.writeUInt32LE(root, offset); // `root`

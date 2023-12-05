@@ -65,3 +65,14 @@ npm run dist
 ```
 
 The built AppImage files will be available in the `dist` folder.
+
+### Building included C libraries
+gShell includes C libraries that are used internally for low-level access to the system. An example is `libgslai`, which is the library for gShell Linux app integration, and whose source can be found at `src/csrc/libgslai.c`.
+
+The C libraries are automatically compiled for each platform when running `npm run dist`.
+
+To force a rebuild of the C libraries by running:
+
+```bash
+./buildclibs --force
+```

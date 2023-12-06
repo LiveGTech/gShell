@@ -76,6 +76,8 @@ export function init() {
 
         canvas.addClass("switcher_renderSurface");
 
+        gShell.call("xorg_getWindowProperties", {id: data.id}).then(console.log); // TODO: Set window title — we can use the Xorg `PropertyNotify` event to detect title changes
+
         ["mousedown", "mouseup", "mousemove"].forEach(function(eventType) {
             canvas.on(eventType, function(event) {
                 var canvasRect = canvas.get().getBoundingClientRect();

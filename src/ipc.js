@@ -381,6 +381,10 @@ ipcMain.handle("term_setSize", function(event, data) {
     return term.setSize(data.id, data.columns, data.rows);
 });
 
+ipcMain.handle("xorg_getWindowProperties", function(event, data) {
+    return xorg.getWindowProperties(data.id);
+});
+
 ipcMain.handle("xorg_moveWindow", function(event, data) {
     return xorg.moveWindow(data.id, data.x, data.y);
 });

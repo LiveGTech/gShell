@@ -12,7 +12,13 @@ const x11 = require("x11");
 var main = require("./main");
 var flags = require("./flags");
 
-const REQUIRED_ATOMS = ["_NET_SUPPORTED", "_NET_ACTIVE_WINDOW"];
+const REQUIRED_ATOMS = [
+    "_NET_SUPPORTED",
+    "_NET_ACTIVE_WINDOW",
+    "_NET_WM_NAME"
+];
+
+const MAX_PROPERTY_LENGTH = 10_000;
 
 var display;
 var root;
@@ -137,6 +143,45 @@ function releaseTurnAnyway() {
 
     return Promise.reject(...arguments);
 }
+
+function getProperty(id, atom, atomType = X.atoms.STRING) {
+    return getTrackedWindowById(id).then(function(trackedWindow) {
+        return promisify(X.GetProperty, X, 0, trackedWindow.windowId, atom, atomType, 0, MAX_PROPERTY_LENGTH);
+    }).then(function(prop) {
+        if (prop.type != atomType) {
+            return Promise.resolve(null);
+        }
+
+        if (prop.type == X.atoms.STRING) {
+            return Promise.resolve(String(prop.data));
+        }
+        
+        return Promise.resolve(prop.data);
+    });
+}
+
+exports.getWindowProperties = function(id) {
+    var properties = {};
+
+    var propertyPromises = {
+        "WM_NAME": getProperty(id, X.atoms.WM_NAME),
+        "_NET_WM_NAME": getProperty(id, atoms["_NET_WM_NAME"])
+    };
+
+    return waitForTurn().then(function() {
+        return Promise.all(Object.values(propertyPromises))
+    }).then(function(propertiesPromiseReturns) {
+        var propertyResults = {};
+
+        Object.keys(propertyPromises).forEach(function(key, i) {
+            propertyResults[key] = propertiesPromiseReturns[i];
+        });
+
+        properties.title = propertyResults["_NET_WM_NAME"] || propertyResults["WM_NAME"] || null;
+
+        return Promise.resolve(properties);
+    }).then(releaseTurn).catch(releaseTurnAnyway);
+};
 
 exports.getWindowSurfaceImage = function(id) {
     var trackedWindow;

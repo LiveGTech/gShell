@@ -66,6 +66,16 @@ function updateXorgWindowPosition(trackedWindow) {
     });
 }
 
+function checkWindowProperties(trackedWindow) {
+    gShell.call("xorg_getWindowProperties", {id: trackedWindow.id}).then(function(data) {
+        switcher.setAppCustomTab(trackedWindow.appElement, data.title);
+
+        requestAnimationFrame(function() {
+            checkWindowProperties(trackedWindow);
+        });
+    });
+}
+
 export function init() {
     $g.sel("body").on("mouseup", function() {
         currentMouseButton = null;
@@ -75,8 +85,6 @@ export function init() {
         var canvas = $g.create("canvas");
 
         canvas.addClass("switcher_renderSurface");
-
-        gShell.call("xorg_getWindowProperties", {id: data.id}).then(console.log); // TODO: Set window title — we can use the Xorg `PropertyNotify` event to detect title changes
 
         ["mousedown", "mouseup", "mousemove"].forEach(function(eventType) {
             canvas.on(eventType, function(event) {
@@ -112,7 +120,7 @@ export function init() {
         var surfaceContainer = $g.create("div").add(canvas);
 
         var details = {
-            displayName: "Xorg window",
+            displayName: _("unknown"), // TODO: Determine name and icon by getting owner PID from window using `_NET_WM_PID` then by looking up relevant .desktop file
             instantLaunch: true
         };
 
@@ -191,6 +199,7 @@ export function init() {
 
         ensureWindowSize(trackedWindow);
         updateXorgWindowPosition(trackedWindow);
+        checkWindowProperties(trackedWindow);
     });
 
     gShell.on("xorg_releaseWindow", function(event, data) {

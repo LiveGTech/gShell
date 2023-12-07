@@ -1170,7 +1170,7 @@ export function getWindowAppCount(element) {
     return element.find(".switcher_tab:not(.transitioning)").getAll().length;
 }
 
-export function setAppCustomTab(element, title, icon) {
+export function setAppCustomTab(element, title, icon = null) {
     element.get().usingCustomTab = true;
 
     element.get().tab.find(".switcher_tabTitle").setText(title || "");

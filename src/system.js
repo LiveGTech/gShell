@@ -675,7 +675,7 @@ exports.cancelFileDownload = function(id) {
 };
 
 exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
-    var args = ["apt-get", "install", "-o", "APT::Status-Fd=1"];
+    var args = ["apt-get", "install", "-y", "-o", "APT::Status-Fd=1"];
 
     if (downloadOnly) {
         args.push("--download-only");

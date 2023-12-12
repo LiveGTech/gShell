@@ -7,5 +7,5 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-export const VERSION = "0.2.2";
-export const VERNUM = 3;
+export const VERSION = "0.2.3";
+export const VERNUM = 4;

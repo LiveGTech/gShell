@@ -68,6 +68,8 @@ electron.app.on("ready", function() {
     storage.init().then(function() {
         return device.init(flags.deviceDescriptionLocation || undefined);
     }).then(function() {
+        return system.setupLinuxAppIntegration();
+    }).then(function() {
         return system.getScreenResolution();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({

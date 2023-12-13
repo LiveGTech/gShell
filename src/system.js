@@ -293,6 +293,19 @@ exports.getScreenResolution = function() {
     });
 };
 
+exports.setupLinuxAppIntegration = function() {
+    if (!flags.isRealHardware) {
+        return Promise.resolve();
+    }
+
+    return exports.executeCommand("sudo", ["bash", "-c", "chmod -R +755 /tmp/appimage_extracted_*"]).catch(function(error) {
+        console.warn("Could not set permissions for Linux app integration; possibly due to AppImage not having been extracted");
+        console.warn(error);
+
+        return Promise.resolve();
+    });
+};
+
 exports.shutDown = function() {
     console.log("Shut down called");
 

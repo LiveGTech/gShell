@@ -20,12 +20,7 @@ exports.allProcesses = [];
 
 exports.spawn = function(file = "bash", readCallback = function(data) {}, exitCallback = function(exitCode, signal) {}, args = [], options = {}) {
     options.cwd ||= storage.storageFilesystemLocation;
-
-    options.env = {
-        ...process.env,
-        "LD_PRELOAD": `${main.rootDirectory}/src/clib/libgslai.so`,
-        ...(options.env || {})
-    };
+    options.env = {...process.env, ...(options.env || {})};
 
     if (!flags.isRealHardware && !flags.allowHostControl) {
         exports.allProcesses.push({readCallback, exitCallback});

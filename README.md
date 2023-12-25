@@ -21,6 +21,17 @@ git pull --recurse-submodules
 When you don't need to update the libraries, you can omit the `--recurse-submodules` argument. However, it is recommended that you update the libraries locally to ensure compatibility with the latest version of gShell.
 
 ## Running gShell
+Before running gShell, you will need to install its dependencies:
+
+```bash
+sudo apt install make gcc g++
+
+# Run these if you don't have Node.js installed:
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install 20.5.1
+``` 
+
 Install gShell and its dependencies using npm:
 
 ```bash

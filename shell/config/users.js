@@ -151,6 +151,13 @@ export class User {
                 args: ["chown", "-R", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}/.`]
             });
         }).then(function() {
+            // Ensure user's directory is writeable by `system` user
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["chown", "system:system", `/system/storage/users/${UID}`]
+            });
+        }).then(function() {
             // Ensure that user is added to or removed from the `sudo` group
 
             if (!thisScope.isAdmin) {
@@ -277,7 +284,9 @@ export function onUserStateChange(callback) {
 export function create(uid = $g.core.generateKey(), data = {}) {
     var user = new User(uid, data);
 
-    return user.save().then(function() {
+    return user.ensureLinuxUser().then(function() {
+        return user.save();
+    }).then(function() {
         return Promise.resolve(user);
     });
 }

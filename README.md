@@ -30,6 +30,9 @@ sudo apt install make gcc g++
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source ~/.bashrc
 nvm install 20.5.1
+
+# To run `gshell-xephyr` (optional):
+ sudo apt install xserver-xephyr
 ``` 
 
 Install gShell and its dependencies using npm:
@@ -66,7 +69,7 @@ Here's a list of arguments that can be supplied to gShell:
 To build gShell, first install the dependencies:
 
 ```bash
-sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+sudo apt install libx11-dev gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 ```
 
 Then run the builder:

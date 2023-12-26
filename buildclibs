@@ -19,6 +19,8 @@ if [ $FORCE == false ] && [ -f src/clib/libgslai.so ]; then
     exit
 fi
 
+mkdir -p src/clib
+
 echo "Building included C libaries..."
 
 if [ ! -n "$CC" ]; then

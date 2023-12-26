@@ -42,27 +42,28 @@ sr0      0  535822336   LiveG-OS
 
 const DUMMY_FDISK_L_STDOUT = `\
 Disk /dev/sda1: 3.2 GiB, 3218078720 bytes, 6285310 sectors
-Disk model: Dummy                                   
+Disk model: Dummy
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
 I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: dos
-Disk identifier: 0x00000000
+Disklabel type: gpt
+Disk identifier: 00000000-0000-0000-0000-000000000000
 
 Device        End Sectors Type
-/dev/sda1 2099198 2097152 Linux
-/dev/sda2 4196350 2088960 Linux
-/dev/sda3 6285310    4096 Linux swap / Solaris
+/dev/sda1 2099198 2097152 Linux filesystem
+/dev/sda2 4196350 2088960 Linux filesystem
+/dev/sda3 6285310    4096 Linux swap
 `;
 
 const FDISK_ERASE_SWAP_STDIN = `\
+g // Use GPT partitioning
 n // New partition
 p // Primary
 1 // Partition number
 2048 // First sector
 +512M // 512 MiB for EFI
 t // Set type
-ef // EFI
+1 // EFI
 n // New partition
 p // Primary
 2 // Partition number
@@ -75,18 +76,19 @@ p // Primary
 // Default last sector (fill remaining to end)
 t // Change partition type
 3 // Partition number
-swap // Linux swap / Solaris
+19 // Linux swap
 w // Write and exit
 `.replace(/ *\/\/.*$/gm, "");
 
 const FDISK_ERASE_NOSWAP_STDIN = `\
+g // Use GPT partitioning
 n // New partition
 p // Primary
 1 // Partition number
 2048 // First sector
 +512M // 512 MiB for EFI
 t // Set type
-ef // EFI
+1 // EFI
 n // New partition
 p // Primary
 2 // Partition number
@@ -96,13 +98,14 @@ w // Write and exit
 `.replace(/ *\/\/.*$/gm, "");
 
 const FDISK_NEW_STDIN = `\
+g // Use GPT partitioning
 n // New partition
 p // Primary
 1 // Partition number
 2048 // First sector
 +512M // 512 MiB for EFI
 t // Set type
-ef // EFI
+1 // EFI
 n // New partition
 p // Primary
 2 // Partition number
@@ -287,7 +290,7 @@ function checkInstallDisk() {
                 name: parts[0].replace("/dev/", ""),
                 size: Number(parts[2]) * sectorSize,
                 end: Number(parts[1]) * sectorSize,
-                valid: line.endsWith(" Linux")
+                valid: line.endsWith(" Linux filesystem")
             };
         });
 
@@ -457,7 +460,7 @@ function processInstallation() {
 
                 var partitions = output.stdout
                     .split("\n")
-                    .filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux"))
+                    .filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux filesystem"))
                     .map((line) => line.match(/^\/dev\/([^\s]+)/)[1])
                 ;
 
@@ -494,7 +497,7 @@ function processInstallation() {
 
                     var efiPartitions = output.stdout
                         .split("\n")
-                        .filter((line) => line.startsWith("/dev/") && line.endsWith(" EFI (FAT-12/16/32)"))
+                        .filter((line) => line.startsWith("/dev/") && line.endsWith(" EFI System"))
                         .map((line) => line.match(/^\/dev\/([^\s]+)/)[1])
                     ;
 
@@ -535,7 +538,7 @@ function processInstallation() {
 
                 var partitions = output.stdout
                     .split("\n")
-                    .filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux"))
+                    .filter((line) => line.startsWith("/dev/") && line.endsWith(" Linux filesystem"))
                     .map((line) => line.match(/^\/dev\/([^\s]+)/)[1])
                 ;
 

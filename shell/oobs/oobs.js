@@ -24,12 +24,11 @@ import * as lockScreen from "gshell://auth/lockscreen.js";
 import * as powerMenu from "gshell://global/powermenu.js";
 
 var flags = {};
-var systemSize = null;
 var installDisks = [];
 var installSelectedDisk = null;
 
 const MAX_PRIMARY_PARTITIONS = 4;
-const SYSTEM_SIZE_PADDING = 1 * (1_024 ** 3); // 1 GiB
+const SYSTEM_SIZE = 6 * (1_024 ** 3); // 6 GiB
 const SWAP_SIZE = 8 * (1_024 ** 3); // 8 GiB
 const MIN_SIZE_FOR_SWAP = 3 * SWAP_SIZE; // So maximum 1/3 swap for system
 
@@ -341,7 +340,7 @@ function checkInstallPartition() {
 
     switch (mode) {
         case "erase":
-            if (getSelectedDiskInfo().size < systemSize) {
+            if (getSelectedDiskInfo().size < SYSTEM_SIZE) {
                 enoughSpace = false;
             }
 
@@ -350,7 +349,7 @@ function checkInstallPartition() {
         case "existing":
             var partitionName = $g.sel("#oobs_partitionMode_existing_partition").getValue();
 
-            if (getSelectedDiskInfo().partitions.find((partition) => partition.name == partitionName).size < systemSize) {
+            if (getSelectedDiskInfo().partitions.find((partition) => partition.name == partitionName).size < SYSTEM_SIZE) {
                 enoughSpace = false;
             }
 
@@ -373,7 +372,7 @@ function checkInstallPartition() {
                 return;
             }
 
-            if (newSize < systemSize) {
+            if (newSize < SYSTEM_SIZE) {
                 enoughSpace = false;
             }
 
@@ -387,8 +386,8 @@ function checkInstallPartition() {
 
     if (!enoughSpace) {
         $g.sel(".oobs_installPartition_error").setText(_("oobs_installPartition_notEnoughSpaceError", {
-            sizeMetric: sizeUnits.getString(systemSize, _, "metric"),
-            sizeIec: sizeUnits.getString(systemSize, _, "iec")
+            sizeMetric: sizeUnits.getString(SYSTEM_SIZE, _, "metric"),
+            sizeIec: sizeUnits.getString(SYSTEM_SIZE, _, "iec")
         }));
 
         return;
@@ -840,9 +839,6 @@ export function init() {
                     label: parts.slice(3).join(" ")
                 };
             }).filter((disk) => !["sr0", "fd0"].includes(disk.name) && disk.label != "LiveG-OS-IM" && !disk.readOnly);
-
-            systemSize = Number((lines.find((line) => line.endsWith(" LiveG-OS-IM")) || "").split(" ").filter((part) => part != "")?.[2]) || 0;
-            systemSize += SYSTEM_SIZE_PADDING;
 
             if (installDisks.length > 0) {
                 $g.sel(".oobs_installDisks").clear().add(

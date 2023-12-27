@@ -263,6 +263,8 @@ ipcMain.handle("webview_attach", function(event, data) {
         scale: device.data.display.scaleFactor,
         mobile: device.data?.type == "mobile"
     }).then(function() {
+        webContents.setZoomFactor(1);
+
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
             userAgent: data.userAgent,
             userAgentMetadata: data.userAgentMetadata

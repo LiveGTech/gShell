@@ -256,7 +256,13 @@ ipcMain.handle("webview_attach", function(event, data) {
 
     main.ensureDebuggerAttached(webContents);
 
-    webContents.on("dom-ready", function() {
+    var interval = setInterval(function() {
+        if (webContents.isDestroyed()) {
+            clearInterval(interval);
+
+            return;
+        }
+
         webContents.setZoomFactor(1);
     });
 

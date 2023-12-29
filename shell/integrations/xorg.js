@@ -139,12 +139,17 @@ export function init() {
             trackedWindows[data.id].screenElement = screenElement;
             trackedWindows[data.id].appElement = appElement;
 
+            appElement.addClass("switcher_indirectClose");
             screenElement.addClass("switcher_indirectResize");
 
             var lastEventX = null;
             var lastEventY = null;
             var lastEventWidth = null;
             var lastEventHeight = null;
+
+            appElement.on("switcherclose", function(event) {
+                gShell.call("xorg_askWindowToClose", {id: data.id});
+            });
 
             screenElement.on("switchermove", function(event) {
                 if (lastEventX == event.detail.geometry.x && lastEventY == event.detail.geometry.y) {
@@ -206,7 +211,7 @@ export function init() {
         var trackedWindow = trackedWindows[data.id];
 
         if (trackedWindow.appElement) {
-            switcher.closeApp(trackedWindow.appElement);
+            switcher.closeApp(trackedWindow.appElement, true);
         }
 
         trackedWindow = null;

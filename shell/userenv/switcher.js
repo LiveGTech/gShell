@@ -24,6 +24,7 @@ export const DESKTOP_MIN_WINDOW_WIDTH = calc.getRemSize(20);
 export const DESKTOP_MIN_WINDOW_HEIGHT = calc.getRemSize(15);
 export const DESKTOP_DEFAULT_WINDOW_WIDTH = calc.getRemSize(40);
 export const DESKTOP_DEFAULT_WINDOW_HEIGHT = calc.getRemSize(30);
+export const DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE = 500; // 500 milliseconds; enough time to allow indirect close handlers to respond quickly
 
 export var main = null;
 
@@ -543,10 +544,11 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                                 )
                             ,
                             $g.create("button")
+                                .addClass("switcher_closeButton")
                                 .setAttribute("title", _("switcher_close"))
                                 .setAttribute("aria-label", _("switcher_close"))
                                 .on("click", function() {
-                                    closeWindow(screenElement);
+                                    closeWindow(screenElement, undefined, screenElement.is(".switcher_forceClose"));
                                 })
                                 .add(
                                     $g.create("img")
@@ -900,7 +902,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                         goHome();
                     }
 
-                    closeApp(app);
+                    closeApp(app, tab.is(".switcher_forceClose"));
                 })
                 .add(
                     $g.create("img")
@@ -1028,7 +1030,21 @@ export function restoreWindow(element, animated = true) {
     }
 }
 
-export function closeWindow(element, animate = true) {
+export function closeWindow(element, animate = true, force = false) {
+    var indirectCloseApps = element.find(".switcher_app.switcher_indirectClose");
+
+    if (!force && indirectCloseApps.items().length > 0) {
+        indirectCloseApps.forEach(function(appElement) {
+            closeApp(appElement);
+        });
+
+        setTimeout(function() {
+            element?.addClass("switcher_forceClose");
+        }, DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE);
+
+        return Promise.resolve();
+    }
+
     return new Promise(function(resolve, reject) {
         var listButton = $g.sel(`.desktop_appListButton[data-id="${element.getAttribute("data-id")}"]`);
         var isLastScreen = $g.sel("#switcherView .switcher_screen").items().length == 1;
@@ -1135,12 +1151,22 @@ export function selectApp(element) {
     }
 }
 
-export function closeApp(element) {
+export function closeApp(element, force = false) {
     var screenElement = element.ancestor(".switcher_screen");
     var allTabElements = screenElement.find(".switcher_tab:not(.transitioning)").getAll();
 
+    if (!force && element.is(".switcher_indirectClose")) {
+        element.emit("switcherclose");
+
+        setTimeout(function() {
+            element.get()?.tab?.addClass("switcher_forceClose");
+        }, DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE);
+
+        return Promise.resolve();
+    }
+
     if (allTabElements.length <= 1) {
-        closeWindow(screenElement);
+        closeWindow(screenElement, undefined, true);
 
         return;
     }

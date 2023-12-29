@@ -13,6 +13,8 @@ var main = require("./main");
 var flags = require("./flags");
 
 const REQUIRED_ATOMS = [
+    "WM_PROTOCOLS",
+    "WM_DELETE_WINDOW",
     "_NET_SUPPORTED",
     "_NET_ACTIVE_WINDOW",
     "_NET_WM_NAME"
@@ -230,6 +232,27 @@ exports.resizeWindow = function(id, width, height) {
     }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 
+exports.askWindowToClose = function(id) {
+    return waitForTurn().then(function() {
+        return getTrackedWindowById(id);
+    }).then(function(trackedWindow) {
+        var eventBuffer = Buffer.alloc(32);
+        var offset = 0;
+
+        // `xcb_client_message_event_t`
+        offset = eventBuffer.writeUInt8(33, offset); // `ClientMessage`
+        offset = eventBuffer.writeUInt8(32, offset); // `format`
+        offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
+        offset = eventBuffer.writeUInt32LE(trackedWindow.windowId, offset); // `window`
+        offset = eventBuffer.writeUInt32LE(atoms["WM_PROTOCOLS"], offset); // `type`
+        offset = eventBuffer.writeUInt32LE(atoms["WM_DELETE_WINDOW"], offset); // `data`
+
+        X.SendEvent(trackedWindow.windowId, false, 0, eventBuffer);
+
+        return Promise.resolve();
+    }).then(releaseTurn).catch(releaseTurnAnyway);
+};
+
 exports.sendWindowInputEvent = function(id, eventType, eventData) {
     var trackedWindow;
 
@@ -302,7 +325,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 return Promise.resolve();
 
             default:
-                return Promise.reject(`Unknown event type \`${eventType}\``)
+                return Promise.reject(`Unknown event type \`${eventType}\``);
         }
     }).then(releaseTurn).catch(releaseTurnAnyway);
 };

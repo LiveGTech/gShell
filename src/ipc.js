@@ -405,6 +405,10 @@ ipcMain.handle("xorg_resizeWindow", function(event, data) {
     return xorg.resizeWindow(data.id, data.width, data.height);
 });
 
+ipcMain.handle("xorg_askWindowToClose", function(event, data) {
+    return xorg.askWindowToClose(data.id);
+});
+
 ipcMain.handle("xorg_sendWindowInputEvent", function(event, data) {
     return xorg.sendWindowInputEvent(data.id, data.eventType, data.eventData);
 });

@@ -500,6 +500,18 @@ body:not([device-type="desktop"]) .switcher_tabNewButton {
     display: none;
 }
 
+.switcher_tab.switcher_forceClose .switcher_tabCloseButton {
+    background-color: var(--dangerousUI);
+}
+
+.switcher_tab.switcher_forceClose .switcher_tabCloseButton:is(html[aui-istouch="false"] :hover, :active) {
+    background-color: var(--dangerousUIPress);
+}
+
+.switcher_tab.switcher_forceClose .switcher_tabCloseButton img[aui-icon] {
+    filter: contrast(0) brightness(10)!important;
+}
+
 .switcher_titleBar.hideTabs .switcher_tabNewButton {
     display: none;
 }
@@ -519,6 +531,18 @@ body:not([device-type="desktop"]) .switcher_windowButtons {
 
 .switcher_screen:not(.maximised) .switcher_restoreButton {
     display: none;
+}
+
+.switcher_screen.switcher_forceClose .switcher_closeButton {
+    background-color: var(--dangerousUI);
+}
+
+.switcher_screen.switcher_forceClose .switcher_closeButton:is(html[aui-istouch="false"] :hover, :active) {
+    background-color: var(--dangerousUIPress);
+}
+
+.switcher_screen.switcher_forceClose .switcher_closeButton img[aui-icon] {
+    filter: contrast(0) brightness(10)!important;
 }
 
 .switcher_screenOptions {

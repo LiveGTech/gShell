@@ -32,7 +32,8 @@ source ~/.bashrc
 nvm install 20.5.1
 
 # To run `gshell-xephyr` (optional):
- sudo apt install xserver-xephyr
+sudo apt install libx11-dev xserver-xephyr
+./buildclibs
 ```
 
 Install gShell and its dependencies using npm:

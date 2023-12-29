@@ -29,6 +29,7 @@ var Composite;
 var Damage;
 var atoms = {};
 var mainWindowId = null;
+var mapRequestedWindowIds = [];
 var trackedWindows = [];
 var requestLock = false;
 var configureRequestQueue = [];
@@ -47,13 +48,13 @@ function promisify(call, scope = this, ...args) {
     });
 }
 
-function trackWindow(windowId) {
+function trackWindow(windowId, isOverrideRedirect = false) {
     Composite.RedirectWindow(windowId, Composite.Redirect.Automatic);
     X.MapWindow(windowId);
 
     var pixmapId = X.AllocID();
     var damageId = X.AllocID();
-    
+
     Composite.NameWindowPixmap(windowId, pixmapId);
     Damage.Create(damageId, windowId, Damage.ReportLevel.NonEmpty);
 
@@ -61,6 +62,7 @@ function trackWindow(windowId) {
         windowId,
         pixmapId,
         damageId,
+        isOverrideRedirect,
         justResized: false
     });
 
@@ -355,7 +357,16 @@ exports.init = function() {
         }).on("event", function(event) {
             switch (event.name) {
                 case "MapRequest":
+                    mapRequestedWindowIds.push(event.wid);
                     trackWindow(event.wid);
+                    break;
+
+                case "MapNotify":
+                    if (mapRequestedWindowIds.includes(event.wid) || mainWindowId == null) {
+                        break;
+                    }
+
+                    trackWindow(event.wid, true);
 
                     break;
 

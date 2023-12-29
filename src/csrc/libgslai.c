@@ -67,3 +67,21 @@ int XPeekEvent(Display* display, XEvent* event_return) {
     // Peeked event has been intercepted; find next event that is fine
     return XNextEvent(display, event_return);
 }
+
+int XGrabPointer(
+    Display* display,
+    Window grab_window,
+    Bool owner_events,
+    unsigned int event_mask,
+    int pointer_mode,
+    int keyboard_mode,
+    Window confine_to,
+    Cursor cursor,
+    Time time
+) {
+    return 0;
+}
+
+int XUngrabPointer(Display* display, Time time) {
+    return 0;
+}

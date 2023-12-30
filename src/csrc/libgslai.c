@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <X11/Xlib.h>
+#include <X11/extensions/XInput2.h>
 
 int (*shadowed_XNextEvent)(Display* display, XEvent* event_return);
 int (*shadowed_XPeekEvent)(Display* display, XEvent* event_return);

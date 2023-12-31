@@ -17,9 +17,8 @@
 int (*shadowed_XNextEvent)(Display* display, XEvent* event_return);
 int (*shadowed_XPeekEvent)(Display* display, XEvent* event_return);
 
-// TODO: Check Enter/Leave events
-
 bool checkXEvent(XEvent* event) {
+    printf("%d\n", event->type);
     switch (event->type) {
         case ButtonPress:
         case ButtonRelease:
@@ -30,6 +29,10 @@ bool checkXEvent(XEvent* event) {
         case MotionNotify:
             event->xmotion.send_event = 0;
 
+            return true;
+
+        case EnterNotify:
+            event->xcrossing.send_event = 0;
             return true;
 
         case FocusOut:

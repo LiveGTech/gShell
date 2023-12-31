@@ -277,6 +277,8 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
             case "mouseup":
             case "mousemove":
                 var state = 0;
+                var responseTypeOffset;
+                var stateOffset;
 
                 state |= x11.eventMask.EnterWindow;
 
@@ -289,6 +291,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 }
 
                 // `xcb_button_press_event_t`/`xcb_button_release_event_t`/`xcb_motion_notify_event_t`
+                responseTypeOffset = offset;
                 offset = eventBuffer.writeUInt8({
                     "mousedown": 4, // `response_type`: `ButtonPress`
                     "mouseup": 5, // `response_type`: `ButtonRelease`
@@ -304,6 +307,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteY) || 0, offset); // `root_y`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.x), offset); // `event_x`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.y), offset); // `event_y`
+                stateOffset = offset;
                 offset = eventBuffer.writeUInt16LE(state, offset); // `state`
                 offset = eventBuffer.writeUint8(translatedCoordinates.sameScreen, offset); // `same_screen`
 
@@ -312,6 +316,19 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                     "mouseup": x11.eventMask.ButtonRelease,
                     "mousemove": x11.eventMask.PointerMotion
                 }[eventType], eventBuffer);
+
+                // FIXME: Sending `EnterNotify` events currently inhibits mouse clicks. We should only send `EnterNotify` once.
+
+                // var enterEventBuffer = Buffer.alloc(32);
+
+                // eventBuffer.copy(enterEventBuffer);
+
+                // offset = enterEventBuffer.writeUInt8(7, responseTypeOffset); // `response_type`: `EnterNotify`
+                // offset = enterEventBuffer.writeUInt16LE(0, stateOffset); // `state`
+                // offset = enterEventBuffer.writeUInt8(0, offset); // `mode`: `NotifyNormal`
+                // offset = enterEventBuffer.writeUInt8(translatedCoordinates.sameScreen, offset); // `same_screen`
+
+                // X.SendEvent(trackedWindow.windowId, true, x11.eventMask.EnterWindow, enterEventBuffer);
 
                 return Promise.resolve();
 

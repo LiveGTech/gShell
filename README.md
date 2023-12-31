@@ -70,7 +70,7 @@ Here's a list of arguments that can be supplied to gShell:
 To build gShell, first install the dependencies:
 
 ```bash
-sudo apt install libx11-dev libxi-dev gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+sudo apt install libx11-dev gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 ```
 
 Then run the builder:

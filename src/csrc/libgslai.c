@@ -33,6 +33,7 @@ bool checkXEvent(XEvent* event) {
 
         case EnterNotify:
             event->xcrossing.send_event = 0;
+
             return true;
 
         case FocusOut:
@@ -84,7 +85,7 @@ int XGrabPointer(
     Cursor cursor,
     Time time
 ) {
-    return 0;
+    return GrabSuccess;
 }
 
 int XUngrabPointer(Display* display, Time time) {
@@ -92,7 +93,7 @@ int XUngrabPointer(Display* display, Time time) {
 }
 
 int XGrabKeyboard(Display* display, Window grab_window, Bool owner_events, int pointer_mode, int keyboard_mode, Time time) {
-    return 0;
+    return GrabSuccess;
 }
 
 int XUngrabKeyboard(Display* display, Time time) {

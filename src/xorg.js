@@ -263,7 +263,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
     }).then(function(trackedWindowResult) {
         trackedWindow = trackedWindowResult;
 
-        if (!["mousedown", "mouseup", "mousemove"].includes(eventType)) {
+        if (!["mousedown", "mouseup", "mousemove", "mouseenter"].includes(eventType)) {
             return Promise.resolve(null);
         }
 
@@ -277,8 +277,6 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
             case "mouseup":
             case "mousemove":
                 var state = 0;
-                var responseTypeOffset;
-                var stateOffset;
 
                 state |= x11.eventMask.EnterWindow;
 
@@ -291,7 +289,6 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 }
 
                 // `xcb_button_press_event_t`/`xcb_button_release_event_t`/`xcb_motion_notify_event_t`
-                responseTypeOffset = offset;
                 offset = eventBuffer.writeUInt8({
                     "mousedown": 4, // `response_type`: `ButtonPress`
                     "mouseup": 5, // `response_type`: `ButtonRelease`
@@ -307,7 +304,6 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteY) || 0, offset); // `root_y`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.x), offset); // `event_x`
                 offset = eventBuffer.writeInt16LE(Math.floor(eventData.y), offset); // `event_y`
-                stateOffset = offset;
                 offset = eventBuffer.writeUInt16LE(state, offset); // `state`
                 offset = eventBuffer.writeUint8(translatedCoordinates.sameScreen, offset); // `same_screen`
 
@@ -317,18 +313,28 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                     "mousemove": x11.eventMask.PointerMotion
                 }[eventType], eventBuffer);
 
-                // FIXME: Sending `EnterNotify` events currently inhibits mouse clicks. We should only send `EnterNotify` once.
+                return Promise.resolve();
 
-                // var enterEventBuffer = Buffer.alloc(32);
+            case "mouseenter":
+                eventBuffer = Buffer.alloc(32);
 
-                // eventBuffer.copy(enterEventBuffer);
+                // `xcb_enter_notify_event_t`
+                offset = eventBuffer.writeUInt8(7, offset); // `response_type`: `EnterNotify`
+                offset = eventBuffer.writeUInt8(0, offset); // `detail`
+                offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
+                offset = eventBuffer.writeUInt32LE(0, offset); // `time`
+                offset = eventBuffer.writeUInt32LE(root, offset); // `root`
+                offset = eventBuffer.writeUInt32LE(trackedWindow.windowId, offset); // `event`
+                offset = eventBuffer.writeUInt32LE(translatedCoordinates.child, offset); // `child`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteX) || 0, offset); // `root_x`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteY) || 0, offset); // `root_y`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.x), offset); // `event_x`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.y), offset); // `event_y`
+                offset = eventBuffer.writeUInt16LE(0, offset); // `state`
+                offset = eventBuffer.writeUInt8(0, offset); // `mode`: `NotifyNormal`
+                offset = eventBuffer.writeUInt8(translatedCoordinates.sameScreen, offset); // `same_screen`
 
-                // offset = enterEventBuffer.writeUInt8(7, responseTypeOffset); // `response_type`: `EnterNotify`
-                // offset = enterEventBuffer.writeUInt16LE(0, stateOffset); // `state`
-                // offset = enterEventBuffer.writeUInt8(0, offset); // `mode`: `NotifyNormal`
-                // offset = enterEventBuffer.writeUInt8(translatedCoordinates.sameScreen, offset); // `same_screen`
-
-                // X.SendEvent(trackedWindow.windowId, true, x11.eventMask.EnterWindow, enterEventBuffer);
+                X.SendEvent(trackedWindow.windowId, true, x11.eventMask.EnterWindow, eventBuffer);
 
                 return Promise.resolve();
 

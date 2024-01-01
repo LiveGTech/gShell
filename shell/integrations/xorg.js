@@ -86,7 +86,7 @@ export function init() {
 
         canvas.addClass("switcher_renderSurface");
 
-        ["mousedown", "mouseup", "mousemove"].forEach(function(eventType) {
+        ["mousedown", "mouseup", "mousemove", "mouseenter"].forEach(function(eventType) {
             canvas.on(eventType, function(event) {
                 var canvasRect = canvas.get().getBoundingClientRect();
 
@@ -100,17 +100,19 @@ export function init() {
                         eventType: "focuswindow"
                     });
                 }
-    
-                gShell.call("xorg_sendWindowInputEvent", {
-                    id: data.id,
-                    eventType,
-                    eventData: {
-                        x: event.clientX - canvasRect.x,
-                        y: event.clientY - canvasRect.y,
-                        absoluteX: event.clientX,
-                        absoluteY: event.clientY,
-                        button: MOUSE_BUTTON_MAPPINGS[currentMouseButton]
-                    }
+
+                (eventType == "mouseup" ? [eventType, "mouseenter"] : [eventType]).forEach(function(eventType) {
+                    gShell.call("xorg_sendWindowInputEvent", {
+                        id: data.id,
+                        eventType,
+                        eventData: {
+                            x: event.clientX - canvasRect.x,
+                            y: event.clientY - canvasRect.y,
+                            absoluteX: event.clientX,
+                            absoluteY: event.clientY,
+                            button: MOUSE_BUTTON_MAPPINGS[currentMouseButton]
+                        }
+                    });
                 });
 
                 event.preventDefault();

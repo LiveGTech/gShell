@@ -18,7 +18,6 @@ int (*shadowed_XNextEvent)(Display* display, XEvent* event_return);
 int (*shadowed_XPeekEvent)(Display* display, XEvent* event_return);
 
 bool checkXEvent(XEvent* event) {
-    printf("%d\n", event->type);
     switch (event->type) {
         case ButtonPress:
         case ButtonRelease:

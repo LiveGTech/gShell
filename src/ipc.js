@@ -397,6 +397,10 @@ ipcMain.handle("xorg_getWindowProperties", function(event, data) {
     return xorg.getWindowProperties(data.id);
 });
 
+ipcMain.handle("xorg_getWindowGeometry", function(event, data) {
+    return xorg.getWindowGeometry(data.id);
+});
+
 ipcMain.handle("xorg_moveWindow", function(event, data) {
     return xorg.moveWindow(data.id, data.x, data.y);
 });

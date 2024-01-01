@@ -24,6 +24,10 @@ var currentMouseButton = null;
 export var trackedWindows = {};
 
 function ensureWindowSize(trackedWindow) {
+    if (!trackedWindow.screenElement) {
+        return;
+    }
+
     var windowContentsRect = trackedWindow.screenElement.find(".switcher_apps").get().getBoundingClientRect();
     
     if (trackedWindow.width == null || trackedWindow.height == null) {
@@ -50,6 +54,10 @@ function ensureWindowSize(trackedWindow) {
 }
 
 function updateXorgWindowPosition(trackedWindow) {
+    if (trackedWindow.isOverlay) {
+        return;
+    }
+
     var canvasRect = trackedWindow.surfaceContainer.find("canvas").get().getBoundingClientRect();
 
     if (canvasRect.x == trackedWindow.x && canvasRect.y == trackedWindow.y) {
@@ -67,8 +75,14 @@ function updateXorgWindowPosition(trackedWindow) {
 }
 
 function checkWindowProperties(trackedWindow) {
+    if (trackedWindow.isOverlay) {
+        return;
+    }
+
     gShell.call("xorg_getWindowProperties", {id: trackedWindow.id}).then(function(data) {
-        switcher.setAppCustomTab(trackedWindow.appElement, data.title);
+        if (trackedWindow.appElement) {
+            switcher.setAppCustomTab(trackedWindow.appElement, data.title);
+        }
 
         requestAnimationFrame(function() {
             checkWindowProperties(trackedWindow);
@@ -128,6 +142,7 @@ export function init() {
 
         var trackedWindow = {
             id: data.id,
+            isOverlay: data.isOverlay,
             surfaceContainer,
             width: null,
             height: null,
@@ -137,72 +152,84 @@ export function init() {
 
         trackedWindows[data.id] = trackedWindow;
 
-        switcher.openWindow(surfaceContainer, details, function(screenElement, appElement) {
-            trackedWindows[data.id].screenElement = screenElement;
-            trackedWindows[data.id].appElement = appElement;
+        if (trackedWindow.isOverlay) {
+            trackedWindow.overlayElement = $g.create("div")
+                .addClass("switcher_overlay")
+                .setAttribute("hidden", true)
+                .add(surfaceContainer)
+            ;
 
-            appElement.addClass("switcher_indirectClose");
-            screenElement.addClass("switcher_indirectResize");
+            $g.sel(".switcher_overlays").add(trackedWindow.overlayElement);
 
-            var lastEventX = null;
-            var lastEventY = null;
-            var lastEventWidth = null;
-            var lastEventHeight = null;
-
-            appElement.on("switcherclose", function(event) {
-                gShell.call("xorg_askWindowToClose", {id: data.id});
-            });
-
-            screenElement.on("switchermove", function(event) {
-                if (lastEventX == event.detail.geometry.x && lastEventY == event.detail.geometry.y) {
-                    return;
-                }
-
-                var offsets = switcher.getWindowContentsOffsets(screenElement, true);
-
-                trackedWindow.x = event.detail.geometry.x + offsets.contentsX;
-                trackedWindow.y = event.detail.geometry.y + offsets.contentsY;
-
-                gShell.call("xorg_moveWindow", {
-                    id: data.id,
-                    x: trackedWindow.x,
-                    y: trackedWindow.y
+            switcher.showOverlay(trackedWindow.overlayElement);
+        } else {
+            switcher.openWindow(surfaceContainer, details, function(screenElement, appElement) {
+                trackedWindows[data.id].screenElement = screenElement;
+                trackedWindows[data.id].appElement = appElement;
+    
+                appElement.addClass("switcher_indirectClose");
+                screenElement.addClass("switcher_indirectResize");
+    
+                var lastEventX = null;
+                var lastEventY = null;
+                var lastEventWidth = null;
+                var lastEventHeight = null;
+    
+                appElement.on("switcherclose", function(event) {
+                    gShell.call("xorg_askWindowToClose", {id: data.id});
                 });
-
-                lastEventX = event.detail.geometry.x;
-                lastEventY = event.detail.geometry.y;
-            });
-
-            screenElement.on("switcherresize", function(event) {
-                if (lastEventWidth == event.detail.geometry.width && lastEventHeight == event.detail.geometry.height) {
-                    return;
-                }
-
-                if (trackedWindow.processingResize) {
-                    return;
-                }
-                
-                var offsets = switcher.getWindowContentsOffsets(screenElement);
-
-                trackedWindow.width = event.detail.geometry.width - offsets.windowWidth;
-                trackedWindow.height = event.detail.geometry.height - offsets.windowHeight;
-
-                gShell.call("xorg_resizeWindow", {
-                    id: data.id,
-                    width: trackedWindow.width,
-                    height: trackedWindow.height
+    
+                screenElement.on("switchermove", function(event) {
+                    if (lastEventX == event.detail.geometry.x && lastEventY == event.detail.geometry.y) {
+                        return;
+                    }
+    
+                    var offsets = switcher.getWindowContentsOffsets(screenElement, true);
+    
+                    trackedWindow.x = event.detail.geometry.x + offsets.contentsX;
+                    trackedWindow.y = event.detail.geometry.y + offsets.contentsY;
+    
+                    gShell.call("xorg_moveWindow", {
+                        id: data.id,
+                        x: trackedWindow.x,
+                        y: trackedWindow.y
+                    });
+    
+                    lastEventX = event.detail.geometry.x;
+                    lastEventY = event.detail.geometry.y;
                 });
-
-                if (!event.detail.maximising) {
-                    ensureWindowSize(trackedWindow);
-                }
-
-                lastEventWidth = event.detail.geometry.width;
-                lastEventHeight = event.detail.geometry.height;
-
-                trackedWindow.processingResize = true;
+    
+                screenElement.on("switcherresize", function(event) {
+                    if (lastEventWidth == event.detail.geometry.width && lastEventHeight == event.detail.geometry.height) {
+                        return;
+                    }
+    
+                    if (trackedWindow.processingResize) {
+                        return;
+                    }
+                    
+                    var offsets = switcher.getWindowContentsOffsets(screenElement);
+    
+                    trackedWindow.width = event.detail.geometry.width - offsets.windowWidth;
+                    trackedWindow.height = event.detail.geometry.height - offsets.windowHeight;
+    
+                    gShell.call("xorg_resizeWindow", {
+                        id: data.id,
+                        width: trackedWindow.width,
+                        height: trackedWindow.height
+                    });
+    
+                    if (!event.detail.maximising) {
+                        ensureWindowSize(trackedWindow);
+                    }
+    
+                    lastEventWidth = event.detail.geometry.width;
+                    lastEventHeight = event.detail.geometry.height;
+    
+                    trackedWindow.processingResize = true;
+                });
             });
-        });
+        }
 
         ensureWindowSize(trackedWindow);
         updateXorgWindowPosition(trackedWindow);
@@ -212,11 +239,34 @@ export function init() {
     gShell.on("xorg_releaseWindow", function(event, data) {
         var trackedWindow = trackedWindows[data.id];
 
+        if (!trackedWindow) {
+            return;
+        }
+
         if (trackedWindow.appElement) {
             switcher.closeApp(trackedWindow.appElement, true);
         }
 
+        if (trackedWindow.overlayElement) {
+            switcher.hideOverlay(trackedWindow.overlayElement).then(function() {
+                trackedWindow.overlayElement.remove();
+            });
+        }
+
         trackedWindow = null;
+    });
+
+    gShell.on("xorg_moveWindow", function(event, data) {
+        var trackedWindow = trackedWindows[data.id];
+
+        if (!trackedWindow || !trackedWindow.overlayElement) {
+            return;
+        }
+
+        trackedWindow.overlayElement.applyStyle({
+            "left": `${data.x}px`,
+            "top": `${data.y}px`
+        });
     });
 
     gShell.on("xorg_resizeWindow", function(event, data) {
@@ -254,6 +304,13 @@ export function init() {
             trackedWindow.initiallyResized = true;
 
             ensureWindowSize(trackedWindow);
+        }
+
+        if (trackedWindow.overlayElement) {
+            trackedWindow.overlayElement.applyStyle({
+                "left": `${data.geometry.x}px`,
+                "top": `${data.geometry.y}px`,
+            });
         }
 
         var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();

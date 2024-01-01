@@ -1273,3 +1273,13 @@ export function goHome() {
 
     return $g.sel("#home").screenFade();
 }
+
+export function showOverlay(element, animated = true) {
+    element.setStyle("z-index", topmostZIndex++);
+
+    return animated ? element.fadeIn() : Promise.resolve();
+}
+
+export function hideOverlay(element, animated = true) {
+    return animated ? element.fadeOut() : Promise.resolve();
+}

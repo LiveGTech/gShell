@@ -20,6 +20,10 @@ const REQUIRED_ATOMS = [
     "_NET_WM_NAME"
 ];
 
+const SUPPORTED_ATOMS = [
+    "_NET_ACTIVE_WINDOW"
+];
+
 const MAX_PROPERTY_LENGTH = 10_000;
 
 var display;
@@ -48,7 +52,7 @@ function promisify(call, scope = this, ...args) {
     });
 }
 
-function trackWindow(windowId, isOverrideRedirect = false) {
+function trackWindow(windowId, isOverlay = false) {
     Composite.RedirectWindow(windowId, Composite.Redirect.Automatic);
     X.MapWindow(windowId);
 
@@ -62,17 +66,18 @@ function trackWindow(windowId, isOverrideRedirect = false) {
         windowId,
         pixmapId,
         damageId,
-        isOverrideRedirect,
+        isOverlay,
         justResized: false
     });
 
-    main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1});
+    main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1, isOverlay});
 
     var configureRequestIndex = configureRequestQueue.findIndex((event) => event.wid == windowId);
 
     if (configureRequestIndex >= 0) {
         var event = configureRequestQueue[configureRequestIndex];
 
+        main.window.webContents.send("xorg_moveWindow", {id: trackedWindows.length - 1, x: event.x, y: event.y});
         main.window.webContents.send("xorg_resizeWindow", {id: trackedWindows.length - 1, width: event.width, height: event.height});
 
         configureRequestQueue.splice(configureRequestIndex, 1);
@@ -187,7 +192,24 @@ exports.getWindowProperties = function(id) {
     }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 
+exports.getWindowGeometry = function(id) {
+    return waitForTurn().then(function() {
+        return getTrackedWindowById(id);
+    }).then(function(trackedWindow) {    
+        return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
+    }).then(function(geometry) {
+        return {
+            x: geometry.xPos,
+            y: geometry.yPos,
+            width: geometry.width,
+            height: geometry.height
+        };
+    }).then(releaseTurn).catch(releaseTurnAnyway);
+};
+
 exports.getWindowSurfaceImage = function(id) {
+    // FIXME: Don't get surface images of `InputOnly` windows
+
     var trackedWindow;
 
     return waitForTurn().then(function() {
@@ -203,8 +225,8 @@ exports.getWindowSurfaceImage = function(id) {
                 width: geometry.width,
                 height: geometry.height
             });
-        }).then(releaseTurn).catch(releaseTurnAnyway);
-    });
+        });
+    }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 
 exports.moveWindow = function(id, x, y) {
@@ -382,6 +404,11 @@ exports.init = function() {
                 case "MapRequest":
                     mapRequestedWindowIds.push(event.wid);
                     trackWindow(event.wid);
+
+                    break;
+
+                case "CreateNotify":
+                    configureRequestQueue.push(event);
                     break;
 
                 case "MapNotify":
@@ -403,6 +430,7 @@ exports.init = function() {
                         break;
                     }
 
+                    main.window.webContents.send("xorg_moveWindow", {id, x: event.x, y: event.y});
                     main.window.webContents.send("xorg_resizeWindow", {id, width: event.width, height: event.height});
 
                     break;
@@ -428,7 +456,17 @@ exports.init = function() {
                     }
 
                     exports.getWindowSurfaceImage(id).then(function(image) {
-                        main.window.webContents.send("xorg_repaintWindow", {id, image, justResized: trackedWindow.justResized});
+                        main.window.webContents.send("xorg_repaintWindow", {
+                            id,
+                            image,
+                            geometry: {
+                                x: event.geometry.x,
+                                y: event.geometry.y,
+                                width: event.geometry.w,
+                                height: event.geometry.h
+                            },
+                            justResized: trackedWindow.justResized
+                        });
 
                         if (trackedWindow.justResized) {
                             X.ClearArea(trackedWindow.windowId, 0, 0, image.width, image.height, true);
@@ -452,7 +490,7 @@ exports.init = function() {
             }
         });
     }).then(function() {
-        return X.ChangeWindowAttributes(root, {eventMask: x11.eventMask.SubstructureNotify | x11.eventMask.SubstructureRedirect | x11.eventMask.ResizeRedirect});
+        return X.ChangeWindowAttributes(root, {eventMask: x11.eventMask.SubstructureNotify | x11.eventMask.SubstructureRedirect | x11.eventMask.ResizeRedirect | x11.eventMask.PropertyChange});
     }).then(function() {
         return promisify(X.require, X, "composite");
     }).then(function(extension) {
@@ -482,11 +520,14 @@ exports.init = function() {
 
         return promiseChain;
     }).then(function() {
-        var supportedAtomsBuffer = Buffer.alloc(4);
+        var supportedAtomsBuffer = Buffer.alloc(SUPPORTED_ATOMS.length * 4);
+        var offset = 0;
 
-        supportedAtomsBuffer.writeUInt32LE(atoms["_NET_ACTIVE_WINDOW"], 0);
+        SUPPORTED_ATOMS.forEach(function(atom) {
+            offset = supportedAtomsBuffer.writeUint32LE(atoms[atom], offset);
+        });
 
-        X.ChangeProperty(0, root, atoms["_NET_SUPPORTED"], X.atoms.ATOM, 32, supportedAtomsBuffer);
+        X.ChangeProperty(0, root, atoms["_NET_SUPPORTED"], X.atoms.ATOM, SUPPORTED_ATOMS.length * 32, supportedAtomsBuffer);
 
         return Promise.resolve();
     });

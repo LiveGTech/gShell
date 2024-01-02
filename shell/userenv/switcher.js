@@ -30,7 +30,7 @@ export var main = null;
 
 const WINDOW_STACK_WRAPAROUND = 10;
 
-var topmostZIndex = 1;
+var windowStackingOrder = [];
 var windowStackStep = 0;
 var switcherBarGesturing = false;
 var switcherBarSwitching = false;
@@ -112,7 +112,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
             screenElement.find("*:is(.switcher_titleBar, .switcher_apps)").removeAttribute("inert");
 
             if (device.data?.type == "desktop") {
-                screenElement.setStyle("z-index", topmostZIndex++);
+                bringWindowForward(screenElement);
             }
 
             showWindow(screenElement);
@@ -1081,11 +1081,46 @@ export function closeWindow(element, animate = true, force = false) {
 }
 
 export function getWindowStackingOrder() {
-    return $g.sel("#switcherView .switcher")
-        .find(".switcher_screen")
-        .items()
-        .sort((a, b) => Number(a.getStyle("z-index")) - Number(b.getStyle("z-index")))
-    ;
+    return windowStackingOrder;
+}
+
+function updateWindowStackingOrder() {
+    var zIndex = 1;
+
+    windowStackingOrder.forEach(function(element) {
+        element.setStyle("z-index", zIndex++);
+    });
+}
+
+export function bringWindowForward(element) {
+    var stackingIndex = windowStackingOrder.indexOf(element);
+
+    if (stackingIndex >= 0) {
+        windowStackingOrder.splice(stackingIndex, 1);
+    }
+
+    windowStackingOrder.push(element);
+
+    windowStackingOrder = windowStackingOrder.sort(function(a, b) {
+        function matchPriority(selector) {
+            if (a.is(selector) && !b.is(selector)) {
+                return 1;
+            }
+
+            if (b.is(selector) && !a.is(selector)) {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        // Combine each criterion with `||` operator, with criterions that have a higher priority being checked first
+        return (
+            matchPriority(".switcher_overlay")
+        );
+    });
+
+    updateWindowStackingOrder();
 }
 
 export function openApp(url, appDetails = null, targetWindow = null) {
@@ -1275,7 +1310,7 @@ export function goHome() {
 }
 
 export function showOverlay(element, animated = true) {
-    element.setStyle("z-index", topmostZIndex++);
+    bringWindowForward(element);
 
     return animated ? element.fadeIn() : Promise.resolve();
 }

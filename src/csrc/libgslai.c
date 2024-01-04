@@ -31,6 +31,7 @@ bool checkXEvent(XEvent* event) {
             return true;
 
         case EnterNotify:
+        case LeaveNotify:
             event->xcrossing.send_event = 0;
 
             return true;

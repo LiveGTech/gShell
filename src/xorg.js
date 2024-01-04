@@ -285,7 +285,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
     }).then(function(trackedWindowResult) {
         trackedWindow = trackedWindowResult;
 
-        if (!["mousedown", "mouseup", "mousemove", "mouseenter"].includes(eventType)) {
+        if (!["mousedown", "mouseup", "mousemove", "mouseenter", "mouseleave"].includes(eventType)) {
             return Promise.resolve(null);
         }
 
@@ -338,10 +338,14 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 return Promise.resolve();
 
             case "mouseenter":
+            case "mouseleave":
                 eventBuffer = Buffer.alloc(32);
 
-                // `xcb_enter_notify_event_t`
-                offset = eventBuffer.writeUInt8(7, offset); // `response_type`: `EnterNotify`
+                // `xcb_enter_notify_event_t`/`xcb_leave_notify_event_t`
+                offset = eventBuffer.writeUInt8({
+                    "mouseenter": 7, // `response_type`: `EnterNotify`
+                    "mouseleave": 8 // `response_type`: `LeaveNotify`
+                }[eventType], offset);
                 offset = eventBuffer.writeUInt8(0, offset); // `detail`
                 offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
                 offset = eventBuffer.writeUInt32LE(0, offset); // `time`
@@ -356,7 +360,10 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 offset = eventBuffer.writeUInt8(0, offset); // `mode`: `NotifyNormal`
                 offset = eventBuffer.writeUInt8(translatedCoordinates.sameScreen, offset); // `same_screen`
 
-                X.SendEvent(trackedWindow.windowId, true, x11.eventMask.EnterWindow, eventBuffer);
+                X.SendEvent(trackedWindow.windowId, true, {
+                    "mouseenter": x11.eventMask.EnterWindow,
+                    "mouseleave": x11.eventMask.LeaveWindow
+                }[eventType], eventBuffer);
 
                 return Promise.resolve();
 

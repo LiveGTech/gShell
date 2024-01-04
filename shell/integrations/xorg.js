@@ -100,7 +100,7 @@ export function init() {
 
         canvas.addClass("switcher_renderSurface");
 
-        ["mousedown", "mouseup", "mousemove", "mouseenter"].forEach(function(eventType) {
+        ["mousedown", "mouseup", "mousemove", "mouseenter", "mouseleave"].forEach(function(eventType) {
             canvas.on(eventType, function(event) {
                 var canvasRect = canvas.get().getBoundingClientRect();
 

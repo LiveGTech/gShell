@@ -19,6 +19,12 @@ int (*shadowed_XPeekEvent)(Display* display, XEvent* event_return);
 
 bool checkXEvent(XEvent* event) {
     switch (event->type) {
+        case KeyPress:
+        case KeyRelease:
+            event->xkey.send_event = 0;
+
+            return true;
+
         case ButtonPress:
         case ButtonRelease:
             event->xbutton.send_event = 0;

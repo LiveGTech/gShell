@@ -11,7 +11,12 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as switcher from "gshell://userenv/switcher.js";
 
-const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to a Xorg mouse button ID
+const KEYBOARD_KEY_MAPPINGS = { // Mapping `KeyboardEvent.key` to an XCB keycode
+    "Enter": 36,
+    "Escape": 9
+};
+
+const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to an Xorg mouse button ID
     0: 1, // Main (typically left)
     1: 2, // Auxiliary (typically middle)
     2: 3, // Secondary (typically right)
@@ -19,7 +24,10 @@ const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to a Xorg mouse b
     4: 9 // Button 5 (typically forward)
 };
 
+const DELAY_BEFORE_OVERLAY_CAN_CLOSE_ON_BLUR = 100; // 100 milliseconds
+
 var currentMouseButton = null;
+var lastOverlayShownAt = null;
 
 export var trackedWindows = {};
 
@@ -93,7 +101,26 @@ function checkWindowProperties(trackedWindow) {
 export function init() {
     $g.sel("body").on("mouseup", function() {
         currentMouseButton = null;
-    })
+    });
+
+    $g.sel("body").on("click", function(event) {
+        if (lastOverlayShownAt != null && Date.now() - lastOverlayShownAt < DELAY_BEFORE_OVERLAY_CAN_CLOSE_ON_BLUR) {
+            return;
+        }
+
+        if ($g.sel(event.target).is(".xorg_overlay, .xorg_overlay *")) {
+            console.log("child");
+            return;
+        }
+
+        console.log("send");
+
+        Object.values(trackedWindows).forEach(function(trackedWindow) {
+            if (trackedWindow.isOverlay) {
+                sendKeyToWindow(trackedWindow, "Escape");
+            }
+        });
+    });
 
     gShell.on("xorg_trackWindow", function(event, data) {
         var canvas = $g.create("canvas");
@@ -115,19 +142,29 @@ export function init() {
                     });
                 }
 
+                trackedWindow.lastX = event.clientX - canvasRect.x;
+                trackedWindow.lastY = event.clientY - canvasRect.y;
+                trackedWindow.lastAbsoluteX = event.clientX;
+                trackedWindow.lastAbsoluteY = event.clientY;
+
                 (eventType == "mouseup" ? [eventType, "mouseenter"] : [eventType]).forEach(function(eventType) {
                     gShell.call("xorg_sendWindowInputEvent", {
                         id: data.id,
                         eventType,
                         eventData: {
-                            x: event.clientX - canvasRect.x,
-                            y: event.clientY - canvasRect.y,
-                            absoluteX: event.clientX,
-                            absoluteY: event.clientY,
+                            x: trackedWindow.lastX,
+                            y: trackedWindow.lastY,
+                            absoluteX: trackedWindow.lastAbsoluteX,
+                            absoluteY: trackedWindow.lastAbsoluteY,
                             button: MOUSE_BUTTON_MAPPINGS[currentMouseButton]
                         }
                     });
                 });
+                
+                if (trackedWindow.isOverlay && eventType == "mouseup") {
+                    // Workaround to activate GTK menu buttons
+                    sendKeyToWindow(trackedWindow, "Enter");
+                }
 
                 event.preventDefault();
             });
@@ -147,7 +184,11 @@ export function init() {
             width: null,
             height: null,
             initiallyResized: false,
-            processingResize: false
+            processingResize: false,
+            lastX: null,
+            lastY: null,
+            lastAbsoluteX: null,
+            lastAbsoluteY: null
         };
 
         trackedWindows[data.id] = trackedWindow;
@@ -155,6 +196,7 @@ export function init() {
         if (trackedWindow.isOverlay) {
             trackedWindow.overlayElement = $g.create("div")
                 .addClass("switcher_overlay")
+                .addClass("xorg_overlay")
                 .setAttribute("hidden", true)
                 .add(surfaceContainer)
             ;
@@ -162,6 +204,8 @@ export function init() {
             $g.sel(".switcher_overlays").add(trackedWindow.overlayElement);
 
             switcher.showOverlay(trackedWindow.overlayElement);
+
+            lastOverlayShownAt = Date.now();
         } else {
             switcher.openWindow(surfaceContainer, details, function(screenElement, appElement) {
                 trackedWindows[data.id].screenElement = screenElement;
@@ -340,4 +384,32 @@ export function init() {
 
         trackedWindow.processingResize = false;
     });
+}
+
+export function sendKeyToWindow(trackedWindow, key) {
+    var id = Object.keys(trackedWindows).find((id) => trackedWindows[id] == trackedWindow);
+
+    if (id == null) {
+        return Promise.reject("Window is no longer being tracked");
+    }
+
+    var promiseChain = Promise.resolve();
+
+    ["keydown", "keyup"].forEach(function(eventType) {
+        promiseChain = promiseChain.then(function() {
+            return gShell.call("xorg_sendWindowInputEvent", {
+                id,
+                eventType,
+                eventData: {
+                    x: trackedWindow.lastX,
+                    y: trackedWindow.lastY,
+                    absoluteX: trackedWindow.lastAbsoluteX,
+                    absoluteY: trackedWindow.lastAbsoluteY,
+                    keyCode: KEYBOARD_KEY_MAPPINGS[key]
+                }
+            });
+        });
+    });
+
+    return promiseChain;
 }

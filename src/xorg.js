@@ -285,7 +285,7 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
     }).then(function(trackedWindowResult) {
         trackedWindow = trackedWindowResult;
 
-        if (!["mousedown", "mouseup", "mousemove", "mouseenter", "mouseleave"].includes(eventType)) {
+        if (!["keydown", "keyup", "mousedown", "mouseup", "mousemove", "mouseenter", "mouseleave"].includes(eventType)) {
             return Promise.resolve(null);
         }
 
@@ -295,6 +295,34 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
         var offset = 0;
 
         switch (eventType) {
+            case "keydown":
+            case "keyup":
+                console.log(eventType, eventData);
+                // `xcb_key_press_event_t`/`xcb_key_release_event_t`
+                offset = eventBuffer.writeUInt8({
+                    "keydown": 2, // `response_type`: `KeyPress`
+                    "keyup": 3, // `response_type`: `KeyRelease`
+                }[eventType], offset);
+                offset = eventBuffer.writeUInt8(eventData.keyCode, offset); // `detail`
+                offset = eventBuffer.writeUInt16LE(0, offset); // `sequence`
+                offset = eventBuffer.writeUInt32LE(0, offset); // `time`
+                offset = eventBuffer.writeUInt32LE(root, offset); // `root`
+                offset = eventBuffer.writeUInt32LE(trackedWindow.windowId, offset); // `event`
+                offset = eventBuffer.writeUInt32LE(translatedCoordinates.child, offset); // `child`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteX) || 0, offset); // `root_x`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.absoluteY) || 0, offset); // `root_y`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.x), offset); // `event_x`
+                offset = eventBuffer.writeInt16LE(Math.floor(eventData.y), offset); // `event_y`
+                offset = eventBuffer.writeUInt16LE(0, offset); // `state`
+                offset = eventBuffer.writeUint8(translatedCoordinates.sameScreen, offset); // `same_screen`
+
+                X.SendEvent(trackedWindow.windowId, true, {
+                    "keydown": x11.eventMask.KeyPress,
+                    "keyup": x11.eventMask.KeyRelease
+                }[eventType], eventBuffer);
+
+                return Promise.resolve();
+
             case "mousedown":
             case "mouseup":
             case "mousemove":

@@ -109,11 +109,8 @@ export function init() {
         }
 
         if ($g.sel(event.target).is(".xorg_overlay, .xorg_overlay *")) {
-            console.log("child");
             return;
         }
-
-        console.log("send");
 
         Object.values(trackedWindows).forEach(function(trackedWindow) {
             if (trackedWindow.isOverlay) {

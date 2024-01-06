@@ -297,7 +297,6 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
         switch (eventType) {
             case "keydown":
             case "keyup":
-                console.log(eventType, eventData);
                 // `xcb_key_press_event_t`/`xcb_key_release_event_t`
                 offset = eventBuffer.writeUInt8({
                     "keydown": 2, // `response_type`: `KeyPress`

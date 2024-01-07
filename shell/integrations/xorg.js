@@ -24,10 +24,14 @@ const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to an Xorg mouse 
     4: 9 // Button 5 (typically forward)
 };
 
-const DELAY_BEFORE_OVERLAY_CAN_CLOSE_ON_BLUR = 100; // 100 milliseconds
+const DELAY_BEFORE_OVERLAY_CAN_CLOSE_ON_BLUR = 250; // 250 milliseconds
+const DURATION_NEW_OVERLAYS_CONSIDERED_CONTEXT_MENUS = 250; // 250 milliseconds
 
 var currentMouseButton = null;
 var lastOverlayShownAt = null;
+var lastSecondaryClickAt = null;
+var lastSecondaryClickX = null;
+var lastSecondaryClickY = null;
 
 export var trackedWindows = {};
 
@@ -133,6 +137,15 @@ export function init() {
                 if (eventType == "mousedown") {
                     currentMouseButton = event.button;
 
+                    if (currentMouseButton == 2) {
+                        // Workaround to correctly position GTK context menus on display scale factors other than `1`
+                        lastSecondaryClickAt = Date.now();
+                        lastSecondaryClickX = event.clientX;
+                        lastSecondaryClickY = event.clientY;
+                    } else if (currentMouseButton != 0) {
+                        lastSecondaryClickAt = null;
+                    }
+
                     gShell.call("xorg_sendWindowInputEvent", {
                         id: data.id,
                         eventType: "focuswindow"
@@ -182,6 +195,7 @@ export function init() {
             height: null,
             initiallyResized: false,
             processingResize: false,
+            overlayInitiallyPositioned: false,
             lastX: null,
             lastY: null,
             lastAbsoluteX: null,
@@ -347,11 +361,21 @@ export function init() {
             ensureWindowSize(trackedWindow);
         }
 
-        if (trackedWindow.overlayElement) {
-            trackedWindow.overlayElement.applyStyle({
-                "left": `${data.geometry.x}px`,
-                "top": `${data.geometry.y}px`,
-            });
+        if (trackedWindow.overlayElement && !trackedWindow.overlayInitiallyPositioned) {
+            // TODO: Use better positioning checks to ensure that overlays do not appear off-screen
+            if (lastSecondaryClickAt != null && Date.now() - lastSecondaryClickAt <= DURATION_NEW_OVERLAYS_CONSIDERED_CONTEXT_MENUS) {
+                trackedWindow.overlayElement.applyStyle({
+                    "left": `${lastSecondaryClickX}px`,
+                    "top": `${lastSecondaryClickY}px`,
+                });
+            } else {
+                trackedWindow.overlayElement.applyStyle({
+                    "left": `${data.geometry.x}px`,
+                    "top": `${data.geometry.y}px`,
+                });
+            }
+
+            trackedWindow.overlayInitiallyPositioned = true;
         }
 
         var canvasElement = trackedWindow.surfaceContainer.find("canvas").get();

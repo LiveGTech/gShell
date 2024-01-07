@@ -366,12 +366,12 @@ export function init() {
             if (lastSecondaryClickAt != null && Date.now() - lastSecondaryClickAt <= DURATION_NEW_OVERLAYS_CONSIDERED_CONTEXT_MENUS) {
                 trackedWindow.overlayElement.applyStyle({
                     "left": `${lastSecondaryClickX}px`,
-                    "top": `${lastSecondaryClickY}px`,
+                    "top": `${lastSecondaryClickY}px`
                 });
             } else {
                 trackedWindow.overlayElement.applyStyle({
                     "left": `${data.geometry.x}px`,
-                    "top": `${data.geometry.y}px`,
+                    "top": `${data.geometry.y}px`
                 });
             }
 

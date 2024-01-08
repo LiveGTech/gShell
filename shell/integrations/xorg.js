@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as displays from "gshell://system/displays.js";
 import * as switcher from "gshell://userenv/switcher.js";
 
 const KEYBOARD_KEY_MAPPINGS = { // Mapping `KeyboardEvent.key` to an XCB keycode
@@ -362,7 +363,7 @@ export function init() {
         }
 
         if (trackedWindow.overlayElement && !trackedWindow.overlayInitiallyPositioned) {
-            // TODO: Use better positioning checks to ensure that overlays do not appear off-screen
+            // TODO: Use size constraints to ensure that overlays do not appear off-screen
             if (lastSecondaryClickAt != null && Date.now() - lastSecondaryClickAt <= DURATION_NEW_OVERLAYS_CONSIDERED_CONTEXT_MENUS) {
                 trackedWindow.overlayElement.applyStyle({
                     "left": `${lastSecondaryClickX}px`,
@@ -374,6 +375,10 @@ export function init() {
                     "top": `${data.geometry.y}px`
                 });
             }
+
+            requestAnimationFrame(function() {
+                displays.fitElementInsideDisplay(trackedWindow.overlayElement);
+            });
 
             trackedWindow.overlayInitiallyPositioned = true;
         }

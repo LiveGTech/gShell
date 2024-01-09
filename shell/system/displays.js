@@ -8,6 +8,7 @@
 */
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+import * as calc from "gshell://lib/adaptui/src/calc.js";
 
 export class Containment {
     constructor(top = false, bottom = false, left = false, right = false) {
@@ -42,22 +43,24 @@ export class Display {
         );
     }
 
-    getContainment(rect) {
+    getContainment(rect, shouldIncludeAppBar = false) {
         var containment = new Containment();
+        var displayWidth = this.rect.width;
+        var displayHeight = this.rect.height + (shouldIncludeAppBar ? calc.getRemSize(2.8) : 0);
 
-        if (rect.x >= this.rect.x && rect.x < this.rect.x + this.rect.width) {
+        if (rect.x >= this.rect.x && rect.x < this.rect.x + displayWidth) {
             containment.left = true;
         }
 
-        if (rect.x + rect.width <= this.rect.x + this.rect.width && rect.x + rect.width > this.rect.x) {
+        if (rect.x + rect.width <= this.rect.x + displayWidth && rect.x + rect.width > this.rect.x) {
             containment.right = true;
         }
 
-        if (rect.y >= this.rect.y && rect.y < this.rect.y + this.rect.height) {
+        if (rect.y >= this.rect.y && rect.y < this.rect.y + displayHeight) {
             containment.top = true;
         }
 
-        if (rect.y + rect.height <= this.rect.y + this.rect.height && rect.y + rect.height > this.rect.y) {
+        if (rect.y + rect.height <= this.rect.y + displayHeight && rect.y + rect.height > this.rect.y) {
             containment.bottom = true;
         }
 
@@ -69,7 +72,7 @@ export function getAllDisplays() {
     return $g.sel("aui-screen:not([hidden]) .display").map((element) => new Display(element));
 }
 
-export function fitElementInsideDisplay(element) {
+export function fitElementInsideDisplay(element, shouldIncludeAppBar = true) {
     var rect = element.get().getBoundingClientRect();
     var displaysContainingElement = getAllDisplays().filter((display) => !display.getContainment(rect).none);
     var displayToFit = displaysContainingElement[0];
@@ -83,12 +86,12 @@ export function fitElementInsideDisplay(element) {
         return false;
     }
 
-    var containment = displayToFit.getContainment(rect);
+    var containment = displayToFit.getContainment(rect, shouldIncludeAppBar);
 
     if (!containment.top) {
         element.setStyle("top", `${displayToFit.rect.y}px`);
     } else if (!containment.bottom) {
-        element.setStyle("top", `${displayToFit.rect.y + displayToFit.rect.height - rect.height}px`);
+        element.setStyle("top", `${displayToFit.rect.y + displayToFit.rect.height - rect.height - (shouldIncludeAppBar ? calc.getRemSize(2.8) - 1 : 0)}px`);
     }
 
     if (!containment.left) {

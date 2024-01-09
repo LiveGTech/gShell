@@ -1312,9 +1312,9 @@ export function goHome() {
 export function showOverlay(element, animated = true) {
     bringWindowForward(element);
 
-    return animated ? element.fadeIn() : Promise.resolve();
+    return animated ? element.fadeIn(250) : Promise.resolve();
 }
 
 export function hideOverlay(element, animated = true) {
-    return animated ? element.fadeOut() : Promise.resolve();
+    return animated ? element.fadeOut(250) : Promise.resolve();
 }

@@ -663,11 +663,15 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximis
     background-color: var(--secondaryBackground);
     opacity: 0;
     border-radius: 0.5rem;
-    overflow: auto;
+    overflow-y: auto;
 }
 
 .switcher_overlay.unpainted {
     display: none;
+}
+
+.switcher_overlay .xorg_surface canvas {
+    margin-bottom: calc(-0.25rem - 0.5px);
 }
 
 @keyframes switcher_desktopShowSelect {

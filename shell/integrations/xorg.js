@@ -181,7 +181,10 @@ export function init() {
             });
         });
 
-        var surfaceContainer = $g.create("div").add(canvas);
+        var surfaceContainer = $g.create("div")
+            .addClass("xorg_surface")
+            .add(canvas)
+        ;
 
         var details = {
             displayName: _("unknown"), // TODO: Determine name and icon by getting owner PID from window using `_NET_WM_PID` then by looking up relevant .desktop file

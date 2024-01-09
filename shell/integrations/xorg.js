@@ -197,6 +197,7 @@ export function init() {
             surfaceContainer,
             width: null,
             height: null,
+            initiallyPainted: false,
             initiallyResized: false,
             processingResize: false,
             overlayInitiallyPositioned: false,
@@ -411,6 +412,11 @@ export function init() {
 
         context.putImageData(destination, 0, 0);
 
+        if (!trackedWindow.initiallyPainted) {
+            gShell.call("xorg_forceWindowToRepaint", {id: data.id});
+        }
+
+        trackedWindow.initiallyPainted = true;
         trackedWindow.processingResize = false;
 
         if (trackedWindow.isOverlay) {

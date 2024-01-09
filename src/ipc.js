@@ -417,6 +417,10 @@ ipcMain.handle("xorg_sendWindowInputEvent", function(event, data) {
     return xorg.sendWindowInputEvent(data.id, data.eventType, data.eventData);
 });
 
+ipcMain.handle("xorg_forceWindowToRepaint", function(event, data) {
+    return xorg.forceWindowToRepaint(data.id);
+});
+
 ipcMain.handle("dev_isDebugBuild", function(event, data) {
     return Promise.resolve(main.IS_DEBUG_BUILD);
 });

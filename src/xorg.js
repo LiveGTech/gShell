@@ -222,6 +222,8 @@ exports.getWindowSurfaceImage = function(id) {
         return mustBeTracking(id, () => promisify(X.GetImage, X, 2, trackedWindow.pixmapId, 0, 0, geometry.width, geometry.height, 0xFFFFFFFF)).then(function(data) {
             return Promise.resolve({
                 ...data,
+                x: geometry.xPos,
+                y: geometry.yPos,
                 width: geometry.width,
                 height: geometry.height
             });
@@ -409,6 +411,24 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
                 return Promise.reject(`Unknown event type \`${eventType}\``);
         }
     }).then(releaseTurn).catch(releaseTurnAnyway);
+};
+
+exports.forceWindowToRepaint = function(id) {
+    exports.getWindowSurfaceImage(id).then(function(image) {
+        main.window.webContents.send("xorg_repaintWindow", {
+            id,
+            image,
+            geometry: {
+                x: image.x,
+                y: image.y,
+                width: image.width,
+                height: image.height
+            },
+            justResized: false
+        });
+
+        return Promise.resolve();
+    });
 };
 
 exports.init = function() {

@@ -658,9 +658,16 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximis
     position: absolute;
     top: 0;
     left: 0;
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100vh - 4rem);
+    background-color: var(--secondaryBackground);
     opacity: 0;
     border-radius: 0.5rem;
-    overflow: hidden;
+    overflow: auto;
+}
+
+.switcher_overlay.unpainted {
+    display: none;
 }
 
 @keyframes switcher_desktopShowSelect {

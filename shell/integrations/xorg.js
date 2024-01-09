@@ -209,6 +209,7 @@ export function init() {
             trackedWindow.overlayElement = $g.create("div")
                 .addClass("switcher_overlay")
                 .addClass("xorg_overlay")
+                .addClass("unpainted")
                 .setAttribute("hidden", true)
                 .add(surfaceContainer)
             ;
@@ -363,7 +364,6 @@ export function init() {
         }
 
         if (trackedWindow.overlayElement && !trackedWindow.overlayInitiallyPositioned) {
-            // TODO: Use size constraints to ensure that overlays do not appear off-screen
             if (lastSecondaryClickAt != null && Date.now() - lastSecondaryClickAt <= DURATION_NEW_OVERLAYS_CONSIDERED_CONTEXT_MENUS) {
                 trackedWindow.overlayElement.applyStyle({
                     "left": `${lastSecondaryClickX}px`,
@@ -409,6 +409,10 @@ export function init() {
         context.putImageData(destination, 0, 0);
 
         trackedWindow.processingResize = false;
+
+        if (trackedWindow.isOverlay) {
+            trackedWindow.overlayElement.removeClass("unpainted");
+        }
     });
 }
 

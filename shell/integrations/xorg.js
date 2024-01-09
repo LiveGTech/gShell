@@ -26,6 +26,7 @@ const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to an Xorg mouse 
 };
 
 const DELAY_BEFORE_OVERLAY_CAN_CLOSE_ON_BLUR = 250; // 250 milliseconds
+const DELAY_BEFORE_OVERLAY_KEYS_SENT = 250; // 250 milliseconds
 const DURATION_NEW_OVERLAYS_CONSIDERED_CONTEXT_MENUS = 250; // 250 milliseconds
 
 var currentMouseButton = null;
@@ -172,8 +173,8 @@ export function init() {
                     });
                 });
                 
-                if (trackedWindow.isOverlay && eventType == "mouseup") {
-                    // Workaround to activate GTK menu buttons
+                if (trackedWindow.isOverlay && Date.now() - trackedWindow.createdAt >= DELAY_BEFORE_OVERLAY_KEYS_SENT && eventType == "mouseup") {
+                    // Workaround to activate GTK menu buttons; delayed to prevent activation when menu is positioned on top of opener
                     sendKeyToWindow(trackedWindow, "Enter");
                 }
 
@@ -193,6 +194,7 @@ export function init() {
 
         var trackedWindow = {
             id: data.id,
+            createdAt: Date.now(),
             isOverlay: data.isOverlay,
             surfaceContainer,
             width: null,

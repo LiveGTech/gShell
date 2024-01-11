@@ -678,7 +678,7 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximis
 }
 
 .switcher_overlay .xorg_surface canvas {
-    margin-bottom: calc(-0.25rem - 0.5px);
+    margin-bottom: calc(-0.25rem - 0.6px);
 }
 
 @keyframes switcher_desktopShowSelect {

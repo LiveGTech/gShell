@@ -135,6 +135,28 @@ exports.isInstallationMedia = function() {
     });
 };
 
+exports.getProcessInfo = function(pid) {
+    var pathOutput;
+
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve({
+            path: "/system/dummy",
+            name: "dummy"
+        });
+    }
+
+    return exports.executeCommand("ps", ["-p", pid, "-o", "command="]).then(function(output) {
+        pathOutput = output;
+
+        return exports.executeCommand("ps", ["-p", pid, "-o", "comm="]);
+    }).then(function(output) {
+        return Promise.resolve({
+            path: pathOutput.stdout.trim(),
+            name: output.stdout.trim()
+        });
+    })
+};
+
 exports.copyFiles = function(source, destination, privileged = false, exclude = []) {
     var args = ["-ah", "--info=progress2", "--no-inc-recursive"];
 

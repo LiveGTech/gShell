@@ -101,6 +101,10 @@ function checkWindowProperties(trackedWindow) {
         requestAnimationFrame(function() {
             checkWindowProperties(trackedWindow);
         });
+
+        return gShell.call("system_getProcessInfo", {pid: data.pid});
+    }).then(function(data) {
+        // TODO: Look up relevant .desktop file to obtain suitable name and icon
     });
 }
 
@@ -188,7 +192,7 @@ export function init() {
         ;
 
         var details = {
-            displayName: _("unknown"), // TODO: Determine name and icon by getting owner PID from window using `_NET_WM_PID` then by looking up relevant .desktop file
+            displayName: _("unknown"),
             instantLaunch: true
         };
 

@@ -17,7 +17,8 @@ const REQUIRED_ATOMS = [
     "WM_DELETE_WINDOW",
     "_NET_SUPPORTED",
     "_NET_ACTIVE_WINDOW",
-    "_NET_WM_NAME"
+    "_NET_WM_NAME",
+    "_NET_WM_PID"
 ];
 
 const SUPPORTED_ATOMS = [
@@ -174,7 +175,8 @@ exports.getWindowProperties = function(id) {
 
     var propertyPromises = {
         "WM_NAME": getProperty(id, X.atoms.WM_NAME),
-        "_NET_WM_NAME": getProperty(id, atoms["_NET_WM_NAME"])
+        "_NET_WM_NAME": getProperty(id, atoms["_NET_WM_NAME"]),
+        "_NET_WM_PID": getProperty(id, atoms["_NET_WM_PID"], X.atoms.CARDINAL)
     };
 
     return waitForTurn().then(function() {
@@ -187,6 +189,7 @@ exports.getWindowProperties = function(id) {
         });
 
         properties.title = propertyResults["_NET_WM_NAME"] || propertyResults["WM_NAME"] || null;
+        properties.pid = propertyResults["_NET_WM_PID"].readUInt32LE(0) || null;
 
         return Promise.resolve(properties);
     }).then(releaseTurn).catch(releaseTurnAnyway);

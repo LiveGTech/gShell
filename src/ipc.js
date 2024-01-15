@@ -48,6 +48,10 @@ ipcMain.handle("system_isInstallationMedia", function(event, data) {
     return system.isInstallationMedia();
 });
 
+ipcMain.handle("system_getProcessInfo", function(event, data) {
+    return system.getProcessInfo(data.pid);
+});
+
 ipcMain.handle("system_copyFiles", function(event, data) {
     return system.copyFiles(data.source, data.destination, data.privileged, data.exclude);
 });

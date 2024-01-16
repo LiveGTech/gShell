@@ -20,6 +20,7 @@
         "bcryptjs": "^2.4.3",
         "electron-dl": "^3.5.0",
         "electron-fetch": "^1.9.1",
+        "glob": "^10.3.10",
         "minimist": "^1.2.7",
         "mkdirp": "^0.5.6",
         "node-pty": "^1.0.0",

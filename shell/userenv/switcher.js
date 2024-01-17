@@ -1309,12 +1309,26 @@ export function goHome() {
     return $g.sel("#home").screenFade();
 }
 
-export function showOverlay(element, animated = true) {
+export function showOverlay(element, animated = !aui_a11y.prefersReducedMotion()) {
     bringWindowForward(element);
 
-    return animated ? element.fadeIn(250) : Promise.resolve();
+    if (animated) {
+        return element.fadeIn(250);
+    }
+
+    element.setStyle("opacity", "1");
+    element.show();
+
+    return Promise.resolve();
 }
 
-export function hideOverlay(element, animated = true) {
-    return animated ? element.fadeOut(250) : Promise.resolve();
+export function hideOverlay(element, animated = !aui_a11y.prefersReducedMotion()) {
+    if (animated) {
+        return element.fadeOut(250);
+    }
+
+    element.setStyle("opacity", "0");
+    element.hide();
+
+    return Promise.resolve();
 }

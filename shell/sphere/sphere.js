@@ -171,7 +171,7 @@ export class Browser {
                 },
                 url,
                 icon: thisScope.lastIcon
-            });
+            }, ["url"]);
         });
     }
 

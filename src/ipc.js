@@ -16,6 +16,7 @@ var storage = require("./storage");
 var device = require("./device");
 var config = require("./config");
 var term = require("./term");
+var linux = require("./linux");
 var xorg = require("./xorg");
 
 var ipcMain = electron.ipcMain;
@@ -395,6 +396,10 @@ ipcMain.handle("term_write", function(event, data) {
 
 ipcMain.handle("term_setSize", function(event, data) {
     return term.setSize(data.id, data.columns, data.rows);
+});
+
+ipcMain.handle("linux_getAppInfo", function(event, data) {
+    return linux.getAppInfo(data.processName);
 });
 
 ipcMain.handle("xorg_getWindowProperties", function(event, data) {

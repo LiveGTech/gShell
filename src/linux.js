@@ -9,16 +9,21 @@
 
 const fs = require("fs");
 const glob = require("glob");
+const mime = require("mime-types");
 
 var flags = require("./flags");
 
-exports.getNamedAppIcon = function(iconName) {
+exports.getNamedAppIconPath = function(iconName) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve(null);
     }
 
     if (typeof(iconName) != "string" || iconName.trim() == "") {
         return Promise.resolve(null);
+    }
+
+    if (iconName.startsWith("/")) {
+        return Promise.resolve(iconName);
     }
 
     var promiseChain = Promise.resolve();
@@ -29,7 +34,7 @@ exports.getNamedAppIcon = function(iconName) {
     ];
 
     var bestImagePath = null;
-    var bestImageWidth = null;
+    var bestImageSize = null;
 
     pathsToCheck.forEach(function(path) {
         var indexContainingWidth = path.split("/").indexOf("*");
@@ -39,30 +44,27 @@ exports.getNamedAppIcon = function(iconName) {
         }).then(function(results) {
             results.forEach(function(resultPath) {
                 if (indexContainingWidth < 0) {
-                    if (bestImageWidth == null) {
+                    if (bestImageSize == null) {
                         bestImagePath = resultPath;
                     }
 
                     return;
                 }
 
-                var resolutionParts = resultPath.split("/")[indexContainingWidth].split("x");
-                var width = parseInt(resolutionParts[0]);
+                var resolutionMatch = resultPath.split("/")[indexContainingWidth].match(/^(\d+)x(\d+)$/);
 
-                if (resolutionParts.length != 3 || Number.isNaN(width)) {
-                    if (bestImageWidth == null) {
-                        bestImagePath = resultPath;
-                    }
-
+                if (!resolutionMatch) {
                     return;
                 }
 
-                if (bestImageWidth > width) {
+                var sizeValue = parseInt(resolutionMatch[1]) * parseInt(resolutionMatch[2]);
+
+                if (bestImageSize > sizeValue) {
                     return;
                 }
 
                 bestImagePath = resultPath;
-                bestImageWidth = width;
+                bestImageSize = sizeValue;
             });
         });
     });
@@ -73,7 +75,20 @@ exports.getNamedAppIcon = function(iconName) {
     });
 };
 
-exports.getAppInfo = function(processName, localeCode = null) {
+exports.getNamedAppIcon = function(iconName) {
+    return exports.getNamedAppIconPath(iconName).then(function(path) {
+        if (path == null || !path.endsWith(".png")) {
+            return Promise.resolve(null);
+        }
+
+        return Promise.resolve({
+            mimeType: mime.lookup(path),
+            data: fs.readFileSync(path)
+        });
+    });
+}
+
+exports.getAppInfo = function(processName) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve(null);
     }
@@ -122,10 +137,22 @@ exports.getAppInfo = function(processName, localeCode = null) {
         properties[parts[0]] = parts.slice(1).join("=");
     });
 
+    var localisedNames = {};
+
+    Object.keys(properties).forEach(function(key) {
+        var match = key.match(/^Name\[(.*)\]$/);
+
+        if (!match) {
+            return;
+        }
+
+        localisedNames[match[1]] = properties[key];
+    });
+
     return exports.getNamedAppIcon(properties["Icon"]).then(function(icon) {
         return Promise.resolve({
             name: properties["Name"] || null,
-            localisedName: localeCode != null ? properties[`Name[${localeCode}]`] || properties[`Name[${localeCode.split("_")[0]}]`] : null,
+            localisedNames,
             desktopEntryPath,
             command: properties["Exec"],
             icon

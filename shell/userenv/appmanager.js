@@ -45,7 +45,7 @@ function findBestIcon(icons) {
 
                 var sizeValue = parseInt(match[1]) * parseInt(match[2]);
 
-                if(sizeValue > biggestSize) {
+                if (sizeValue > biggestSize) {
                     biggestSize = sizeValue;
                 }
             });
@@ -122,9 +122,16 @@ export class ManifestData {
     }
 }
 
-export function install(appDetails) {
+export function install(appDetails, updateSameUsingProperties = [], updateOnly = false) {
     var user;
     var resource = null;
+    var updated = false;
+
+    // Reverse `updateSameUsingProperties` so that higher-priority properties are applied last
+
+    updateSameUsingProperties = [...updateSameUsingProperties];
+
+    updateSameUsingProperties.reverse();
 
     return users.ensureCurrentUser().then(function(userData) {
         user = userData;
@@ -166,11 +173,25 @@ export function install(appDetails) {
 
             var appId = $g.core.generateKey();
 
-            data.apps[appId] = appDetails;
+            if (updateSameUsingProperties.length > 0) {
+                updateSameUsingProperties.reverse().forEach(function(property) {
+                    Object.keys(data.apps).forEach(function(otherAppId) {
+                        var otherAppDetails = data.apps[otherAppId];
 
-            if (resource != null) {
-                data.apps[appId].icon
+                        if (otherAppDetails[property] == appDetails[property]) {
+                            appId = otherAppId;
+                            updated = true;
+                        }
+                    });
+                });
             }
+
+            if (updateOnly && !updated) {
+                // Don't do anything as we don't want a new entry
+                return Promise.resolve(data);
+            }
+
+            data.apps[appId] = appDetails;
 
             // TODO: Add notification telling user app has been added
 
@@ -178,6 +199,8 @@ export function install(appDetails) {
         });
     }).then(function() {
         return home.load();
+    }).then(function() {
+        return Promise.resolve(updated);
     });
 }
 
@@ -208,5 +231,5 @@ export function installFromManifestData(manifestData) {
                 icon: shortcut.icon
             };
         })
-    });
+    }, ["scope", "url"]);
 }

@@ -202,7 +202,7 @@ export function init() {
 export function load() {
     return users.getCurrentUser().then(function(user) {
         if (user == null) {
-            return; // No user signed in right now
+            return Promise.resolve(); // No user signed in right now
         }
 
         var defaultConfigData;
@@ -292,6 +292,8 @@ export function load() {
             scrollers.forEach(function(scroller, i) {
                 scroller.applyPagination($g.sel($g.sel(".home_pagination").getAll()[i]));
             });
+
+            return Promise.resolve();
         });
     });
 }

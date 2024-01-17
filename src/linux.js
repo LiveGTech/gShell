@@ -155,7 +155,8 @@ exports.getAppInfo = function(processName) {
             localisedNames,
             desktopEntryPath,
             command: properties["Exec"],
-            icon
+            icon,
+            requiresTerminal: properties["Terminal"] == "true"
         });
     });
 };

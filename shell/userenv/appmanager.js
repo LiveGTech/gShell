@@ -128,10 +128,7 @@ export function install(appDetails, updateSameUsingProperties = [], updateOnly =
     var updated = false;
 
     // Reverse `updateSameUsingProperties` so that higher-priority properties are applied last
-
-    updateSameUsingProperties = [...updateSameUsingProperties];
-
-    updateSameUsingProperties.reverse();
+    updateSameUsingProperties = [...updateSameUsingProperties].reverse();
 
     return users.ensureCurrentUser().then(function(userData) {
         user = userData;

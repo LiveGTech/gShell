@@ -122,7 +122,5 @@ electron.app.on("ready", function() {
         });
 
         exports.window.loadFile("shell/index.html");
-
-        require("./linux").getAppInfo("im-config", "en_GB").then(console.log); // TODO: Remove
     });
 });

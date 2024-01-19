@@ -474,8 +474,6 @@ export function connectSummary(summary) {
             summary.setText(_("network_summaryConnectedWifi", {name: wifiScanConnectedResults[0].name}));
         } else if (ethernetConnections.length > 0) {
             summary.setText(_("network_summaryConnectedEthernet"));
-        } else if (genericConnections.length > 0) {
-            summary.setText(_("network_summaryConnected"));
         } else {
             summary.setText(_("network_summaryDisconnected"));
         }

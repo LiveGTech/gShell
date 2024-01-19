@@ -34,7 +34,6 @@
         "network": "Réseau",
 
         "network_summary": "Wi-Fi, Ethernet",
-        "network_summaryConnected": "Connecté",
         "network_summaryConnectedWifi": "Connecté à {name}",
         "network_summaryConnectedEthernet": "Connecté via Ethernet",
         "network_summaryDisconnected": "Déconnecté",

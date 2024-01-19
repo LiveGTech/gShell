@@ -504,7 +504,8 @@ exports.networkList = function() {
                 qualifiedName: data[0],
                 type: {
                     "802-11-wireless": "wifi",
-                    "802-3-ethernet": "ethernet"
+                    "802-3-ethernet": "ethernet",
+                    "loopback": "loopback"
                 }[data[1]] || "unknown",
                 connected: data[2] == "yes"
             };

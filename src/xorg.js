@@ -73,9 +73,13 @@ function trackWindow(windowId, isOverlay = false) {
 
     main.window.webContents.send("xorg_trackWindow", {id: trackedWindows.length - 1, isOverlay});
 
-    var configureRequestIndex = configureRequestQueue.findIndex((event) => event.wid == windowId);
+    while (true) {
+        var configureRequestIndex = configureRequestQueue.findIndex((event) => event.wid == windowId);
+    
+        if (configureRequestIndex < 0) {
+            break;
+        }
 
-    if (configureRequestIndex >= 0) {
         var event = configureRequestQueue[configureRequestIndex];
 
         main.window.webContents.send("xorg_moveWindow", {id: trackedWindows.length - 1, x: event.x, y: event.y});
@@ -189,7 +193,7 @@ exports.getWindowProperties = function(id) {
         });
 
         properties.title = propertyResults["_NET_WM_NAME"] || propertyResults["WM_NAME"] || null;
-        properties.pid = propertyResults["_NET_WM_PID"].readUInt32LE(0) || null;
+        properties.pid = propertyResults["_NET_WM_PID"]?.readUInt32LE(0) ?? null;
 
         return Promise.resolve(properties);
     }).then(releaseTurn).catch(releaseTurnAnyway);

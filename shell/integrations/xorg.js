@@ -102,9 +102,14 @@ function checkWindowProperties(trackedWindow) {
             checkWindowProperties(trackedWindow);
         });
 
-        return gShell.call("system_getProcessInfo", {pid: data.pid});
-    }).then(function(data) {
-        // TODO: Look up relevant .desktop file to obtain suitable name and icon
+        if (data.pid == null) {
+            // `_NET_WM_PID` not set yet
+            return Promise.resolve();
+        }
+
+        return gShell.call("system_getProcessInfo", {pid: data.pid}).then(function(data) {
+            // TODO: Look up relevant .desktop file to obtain suitable name and icon
+        });
     });
 }
 
@@ -427,6 +432,14 @@ export function init() {
 
         if (trackedWindow.isOverlay) {
             trackedWindow.overlayElement.removeClass("unpainted");
+        }
+
+        if (data.image.width != trackedWindow.width || data.image.height != trackedWindow.height) {
+            gShell.call("xorg_resizeWindow", {
+                id: data.id,
+                width: trackedWindow.width,
+                height: trackedWindow.height
+            });
         }
     });
 }

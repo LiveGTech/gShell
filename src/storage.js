@@ -14,7 +14,8 @@ const mkdirp = require("mkdirp");
 
 var flags = require("./flags");
 
-exports.storageFilesystemLocation = flags.isRealHardware ? "/system/storage" : path.normalize(`${electron.app.getPath("home")}/gShell/storage`);
+exports.systemDirectory = flags.isRealHardware ? "/system" : path.normalize(`${electron.app.getPath("home")}/gShell`);
+exports.storageFilesystemLocation = path.normalize(`${exports.systemDirectory}/storage`);
 
 exports.getPath = function(location) {
     var absolutePath = path.normalize(`${exports.storageFilesystemLocation}/${location}`);

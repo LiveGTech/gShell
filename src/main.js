@@ -21,6 +21,7 @@ var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
+var control = require("./control");
 var xorg = require("./xorg");
 var ipc = require("./ipc");
 
@@ -67,6 +68,8 @@ electron.app.on("ready", function() {
 
     storage.init().then(function() {
         return device.init(flags.deviceDescriptionLocation || undefined);
+    }).then(function() {
+        return control.init();
     }).then(function() {
         return system.setupLinuxAppIntegration();
     }).then(function() {

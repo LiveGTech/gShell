@@ -10,6 +10,7 @@
 const path = require("path");
 const fs = require("fs");
 
+var main = require("./main");
 var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
@@ -108,6 +109,8 @@ exports.init = function() {
         return system.executeCommand("mkdir", ["-p", exports.controlFilesystemLocation]);
     }).then(function() {
         return system.executeCommand("sudo", ["mount", "-o", "size=16M", "-t", "tmpfs", "none", exports.controlFilesystemLocation]);
+    }).then(function() {
+        return system.executeCommand("sudo", ["chmod", "755", `${main.rootDirectory}/src/bin/gosctl`]);
     }).then(function() {
         return Promise.all(exports.PROPERTIES.map(function(property) {
             return property.init();

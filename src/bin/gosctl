@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function error {
+    >&2 echo $1
+    exit 1
+}
+
+if [ "$1" == "" ] || [ "$1" == "--help" ] || [ "$1" = "-h" ]; then
+    # TODO: Add more to help
+    cat << EOF
+Usage: gosctl PROPERTY [VALUE]
+
+Read and write properties to control LiveG OS and gShell.
+
+Exit status:
+    0   if OK or result is true; or
+    1   if an error occurs.
+
+Source code and bug reporting facilities available at:
+<https://github.com/LiveGTech/gShell>
+EOF
+    exit
+fi
+
+if [ "$GOS_CONTROL" == "" ]; then
+    error "Environment variable \$GOS_CONTROL is not set"
+fi
+
+property=$1
+propertyPath=$GOS_CONTROL/$property
+
+if ! [ -f $propertyPath ]; then
+    error "Property \`$property\` does not exist"
+fi
+
+if [ "$2" != "" ]; then
+    printf "${*:2}" > $propertyPath
+    exit
+fi
+
+cat $propertyPath
+echo

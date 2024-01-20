@@ -97,13 +97,7 @@ export function getTerminalByKey(key) {
 }
 
 export function createForPrivilegedInterface(metadata, file, args, options) {
-    var rootDirectory;
-
-    return gShell.call("system_getRootDirectory").then(function(result) {
-        rootDirectory = result;
-
-        return gShell.call("system_getFlags");
-    }).then(function(flags) {
+    return gShell.call("system_getFlags").then(function(flags) {
         if (metadata.user != null) {
             options.env ||= {};
 
@@ -114,7 +108,6 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
             options.env["XDG_SESSION_DESKTOP"] ||= "gshell";
             options.env["XDG_CURRENT_DESKTOP"] ||= "gShell";
             options.env["GDK_CORE_DEVICE_EVENTS"] ||= "1";
-            options.env["LD_PRELOAD"] ||= `${rootDirectory}/src/clib/libgslai.so`;
 
             if (flags.isRealHardware) {
                 options.env["XAUTHORITY"] ||= `/home/${metadata.user.linuxUsername}/.Xauthority`;

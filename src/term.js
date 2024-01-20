@@ -12,6 +12,7 @@ const pty = require("node-pty");
 var main = require("./main");
 var flags = require("./flags");
 var storage = require("./storage");
+var control = require("./control");
 
 const DATA_READ_BATCH_THRESHOLD = 10;
 const DATA_READ_WINDOW = 1_000 / 24; // 24 FPS
@@ -21,6 +22,10 @@ exports.allProcesses = [];
 exports.spawn = function(file = "bash", readCallback = function(data) {}, exitCallback = function(exitCode, signal) {}, args = [], options = {}) {
     options.cwd ||= storage.storageFilesystemLocation;
     options.env = {...process.env, ...(options.env || {})};
+
+    options.env["PATH"] = `${main.rootDirectory}/src/bin` + (options.env["PATH"] ? ":" + options.env["PATH"] : "");
+    options.env["LD_PRELOAD"] ||= `${main.rootDirectory}/src/clib/libgslai.so`;
+    options.env["GOS_CONTROL"] ||= control.controlFilesystemLocation;
 
     if (!flags.isRealHardware && !flags.allowHostControl) {
         exports.allProcesses.push({readCallback, exitCallback});

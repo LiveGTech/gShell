@@ -17,6 +17,7 @@ var device = require("./device");
 var config = require("./config");
 var term = require("./term");
 var linux = require("./linux");
+var control = require("./control");
 var xorg = require("./xorg");
 
 var ipcMain = electron.ipcMain;
@@ -400,6 +401,10 @@ ipcMain.handle("term_setSize", function(event, data) {
 
 ipcMain.handle("linux_getAppInfo", function(event, data) {
     return linux.getAppInfo(data.processName);
+});
+
+ipcMain.handle("linux_getControlFilesystemLocation", function(event, data) {
+    return Promise.resolve(control.controlFilesystemLocation);
 });
 
 ipcMain.handle("xorg_getWindowProperties", function(event, data) {

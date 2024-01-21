@@ -155,6 +155,10 @@ exports.getAppInfo = function(processName) {
 };
 
 exports.init = function() {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve();
+    }
+
     return Promise.all(
         [
             `${main.rootDirectory}/src/bin/gosctl`,

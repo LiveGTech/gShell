@@ -160,9 +160,16 @@ exports.init = function() {
     }
 
     return Promise.all(
-        [
-            `${main.rootDirectory}/src/bin/gosctl`,
-            `${main.rootDirectory}/src/bin/sphere`
-        ].map((file) => system.executeCommand("sudo", ["chmod", "755", file]))
+        ["gosctl", "sphere"].map(function(file) {
+            var path = `${main.rootDirectory}/src/bin/${file}`;
+
+            return system.executeCommand("sudo", ["chmod", "755", path]).then(function() {
+                if (!flags.isRealHardware) {
+                    return Promise.resolve();
+                }
+
+                return system.executeCommand("sudo", ["cp", path, `/usr/bin/${file}`]);
+            });
+        })
     );
 };

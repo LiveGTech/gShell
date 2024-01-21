@@ -29,6 +29,7 @@
         "info_batteryIcon_unknown": "Battery - unknown",
 
         "powerMenu_lock": "Lock",
+        "powerMenu_sleep": "Sleep",
         "powerMenu_shutDown": "Shut down",
         "powerMenu_restart": "Restart",
 

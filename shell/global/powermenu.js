@@ -79,6 +79,10 @@ export function init() {
         $g.sel("#lockScreenMain").screenFade();
     });
 
+    $g.sel(".powerMenu_sleep").on("click", function() {
+        sleep.enter();
+    });
+
     $g.sel(".powerMenu_shutDown").on("click", function() {
         system.shutDown();
     });

@@ -29,6 +29,7 @@
         "info_batteryIcon_unknown": "Batterie - inconnue",
 
         "powerMenu_lock": "Verrouiller",
+        "powerMenu_sleep": "Dormir",
         "powerMenu_shutDown": "Arrêter",
         "powerMenu_restart": "Redémarrer",
 

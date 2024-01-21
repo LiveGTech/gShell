@@ -11,7 +11,9 @@ const fs = require("fs");
 const glob = require("glob");
 const mime = require("mime-types");
 
+var main = require("./main");
 var flags = require("./flags");
+var system = require("./system");
 
 exports.getNamedAppIconPath = function(iconName) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
@@ -26,8 +28,6 @@ exports.getNamedAppIconPath = function(iconName) {
         return Promise.resolve(iconName);
     }
 
-    var promiseChain = Promise.resolve();
-
     var pathsToCheck = [
         `/usr/share/icons/hicolor/*/apps/${iconName}.png`,
         `/usr/local/share/icons/hicolor/*/apps/${iconName}.png`
@@ -39,40 +39,33 @@ exports.getNamedAppIconPath = function(iconName) {
     pathsToCheck.forEach(function(path) {
         var indexContainingWidth = path.split("/").indexOf("*");
 
-        promiseChain = promiseChain.then(function() {
-            return glob.glob(path);
-        }).then(function(results) {
-            results.forEach(function(resultPath) {
-                if (indexContainingWidth < 0) {
-                    if (bestImageSize == null) {
-                        bestImagePath = resultPath;
-                    }
-
-                    return;
+        glob.sync(path).forEach(function(resultPath) {
+            if (indexContainingWidth < 0) {
+                if (bestImageSize == null) {
+                    bestImagePath = resultPath;
                 }
 
-                var resolutionMatch = resultPath.split("/")[indexContainingWidth].match(/^(\d+)x(\d+)$/);
+                return;
+            }
 
-                if (!resolutionMatch) {
-                    return;
-                }
+            var resolutionMatch = resultPath.split("/")[indexContainingWidth].match(/^(\d+)x(\d+)$/);
 
-                var sizeValue = parseInt(resolutionMatch[1]) * parseInt(resolutionMatch[2]);
+            if (!resolutionMatch) {
+                return;
+            }
 
-                if (bestImageSize > sizeValue) {
-                    return;
-                }
+            var sizeValue = parseInt(resolutionMatch[1]) * parseInt(resolutionMatch[2]);
 
-                bestImagePath = resultPath;
-                bestImageSize = sizeValue;
-            });
+            if (bestImageSize > sizeValue) {
+                return;
+            }
+
+            bestImagePath = resultPath;
+            bestImageSize = sizeValue;
         });
     });
 
-    return promiseChain.then(function() {
-        // TODO: Maybe return as some sort of image data
-        return Promise.resolve(bestImagePath);
-    });
+    return Promise.resolve(bestImagePath);
 };
 
 exports.getNamedAppIcon = function(iconName) {
@@ -159,4 +152,13 @@ exports.getAppInfo = function(processName) {
             requiresTerminal: properties["Terminal"] == "true"
         });
     });
+};
+
+exports.init = function() {
+    return Promise.all(
+        [
+            `${main.rootDirectory}/src/bin/gosctl`,
+            `${main.rootDirectory}/src/bin/sphere`
+        ].map((file) => system.executeCommand("sudo", ["chmod", "755", file]))
+    );
 };

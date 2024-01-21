@@ -16,3 +16,11 @@ export function addAppToList(processName) {
         // TODO: Add via app manager
     });
 }
+
+export function init() {
+    gShell.on("control_propertyChange", function(event, data) {
+        if (data.name == "actions/addApp") {
+            addAppToList(data.value.trim());
+        }
+    });
+}

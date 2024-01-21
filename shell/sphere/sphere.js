@@ -307,20 +307,6 @@ export class Browser {
     }
 }
 
-export function init() {
-    webviewComms.onEvent("click", function(event) {
-        if (!event.isTrusted) {
-            return;
-        }
-
-        if ($g.sel(document.activeElement).is(".sphere_addressInput")) {
-            $g.sel("body").focus();
-
-            input.hide(true);
-        }
-    });
-}
-
 export function openBrowser(startUrl = undefined, tryOpeningInNewTab = false) {
     var browser = new Browser(startUrl);
 
@@ -355,5 +341,25 @@ export function openBrowser(startUrl = undefined, tryOpeningInNewTab = false) {
     return switcher.openWindow(browser.render(), details, function(screenElement, appElement) {
         browser.screenElement = screenElement;
         browser.appElement = appElement;
+    });
+}
+
+export function init() {
+    webviewComms.onEvent("click", function(event) {
+        if (!event.isTrusted) {
+            return;
+        }
+
+        if ($g.sel(document.activeElement).is(".sphere_addressInput")) {
+            $g.sel("body").focus();
+
+            input.hide(true);
+        }
+    });
+
+    gShell.on("control_propertyChange", function(event, data) {
+        if (data.name == "actions/openInSphere") {
+            openBrowser(data.value.trim(), true);
+        }
     });
 }

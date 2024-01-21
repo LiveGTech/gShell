@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gosctl open-in-sphere $1

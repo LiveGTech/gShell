@@ -30,7 +30,11 @@ exports.Property = class {
     }
 
     get path() {
-        return path.join(exports.controlFilesystemLocation, this.name);
+        return path.join(exports.controlFilesystemLocation, ...this.name.split("/"));
+    }
+
+    get parentPath() {
+        return path.join(...[exports.controlFilesystemLocation, ...this.name.split("/")].slice(0, -1));
     }
 
     init() {
@@ -72,15 +76,19 @@ exports.Property = class {
     }
 
     setValue(value) {
+        var thisScope = this;
+
         this._value = value;
 
         if (!flags.isRealHardware && !flags.allowHostControl) {
             return Promise.resolve();
         }
 
-        fs.writeFileSync(this.path, value);
+        return system.executeCommand("mkdir", ["-p", this.parentPath]).then(function() {
+            fs.writeFileSync(thisScope.path, value);
 
-        return Promise.resolve();
+            return Promise.resolve();
+        });
     }
 
     onChange(callback) {
@@ -89,14 +97,13 @@ exports.Property = class {
 };
 
 exports.PROPERTIES = [
-    new exports.Property("hello", "test", true)
+    new exports.Property("actions/openInSphere", "", true),
+    new exports.Property("actions/addApp", "", true)
 ];
-
-exports.PROPERTIES[0].onChange(console.log); // TODO: This is just a test; remove
 
 exports.getProperty = function(propertyName) {
     return exports.PROPERTIES.find((property) => property.name == propertyName);
-}
+};
 
 exports.init = function() {
     if (!flags.isRealHardware && !flags.allowHostControl) {
@@ -110,10 +117,19 @@ exports.init = function() {
     }).then(function() {
         return system.executeCommand("sudo", ["mount", "-o", "size=16M", "-t", "tmpfs", "none", exports.controlFilesystemLocation]);
     }).then(function() {
-        return system.executeCommand("sudo", ["chmod", "755", `${main.rootDirectory}/src/bin/gosctl`]);
-    }).then(function() {
         return Promise.all(exports.PROPERTIES.map(function(property) {
             return property.init();
         }));
+    }).then(function() {
+        exports.PROPERTIES.forEach(function(property) {
+            property.onChange(function(value) {
+                main.window.webContents.send("control_propertyChange", {
+                    name: property.name,
+                    value
+                });
+            });
+        });
+
+        return Promise.resolve();
     });
 };

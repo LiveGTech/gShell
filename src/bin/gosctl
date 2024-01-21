@@ -5,38 +5,56 @@ function error {
     exit 1
 }
 
-if [ "$1" == "" ] || [ "$1" == "--help" ] || [ "$1" = "-h" ]; then
-    # TODO: Add more to help
-    cat << EOF
-Usage: gosctl PROPERTY [VALUE]
-
-Read and write properties to control LiveG OS and gShell.
-
-Exit status:
-    0   if OK or result is true; or
-    1   if an error occurs.
-
-Source code and bug reporting facilities available at:
-<https://github.com/LiveGTech/gShell>
-EOF
-    exit
-fi
-
 if [ "$GOS_CONTROL" == "" ]; then
     error "Environment variable \$GOS_CONTROL is not set"
 fi
 
-property=$1
-propertyPath=$GOS_CONTROL/$property
+case $1 in
+    ""|--help|-h)
+        cat << EOF
+Usage: gosctl <command> [<args>]
 
-if ! [ -f $propertyPath ]; then
-    error "Property \`$property\` does not exist"
-fi
+Read and write properties to control LiveG OS and gShell.
 
-if [ "$2" != "" ]; then
-    printf "${*:2}" > $propertyPath
-    exit
-fi
+Commands:
+    open-in-sphere <url>    Open the page at <url> in Sphere.
+    add-app <name>          Add a Linux app called <name> to the app menu/home
+                            screen.
 
-cat $propertyPath
-echo
+Exit status:
+    0   if OK or result is true; or
+    1   if an error occurs or if the result is false.
+
+Source code and bug reporting facilities available at:
+<https://github.com/LiveGTech/gShell>
+EOF
+
+        ;;
+
+    open-in-sphere)
+        if [ -z "$2" ]; then
+            error "URL to open not specified"
+        fi
+
+        echo -n "$2" > $GOS_CONTROL/actions/openInSphere
+        sync
+
+        echo "Opened \`$2\` in Sphere"
+
+        ;;
+
+    add-app)
+        if [ -z "$2" ]; then
+            error "App to add not specified"
+        fi
+
+        echo -n "$2" > $GOS_CONTROL/actions/addApp
+        sync
+
+        echo "Added \`$2\`"
+
+        ;;
+
+    *)
+        error "Unknown command \`$1\`"
+esac

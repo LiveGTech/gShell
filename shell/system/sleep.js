@@ -11,10 +11,14 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as powerMenu from "gshell://global/powermenu.js";
 
-const ENTER_SLEEP_TIME = 4_000;
+const ENTER_SLEEP_TIME = 4_000; // 4 seconds
+const WAKE_DETECT_MIN_DURATION = 100; // 100 milliseconds
 
 export var sleeping = false;
 export var lastSleepTime = null;
+export var wakeCallbacks = [];
+
+var lastSleepCheckTime = null;
 
 export function enter() {
     lastSleepTime = new Date().getTime();
@@ -40,12 +44,33 @@ export function toggle() {
     }
 
     if (sleeping) {
-        sleeping = false;
-
-        $g.sel("#off").fadeOut();
-
+        // Should be handled by wake detector
         return;
     } else {
         enter();
     }
+}
+
+export function onWake(callback) {
+    wakeCallbacks.push(callback);
+}
+
+export function init() {
+    setInterval(function() {
+        if (
+            sleeping &&
+            lastSleepCheckTime != null &&
+            Date.now() - lastSleepCheckTime >= WAKE_DETECT_MIN_DURATION
+        ) {
+            sleeping = false;
+
+            wakeCallbacks.forEach((callback) => callback());
+        }
+
+        lastSleepCheckTime = Date.now();
+    });
+
+    onWake(function() {
+        $g.sel("#off").fadeOut();
+    });
 }

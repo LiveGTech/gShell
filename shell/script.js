@@ -77,6 +77,7 @@ $g.waitForLoad().then(function() {
     a11y.init();
     info.init();
     powerMenu.init();
+    sleep.init();
     network.init();
     updates.init();
     input.init();

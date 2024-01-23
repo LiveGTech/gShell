@@ -325,15 +325,13 @@ export function start(user) {
             return showLockScreen(authMethod);
         }
 
-        return unlock().then(function() {
-            userStateChangeCallbacks.forEach((callback) => callback(true));
-
-            return Promise.resolve();
-        });
+        return unlock();
     });
 }
 
 export function unlock() {
+    userStateChangeCallbacks.forEach((callback) => callback(true));
+
     if (device.data?.type == "desktop") {
         return $g.sel("#switcherView").screenFade();
     }

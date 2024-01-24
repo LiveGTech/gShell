@@ -40,7 +40,7 @@ exports.Property = class {
     init() {
         var thisScope = this;
 
-        if (!flags.isRealHardware && !flags.allowHostControl) {
+        if (!flags.isRealHardware && !flags.allowAppControl) {
             return Promise.resolve();
         }
 
@@ -68,7 +68,7 @@ exports.Property = class {
     }
 
     getValue(asString = true) {
-        if (!this.settable || (!flags.isRealHardware && !flags.allowHostControl)) {
+        if (!this.settable || (!flags.isRealHardware && !flags.allowAppControl)) {
             return Promise.resolve(this._value);
         }
 
@@ -80,7 +80,7 @@ exports.Property = class {
 
         this._value = value;
 
-        if (!flags.isRealHardware && !flags.allowHostControl) {
+        if (!flags.isRealHardware && !flags.allowAppControl) {
             return Promise.resolve();
         }
 
@@ -106,7 +106,7 @@ exports.getProperty = function(propertyName) {
 };
 
 exports.init = function() {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
+    if (!flags.isRealHardware && !flags.allowAppControl) {
         return Promise.resolve();
     }
 

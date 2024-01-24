@@ -155,7 +155,7 @@ exports.getAppInfo = function(processName) {
 };
 
 exports.init = function() {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
+    if (!flags.isRealHardware && !flags.allowAppControl) {
         return Promise.resolve();
     }
 

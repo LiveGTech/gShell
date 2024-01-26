@@ -11,11 +11,17 @@ import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
 
 export const DEFAULT_PERMISSIONS = {
+    bluetooth: "ask",
+    usb: "ask",
+    serial: "ask",
     term: "ask"
 };
 
 export const PERMISSION_CONTEXTS = {
-    term: {secureContextOnly: false, askInAppOnly: true}
+    bluetooth: {secureContextOnly: true},
+    usb: {secureContextOnly: true},
+    serial: {secureContextOnly: true},
+    term: {secureContextOnly: true, askInAppOnly: true}
 };
 
 export function getGlobalConfig() {

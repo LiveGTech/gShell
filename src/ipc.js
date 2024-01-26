@@ -258,7 +258,19 @@ ipcMain.handle("webview_attach", function(event, data) {
         });
 
         return {action: "deny"};
-    })
+    });
+
+    webContents.session.setPermissionRequestHandler(function(webContents, permission, callback) {
+        console.log("Permission request:", permission, webContents.getURL());
+    });
+
+    webContents.session.setPermissionCheckHandler(function(webContents, permission, origin) {
+        console.log("Permission check:", permission, origin);
+
+        if (permission == "usb") {
+            return true;
+        }
+    });
 
     main.ensureDebuggerAttached(webContents);
 

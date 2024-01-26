@@ -15,6 +15,7 @@ var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
 var config = require("./config");
+var permissions = require("./permissions");
 var term = require("./term");
 var linux = require("./linux");
 var control = require("./control");
@@ -260,17 +261,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         return {action: "deny"};
     });
 
-    webContents.session.setPermissionRequestHandler(function(webContents, permission, callback) {
-        console.log("Permission request:", permission, webContents.getURL());
-    });
-
-    webContents.session.setPermissionCheckHandler(function(webContents, permission, origin) {
-        console.log("Permission check:", permission, origin);
-
-        if (permission == "usb") {
-            return true;
-        }
-    });
+    permissions.attach(webContents);
 
     main.ensureDebuggerAttached(webContents);
 

@@ -10,10 +10,17 @@
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
 
+/*
+    These permissions ask for user input before their main action can be carried
+    out (such as selecting a device to connect to). Therefore, we do not need to
+    ask the user whether to allow the permission in the first place.
+*/
+export const PERMISSIONS_DO_NOT_ASK = ["bluetooth", "usb", "serial"];
+
 export const DEFAULT_PERMISSIONS = {
-    bluetooth: "ask",
-    usb: "ask",
-    serial: "ask",
+    bluetooth: "allow",
+    usb: "allow",
+    serial: "allow",
     term: "ask"
 };
 
@@ -48,7 +55,7 @@ export function getConfigPath(global = false) {
     });
 }
 
-export function getPermissionsForScope(scope) {
+export function getPermissionsForOrigin(origin) {
     var globalConfigData;
 
     return getGlobalConfig().then(function(data) {
@@ -58,14 +65,14 @@ export function getPermissionsForScope(scope) {
     }).then(function(userConfigData) {
         return {
             ...DEFAULT_PERMISSIONS,
-            ...((globalConfigData.scopes || {})[scope] || {}),
-            ...((userConfigData.scopes || {})[scope] || {})
+            ...((globalConfigData.origins || {})[origin] || {}),
+            ...((userConfigData.origins || {})[origin] || {})
         };
     });
 }
 
-export function getPermissionForScopeInContext(scope, permission, context = {}) {
-    return getPermissionsForScope(scope).then(function(permissions) {
+export function getPermissionForOriginInContext(origin, permission, context = {}) {
+    return getPermissionsForOrigin(origin).then(function(permissions) {
         if (permissions[permission] == "deny") {
             return Promise.resolve("deny");
         }
@@ -90,14 +97,22 @@ export function getPermissionForScopeInContext(scope, permission, context = {}) 
     });
 }
 
-export function setPermissionForScope(scope, permission, value, global = false) {
+export function setPermissionForOrigin(origin, permission, value, global = false) {
     return getConfigPath(global).then(function(path) {
         return config.edit(path, function(data) {
-            data.scopes ||= {};
-            data.scopes[scope] ||= {};
-            data.scopes[scope][permission] = value;
+            data.origins ||= {};
+            data.origins[origin] ||= {};
+            data.origins[origin][permission] = value;
 
             return Promise.resolve(data);
         });
+    });
+}
+
+export function init() {
+    gShell.on("permissions_request", function(event, data) {
+        console.log("New permission request:", data);
+
+        // TODO: Implement checks using `getPermissionForOriginInContext`
     });
 }

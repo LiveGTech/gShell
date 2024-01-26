@@ -13,6 +13,7 @@ import * as system from "gshell://system/system.js";
 import * as device from "gshell://system/device.js";
 import * as debug from "gshell://system/debug.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
+import * as permissions from "gshell://config/permissions.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as pointer from "gshell://global/pointer.js";
 import * as tooltips from "gshell://global/tooltips.js";
@@ -71,6 +72,7 @@ $g.waitForLoad().then(function() {
 
     return lockScreen.loadUsers();
 }).then(function() {
+    permissions.init();
     pointer.init();
     tooltips.init();
     select.init();

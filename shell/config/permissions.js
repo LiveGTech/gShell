@@ -36,7 +36,7 @@ export const PERMISSION_CONTEXTS = {
     term: {secureContextOnly: true, askInAppOnly: true}
 };
 
-var webviewsWithDeviceSelectionRequestsPending = new Set();
+var pendingUsbSelectionRequests = {};
 var selectUsbDeviceWebview = null;
 var selectUsbDeviceFilters = null;
 
@@ -204,7 +204,7 @@ export function init() {
             return;
         }
 
-        if (webviewsWithDeviceSelectionRequestsPending.has(webview)) {
+        if (pendingUsbSelectionRequests[data.webContentsId]) {
             gShell.call("permissions_respondToUsbSelectionRequest", {
                 requestId: data.requestId,
                 selectedDeviceId: null
@@ -221,8 +221,6 @@ export function init() {
             selectUsbDeviceWebview = null;
             selectUsbDeviceFilters = null;
         }
-
-        webviewsWithDeviceSelectionRequestsPending.add(webview);
 
         var urlInfo = new URL(webview.get().getURL());
 
@@ -257,7 +255,7 @@ export function init() {
         }
 
         function closeOverlay() {
-            webviewsWithDeviceSelectionRequestsPending.delete(webview);
+            delete pendingUsbSelectionRequests[data.webContentsId];
 
             overlay.removeClass("getBlurEvents");
 
@@ -325,6 +323,7 @@ export function init() {
                                 .setAttribute("type", "radio")
                                 .setAttribute("name", radioInputGroup)
                                 .setAttribute("value", device.deviceId)
+                                .condition(device.deviceId == selectedDeviceId, (element) => element.addAttribute("checked"))
                                 .on("change", function() {
                                     checkSelectedDevice();
                                 })
@@ -345,6 +344,19 @@ export function init() {
 
             checkSelectedDevice();
         }
+
+        pendingUsbSelectionRequests[data.webContentsId] = {
+            addUsbDevice: function(device) {
+                data.devices.push(device);
+
+                updateDeviceList();
+            },
+            removeUsbDevice: function(device) {
+                data.devices = data.devices.filter((existingDevice) => existingDevice.deviceId == device.deviceId);
+
+                updateDeviceList();
+            }
+        };
 
         confirmButton.on("click", function() {
             gShell.call("permissions_respondToUsbSelectionRequest", {
@@ -381,5 +393,13 @@ export function init() {
         updateDeviceList();
 
         switcher.showOverlay(overlay);
+    });
+
+    gShell.on("permissions_addUsbDevice", function(event, data) {
+        pendingUsbSelectionRequests[data.webContentsId]?.addUsbDevice(data.device);
+    });
+
+    gShell.on("permissions_removeUsbDevice", function(event, data) {
+        pendingUsbSelectionRequests[data.webContentsId]?.removeUsbDevice(data.device);
     });
 }

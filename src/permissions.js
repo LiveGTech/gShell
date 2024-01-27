@@ -59,6 +59,14 @@ exports.attach = function(webContents) {
 
         pendingUsbSelectionRequests.push(callback);
     });
+
+    webContents.session.on("usb-device-added", function(event, device) {
+        main.window.webContents.send("permissions_addUsbDevice", {webContentsId: webContents.id, device});
+    });
+
+    webContents.session.on("usb-device-removed", function(event, device) {
+        main.window.webContents.send("permissions_removeUsbDevice", {webContentsId: webContents.id, device});
+    });
 };
 
 function callOnRequestQueue(requestQueue, requestId, response) {

@@ -374,6 +374,10 @@ ipcMain.handle("permissions_respondToRequest", function(event, data) {
     return permissions.respondToRequest(data.requestId, data.permission, data.origin, data.granted);
 });
 
+ipcMain.handle("permissions_respondToUsbSelectionRequest", function(event, data) {
+    return permissions.respondToUsbSelectionRequest(data.requestId, data.selectedDeviceId);
+});
+
 ipcMain.handle("term_spawn", function(event, data) {
     var id = null;
 

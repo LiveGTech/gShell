@@ -10,17 +10,19 @@
 var main = require("./main");
 
 var pendingRequests = [];
+var pendingUsbSelectionRequests = [];
 
 var allowedPermissions = {}; // TODO: Ensure that this is cleared on user sign-out and permission settings changes
+var allowedDeviceIds = {};
 
 exports.attach = function(webContents) {
     webContents.session.setPermissionRequestHandler(function(webContents, permission, callback) {
         var requestId = pendingRequests.length;
 
         main.window.webContents.send("permissions_request", {
+            requestId,
             webContentsId: webContents.id,
-            permission,
-            requestId
+            permission
         });
 
         pendingRequests.push(callback);
@@ -36,30 +38,58 @@ exports.attach = function(webContents) {
         return !!allowedPermissions[origin]?.[permission];
     });
 
+    webContents.session.setDevicePermissionHandler(function(details) {
+        return !!allowedDeviceIds[details.device.deviceId];
+    });
+
+    webContents.session.setUSBProtectedClassesHandler(function(details) {
+        return [];
+    });
+
     webContents.session.on("select-usb-device", function(event, details, callback) {
         event.preventDefault();
 
-        console.log(details);
+        var requestId = pendingUsbSelectionRequests.length;
+
+        main.window.webContents.send("permissions_usbSelectionRequest", {
+            requestId,
+            webContentsId: webContents.id,
+            devices: details.deviceList
+        });
+
+        pendingUsbSelectionRequests.push(callback);
     });
 };
 
-exports.respondToRequest = function(requestId, permission, origin, granted) {
-    if (requestId >= pendingRequests.length) {
+function callOnRequestQueue(requestQueue, requestId, response) {
+    if (requestId >= requestQueue.length) {
         return Promise.reject("ID does not exist");
     }
 
-    if (pendingRequests[requestId] == null) {
+    if (requestQueue[requestId] == null) {
         return Promise.reject("Request has already received a response");
     }
 
+    requestQueue[requestId](response);
+
+    requestQueue[requestId] = null;
+
+    return Promise.resolve();
+};
+
+exports.respondToRequest = function(requestId, permission, origin, granted) {
     if (granted) {
         allowedPermissions[origin] ||= {};
         allowedPermissions[origin][permission] = true;
     }
 
-    pendingRequests[requestId](granted);
+    return callOnRequestQueue(pendingRequests, requestId, granted);
+};
 
-    pendingRequests[requestId] = null;
+exports.respondToUsbSelectionRequest = function(requestId, selectedDeviceId) {
+    if (selectedDeviceId != null) {
+        allowedDeviceIds[selectedDeviceId] = true; // TODO: Allow per origin only
+    }
 
-    return Promise.resolve();
+    return callOnRequestQueue(pendingUsbSelectionRequests, requestId, selectedDeviceId);
 };

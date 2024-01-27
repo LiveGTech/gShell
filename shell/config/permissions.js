@@ -150,4 +150,24 @@ export function init() {
             }
         });
     });
+
+    gShell.on("permissions_usbSelectionRequest", function(event, data) {
+        var webview = webviewManager.webviewsByWebContentsId[data.webContentsId];
+
+        if (!webview) {
+            console.error("No webview found to respond to permission request");
+
+            return;
+        }
+
+        function respond(selectedDeviceId) {
+            gShell.call("permissions_respondToUsbSelectionRequest", {
+                requestId: data.requestId,
+                selectedDeviceId
+            });
+        }
+
+        // TODO: Ask user for USB device to select
+        console.log("USB device selection request needs responding to:", data.devices, respond);
+    });
 }

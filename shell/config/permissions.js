@@ -215,12 +215,14 @@ export function init() {
 
         var filters = null;
 
-        if (webview == selectUsbDeviceWebview) {
-            filters = [...selectUsbDeviceFilters];
-
-            selectUsbDeviceWebview = null;
-            selectUsbDeviceFilters = null;
+        if (webview != selectUsbDeviceWebview) {
+            return;
         }
+
+        filters = [...selectUsbDeviceFilters];
+
+        selectUsbDeviceWebview = null;
+        selectUsbDeviceFilters = null;
 
         var urlInfo = new URL(webview.get().getURL());
 

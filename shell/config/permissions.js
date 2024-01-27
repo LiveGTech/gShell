@@ -9,6 +9,7 @@
 
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
+import * as webviewManager from "gshell://userenv/webviewmanager.js";
 
 /*
     These permissions ask for user input before their main action can be carried
@@ -78,7 +79,7 @@ export function getPermissionForOriginInContext(origin, permission, context = {}
         }
 
         if (permissions[permission] == "allowInsecure") {
-            return Promise.resolve("allowInsecure");
+            return Promise.resolve("allow");
         }
 
         if (!context.isSecure && PERMISSION_CONTEXTS[permission]?.secureContextOnly) {
@@ -111,8 +112,42 @@ export function setPermissionForOrigin(origin, permission, value, global = false
 
 export function init() {
     gShell.on("permissions_request", function(event, data) {
-        console.log("New permission request:", data);
+        var webview = webviewManager.webviewsByWebContentsId[data.webContentsId];
 
-        // TODO: Implement checks using `getPermissionForOriginInContext`
+        if (!webview) {
+            console.error("No webview found to respond to permission request");
+
+            return;
+        }
+
+        var urlInfo = new URL(webview.get().getURL());
+
+        function respond(granted) {
+            gShell.call("permissions_respondToRequest", {
+                requestId: data.requestId,
+                permission: data.permission,
+                origin: urlInfo.origin,
+                granted
+            });
+        }
+
+        getPermissionForOriginInContext(urlInfo.origin, data.permission, {
+            secureContextOnly: urlInfo.protocol != "http:"
+        }).then(function(grantStatus) {
+            switch (grantStatus) {
+                case "allow":
+                    respond(true);
+                    break;
+
+                case "ask":
+                    // TODO: Ask user whether to grant permission or not
+                    console.log("Permission request needs responding to:", respond);
+                    break;
+
+                default:
+                    respond(false);
+                    break;
+            }
+        });
     });
 }

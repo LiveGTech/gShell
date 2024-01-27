@@ -11,6 +11,8 @@ var main = require("./main");
 
 var pendingRequests = [];
 
+var allowedPermissions = {}; // TODO: Ensure that this is cleared on user sign-out and permission settings changes
+
 exports.attach = function(webContents) {
     webContents.session.setPermissionRequestHandler(function(webContents, permission, callback) {
         var requestId = pendingRequests.length;
@@ -25,11 +27,13 @@ exports.attach = function(webContents) {
     });
 
     webContents.session.setPermissionCheckHandler(function(webContents, permission, origin) {
+        origin = new URL(origin).origin; // To conform to same format used in renderer
+
         if (["bluetooth", "usb", "serial"].includes(permission)) {
             return true;
         }
 
-        return false;
+        return !!allowedPermissions[origin]?.[permission];
     });
 
     webContents.session.on("select-usb-device", function(event, details, callback) {
@@ -37,4 +41,25 @@ exports.attach = function(webContents) {
 
         console.log(details);
     });
+};
+
+exports.respondToRequest = function(requestId, permission, origin, granted) {
+    if (requestId >= pendingRequests.length) {
+        return Promise.reject("ID does not exist");
+    }
+
+    if (pendingRequests[requestId] == null) {
+        return Promise.reject("Request has already received a response");
+    }
+
+    if (granted) {
+        allowedPermissions[origin] ||= {};
+        allowedPermissions[origin][permission] = true;
+    }
+
+    pendingRequests[requestId](granted);
+
+    pendingRequests[requestId] = null;
+
+    return Promise.resolve();
 };

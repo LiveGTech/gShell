@@ -49,6 +49,8 @@ export var userAgentMetadata = {
 
 export var preloadPath = null;
 
+export var webviewsByWebContentsId = {};
+
 export function spawn(url, options = {}) {
     var webview = $g.create("webview");
 
@@ -74,6 +76,8 @@ export function spawn(url, options = {}) {
 
     webview.on("did-start-loading dom-ready", function() {
         webviewComms.update(webview);
+
+        webviewsByWebContentsId[webview.get().getWebContentsId()] = webview;
 
         // Apply the User Agent Stylesheet (UAS)
         fetch("gshell://userenv/webviewuas.css").then(function(response) {

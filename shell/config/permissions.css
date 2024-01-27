@@ -1,0 +1,38 @@
+/*
+    gShell
+
+    Copyright (C) LiveG. All Rights Reserved.
+
+    https://liveg.tech
+    Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
+*/
+
+.permissions_selectDevice {
+    width: 30rem;
+    max-width: calc(100vw - 0.5rem);
+    padding-bottom: 0.3rem!important;
+    border-radius: 1rem;
+}
+
+.permissions_selectDevice h1 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
+.permissions_deviceList {
+    max-height: 20rem;
+    margin-bottom: 0.3rem;
+    padding: 0.5rem;
+    padding-top: 0;
+    background-color: var(--primaryBackground);
+    color: var(--primaryText);
+    border-radius: 0.5rem;
+    overflow: auto;
+}
+
+.permissions_noDevicesFoundMessage {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}

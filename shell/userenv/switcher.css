@@ -676,6 +676,12 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximis
     margin-bottom: calc(-0.25rem - 0.6px);
 }
 
+.switcher_overlay.panel {
+    background-color: var(--secondaryBackground);
+    color: var(--secondaryText);
+    padding: 0.5rem;
+}
+
 @keyframes switcher_desktopShowSelect {
     0% {
        transform: scale(1.5);

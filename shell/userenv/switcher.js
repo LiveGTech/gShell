@@ -170,6 +170,14 @@ export class Switcher extends screenScroll.ScrollableScreen {
 export function init() {
     var pressedOnce = false;
 
+    $g.sel("body").on("click", function(event) {
+        if ($g.sel(event.target).is(".switcher_overlay, .switcher_overlay *")) {
+            return;
+        }
+
+        $g.sel(".switcher_overlay.getBlurEvents").emit("bluroverlay");
+    });
+
     $g.sel(".switcher_home").on("click", function() {
         if (device.data?.type == "desktop") {
             $g.sel(".desktop_appMenu").menuOpen();

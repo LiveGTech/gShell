@@ -209,6 +209,16 @@ function userAgent() {
         TerminalExitEvent,
         Terminal
     };
+
+    if (window.navigator.usb) {
+        var shadowed_requestDevice = window.navigator.usb.requestDevice;
+
+        window.navigator.usb.requestDevice = function(options) {
+            _sphere.permissions_setSelectUsbDeviceFilters(options?.filters || []);
+    
+            return shadowed_requestDevice.apply(window.navigator.usb, arguments);
+        };
+    }
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
@@ -252,6 +262,9 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
         }
 
         privilegedDataAccessWaitQueue.push(callback);
+    },
+    permissions_setSelectUsbDeviceFilters: function(filters) {
+        electron.ipcRenderer.sendToHost("permissions_setSelectUsbDeviceFilters", filters);
     }
 });
 

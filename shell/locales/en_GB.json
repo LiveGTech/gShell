@@ -9,6 +9,7 @@
         "percentage": "{value}%",
 
         "ok": "OK",
+        "cancel": "Cancel",
         "unknown": "Unknown",
 
         "size_bytes": {
@@ -168,6 +169,11 @@
         "sphere_openMenu": "Open menu",
 
         "sphere_menu_installApp": "Install app",
+
+        "permissions_selectUsbDevice_prefix": "Select a USB device for ",
+        "permissions_selectUsbDevice_suffix": " to access",
+
+        "permissions_noDevicesFound": "No devices found",
 
         "updates_rolledBackDialog_title": "System update was not successful",
         "updates_rolledBackDialog_description": "A problem prevented LiveG OS from installing an update, and so the system has been reverted to the previous version.",

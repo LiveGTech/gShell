@@ -9,6 +9,7 @@
 
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
+import * as permissions from "gshell://config/permissions.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
 import * as tooltips from "gshell://global/tooltips.js";
@@ -110,6 +111,10 @@ export function attach(webview, privileged, user = null) {
 
             case "openFrame":
                 webview.emit("openframe", event.args[0]);
+                break;
+
+            case "permissions_setSelectUsbDeviceFilters":
+                permissions.setSelectUsbDeviceFilters(webview, event.args[0]);
                 break;
 
             case "input_show":

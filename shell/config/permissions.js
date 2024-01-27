@@ -7,9 +7,13 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as $g from "gshell://lib/adaptui/src/adaptui.js";
+
 import * as config from "gshell://config/config.js";
 import * as users from "gshell://config/users.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
+import * as displays from "gshell://system/displays.js";
+import * as switcher from "gshell://userenv/switcher.js";
 
 /*
     These permissions ask for user input before their main action can be carried
@@ -31,6 +35,10 @@ export const PERMISSION_CONTEXTS = {
     serial: {secureContextOnly: true},
     term: {secureContextOnly: true, askInAppOnly: true}
 };
+
+var webviewsWithDeviceSelectionRequestsPending = new Set();
+var selectUsbDeviceWebview = null;
+var selectUsbDeviceFilters = null;
 
 export function getGlobalConfig() {
     return config.read("permissions.gsc");
@@ -110,6 +118,42 @@ export function setPermissionForOrigin(origin, permission, value, global = false
     });
 }
 
+export function setSelectUsbDeviceFilters(webview, filters) {
+    if (!Array.isArray(filters)) {
+        console.warn("USB device selection filters were not sent as an `Array`; ignored");
+
+        return;
+    }
+
+    selectUsbDeviceWebview = webview;
+    selectUsbDeviceFilters = filters;
+}
+
+function createOverlayForWebview(webview) {
+    var overlay = $g.create("div")
+        .addClass("switcher_overlay")
+        .addClass("panel")
+        .addClass("getBlurEvents")
+        .addClass("permissions_selectDevice")
+        .setAttribute("hidden", true)
+    ;
+
+    var webviewRect = webview.get().getBoundingClientRect();
+
+    overlay.applyStyle({
+        "top": `calc(${webviewRect.top}px + 0.25rem)`,
+        "left": `calc(${webviewRect.left}px + 0.25rem)`
+    });
+
+    requestAnimationFrame(function() {
+        displays.fitElementInsideDisplay(overlay);
+    });
+
+    $g.sel(".switcher_overlays").add(overlay);
+
+    return overlay;
+}
+
 export function init() {
     gShell.on("permissions_request", function(event, data) {
         var webview = webviewManager.webviewsByWebContentsId[data.webContentsId];
@@ -160,14 +204,182 @@ export function init() {
             return;
         }
 
-        function respond(selectedDeviceId) {
+        if (webviewsWithDeviceSelectionRequestsPending.has(webview)) {
+            gShell.call("permissions_respondToUsbSelectionRequest", {
+                requestId: data.requestId,
+                selectedDeviceId: null
+            });
+
+            return;
+        }
+
+        var filters = null;
+
+        if (webview == selectUsbDeviceWebview) {
+            filters = [...selectUsbDeviceFilters];
+
+            selectUsbDeviceWebview = null;
+            selectUsbDeviceFilters = null;
+        }
+
+        webviewsWithDeviceSelectionRequestsPending.add(webview);
+
+        var urlInfo = new URL(webview.get().getURL());
+
+        var overlay = createOverlayForWebview(webview);
+        var deviceList = $g.create("div").addClass("permissions_deviceList");
+
+        var confirmButton = $g.create("button")
+            .addAttribute("disabled")
+            .setText(_("ok"))
+        ;
+
+        var cancelButton = $g.create("button")
+            .setAttribute("aui-mode", "secondary")
+            .setText(_("cancel"))
+        ;
+
+        var radioInputGroup = `permissions_deviceList_${$g.core.generateKey()}`;
+        var selectedDeviceId = null;
+
+        function checkSelectedDevice() {
+            if (deviceList.find("input:checked").items().length == 0) {
+                selectedDeviceId = null;
+
+                confirmButton.addAttribute("disabled");
+
+                return;
+            }
+
+            selectedDeviceId = deviceList.find("input:checked").getAttribute("value");
+
+            confirmButton.removeAttribute("disabled");
+        }
+
+        function closeOverlay() {
+            webviewsWithDeviceSelectionRequestsPending.delete(webview);
+
+            overlay.removeClass("getBlurEvents");
+
+            switcher.hideOverlay(overlay).then(function() {
+                overlay.remove();
+            });
+        }
+
+        function cancelRequest() {
+            gShell.call("permissions_respondToUsbSelectionRequest", {
+                requestId: data.requestId,
+                selectedDeviceId: null
+            });
+
+            closeOverlay();
+        }
+
+        function updateDeviceList() {
+            if (data.devices.length > 0) {
+                deviceList.clear().add(
+                    ...data.devices.filter(function(device) {
+                        if (filters == null) {
+                            return true;
+                        }
+
+                        var matched = false;
+
+                        filters.forEach(function(filter) {
+                            if (typeof(filter) != "object") {
+                                console.warn("A USB device selection filter was not sent as an `Object`; ignored");
+
+                                return;
+                            }
+ 
+                            var shouldReject = false;
+
+                            function checkMatch(filterProperty, deviceProperty = filterProperty) {
+                                if (shouldReject || !filter.hasOwnProperty(filterProperty)) {
+                                    return;
+                                }
+
+                                if (filter[filterProperty] != device[deviceProperty]) {
+                                    shouldReject = true;
+                                }
+                            }
+
+                            // List obtained from https://developer.mozilla.org/en-US/docs/Web/API/USB/requestDevice#parameters
+                            checkMatch("vendorId");
+                            checkMatch("productId");
+                            checkMatch("classCode", "deviceClass");
+                            checkMatch("subclassCode", "deviceSubclass");
+                            checkMatch("protocolCode", "deviceProtocol");
+                            checkMatch("serialNumber");
+
+                            matched ||= !shouldReject;
+                        });
+
+                        return matched;
+                    }).map(function(device) {
+                        var id = `permissions_device_${$g.core.generateKey()}`;
+    
+                        return $g.create("div").add(
+                            $g.create("input")
+                                .setId(id)
+                                .setAttribute("type", "radio")
+                                .setAttribute("name", radioInputGroup)
+                                .setAttribute("value", device.deviceId)
+                                .on("change", function() {
+                                    checkSelectedDevice();
+                                })
+                            ,
+                            $g.create("label")
+                                .setAttribute("for", id)
+                                .setText(device.productName.trim() || _("unknown"))
+                        );
+                    })
+                );
+            } else {
+                deviceList.clear().add(
+                    $g.create("p")
+                        .addClass("permissions_noDevicesFoundMessage")
+                        .setText(_("permissions_noDevicesFound"))
+                );
+            }
+
+            checkSelectedDevice();
+        }
+
+        confirmButton.on("click", function() {
             gShell.call("permissions_respondToUsbSelectionRequest", {
                 requestId: data.requestId,
                 selectedDeviceId
             });
-        }
 
-        // TODO: Ask user for USB device to select
-        console.log("USB device selection request needs responding to:", data.devices, respond);
+            closeOverlay();
+        });
+
+        cancelButton.on("click", function() {
+            cancelRequest();
+        });
+
+        overlay.on("bluroverlay", function() {
+            cancelRequest();
+        });
+
+        overlay.add(
+            $g.create("h1").add(
+                $g.create("span").setText(_("permissions_selectUsbDevice_prefix")),
+                $g.create("strong").setText(urlInfo.host),
+                $g.create("span").setText(_("permissions_selectUsbDevice_suffix"))
+            ),
+            deviceList,
+            $g.create("aui-buttons")
+                .setAttribute("aui-mode", "end")
+                .add(
+                    confirmButton,
+                    cancelButton
+                )
+        );
+
+        updateDeviceList();
+
+        switcher.showOverlay(overlay);
     });
 }

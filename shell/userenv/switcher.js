@@ -1139,6 +1139,8 @@ export function openApp(url, appDetails = null, targetWindow = null) {
     }
 
     return webviewManager.spawnAsUser(url, null, {privileged: url.startsWith("gshell://")}).then(function(webview) {
+        webview.appDetails = appDetails;
+
         var contents = $g.create("div").add(
             $g.create("main").add(webview)
         );

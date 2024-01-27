@@ -380,7 +380,7 @@ export function init() {
         overlay.add(
             $g.create("h1").add(
                 $g.create("span").setText(_("permissions_selectUsbDevice_prefix")),
-                $g.create("strong").setText(urlInfo.host),
+                $g.create("strong").setText(webview.appDetails?.displayName?.trim() || urlInfo.host),
                 $g.create("span").setText(_("permissions_selectUsbDevice_suffix"))
             ),
             deviceList,

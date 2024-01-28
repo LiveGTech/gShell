@@ -276,47 +276,49 @@ export function init() {
         }
 
         function updateDeviceList() {
-            if (data.devices.length > 0) {
-                deviceList.clear().add(
-                    ...data.devices.filter(function(device) {
-                        if (filters == null) {
-                            return true;
+            var filteredDevices = data.devices.filter(function(device) {
+                if (filters == null) {
+                    return true;
+                }
+
+                var matched = false;
+
+                filters.forEach(function(filter) {
+                    if (typeof(filter) != "object") {
+                        console.warn("A USB device selection filter was not sent as an `Object`; ignored");
+
+                        return;
+                    }
+
+                    var shouldReject = false;
+
+                    function checkMatch(filterProperty, deviceProperty = filterProperty) {
+                        if (shouldReject || !filter.hasOwnProperty(filterProperty)) {
+                            return;
                         }
 
-                        var matched = false;
+                        if (filter[filterProperty] != device[deviceProperty]) {
+                            shouldReject = true;
+                        }
+                    }
 
-                        filters.forEach(function(filter) {
-                            if (typeof(filter) != "object") {
-                                console.warn("A USB device selection filter was not sent as an `Object`; ignored");
+                    // List obtained from https://developer.mozilla.org/en-US/docs/Web/API/USB/requestDevice#parameters
+                    checkMatch("vendorId");
+                    checkMatch("productId");
+                    checkMatch("classCode", "deviceClass");
+                    checkMatch("subclassCode", "deviceSubclass");
+                    checkMatch("protocolCode", "deviceProtocol");
+                    checkMatch("serialNumber");
 
-                                return;
-                            }
- 
-                            var shouldReject = false;
+                    matched ||= !shouldReject;
+                });
 
-                            function checkMatch(filterProperty, deviceProperty = filterProperty) {
-                                if (shouldReject || !filter.hasOwnProperty(filterProperty)) {
-                                    return;
-                                }
+                return matched;
+            });
 
-                                if (filter[filterProperty] != device[deviceProperty]) {
-                                    shouldReject = true;
-                                }
-                            }
-
-                            // List obtained from https://developer.mozilla.org/en-US/docs/Web/API/USB/requestDevice#parameters
-                            checkMatch("vendorId");
-                            checkMatch("productId");
-                            checkMatch("classCode", "deviceClass");
-                            checkMatch("subclassCode", "deviceSubclass");
-                            checkMatch("protocolCode", "deviceProtocol");
-                            checkMatch("serialNumber");
-
-                            matched ||= !shouldReject;
-                        });
-
-                        return matched;
-                    }).map(function(device) {
+            if (filteredDevices.length > 0) {
+                deviceList.clear().add(
+                    ...filteredDevices.map(function(device) {
                         var id = `permissions_device_${$g.core.generateKey()}`;
     
                         return $g.create("div").add(
@@ -349,6 +351,10 @@ export function init() {
 
         pendingUsbSelectionRequests[data.webContentsId] = {
             addUsbDevice: function(device) {
+                if (data.devices.find((existingDevice) => existingDevice.deviceId == device.deviceId)) {
+                    return;
+                }
+
                 data.devices.push(device);
 
                 updateDeviceList();

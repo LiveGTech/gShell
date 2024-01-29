@@ -87,10 +87,10 @@
         "network_connectionError_description": "Vérifiez la configuration du réseau et le matériel pour voir s'il fonctionne correctement, puis essayez de vous reconnecter.",
 
         "network_proxyConfig": "Proxys",
-        "network_proxyConfig_summary": "Enable and configure proxies to send network traffic through",
+        "network_proxyConfig_summary": "Activer et configurer des proxys pour envoyer le trafic réseau via",
         "network_proxyConfig_description": "Configurez les proxys pour envoyer des données de demande réseau via. Vous pouvez également choisir des sites à exclure de la proxyation, pour lesquels une connexion directe sera utilisée à la place.",
 
-        "network_proxyConfig_direct": "Use a direct connection (don't use proxy servers)",
+        "network_proxyConfig_direct": "Utilisez une connexion directe (n'utilisez pas de serveurs proxy)",
 
         "network_proxyConfig_autoDetect": "Détecter automatiquement les paramètres de proxy à utiliser pour ce réseau",
 

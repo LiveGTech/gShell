@@ -18,6 +18,7 @@ const bcryptjs = require("bcryptjs");
 var main = require("./main");
 var flags = require("./flags");
 var storage = require("./storage");
+var config = require("./config");
 var device = require("./device");
 
 var mediaFeatures = {};
@@ -603,6 +604,62 @@ exports.networkConnectWifi = function(name) {
         }
 
         return Promise.resolve("connected");
+    });
+};
+
+exports.networkGetProxy = function() {
+    return config.read("proxy.gsc");
+};
+
+exports.networkUpdateProxy = function() {
+    return exports.networkGetProxy().then(function(data) {
+        var session = electron.session.defaultSession;
+
+        var excludeMatches = (data.excludeMatches || []).join(",");
+
+        switch (data?.mode) {
+            case "autoDetect":
+                return session.setProxy({
+                    mode: "auto_detect",
+                    proxyBypassRules: excludeMatches
+                });
+
+            case "pacScriptUrl":
+                return session.setProxy({
+                    mode: "pac_script",
+                    pacScript: data.pacScriptUrl,
+                    proxyBypassRules: excludeMatches
+                });
+
+            case "socks":
+                return session.setProxy({
+                    mode: "fixed_servers",
+                    proxyRules: data.socksProxy,
+                    proxyBypassRules: excludeMatches
+                });
+
+            case "http":
+                var proxyRules = data.httpProxy;
+
+                if (data.httpsProxy) {
+                    proxyRules = `http=${data.httpProxy};https=${data.httpsProxy}`;
+                }
+
+                return session.setProxy({
+                    mode: "fixed_servers",
+                    proxyRules,
+                    proxyBypassRules: excludeMatches
+                });
+
+            default:
+                return session.setProxy({mode: "direct"});
+        }
+    });
+};
+
+exports.networkSetProxy = function(data) {
+    return config.write("proxy.gsc", data).then(function() {
+        return exports.networkUpdateProxy();
     });
 };
 

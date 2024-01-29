@@ -185,6 +185,14 @@ ipcMain.handle("network_connectWifi", function(event, data) {
     return system.networkConnectWifi(data.name);
 });
 
+ipcMain.handle("network_getProxy", function(event, data) {
+    return system.networkGetProxy();
+});
+
+ipcMain.handle("network_setProxy", function(event, data) {
+    return system.networkSetProxy(data);
+});
+
 ipcMain.handle("network_getContentLength", function(event, data) {
     return system.getContentLength(data.url);
 });

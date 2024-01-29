@@ -86,6 +86,20 @@
         "network_connectionError_title": "Impossible de se connecter au réseau",
         "network_connectionError_description": "Vérifiez la configuration du réseau et le matériel pour voir s'il fonctionne correctement, puis essayez de vous reconnecter.",
 
+        "network_proxyConfig": "Proxys",
+        "network_proxyConfig_summary": "Enable and configure proxies to send network traffic through",
+        "network_proxyConfig_description": "Configurez les proxys pour envoyer des données de demande réseau via. Vous pouvez également choisir des sites à exclure de la proxyation, pour lesquels une connexion directe sera utilisée à la place.",
+
+        "network_proxyConfig_direct": "Use a direct connection (don't use proxy servers)",
+
+        "network_proxyConfig_autoDetect": "Détecter automatiquement les paramètres de proxy à utiliser pour ce réseau",
+
+        "network_proxyConfig_pacScriptUrl": "Obtenez des paramètres de proxy à utiliser à partir d'un script PAC",
+
+        "network_proxyConfig_socks": "Utilisez un proxy SOCKS",
+
+        "network_proxyConfig_http": "Utiliser les proxys HTTP/HTTPS",
+
         "l10n": "Langue et saisie",
 
         "l10n_summary": "Modifier les paramètres de langue, de région et de clavier",

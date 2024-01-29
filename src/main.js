@@ -76,6 +76,8 @@ electron.app.on("ready", function() {
     }).then(function() {
         return system.setupLinuxAppIntegration();
     }).then(function() {
+        return system.networkUpdateProxy();
+    }).then(function() {
         return system.getScreenResolution();
     }).then(function(resolution) {
         exports.window = new electron.BrowserWindow({

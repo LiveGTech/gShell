@@ -86,6 +86,20 @@
         "network_connectionError_title": "Couldn't connect to network",
         "network_connectionError_description": "Check the network configuration and hardware to see if it is working properly, and try connecting again.",
 
+        "network_proxyConfig": "Proxies",
+        "network_proxyConfig_summary": "Enable and configure proxies to send network traffic through",
+        "network_proxyConfig_description": "Configure which proxies to send network request data through. You can also choose sites to exclude from proxying, for which a direct connection will be used instead.",
+
+        "network_proxyConfig_direct": "Use a direct connection (don't use proxy servers)",
+
+        "network_proxyConfig_autoDetect": "Automatically detect proxy settings to use for this network",
+
+        "network_proxyConfig_pacScriptUrl": "Get proxy settings to use from a PAC script",
+
+        "network_proxyConfig_socks": "Use a SOCKS proxy",
+
+        "network_proxyConfig_http": "Use HTTP/HTTPS proxies",
+
         "l10n": "Language and input",
 
         "l10n_summary": "Change language, region and keyboard settings",

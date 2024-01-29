@@ -81,6 +81,14 @@ export function connectWifi(name) {
     });
 }
 
+export function getProxy() {
+    return gShell.call("network_getProxy");
+}
+
+export function setProxy(data) {
+    return gShell.call("network_setProxy", data);
+}
+
 export function init() {
     getList();
     scanWifi();

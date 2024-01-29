@@ -17,6 +17,21 @@ import * as wifiAuthModes from "./wifiauthmodes.js";
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
     var wifiScanResultsContainer = Container() ();
 
+    var proxyConfigButton = IconListButton (
+        Icon("edit", "dark embedded") (), // TODO: Choose a better icon
+        Container (
+            BoldTextFragment() (_("network_proxyConfig")),
+            LineBreak() (),
+            _("network_proxyConfig_summary")
+        )
+    );
+
+    proxyConfigButton.on("click", function() {
+        settings.visitInnerScreen(
+            ProxyConfigScreen() ()
+        );
+    });
+
     function updateData() {
         var data = _sphere.getPrivilegedData();
         var usedNames = [];
@@ -104,6 +119,9 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
             shortcuts.ShortcutLandmark("network_wifi") (),
             Heading(2) (_("network_wifiNetworks")),
             wifiScanResultsContainer
+        ),
+        Section (
+            proxyConfigButton
         )
     );
 });
@@ -345,6 +363,51 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
 
     screen.on("removed", function() {
         active = false;
+    });
+
+    return screen;
+});
+
+export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function(props, children) {
+    var modeRadioButtons = {
+        direct: RadioButtonInput({group: "network_proxyMode"}) (),
+        autoDetect: RadioButtonInput({group: "network_proxyMode"}) (),
+        pacScriptUrl: RadioButtonInput({group: "network_proxyMode"}) (),
+        socks: RadioButtonInput({group: "network_proxyMode"}) (),
+        http: RadioButtonInput({group: "network_proxyMode"}) ()
+    };
+
+    var screen = settings.InnerScreen({title: _("network_proxyConfig")}) (
+        Page(true) (
+            Section (
+                Heading() (_("network_proxyConfig")),
+                Paragraph() (_("network_proxyConfig_description")),
+                Label (
+                    modeRadioButtons.direct,
+                    BoldTextFragment() (_("network_proxyConfig_direct"))
+                ),
+                Label (
+                    modeRadioButtons.autoDetect,
+                    BoldTextFragment() (_("network_proxyConfig_autoDetect"))
+                ),
+                Label (
+                    modeRadioButtons.pacScriptUrl,
+                    BoldTextFragment() (_("network_proxyConfig_pacScriptUrl"))
+                ),
+                Label (
+                    modeRadioButtons.socks,
+                    BoldTextFragment() (_("network_proxyConfig_socks"))
+                ),
+                Label (
+                    modeRadioButtons.http,
+                    BoldTextFragment() (_("network_proxyConfig_http"))
+                )
+            )
+        )
+    );
+
+    _sphere.callPrivilegedCommand("network_getProxy").then(function(data) {
+        modeRadioButtons[data.mode || "direct"].setValue(true);
     });
 
     return screen;

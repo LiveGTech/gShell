@@ -29,6 +29,8 @@ export var commands = {
     network_forgetWifi: (data) => network.forgetWifi(data.name),
     network_configureWifi: (data) => network.configureWifi(data.name, data.auth),
     network_connectWifi: (data) => network.connectWifi(data.name),
+    network_getProxy: network.getProxy,
+    network_setProxy: network.setProxy,
     l10n_setLocale: (data) => l10n.setLocale(data.localeCode),
     input_loadInputDataFromConfig: input.loadInputDataFromConfig,
     input_saveInputDataToConfig: (data) => input.saveInputDataToConfig(data.data),

@@ -14,6 +14,7 @@
         "apply": "Appliquer",
         "add": "Ajouter",
         "save": "Enregistrer",
+        "saving": "Enregistrement...",
         "remove": "Supprimer",
         "none": "(Aucune)",
         "optional": "(Optionnel)",
@@ -95,10 +96,16 @@
         "network_proxyConfig_autoDetect": "Détecter automatiquement les paramètres de proxy à utiliser pour ce réseau",
 
         "network_proxyConfig_pacScriptUrl": "Obtenez des paramètres de proxy à utiliser à partir d'un script PAC",
+        "network_proxyConfig_pacScriptUrl_url": "URL vers le script PAC",
 
         "network_proxyConfig_socks": "Utilisez un proxy SOCKS",
+        "network_proxyConfig_socks_url": "URL vers le proxy SOCKS",
 
         "network_proxyConfig_http": "Utiliser les proxys HTTP/HTTPS",
+        "network_proxyConfig_http_httpUrl": "URL vers le proxy HTTP",
+        "network_proxyConfig_http_httpsUrl": "URL vers le proxy HTTPS",
+
+        "network_proxyConfig_saveNotice": "Les paramètres de proxy que vous choisissez ne seront appliqués que lorsque vous les aurez enregistrés.",
 
         "l10n": "Langue et saisie",
 

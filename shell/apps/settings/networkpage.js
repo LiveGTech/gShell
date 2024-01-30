@@ -15,10 +15,15 @@ import * as shortcuts from "./shortcuts.js";
 import * as wifiAuthModes from "./wifiauthmodes.js";
 
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
-    var wifiScanResultsContainer = Container() ();
+    var wifiScanResultsContainer = Container({
+        styles: {
+            marginLeft: "-0.5rem",
+            marginRight: "-0.5rem"
+        }
+    }) ();
 
     var proxyConfigButton = IconListButton (
-        Icon("edit", "dark embedded") (), // TODO: Choose a better icon
+        Icon("router", "dark embedded") (),
         Container (
             BoldTextFragment() (_("network_proxyConfig")),
             LineBreak() (),
@@ -278,7 +283,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             var connectButton = Button() (_("network_wifiAp_connect"));
 
             if (data?.network_connectingToWifi == props.accessPoint.name) {
-                connectButton.setAttribute("disabled", true);
+                connectButton.addAttribute("disabled");
                 connectButton.setText(_("network_wifiAp_connecting"));
             }
 
@@ -377,6 +382,34 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         http: RadioButtonInput({group: "network_proxyMode"}) ()
     };
 
+    var modeDependencies = {
+        pacScriptUrl: Dependency (
+            Label (
+                Text((_("network_proxyConfig_pacScriptUrl_url"))),
+                Input({type: "url", attributes: {"spellcheck": "false"}}) ()
+            )
+        ),
+        socks: Dependency (
+            Label (
+                Text(_("network_proxyConfig_socks_url")),
+                Input({type: "url", attributes: {"spellcheck": "false"}}) ()
+            )
+        ),
+        http: Dependency (
+            Label (
+                Text(_("network_proxyConfig_http_httpUrl")),
+                Input({type: "url", attributes: {"spellcheck": "false"}}) ()
+            ),
+            Label (
+                Text(_("network_proxyConfig_http_httpsUrl")),
+                Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
+            )
+        )
+    };
+
+    var saveButton = Button() (_("save"));
+    var cancelButton = Button({mode: "secondary"}) (_("cancel"));
+
     var screen = settings.InnerScreen({title: _("network_proxyConfig")}) (
         Page(true) (
             Section (
@@ -394,20 +427,65 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
                     modeRadioButtons.pacScriptUrl,
                     BoldTextFragment() (_("network_proxyConfig_pacScriptUrl"))
                 ),
+                modeDependencies.pacScriptUrl,
                 Label (
                     modeRadioButtons.socks,
                     BoldTextFragment() (_("network_proxyConfig_socks"))
                 ),
+                modeDependencies.socks,
                 Label (
                     modeRadioButtons.http,
                     BoldTextFragment() (_("network_proxyConfig_http"))
+                ),
+                modeDependencies.http
+            ),
+            Section (
+                Paragraph() (_("network_proxyConfig_saveNotice")),
+                ButtonRow (
+                    saveButton,
+                    cancelButton
                 )
             )
         )
     );
 
+    function updateDependencies() {
+        Object.keys(modeDependencies).forEach(function(mode) {
+            if (modeRadioButtons[mode].getValue()) {
+                modeDependencies[mode].removeAttribute("inert");
+            } else {
+                modeDependencies[mode].setAttribute("inert", "dependent");
+            }
+        });
+    }
+
+    Object.values(modeRadioButtons).forEach(function(radioButton) {
+        radioButton.on("change", function() {
+            updateDependencies();
+        });
+    });
+
+    var exit = screen.inter.exit;
+
+    saveButton.on("click", function() {
+        saveButton.addAttribute("disabled");
+        saveButton.setText(_("saving"));
+
+        // TODO: Replace dummy delay with actual saving of proxy settings
+
+        setTimeout(function() {
+            exit();
+        }, 500);
+    });
+
+    cancelButton.on("click", function() {
+        exit();
+    });
+
     _sphere.callPrivilegedCommand("network_getProxy").then(function(data) {
         modeRadioButtons[data.mode || "direct"].setValue(true);
+
+        updateDependencies();
     });
 
     return screen;
@@ -478,7 +556,7 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
         if (currentAuthModeConfigElement.inter.isValid()) {
             connectButton.removeAttribute("disabled");
         } else {
-            connectButton.setAttribute("disabled", true);
+            connectButton.addAttribute("disabled");
         }
     }
 

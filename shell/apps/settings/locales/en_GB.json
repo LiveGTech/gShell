@@ -105,6 +105,10 @@
         "network_proxyConfig_http_httpUrl": "URL to HTTP proxy",
         "network_proxyConfig_http_httpsUrl": "URL to HTTPS proxy",
 
+        "network_proxyConfig_excludeMatches_title": "Sites to exclude from proxying",
+        "network_proxyConfig_excludeMatches_description": "Enter the URLs of sites that should not be proxied, with one URL per line.",
+        "network_proxyConfig_excludeMatches_label": "List of sites to exclude",
+
         "network_proxyConfig_saveNotice": "The proxy settings you choose will not be applied until you save them.",
 
         "l10n": "Language and input",

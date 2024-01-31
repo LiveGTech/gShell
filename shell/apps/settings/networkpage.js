@@ -391,12 +391,11 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
 
     var excludeMatchesInput = TextInputArea() ();
 
-    // TODO: Translate
     var excludeMatchesAccordion = Accordion({mode: "boxed"}) (
-        Text("Sites to exclude from proxying"),
-        Paragraph() ("Enter the URLs of sites that should not be proxied, with one URL per line."),
+        Text(_("network_proxyConfig_excludeMatches_title")),
+        Paragraph() (_("network_proxyConfig_excludeMatches_description")),
         Label (
-            Text("List of sites to exclude"),
+            Text(_("network_proxyConfig_excludeMatches_label")),
             excludeMatchesInput
         )
     );

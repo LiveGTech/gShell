@@ -382,27 +382,34 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         http: RadioButtonInput({group: "network_proxyMode"}) ()
     };
 
+    var valueInputs = {
+        pacScriptUrl: Input({type: "url", attributes: {"spellcheck": "false"}}) (),
+        socksProxy: Input({type: "url", attributes: {"spellcheck": "false"}}) (),
+        httpProxy: Input({type: "url", attributes: {"spellcheck": "false"}}) (),
+        httpsProxy: Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
+    };
+
     var modeDependencies = {
         pacScriptUrl: Dependency (
             Label (
                 Text((_("network_proxyConfig_pacScriptUrl_url"))),
-                Input({type: "url", attributes: {"spellcheck": "false"}}) ()
+                valueInputs.pacScriptUrl
             )
         ),
         socks: Dependency (
             Label (
                 Text(_("network_proxyConfig_socks_url")),
-                Input({type: "url", attributes: {"spellcheck": "false"}}) ()
+                valueInputs.socksProxy
             )
         ),
         http: Dependency (
             Label (
                 Text(_("network_proxyConfig_http_httpUrl")),
-                Input({type: "url", attributes: {"spellcheck": "false"}}) ()
+                valueInputs.httpProxy
             ),
             Label (
                 Text(_("network_proxyConfig_http_httpsUrl")),
-                Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
+                valueInputs.httpsProxy
             )
         )
     };
@@ -468,14 +475,38 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
     var exit = screen.inter.exit;
 
     saveButton.on("click", function() {
+        var selectedMode = null;
+        var values = {};
+
+        Object.keys(modeRadioButtons).find(function(mode) {
+            if (modeRadioButtons[mode].getValue()) {
+                selectedMode = mode;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        Object.keys(valueInputs).forEach(function(key) {
+            values[key] = valueInputs[key].getValue();
+        });
+
+        if (selectedMode == null) {
+            throw new Error("No proxy mode selected (trap)");
+        }
+
         saveButton.addAttribute("disabled");
         saveButton.setText(_("saving"));
 
-        // TODO: Replace dummy delay with actual saving of proxy settings
+        // TODO: Add input to set set sites to exclude from proxying
 
-        setTimeout(function() {
+        _sphere.callPrivilegedCommand("network_setProxy", {
+            mode: selectedMode,
+            ...values
+        }).then(function() {
             exit();
-        }, 500);
+        });
     });
 
     cancelButton.on("click", function() {
@@ -484,6 +515,10 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
 
     _sphere.callPrivilegedCommand("network_getProxy").then(function(data) {
         modeRadioButtons[data.mode || "direct"].setValue(true);
+
+        Object.keys(valueInputs).forEach(function(key) {
+            valueInputs[key].setValue(data[key] || "");
+        });
 
         updateDependencies();
     });

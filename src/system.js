@@ -611,28 +611,35 @@ exports.networkGetProxy = function() {
     return config.read("proxy.gsc");
 };
 
+function setProxyForAllSessions(data) {
+    return Promise.all([
+        electron.session.defaultSession,
+        ...electron.webContents.getAllWebContents().map((webContents) => webContents.session)
+    ].map(function(session) {
+        return session.setProxy(data);
+    }));
+}
+
 exports.networkUpdateProxy = function() {
     return exports.networkGetProxy().then(function(data) {
-        var session = electron.session.defaultSession;
-
         var excludeMatches = (data.excludeMatches || []).join(",");
 
         switch (data?.mode) {
             case "autoDetect":
-                return session.setProxy({
+                return setProxyForAllSessions({
                     mode: "auto_detect",
                     proxyBypassRules: excludeMatches
                 });
 
             case "pacScriptUrl":
-                return session.setProxy({
+                return setProxyForAllSessions({
                     mode: "pac_script",
                     pacScript: data.pacScriptUrl,
                     proxyBypassRules: excludeMatches
                 });
 
             case "socks":
-                return session.setProxy({
+                return setProxyForAllSessions({
                     mode: "fixed_servers",
                     proxyRules: data.socksProxy,
                     proxyBypassRules: excludeMatches
@@ -641,18 +648,18 @@ exports.networkUpdateProxy = function() {
             case "http":
                 var proxyRules = data.httpProxy;
 
-                if (data.httpsProxy) {
+                if (data.httpsProxy && data.httpsProxy.trim() != "") {
                     proxyRules = `http=${data.httpProxy};https=${data.httpsProxy}`;
                 }
 
-                return session.setProxy({
+                return setProxyForAllSessions({
                     mode: "fixed_servers",
                     proxyRules,
                     proxyBypassRules: excludeMatches
                 });
 
             default:
-                return session.setProxy({mode: "direct"});
+                return setProxyForAllSessions({mode: "direct"});
         }
     });
 };

@@ -301,6 +301,9 @@ ipcMain.handle("webview_attach", function(event, data) {
     }).then(function() {
         // We must re-apply media features since the new webview won't have them yet
         return system.setMediaFeatures();
+    }).then(function() {
+        // We must re-apply network proxy config since the new webview won't have it set yet
+        return system.networkUpdateProxy();
     });
 });
 

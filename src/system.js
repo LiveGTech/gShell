@@ -622,27 +622,29 @@ function setProxyForAllSessions(data) {
 
 exports.networkUpdateProxy = function() {
     return exports.networkGetProxy().then(function(data) {
-        var excludeMatches = (data.excludeMatches || []).join(",");
+        var excludeMatches = (data.excludeMatches || [])
+            .filter((match) => match.trim() != "")
+            .join(",")
+        ;
+
+        // TODO: Investigate to what modes `excludeMatches` applies
 
         switch (data?.mode) {
             case "autoDetect":
                 return setProxyForAllSessions({
-                    mode: "auto_detect",
-                    proxyBypassRules: excludeMatches
+                    mode: "auto_detect"
                 });
 
             case "pacScriptUrl":
                 return setProxyForAllSessions({
                     mode: "pac_script",
-                    pacScript: data.pacScriptUrl,
-                    proxyBypassRules: excludeMatches
+                    pacScript: data.pacScriptUrl
                 });
 
             case "socks":
                 return setProxyForAllSessions({
                     mode: "fixed_servers",
-                    proxyRules: data.socksProxy,
-                    proxyBypassRules: excludeMatches
+                    proxyRules: data.socksProxy
                 });
 
             case "http":

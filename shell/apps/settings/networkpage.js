@@ -389,6 +389,18 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         httpsProxy: Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
     };
 
+    var excludeMatchesInput = TextInputArea() ();
+
+    // TODO: Translate
+    var excludeMatchesAccordion = Accordion({mode: "boxed"}) (
+        Text("Sites to exclude from proxying"),
+        Paragraph() ("Enter the URLs of sites that should not be proxied, with one URL per line."),
+        Label (
+            Text("List of sites to exclude"),
+            excludeMatchesInput
+        )
+    );
+
     var modeDependencies = {
         pacScriptUrl: Dependency (
             Label (
@@ -410,7 +422,8 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
             Label (
                 Text(_("network_proxyConfig_http_httpsUrl")),
                 valueInputs.httpsProxy
-            )
+            ),
+            excludeMatchesAccordion
         )
     };
 
@@ -460,8 +473,16 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         Object.keys(modeDependencies).forEach(function(mode) {
             if (modeRadioButtons[mode].getValue()) {
                 modeDependencies[mode].removeAttribute("inert");
+
+                if (mode == "http" && excludeMatchesInput.getValue().trim() != "") {
+                    excludeMatchesAccordion.addAttribute("open");
+                }
             } else {
                 modeDependencies[mode].setAttribute("inert", "dependent");
+
+                if (mode == "http") {
+                    excludeMatchesAccordion.removeAttribute("open");
+                }
             }
         });
     }
@@ -499,11 +520,10 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         saveButton.addAttribute("disabled");
         saveButton.setText(_("saving"));
 
-        // TODO: Add input to set set sites to exclude from proxying
-
         _sphere.callPrivilegedCommand("network_setProxy", {
             mode: selectedMode,
-            ...values
+            ...values,
+            excludeMatches: excludeMatchesInput.getValue().split("\n")
         }).then(function() {
             exit();
         });
@@ -519,6 +539,8 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         Object.keys(valueInputs).forEach(function(key) {
             valueInputs[key].setValue(data[key] || "");
         });
+
+        excludeMatchesInput.setValue(data.excludeMatches?.join("\n") || "");
 
         updateDependencies();
     });

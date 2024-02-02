@@ -389,7 +389,7 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         httpsProxy: Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
     };
 
-    var excludeMatchesInput = TextInputArea() ();
+    var excludeMatchesInput = TextInputArea({attributes: {"spellcheck": "false"}}) ();
 
     var excludeMatchesAccordion = Accordion({mode: "boxed"}) (
         Text(_("network_proxyConfig_excludeMatches_title")),

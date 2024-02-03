@@ -416,8 +416,7 @@ export function init() {
             destination.data[destinationIndex + 0] = source[sourceIndex++]; // Red
             destination.data[destinationIndex + 3] = 255; // Alpha
 
-            sourceIndex++; // TODO: Figure out what fourth channel value is meant to represent
-
+            sourceIndex++;
             destinationIndex += 4;
         }
 

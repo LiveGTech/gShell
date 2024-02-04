@@ -389,6 +389,12 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         httpsProxy: Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
     };
 
+    var requiredValuesForModes = {
+        pacScriptUrl: [valueInputs.pacScriptUrl],
+        socks: [valueInputs.socksProxy],
+        http: [valueInputs.httpProxy]
+    };
+
     var excludeMatchesInput = TextInputArea({attributes: {"spellcheck": "false"}}) ();
 
     var excludeMatchesAccordion = Accordion({mode: "boxed"}) (
@@ -429,6 +435,8 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
     var saveButton = Button() (_("save"));
     var cancelButton = Button({mode: "secondary"}) (_("cancel"));
 
+    var saving = false;
+
     var screen = settings.InnerScreen({title: _("network_proxyConfig")}) (
         Page(true) (
             Section (
@@ -468,6 +476,16 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         )
     );
 
+    function getSelectedMode() {
+        return Object.keys(modeRadioButtons).find(function(mode) {
+            if (modeRadioButtons[mode].getValue()) {
+                return true;
+            }
+
+            return false;
+        });
+    }
+
     function updateDependencies() {
         Object.keys(modeDependencies).forEach(function(mode) {
             if (modeRadioButtons[mode].getValue()) {
@@ -486,27 +504,51 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         });
     }
 
+    function areRequiredFieldsSatisfied() {
+        var selectedMode = getSelectedMode();
+
+        if (!selectedMode) {
+            return false;
+        }
+
+        var requiredValues = requiredValuesForModes[selectedMode] || [];
+        var allSatisfied = true;
+
+        requiredValues.forEach(function(requiredValue) {
+            if (requiredValue.getValue().trim() == "") {
+                allSatisfied = false;
+            }
+        });
+
+        return allSatisfied;
+    }
+
+    function checkCanSave() {
+        if (areRequiredFieldsSatisfied() && !saving) {
+            saveButton.removeAttribute("disabled");
+        } else {
+            saveButton.addAttribute("disabled");
+        }
+    }
+
     Object.values(modeRadioButtons).forEach(function(radioButton) {
         radioButton.on("change", function() {
             updateDependencies();
+            checkCanSave();
+        });
+    });
+
+    Object.values(valueInputs).forEach(function(valueInput) {
+        valueInput.on("input", function() {
+            checkCanSave();
         });
     });
 
     var exit = screen.inter.exit;
 
     saveButton.on("click", function() {
-        var selectedMode = null;
+        var selectedMode = getSelectedMode();
         var values = {};
-
-        Object.keys(modeRadioButtons).find(function(mode) {
-            if (modeRadioButtons[mode].getValue()) {
-                selectedMode = mode;
-
-                return true;
-            }
-
-            return false;
-        });
 
         Object.keys(valueInputs).forEach(function(key) {
             values[key] = valueInputs[key].getValue();
@@ -516,7 +558,10 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
             throw new Error("No proxy mode selected (trap)");
         }
 
-        saveButton.addAttribute("disabled");
+        saving = true;
+
+        checkCanSave();
+
         saveButton.setText(_("saving"));
 
         _sphere.callPrivilegedCommand("network_setProxy", {
@@ -542,6 +587,7 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
         excludeMatchesInput.setValue(data.excludeMatches?.join("\n") || "");
 
         updateDependencies();
+        checkCanSave();
     });
 
     return screen;

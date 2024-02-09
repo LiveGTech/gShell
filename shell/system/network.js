@@ -10,7 +10,7 @@
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 
 export const LIST_UPDATE_INTERVAL = 5 * 1_000; // 5 seconds
-export const WIFI_SCAN_INTERVAL = 60 * 1_000; // 1 minute
+export const WIFI_SCAN_INTERVAL = 20 * 1_000; // 20 seconds
 export const WIFI_CONNECTING_SCAN_INTERVAL = 2 * 1_000; // 2 seconds
 
 export var listResults = [];

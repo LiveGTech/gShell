@@ -557,7 +557,7 @@ exports.init = function() {
                     break;
 
                 case "KeyRelease":
-                        if (event.keycode == 124) {
+                    if (event.keycode == 124) {
                         main.window.webContents.send("xorg_powerButtonUp");
                     }
 

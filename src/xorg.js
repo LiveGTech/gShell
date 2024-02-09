@@ -548,10 +548,33 @@ exports.init = function() {
                 case "UnmapNotify":
                     releaseWindow(event.wid);
                     break;
+
+                case "KeyPress":
+                    if (event.keycode == 124) {
+                        main.window.webContents.send("xorg_powerButtonDown");
+                    }
+
+                    break;
+
+                case "KeyRelease":
+                        if (event.keycode == 124) {
+                        main.window.webContents.send("xorg_powerButtonUp");
+                    }
+
+                    break;
             }
         });
     }).then(function() {
-        return X.ChangeWindowAttributes(root, {eventMask: x11.eventMask.SubstructureNotify | x11.eventMask.SubstructureRedirect | x11.eventMask.ResizeRedirect | x11.eventMask.PropertyChange});
+        return X.ChangeWindowAttributes(root, {
+            eventMask: (
+                x11.eventMask.SubstructureNotify |
+                x11.eventMask.SubstructureRedirect |
+                x11.eventMask.ResizeRedirect |
+                x11.eventMask.PropertyChange |
+                x11.eventMask.KeyPress |
+                x11.eventMask.KeyRelease
+            )
+        });
     }).then(function() {
         return promisify(X.require, X, "composite");
     }).then(function(extension) {

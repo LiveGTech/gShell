@@ -17,10 +17,24 @@
 int (*shadowed_XNextEvent)(Display* display, XEvent* event_return);
 int (*shadowed_XPeekEvent)(Display* display, XEvent* event_return);
 
-bool checkXEvent(XEvent* event) {
+bool checkXEvent(Display* display, XEvent* event) {
     switch (event->type) {
         case KeyPress:
         case KeyRelease:
+            if (event->xkey.keycode == 124) {
+                // Forward power button events to gShell as they are not exposed with `XQueryKeymap`
+
+                XSendEvent(
+                    display,
+                    event->xkey.root,
+                    0,
+                    event->type == KeyPress ? KeyPressMask : KeyReleaseMask,
+                    event
+                );
+
+                return false;
+            }
+
             event->xkey.send_event = 0;
 
             return true;
@@ -58,7 +72,7 @@ int XNextEvent(Display* display, XEvent* event_return) {
     while (true) {
         int returnValue = shadowed_XNextEvent(display, event_return);
 
-        if (checkXEvent(event_return)) {
+        if (checkXEvent(display, event_return)) {
             return returnValue;
         }
     }
@@ -71,7 +85,7 @@ int XPeekEvent(Display* display, XEvent* event_return) {
 
     int returnValue = shadowed_XPeekEvent(display, event_return);
 
-    if (checkXEvent(event_return)) {
+    if (checkXEvent(display, event_return)) {
         // Peeked event is fine, so forward it
         return returnValue;
     }

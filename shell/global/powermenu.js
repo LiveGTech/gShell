@@ -12,6 +12,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as system from "gshell://system/system.js";
 import * as device from "gshell://system/device.js";
 import * as sleep from "gshell://system/sleep.js";
+import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 var powerButtonIsDown = false;
 var powerButtonTimeout = null;
@@ -42,37 +43,63 @@ export function close() {
     $g.sel(".powerMenu_userBlur").menuClose();
 }
 
+export function handlePowerButtonDown() {
+    if (powerButtonIsDown) {
+        return;
+    }
+
+    powerButtonIsDown = true;
+
+    clearTimeout(powerButtonTimeout);
+
+    powerButtonTimeout = setTimeout(function() {
+        open(true);
+
+        powerButtonTimeout = null;
+    }, 1_000);
+}
+
+export function handlePowerButtonUp() {
+    powerButtonIsDown = false;
+
+    sleep.toggle();
+
+    clearTimeout(powerButtonTimeout);
+
+    powerButtonTimeout = null;
+}
+
 export function init() {
     $g.sel("body").on("keydown", function(event) {
-        if (powerButtonIsDown) {
-            return;
-        }
-
-        powerButtonIsDown = true;
-
         if (event.key == "PowerOff") {
-            clearTimeout(powerButtonTimeout);
-
-            powerButtonTimeout = setTimeout(function() {
-                open(true);
-
-                powerButtonTimeout = null;
-            }, 1_000);
+            handlePowerButtonDown();
         }
     });
 
-    $g.sel("body").on("keyup", function(event) {
-        powerButtonIsDown = false;
-
+    webviewComms.onEvent("keydown", function(event) {
         if (event.key == "PowerOff") {
-            if (powerButtonTimeout != null) {
-                sleep.toggle();
-
-                clearTimeout(powerButtonTimeout);
-
-                powerButtonTimeout = null;
-            }
+            handlePowerButtonDown();
         }
+    });
+
+    gShell.on("xorg_powerButtonDown", function() {
+        handlePowerButtonDown();
+    });
+
+    $g.sel("body").on("keyup", function(event) {
+        if (event.key == "PowerOff") {
+            handlePowerButtonUp();
+        }
+    });
+
+    webviewComms.onEvent("keyup", function(event) {
+        if (event.key == "PowerOff") {
+            handlePowerButtonUp();
+        }
+    });
+
+    gShell.on("xorg_powerButtonUp", function() {
+        handlePowerButtonUp();
     });
 
     $g.sel(".powerMenu_lock").on("click", function() {

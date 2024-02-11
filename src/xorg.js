@@ -7,7 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-const x11 = require("x11");
+const x11 = require("@liveg/x11");
 
 var main = require("./main");
 var flags = require("./flags");

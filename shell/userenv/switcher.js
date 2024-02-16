@@ -22,6 +22,8 @@ export const MAX_WAIT_UNTIL_LAUNCH = 2 * 1_000; // 2 seconds
 export const WINDOW_RESIZE_BORDER_THICKNESS = calc.getRemSize(0.6);
 export const DESKTOP_MIN_WINDOW_WIDTH = calc.getRemSize(20);
 export const DESKTOP_MIN_WINDOW_HEIGHT = calc.getRemSize(15);
+export const DESKTOP_ABSOLUTE_MIN_WINDOW_WIDTH = calc.getRemSize(9); // For windows that override constraints (such as Xorg windows)
+export const DESKTOP_ABSOLUTE_MIN_WINDOW_HEIGHT = calc.getRemSize(4); // For windows that override constraints (such as Xorg windows)
 export const DESKTOP_DEFAULT_WINDOW_WIDTH = calc.getRemSize(40);
 export const DESKTOP_DEFAULT_WINDOW_HEIGHT = calc.getRemSize(30);
 export const DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE = 500; // 500 milliseconds; enough time to allow indirect close handlers to respond quickly
@@ -324,12 +326,15 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
 
     var canResizeDirectly = directResize || !element.is(".switcher_indirectResize");
 
-    if (geometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
-        geometry.width = DESKTOP_MIN_WINDOW_WIDTH;
+    var minWidth = element.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_WIDTH : DESKTOP_MIN_WINDOW_WIDTH;
+    var minHeight = element.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_HEIGHT : DESKTOP_MIN_WINDOW_HEIGHT;
+
+    if (geometry.width < minWidth) {
+        geometry.width = minWidth;
     }
 
-    if (geometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
-        geometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
+    if (geometry.height < minHeight) {
+        geometry.height = minHeight;
     }
 
     if (canResizeDirectly) {
@@ -666,6 +671,9 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
             return;
         }
 
+        var minWidth = screenElement.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_WIDTH : DESKTOP_MIN_WINDOW_WIDTH;
+        var minHeight = screenElement.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_HEIGHT : DESKTOP_MIN_WINDOW_HEIGHT;
+
         var pointerDeltaX = event.clientX - pointerStartX;
         var pointerDeltaY = event.clientY - pointerStartY;
         var newGeometry = {...getWindowGeometry(screenElement)};
@@ -696,10 +704,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 newGeometry.width = initialGeometry.width + pointerDeltaX;
             }
 
-            if (newGeometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
-                var distance = DESKTOP_MIN_WINDOW_WIDTH - newGeometry.width;
+            if (newGeometry.width < minWidth) {
+                var distance = minWidth - newGeometry.width;
 
-                newGeometry.width = DESKTOP_MIN_WINDOW_WIDTH;
+                newGeometry.width = minWidth;
 
                 if (moveResizeMode.resizeWest) {
                     newGeometry.x = initialGeometry.x + pointerDeltaX - distance;
@@ -722,10 +730,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 newGeometry.height = initialGeometry.height + pointerDeltaY;
             }
 
-            if (newGeometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
-                var distance = DESKTOP_MIN_WINDOW_HEIGHT - newGeometry.height;
+            if (newGeometry.height < minHeight) {
+                var distance = minHeight - newGeometry.height;
 
-                newGeometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
+                newGeometry.height = minHeight;
 
                 if (moveResizeMode.resizeNorth) {
                     newGeometry.y = initialGeometry.y + pointerDeltaY - distance;

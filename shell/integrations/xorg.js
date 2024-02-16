@@ -54,7 +54,6 @@ function ensureWindowSize(trackedWindow) {
 
     var currentWindowContentsGeometry = switcher.getWindowContentsGeometry(trackedWindow.screenElement, true);
 
-    // TODO: Override minimum size constraint for small Xorg apps (as in geometry, like xeyes)
     switcher.setWindowContentsGeometry(trackedWindow.screenElement, {
         x: currentWindowContentsGeometry.x,
         y: currentWindowContentsGeometry.y,
@@ -241,6 +240,7 @@ export function init() {
     
                 appElement.addClass("switcher_indirectClose");
                 screenElement.addClass("switcher_indirectResize");
+                screenElement.addClass("switcher_overrideConstraints");
     
                 var lastEventX = null;
                 var lastEventY = null;

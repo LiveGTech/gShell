@@ -326,6 +326,8 @@ export function init() {
         }
 
         trackedWindow = null;
+
+        delete trackedWindows[data.id];
     });
 
     gShell.on("xorg_moveWindow", function(event, data) {

@@ -15,6 +15,8 @@ var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 
+const WATCH_FILE_INTERVAL = 100;
+
 exports.controlFilesystemLocation = path.normalize(`${storage.systemDirectory}/control`);
 
 exports.Property = class {
@@ -57,7 +59,7 @@ exports.Property = class {
 
             return system.executeCommand("chmod", [permissions, thisScope.path]);
         }).then(function() {
-            fs.watchFile(thisScope.path, function() {
+            fs.watchFile(thisScope.path, {interval: WATCH_FILE_INTERVAL}, function() {
                 thisScope.getValue().then(function(newValue) {
                     thisScope._onChangeCallbacks.forEach((callback) => callback(newValue));
                 });

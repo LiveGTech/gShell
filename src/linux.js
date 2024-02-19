@@ -30,7 +30,9 @@ exports.getNamedAppIconPath = function(iconName) {
 
     var pathsToCheck = [
         `/usr/share/icons/hicolor/*/apps/${iconName}.png`,
-        `/usr/local/share/icons/hicolor/*/apps/${iconName}.png`
+        `/usr/local/share/icons/hicolor/*/apps/${iconName}.png`,
+        `/usr/share/pixmaps/${iconName}.svg`,
+        `/usr/share/pixmaps/${iconName}.png`
     ];
 
     var bestImagePath = null;
@@ -75,6 +77,8 @@ exports.getNamedAppIcon = function(iconName) {
         }
 
         return Promise.resolve({
+            name: iconName,
+            path,
             mimeType: mime.lookup(path),
             data: fs.readFileSync(path)
         });

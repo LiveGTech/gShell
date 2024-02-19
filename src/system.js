@@ -137,8 +137,6 @@ exports.isInstallationMedia = function() {
 };
 
 exports.getProcessInfo = function(pid) {
-    var pathOutput;
-
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve({
             path: "/system/dummy",
@@ -147,13 +145,9 @@ exports.getProcessInfo = function(pid) {
     }
 
     return exports.executeCommand("ps", ["-p", pid, "-o", "command="]).then(function(output) {
-        pathOutput = output;
-
-        return exports.executeCommand("ps", ["-p", pid, "-o", "comm="]);
-    }).then(function(output) {
         return Promise.resolve({
-            path: pathOutput.stdout.trim(),
-            name: output.stdout.trim()
+            path: output.stdout.trim(),
+            name: output.stdout.trim().split(" ")[0].split("/").slice(-1)[0]
         });
     })
 };

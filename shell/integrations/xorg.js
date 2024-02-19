@@ -97,17 +97,20 @@ function checkWindowProperties(trackedWindow) {
             switcher.setAppCustomTab(trackedWindow.appElement, data.title);
         }
 
-        requestAnimationFrame(function() {
-            checkWindowProperties(trackedWindow);
-        });
-
         if (data.pid == null) {
             // `_NET_WM_PID` not set yet
+
+            requestAnimationFrame(function() {
+                checkWindowProperties(trackedWindow);
+            });
+
             return Promise.resolve();
         }
 
         return gShell.call("system_getProcessInfo", {pid: data.pid}).then(function(data) {
-            // TODO: Look up relevant .desktop file to obtain suitable name and icon
+            return gShell.call("linux_getAppInfo", {processName: data.name});
+        }).then(function(data) {
+            console.log(data);
         });
     });
 }

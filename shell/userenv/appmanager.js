@@ -138,25 +138,19 @@ export function install(appDetails, updateSameUsingProperties = [], updateOnly =
         }
 
         var iconUrl = appDetails.icon;
-        var mimeType;
 
         appDetails.icon = null; // Discard URL so that it is never loaded if resource saving fails
 
         return fetch(iconUrl).then(function(response) {
-            mimeType = response.headers.get("Content-Type").split(";")[0];
+            appDetails.iconMimeType = response.headers.get("Content-Type").split(";")[0];
 
-            if (!(mimeType in ICON_MIME_TYPES_TO_FILE_EXTENSIONS)) {
+            if (!(appDetails.iconMimeType in ICON_MIME_TYPES_TO_FILE_EXTENSIONS)) {
                 return Promise.reject(`Icon MIME type (\`${mimeType}\`) not allowed when installing app: ${iconUrl}`);
             }
 
             return response.arrayBuffer();
         }).then(function(data) {
-            resource = new resources.Resource(ICON_MIME_TYPES_TO_FILE_EXTENSIONS[mimeType], data);
-
-            return resource.save();
-        }).then(function() {
-            appDetails.icon = resource.url;
-            appDetails.iconResourceId = resource.id;
+            appDetails.iconData = data;
 
             return Promise.resolve();
         }).catch(function(error) {
@@ -165,6 +159,22 @@ export function install(appDetails, updateSameUsingProperties = [], updateOnly =
             return Promise.resolve();
         });
     }).then(function() {
+        if (!appDetails.iconData || !appDetails.iconMimeType) {
+            return Promise.resolve();
+        }
+
+        var resource = new resources.Resource(ICON_MIME_TYPES_TO_FILE_EXTENSIONS[appDetails.iconMimeType], appDetails.iconData);
+
+        return resource.save().then(function() {
+            appDetails.icon = resource.url;
+            appDetails.iconResourceId = resource.id;
+
+            return Promise.resolve();
+        });
+    }).then(function() {
+        delete appDetails.iconData;
+        delete appDetails.iconMimeType;
+
         return config.edit(`users/${user.uid}/apps.gsc`, function(data) {
             data.apps ||= {};
 

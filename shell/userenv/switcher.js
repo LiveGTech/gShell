@@ -17,6 +17,7 @@ import * as device from "gshell://system/device.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as sphere from "gshell://sphere/sphere.js";
+import * as linux from "gshell://integrations/linux.js";
 
 export const MAX_WAIT_UNTIL_LAUNCH = 2 * 1_000; // 2 seconds
 export const WINDOW_RESIZE_BORDER_THICKNESS = calc.getRemSize(0.6);
@@ -1142,6 +1143,12 @@ export function bringWindowForward(element) {
 export function openApp(url, appDetails = null, targetWindow = null) {
     if (url.split("?")[0] == "gsspecial://sphere") {
         sphere.openBrowser($g.core.parameter("startUrl", url));
+
+        return;
+    }
+
+    if (url.split("?")[0] == "gsspecial://linuxapp") {
+        linux.launchApp($g.core.parameter("name", url));
 
         return;
     }

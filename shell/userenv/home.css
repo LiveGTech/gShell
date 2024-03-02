@@ -112,6 +112,10 @@
     border-radius: 0.6rem;
 }
 
+.home_icon.fit {
+    padding: 6%;
+}
+
 .home_spacer {
     height: 0.5rem;
 }

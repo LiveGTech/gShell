@@ -109,6 +109,12 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
 
         return gShell.call("system_getFlags");
     }).then(function(flags) {
+        if (metadata.user && metadata.useSystemUserInSimulator && !flags.isRealHardware) {
+            console.log(`Would run as user \`${metadata.user.linuxUsername}\` on real hardware: ${file} ${args.join(" ")}`);
+
+            metadata.user = null;
+        }
+
         if (metadata.user != null) {
             options.env ||= {};
 
@@ -149,17 +155,19 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
 
         var terminal = new Terminal(file || "bash", args, options);
 
-        terminal.onRead(function(data) {
-            metadata.webview.get().send("term_read", {key: terminal.key, data});
-        });
-
-        terminal.onExit(function(exitCode, signal) {
-            metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
-        });
-
-        metadata.webview.on("switcherclose", function() {
-            terminal.kill("SIGHUP");
-        });
+        if (metadata.webview) {
+            terminal.onRead(function(data) {
+                metadata.webview.get().send("term_read", {key: terminal.key, data});
+            });
+    
+            terminal.onExit(function(exitCode, signal) {
+                metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
+            });
+    
+            metadata.webview.on("switcherclose", function() {
+                terminal.kill("SIGHUP");
+            });
+        }
 
         return Promise.resolve(terminal.key);
     });

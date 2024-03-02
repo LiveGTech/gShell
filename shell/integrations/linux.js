@@ -8,6 +8,7 @@
 */
 
 import * as l10n from "gshell://config/l10n.js";
+import * as users from "gshell://config/users.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as appManager from "gshell://userenv/appmanager.js";
 import * as term from "gshell://system/term.js";
@@ -38,7 +39,13 @@ export function addAppToList(processName) {
 }
 
 export function launchApp(processName) {
-    return gShell.call("linux_getAppInfo", {processName}).then(function(appInfo) {
+    var user;
+
+    return users.ensureCurrentUser().then(function(returnedUser) {
+        user = returnedUser;
+
+        return gShell.call("linux_getAppInfo", {processName});
+    }).then(function(appInfo) {
         var commandParts = [];
         var currentPart = "";
         var inString = false;
@@ -113,13 +120,15 @@ export function launchApp(processName) {
             return;
         }
 
-        var terminal = new term.Terminal(command, args, {
+        term.createForPrivilegedInterface({user, useSystemUserInSimulator: true}, command, args, {
             env: {
                 "GOS_LAUNCHED": "1"
             }
+        }).then(function(key) {
+            var terminal = term.getTerminalByKey(key);
+        
+            terminal.spawn();
         });
-
-        terminal.spawn();
     });
 }
 

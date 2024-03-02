@@ -113,7 +113,11 @@
 }
 
 .home_icon.fit {
-    padding: 6%;
+    padding: 0.4rem;
+}
+
+.home_appMenuView:is(.alphabetical, .search) .home_icon.fit {
+    padding: 0.25rem;
 }
 
 .home_spacer {

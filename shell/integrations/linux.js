@@ -8,6 +8,7 @@
 */
 
 import * as l10n from "gshell://config/l10n.js";
+import * as switcher from "gshell://userenv/switcher.js";
 import * as appManager from "gshell://userenv/appmanager.js";
 import * as term from "gshell://system/term.js";
 
@@ -98,7 +99,19 @@ export function launchApp(processName) {
         var command = commandParts.shift();
         var args = commandParts;
 
-        // TODO: Launch in Terminal app instead if required
+        if (appInfo.requiresTerminal) {
+            var commandLine = [command, ...args].map((part) => part
+                .replace(/\\/g, "\\\\")
+                .replace(/"/g, "\\\"")
+                .replace(/ /g, "\\ ")
+            ).join(" ");
+
+            switcher.openApp(`gshell://apps/terminal/index.html?exec=${encodeURIComponent(commandLine)}`, {
+                icon: "gshell://apps/terminal/icon.svg"
+            });
+
+            return;
+        }
 
         var terminal = new term.Terminal(command, args, {
             env: {

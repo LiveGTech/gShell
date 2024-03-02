@@ -97,4 +97,11 @@ $g.waitForLoad().then(function() {
     });
 
     sphereTerminal.spawn();
+
+    if ($g.core.parameter("exec")) {
+        // Give shell a little time to start up
+        setTimeout(function() {
+            sphereTerminal.write($g.core.parameter("exec") + "\n");
+        }, 250);
+    }
 });

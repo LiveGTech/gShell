@@ -1056,6 +1056,8 @@ export function closeWindow(element, animate = true, force = false) {
         function removeScreen() {
             element.find("webview").emit("switcherclose");
 
+            windowStackingOrder = windowStackingOrder.filter((currentElement) => currentElement.get() != element.get());
+
             element.remove();
         }
 

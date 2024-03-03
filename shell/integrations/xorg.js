@@ -121,6 +121,7 @@ function checkWindowProperties(trackedWindow) {
         return gShell.call("linux_getAppInfo", {processName});
     }).then(function(appDetails) {
         if (trackedWindow.appElement && appDetails != null) {
+            // TODO: Use localised name instead
             switcher.setAppTitle(trackedWindow.appElement, titleUsed || appDetails.name);
 
             if (appDetails.icon) {

@@ -13,11 +13,31 @@ import * as switcher from "gshell://userenv/switcher.js";
 import * as appManager from "gshell://userenv/appmanager.js";
 import * as term from "gshell://system/term.js";
 
+export var processNameAssociations = {};
+
+export function associateProcessName(processName, appName) {
+    // This is needed as some processes have different names to their .desktop filenames
+
+    if (processName == appName) {
+        return;
+    }
+
+    processNameAssociations[processName] = appName;
+}
+
+export function resolveProcessName(processName) {
+    return processNameAssociations[processName] || processName;
+}
+
 export function addAppToList(processName) {
+    processName = resolveProcessName[processName];
+
     return gShell.call("linux_getAppInfo", {processName}).then(function(appInfo) {
         var localeCode = l10n.currentLocale.localeCode;
         var iconData = undefined;
         var iconMimeType = undefined;
+
+        associateProcessName(appInfo.command.split(" ")[0], processName);
 
         if (appInfo.icon) {
             iconData = appInfo.icon.data.buffer;
@@ -105,6 +125,8 @@ export function launchApp(processName) {
 
         var command = commandParts.shift();
         var args = commandParts;
+
+        associateProcessName(command, processName);
 
         if (appInfo.requiresTerminal) {
             var commandLine = [command, ...args].map((part) => part

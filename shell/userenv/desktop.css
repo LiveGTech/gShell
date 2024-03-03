@@ -125,6 +125,10 @@ body:not([device-type="desktop"]) .desktop_appBar {
     border-radius: 0.5rem;
 }
 
+.desktop_appListButton_icon.fit {
+    padding: 0.3rem;
+}
+
 .desktop_appMenu {
     top: unset!important;
     bottom: 3rem!important;

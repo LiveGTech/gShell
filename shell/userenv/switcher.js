@@ -642,7 +642,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 .addClass("desktop_appListButton_icon")
                 .setAttribute("aria-hidden", true)
                 .on("error", function() {
-                    screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg");
+                    screenElement.get().appListButton.find(".desktop_appListButton_icon")
+                        .removeClass("fit")
+                        .setAttribute("src", "gshell://media/appdefault.svg")
+                    ;
                 })
         )
         .on("click", function() {
@@ -903,7 +906,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                         .addClass("switcher_tabIcon")
                         .setAttribute("aria-hidden", true)
                         .on("error", function() {
-                            tab.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg");
+                            tab.find(".switcher_tabIcon")
+                                .removeClass("fit")
+                                .setAttribute("src", "gshell://media/appdefault.svg")
+                            ;
                         })
                     ,
                     $g.create("span")
@@ -938,17 +944,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     app.get().lastIcon = null;
 
     if (appDetails != null) {
-        app.get().lastTitle = appDetails.displayName;
-        app.get().lastIcon = appDetails.icon;
-
-        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.displayName);
-
-        tab.find(".switcher_tabTitle").setText(appDetails.displayName);
-        tab.find(".switcher_tabIcon").setAttribute("src", appDetails.icon);
+        setAppTitle(app, appDetails.displayName);
+        setAppIcon(app, appDetails.icon);
 
         element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.displayName, count: getWindowAppCount(element) + 1}));
-        element.get().appListButton.setAttribute("aria-label", appDetails.displayName);
-        element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
 
     element.find("webview").on("page-title-updated", function(event) {
@@ -956,16 +955,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
             return;
         }
 
-        app.get().lastTitle = event.title;
-
-        if (tab.hasClass("selected")) {
-            element.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
-
-            element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(element)}));
-            element.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
-        }
-
-        tab.find(".switcher_tabTitle").setText(app.get().lastTitle);
+        setAppTitle(app, event.title);
     });
 
     element.find("webview").on("page-favicon-updated", function(event) {
@@ -973,13 +963,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
             return;
         }
 
-        app.get().lastIcon = appDetails?.icon || event.favicons[0];
-
-        if (tab.hasClass("selected")) {
-            element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", app.get().lastIcon);
-        }
-
-        tab.find(".switcher_tabIcon").setAttribute("src", app.get().lastIcon);
+        setAppIcon(app, appDetails?.icon || event.favicons[0]);
     });
 
     tab.on("click", function() {
@@ -1193,6 +1177,48 @@ export function openApp(url, appDetails = null, targetWindow = null) {
     });
 }
 
+export function setAppTitle(app, title) {
+    var screenElement = app.ancestor(".switcher_screen");
+
+    app.get().lastTitle = title;
+
+    if (app.get().tab.hasClass("selected")) {
+        screenElement.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
+
+        screenElement.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(screenElement)}));
+        screenElement.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
+    }
+
+    app.get().tab.find(".switcher_tabTitle").setText(app.get().lastTitle);
+}
+
+export function setAppIcon(app, icon, fit = false) {
+    var screenElement = app.ancestor(".switcher_screen");
+
+    app.get().lastIcon = icon;
+    app.get().lastIconIsFitted = fit;
+
+    if (app.get().tab.hasClass("selected")) {
+        screenElement.get().appListButton.find(".desktop_appListButton_icon")
+            .setAttribute("src", app.get().lastIcon)
+            .condition(
+                fit,
+                (element) => element.addClass("fit"),
+                (element) => element.removeClass("fit")
+            )
+        ;
+    }
+
+    app.get().tab.find(".switcher_tabIcon")
+        .setAttribute("src", app.get().lastIcon)
+        .condition(
+            fit,
+            (element) => element.addClass("fit"),
+            (element) => element.removeClass("fit")
+        )
+    ;
+}
+
 export function selectApp(element) {
     var screenElement = element.ancestor(".switcher_screen");
 
@@ -1207,7 +1233,15 @@ export function selectApp(element) {
 
         screenElement.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: element.get().lastTitle, count: getWindowAppCount(screenElement)}));
         screenElement.get().appListButton.setAttribute("aria-label", element.get().lastTitle);
-        screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", element.get().lastIcon);
+
+        screenElement.get().appListButton.find(".desktop_appListButton_icon")
+            .setAttribute("src", element.get().lastIcon)
+            .condition(
+                element.get().lastIconIsFitted,
+                (element) => element.addClass("fit"),
+                (element) => element.removeClass("fit")
+            )
+        ;
     }
 }
 

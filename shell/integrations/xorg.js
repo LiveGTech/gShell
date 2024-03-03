@@ -11,6 +11,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as displays from "gshell://system/displays.js";
 import * as switcher from "gshell://userenv/switcher.js";
+import * as linux from "gshell://integrations/linux.js";
 
 const KEYBOARD_KEY_MAPPINGS = { // Mapping `KeyboardEvent.key` to an XCB keycode
     "Enter": 36,
@@ -92,9 +93,15 @@ function checkWindowProperties(trackedWindow) {
         return;
     }
 
+    var titleUsed = null;
+
     gShell.call("xorg_getWindowProperties", {id: trackedWindow.id}).then(function(data) {
         if (trackedWindow.appElement) {
-            switcher.setAppCustomTab(trackedWindow.appElement, data.title);
+            if (data.title?.trim().length > 0) {
+                titleUsed = data.title;
+            }
+
+            switcher.setAppCustomTab(trackedWindow.appElement, titleUsed);
         }
 
         if (data.pid == null) {
@@ -107,11 +114,21 @@ function checkWindowProperties(trackedWindow) {
             return Promise.resolve();
         }
 
-        return gShell.call("system_getProcessInfo", {pid: data.pid}).then(function(data) {
-            return gShell.call("linux_getAppInfo", {processName: data.name});
-        }).then(function(data) {
-            console.log(data);
-        });
+        return gShell.call("system_getProcessInfo", {pid: data.pid});
+    }).then(function(data) {
+        var processName = linux.resolveProcessName(data.name);
+
+        return gShell.call("linux_getAppInfo", {processName});
+    }).then(function(appDetails) {
+        if (trackedWindow.appElement && appDetails != null) {
+            switcher.setAppTitle(trackedWindow.appElement, titleUsed || appDetails.name);
+
+            if (appDetails.icon) {
+                switcher.setAppIcon(trackedWindow.appElement, URL.createObjectURL(
+                    new Blob([appDetails.icon.data.buffer], {type: appDetails.icon.mimeType})
+                ), true);
+            }
+        }
     });
 }
 

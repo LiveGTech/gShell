@@ -9,6 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
+import * as l10n from "gshell://config/l10n.js";
 import * as displays from "gshell://system/displays.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as linux from "gshell://integrations/linux.js";
@@ -121,8 +122,14 @@ function checkWindowProperties(trackedWindow) {
         return gShell.call("linux_getAppInfo", {processName});
     }).then(function(appDetails) {
         if (trackedWindow.appElement && appDetails != null) {
-            // TODO: Use localised name instead
-            switcher.setAppTitle(trackedWindow.appElement, titleUsed || appDetails.name);
+            var title = titleUsed;
+            var currentLocale = l10n.currentLocale.localeCode;
+
+            title ||= appDetails.localisedNames[currentLocale.split("_")[0]];
+            title ||= appDetails.localisedNames[currentLocale];
+            title ||= appDetails.name;
+
+            switcher.setAppTitle(trackedWindow.appElement, title);
 
             if (appDetails.icon) {
                 switcher.setAppIcon(trackedWindow.appElement, URL.createObjectURL(

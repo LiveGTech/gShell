@@ -16,6 +16,7 @@ var storage = require("./storage");
 var device = require("./device");
 var config = require("./config");
 var network = require("./network");
+var mobile = require("./mobile");
 var permissions = require("./permissions");
 var term = require("./term");
 var linux = require("./linux");
@@ -216,6 +217,22 @@ ipcMain.handle("network_resumeFileDownload", function(event, data) {
 
 ipcMain.handle("network_cancelFileDownload", function(event, data) {
     return network.cancelFileDownload(data.id);
+});
+
+ipcMain.handle("mobile_listModems", function(event, data) {
+    return mobile.listModems();
+});
+
+ipcMain.handle("mobile_setModemPowerState", function(event, data) {
+    return mobile.setModemPowerState(data.modemId, data.enable);
+});
+
+ipcMain.handle("mobile_getSignalInfo", function(event, data) {
+    return mobile.getSignalInfo(data.modemId);
+});
+
+ipcMain.handle("mobile_setSignalPollInterval", function(event, data) {
+    return mobile.setSignalPollInterval(data.modemId, data.interval);
 });
 
 ipcMain.handle("io_input", function(event, data) {

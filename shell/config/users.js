@@ -105,7 +105,6 @@ export class User {
 
         const UID = this.uid;
         const USERNAME = this.linuxUsername;
-        const USER_FOLDER_LOCATION = `/system/storage/users/${UID}/files`;
 
         return gShell.call("system_getLinuxUsersList").then(function(usernames) {
             if (usernames.includes(thisScope.linuxUsername)) {
@@ -121,8 +120,7 @@ export class User {
 
             [
                 ["sudo", ["useradd", USERNAME]],
-                ["sudo", ["mkdir", "-p", USER_FOLDER_LOCATION]],
-                ["sudo", ["ln", "-s", USER_FOLDER_LOCATION, `/home/${USERNAME}`]],
+                ["sudo", ["ln", "-s", `/system/storage/users/${UID}/files`, `/home/${USERNAME}`]],
                 ["sudo", ["cp", "-r", "/etc/skel/.", `/home/${USERNAME}`]],
                 ["sudo", ["usermod", "-aG", "liveg,users", USERNAME]],
                 ["sudo", ["usermod", "-s", "/bin/bash", USERNAME]]
@@ -212,7 +210,14 @@ export class User {
     }
 
     init() {
-        return this.ensureLinuxUser();
+        var thisScope = this;
+
+        // Ensure that user's `files` folder exists
+        return gShell.call("storage_newFolder", {
+            location: `users/${this.uid}/files`
+        }).then(function() {
+            return thisScope.ensureLinuxUser();
+        });
     }
 
     save() {

@@ -60,6 +60,10 @@ export function handlePowerButtonDown() {
 }
 
 export function handlePowerButtonUp() {
+    if (!powerButtonIsDown) {
+        return;
+    }
+
     powerButtonIsDown = false;
 
     sleep.toggle();

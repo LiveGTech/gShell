@@ -94,7 +94,7 @@ exports.getSignalInfo = function(modemId) {
                     rsrp: -113,
                     rsrq: -13,
                     snr: 2.6,
-                    strength: 60
+                    signal: 60
                 }
             }
         });
@@ -131,11 +131,11 @@ exports.getSignalInfo = function(modemId) {
             };
 
             if (technologyInfo["rsrq"]) {
-                result.technologies[technology].strength = clampValue(remapValue(extractStrengthValue(technologyInfo["rsrq"]), -25, -5, 0, 100), 0, 100);
+                result.technologies[technology].signal = clampValue(remapValue(extractStrengthValue(technologyInfo["rsrq"]), -25, -5, 0, 100), 0, 100);
             } else if (technologyInfo["sinr"]) {
-                result.technologies[technology].strength = clampValue(remapValue(extractStrengthValue(technologyInfo["sinr"]), -3, 23, 0, 100), 0, 100);
+                result.technologies[technology].signal = clampValue(remapValue(extractStrengthValue(technologyInfo["sinr"]), -3, 23, 0, 100), 0, 100);
             } else if (technologyInfo["rsrp"]) {
-                result.technologies[technology].strength = clampValue(remapValue(extractStrengthValue(technologyInfo["rsrp"]), -110, -70, 0, 100), 0, 100);
+                result.technologies[technology].signal = clampValue(remapValue(extractStrengthValue(technologyInfo["rsrp"]), -110, -70, 0, 100), 0, 100);
             }
 
             if (!anyStrengthAvailable) {

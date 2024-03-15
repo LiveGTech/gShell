@@ -71,12 +71,20 @@ body:not([device-type="desktop"]) .desktop_appBar {
 }
 
 .desktop_appBar span:not(:empty) {
-    padding-left: 0.4rem;
-    padding-right: 0.4rem;
+    padding-inline: 0.4rem;
+}
+
+.desktop_appBar .info_batteryLevel {
+    padding-inline-start: 0!important;
 }
 
 .desktop_appBar img {
     height: 60%;
+}
+
+.desktop_appBar > img {
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
 }
 
 .desktop_appList {

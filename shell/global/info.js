@@ -10,6 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
 import * as users from "gshell://config/users.js";
+import * as network from "gshell://system/network.js";
 
 export function applyDateTime() {
     $g.sel(".info_date").setText(_format(new Date(), {weekday: "long", day: "numeric", month: "long"}));
@@ -21,6 +22,8 @@ export function applyPower() {
         if (response.state == null) {
             $g.sel(".info_batteryLevel").setText("");
 
+            $g.sel(".info_batteryIcon").hide();
+
             $g.sel(".info_batteryIcon").setAttribute("src", "gshell://lib/adaptui/icons/battery-unknown.svg");
             $g.sel(".info_batteryIcon").setAttribute("alt", _("info_batteryIcon_unknown"));
             $g.sel(".info_batteryIcon").setAttribute("title", _("info_batteryIcon_unknown"));
@@ -29,6 +32,8 @@ export function applyPower() {
         }
 
         $g.sel(".info_batteryLevel").setText(_("percentage", {value: response.level}));
+
+        $g.sel(".info_batteryIcon").show();
 
         if (response.state == "charging") {
             $g.sel(".info_batteryIcon").setAttribute("src", "gshell://lib/adaptui/icons/battery-charging.svg");
@@ -41,6 +46,28 @@ export function applyPower() {
         $g.sel(".info_batteryIcon").setAttribute("alt", alt);
         $g.sel(".info_batteryIcon").setAttribute("title", alt);
     });
+}
+
+export function applyNetwork() {
+    var genericConnections = network.listResults.filter((result) => result.connected);
+    var wifiScanConnectedResults = network.wifiScanResults.filter((result) => result.connected);
+
+    if (genericConnections.find((result) => result.type == "wifi")) {
+        var connectedAp = wifiScanConnectedResults[0];
+        var alt = _("info_networkIcon_connectedWifi", {name: connectedAp.name, signal: connectedAp.signal});
+
+        $g.sel(".info_networkIcon").setAttribute("src", `gshell://lib/adaptui/icons/wifi-${Math.round((connectedAp.signal / 100) * 2)}.svg`);
+        $g.sel(".info_networkIcon").setAttribute("alt", alt);
+        $g.sel(".info_networkIcon").setAttribute("title", alt);
+    } else if (genericConnections.find((result) => result.type == "ethernet")) {
+        $g.sel(".info_networkIcon").setAttribute("src", `gshell://lib/adaptui/icons/ethernet.svg`);
+        $g.sel(".info_networkIcon").setAttribute("alt", _("info_networkIcon_connectedEthernet"));
+        $g.sel(".info_networkIcon").setAttribute("title", _("info_networkIcon_connectedEthernet"));
+    } else {
+        $g.sel(".info_networkIcon").setAttribute("src", `gshell://lib/adaptui/icons/offline.svg`);
+        $g.sel(".info_networkIcon").setAttribute("alt", _("info_networkIcon_disconnected"));
+        $g.sel(".info_networkIcon").setAttribute("title", _("info_networkIcon_disconnected"));
+    }
 }
 
 export function applyCurrentUser() {
@@ -60,6 +87,7 @@ export function applyCurrentUser() {
 export function applyAll() {
     applyDateTime();
     applyPower();
+    applyNetwork();
     applyCurrentUser();
 }
 

@@ -29,6 +29,10 @@
         "info_batteryIcon_discharging": "Battery - discharging",
         "info_batteryIcon_unknown": "Battery - unknown",
 
+        "info_networkIcon_connectedWifi": "Network - connected to {name} ({signal}% signal strength)",
+        "info_networkIcon_connectedEthernet": "Network - connected via Ethernet",
+        "info_networkIcon_disconnected": "Network - disconnected",
+
         "powerMenu_lock": "Lock",
         "powerMenu_sleep": "Sleep",
         "powerMenu_shutDown": "Shut down",

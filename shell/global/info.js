@@ -24,9 +24,11 @@ export function applyPower() {
 
             $g.sel(".info_batteryIcon").hide();
 
-            $g.sel(".info_batteryIcon").setAttribute("src", "gshell://lib/adaptui/icons/battery-unknown.svg");
-            $g.sel(".info_batteryIcon").setAttribute("alt", _("info_batteryIcon_unknown"));
-            $g.sel(".info_batteryIcon").setAttribute("title", _("info_batteryIcon_unknown"));
+            $g.sel(".info_batteryIcon")
+                .setAttribute("src", "gshell://lib/adaptui/icons/battery-unknown.svg")
+                .setAttribute("alt", _("info_batteryIcon_unknown"))
+                .setAttribute("title", _("info_batteryIcon_unknown"))
+            ;
 
             return;
         }
@@ -43,8 +45,10 @@ export function applyPower() {
 
         var alt = response.state == "charging" ? _("info_batteryIcon_charging") : _("info_batteryIcon_discharging");
 
-        $g.sel(".info_batteryIcon").setAttribute("alt", alt);
-        $g.sel(".info_batteryIcon").setAttribute("title", alt);
+        $g.sel(".info_batteryIcon")
+            .setAttribute("alt", alt)
+            .setAttribute("title", alt)
+        ;
     });
 }
 
@@ -56,17 +60,23 @@ export function applyNetwork() {
         var connectedAp = wifiScanConnectedResults[0];
         var alt = _("info_networkIcon_connectedWifi", {name: connectedAp.name, signal: connectedAp.signal});
 
-        $g.sel(".info_networkIcon").setAttribute("src", `gshell://lib/adaptui/icons/wifi-${Math.round((connectedAp.signal / 100) * 2)}.svg`);
-        $g.sel(".info_networkIcon").setAttribute("alt", alt);
-        $g.sel(".info_networkIcon").setAttribute("title", alt);
+        $g.sel(".info_networkIcon")
+            .setAttribute("src", `gshell://lib/adaptui/icons/wifi-${Math.round((connectedAp.signal / 100) * 2)}.svg`)
+            .setAttribute("alt", alt)
+            .setAttribute("title", alt)
+        ;
     } else if (genericConnections.find((result) => result.type == "ethernet")) {
-        $g.sel(".info_networkIcon").setAttribute("src", `gshell://lib/adaptui/icons/ethernet.svg`);
-        $g.sel(".info_networkIcon").setAttribute("alt", _("info_networkIcon_connectedEthernet"));
-        $g.sel(".info_networkIcon").setAttribute("title", _("info_networkIcon_connectedEthernet"));
+        $g.sel(".info_networkIcon")
+            .setAttribute("src", `gshell://lib/adaptui/icons/ethernet.svg`)
+            .setAttribute("alt", _("info_networkIcon_connectedEthernet"))
+            .setAttribute("title", _("info_networkIcon_connectedEthernet"))
+        ;
     } else {
-        $g.sel(".info_networkIcon").setAttribute("src", `gshell://lib/adaptui/icons/offline.svg`);
-        $g.sel(".info_networkIcon").setAttribute("alt", _("info_networkIcon_disconnected"));
-        $g.sel(".info_networkIcon").setAttribute("title", _("info_networkIcon_disconnected"));
+        $g.sel(".info_networkIcon")
+            .setAttribute("src", `gshell://lib/adaptui/icons/offline.svg`)
+            .setAttribute("alt", _("info_networkIcon_disconnected"))
+            .setAttribute("title", _("info_networkIcon_disconnected"))
+        ;
     }
 }
 

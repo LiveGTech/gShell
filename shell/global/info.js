@@ -93,7 +93,7 @@ export function applyNetwork() {
 }
 
 export function applyMobile() {
-    var primaryModem = mobile.modems.find((modem) => modem.isEnabled && modem.signalInfo != null);
+    var primaryModem = mobile.modems.find((modem) => modem.enabled && modem.signalInfo != null);
 
     if (!primaryModem) {
         $g.sel(".info_mobileIcon").hide();

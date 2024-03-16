@@ -17,12 +17,17 @@ export class Modem {
     constructor(id) {
         this.id = id;
 
+        this.available = true;
         this.info = null;
         this.signalInfo = null;
+
+        this.signalPollInterval = setInterval(function() {
+            thisScope.updateSignalInfo();
+        }, MODEM_CHECK_INTERVAL);
     }
 
-    get isEnabled() {
-        return !!this.info?.enabled;
+    get enabled() {
+        return this.available && !!this.info?.enabled;
     }
 
     enable() {
@@ -41,8 +46,18 @@ export class Modem {
         return gShell.call("mobile_setModemActiveState", {modemId: this.id, enable: false});
     }
 
+    makeUnavailable() {
+        this.available = false;
+
+        clearInterval(this.signalPollInterval);
+    }
+
     updateSignalInfo() {
         var thisScope = this;
+
+        if (!this.enabled) {
+            return Promise.resolve();
+        }
 
         return gShell.call("mobile_getSignalInfo", {modemId: this.id}).then(function(data) {
             thisScope.signalInfo = data;
@@ -76,6 +91,10 @@ export function getModems() {
             }
         });
 
+        modemsNotListed.forEach((modem) => modem.makeUnavailable());
+
+        modems = modems.filter((modem) => !modemsNotListed.includes(modem));
+
         info.applyMobile();
 
         return Promise.resolve(modems);
@@ -83,7 +102,7 @@ export function getModems() {
 }
 
 export function hasSignal() {
-    var primaryModem = modems.find((modem) => modem.isEnabled && modem.signalInfo != null);
+    var primaryModem = modems.find((modem) => modem.enabled && modem.signalInfo != null);
 
     if (!primaryModem) {
         return false;

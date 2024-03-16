@@ -68,7 +68,7 @@ exports.listModems = function() {
     });
 };
 
-exports.setModemPowerState = function(modemId, enable = true) {
+exports.setModemActiveState = function(modemId, enable = true) {
     if (!flags.isRealHardware && !flags.allowHostControl) {
         return Promise.resolve();
     }
@@ -95,7 +95,8 @@ exports.getSignalInfo = function(modemId) {
                     rsrq: -13,
                     snr: 2.6,
                     signal: 60
-                }
+                },
+                "5g": null
             }
         });
     }

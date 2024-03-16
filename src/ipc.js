@@ -223,8 +223,8 @@ ipcMain.handle("mobile_listModems", function(event, data) {
     return mobile.listModems();
 });
 
-ipcMain.handle("mobile_setModemPowerState", function(event, data) {
-    return mobile.setModemPowerState(data.modemId, data.enable);
+ipcMain.handle("mobile_setModemActiveState", function(event, data) {
+    return mobile.setModemActiveState(data.modemId, data.enable);
 });
 
 ipcMain.handle("mobile_getSignalInfo", function(event, data) {

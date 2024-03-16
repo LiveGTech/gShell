@@ -19,7 +19,7 @@
     "dependencies": {
         "@liveg/x11": "^2.3.0",
         "bcryptjs": "^2.4.3",
-        "electron-dl": "^3.5.0",
+        "electron-dl": "^3.5.1",
         "electron-fetch": "^1.9.1",
         "glob": "^10.3.10",
         "mime-types": "^2.1.35",

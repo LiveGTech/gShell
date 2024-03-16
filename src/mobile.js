@@ -147,6 +147,8 @@ exports.getSignalInfo = function(modemId) {
 
             result.bestAvailableTechnology = technology;
         });
+
+        return Promise.resolve(result);
     });
 };
 

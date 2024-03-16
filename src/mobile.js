@@ -128,10 +128,7 @@ exports.getSignalInfo = function(modemId) {
                 rscp: extractStrengthValue(technologyInfo["rscp"]),
                 ecio: extractStrengthValue(technologyInfo["ecio"]),
                 snr: extractStrengthValue(technologyInfo["snr"]),
-                sinr: extractStrengthValue(technologyInfo["sinr"]),
-                actualData: technologyInfo, // TODO: Remove
-                actualRssi: technologyInfo["rssi"], // TODO: Remove
-                extractTest: extractStrengthValue("-114.00") // TODO: Remove
+                sinr: extractStrengthValue(technologyInfo["sinr"])
             };
 
             if (technologyInfo["rsrq"]) {

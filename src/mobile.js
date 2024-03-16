@@ -112,7 +112,7 @@ exports.getSignalInfo = function(modemId) {
             var anyStrengthAvailable = false;
 
             function extractStrengthValue(stringValue) {
-                if (stringValue == "--") {
+                if (stringValue == undefined || stringValue == "--") {
                     return undefined;
                 }
 
@@ -129,7 +129,9 @@ exports.getSignalInfo = function(modemId) {
                 ecio: extractStrengthValue(technologyInfo["ecio"]),
                 snr: extractStrengthValue(technologyInfo["snr"]),
                 sinr: extractStrengthValue(technologyInfo["sinr"]),
-                actualData: modemSignalInfo // TODO: Remove
+                actualData: technologyInfo, // TODO: Remove
+                actualRssi: technologyInfo["rssi"], // TODO: Remove
+                extractTest: extractStrengthValue("-114.00") // TODO: Remove
             };
 
             if (technologyInfo["rsrq"]) {

@@ -30,8 +30,8 @@ export function resolveProcessName(processName) {
 }
 
 export function addAppToList(processName) {
-    processName = resolveProcessName[processName];
-
+    processName = resolveProcessName(processName);
+    
     return gShell.call("linux_getAppInfo", {processName}).then(function(appInfo) {
         var localeCode = l10n.currentLocale.localeCode;
         var iconData = undefined;
@@ -53,7 +53,7 @@ export function addAppToList(processName) {
             url: `gsspecial://linuxapp?name=${encodeURIComponent(processName)}`,
             iconData,
             iconMimeType,
-            fitIcon: true
+            fitIcon: !!appInfo.icon
         }, ["url"]);
     });
 }

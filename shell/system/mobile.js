@@ -15,6 +15,8 @@ export var modems = [];
 
 export class Modem {
     constructor(id) {
+        var thisScope = this;
+
         this.id = id;
 
         this.available = true;

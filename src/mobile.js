@@ -129,6 +129,7 @@ exports.getSignalInfo = function(modemId) {
                 ecio: extractStrengthValue(technologyInfo["ecio"]),
                 snr: extractStrengthValue(technologyInfo["snr"]),
                 sinr: extractStrengthValue(technologyInfo["sinr"]),
+                actualData: modemSignalInfo // TODO: Remove
             };
 
             if (technologyInfo["rsrq"]) {

@@ -11,53 +11,49 @@ const child_process = require("child_process");
 const stream = require("stream");
 const fs = require("fs");
 const electron = require("electron");
-const electronFetch = require("electron-fetch").default;
-const electronDl = require("electron-dl");
 const bcryptjs = require("bcryptjs");
 
 var main = require("./main");
 var flags = require("./flags");
 var storage = require("./storage");
-var config = require("./config");
 var device = require("./device");
+
+exports.abortControllers = [];
 
 var mediaFeatures = {};
 var currentUserAgent = null;
 var currentLocale = null;
-var abortControllers = [];
 var copyRsyncProcesses = [];
 var extractArchiveProcesses = [];
-var downloadFileProcesses = [];
-var downloadFileItems = [];
 var aptInstallationProcesses = [];
 
-function createAbortControllerId() {
-    abortControllers.push(new AbortController());
+exports.createAbortControllerId = function() {
+    exports.abortControllers.push(new AbortController());
 
-    return abortControllers.length - 1;
+    return exports.abortControllers.length - 1;
 }
 
 exports.registerAbortController = function() {
-    return Promise.resolve(createAbortControllerId());
+    return Promise.resolve(exports.createAbortControllerId());
 };
 
 exports.triggerAbortController = function(id) {
-    if (id >= abortControllers.length) {
+    if (id >= exports.abortControllers.length) {
         return Promise.reject("ID does not exist");
     }
 
-    abortControllers[id].abort();
+    exports.abortControllers[id].abort();
 
     return Promise.resolve();
 };
 
 exports.executeCommand = function(command, args = [], stdin = null, stdoutCallback = null, options = {}, abortControllerId = null) {
     if (abortControllerId != null) {
-        if (abortControllerId >= abortControllers.length) {
+        if (abortControllerId >= exports.abortControllers.length) {
             return Promise.reject("ID does not exist");
         }
 
-        options.signal = abortControllers[abortControllerId].signal;
+        options.signal = exports.abortControllers[abortControllerId].signal;
     }
 
     return new Promise(function(resolve, reject) {
@@ -163,7 +159,7 @@ exports.copyFiles = function(source, destination, privileged = false, exclude = 
     args.push(source, destination);
 
     var id = copyRsyncProcesses.length;
-    var abortControllerId = createAbortControllerId();
+    var abortControllerId = exports.createAbortControllerId();
 
     copyRsyncProcesses.push({
         status: "running",
@@ -211,7 +207,7 @@ exports.extractArchive = function(source, destination, getProcessId = false) {
     var args = [`${main.rootDirectory}/src/scripts/extractarchive.sh`, storage.getPath(source), storage.getPath(destination)];
 
     var id = extractArchiveProcesses.length;
-    var abortControllerId = createAbortControllerId();
+    var abortControllerId = exports.createAbortControllerId();
 
     extractArchiveProcesses.push({
         status: "running",
@@ -258,42 +254,6 @@ exports.getExtractArchiveInfo = function(id) {
     }
 
     return Promise.resolve(extractArchiveProcesses[id]);
-};
-
-exports.parseNmcliLine = function(line) {
-    var data = [];
-    var field = "";
-    var escaping = false;
-
-    for (var i = 0; i < line.length; i++) {
-        if (escaping) {
-            field += line[i];
-            escaping = false;
-
-            continue;
-        }
-
-        switch (line[i]) {
-            case "\\":
-                escaping = true;
-                break;
-
-            case ":":
-                data.push(field);
-
-                field = "";
-
-                break;
-
-            default:
-                field += line[i];
-                break;
-        }
-    }
-
-    data.push(field);
-
-    return data;
 };
 
 exports.getScreenResolution = function() {
@@ -475,301 +435,6 @@ exports.bcryptCompare = function(data, hash) {
     });
 };
 
-function networkSsidToQualifiedName(ssid) {
-    return `wifi/${ssid}`;
-}
-
-function networkQualifiedNameToSsid(name) {
-    return name.replace(/^wifi\//, "");
-}
-
-exports.networkList = function() {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
-        return Promise.resolve([]);
-    }
-
-    return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "name,type,active", "connection"]).then(function(output) {
-        var lines = output.stdout.split("\n").filter((line) => line != "");
-
-        return lines.map(function(line) {
-            var data = exports.parseNmcliLine(line);
-
-            return {
-                name: networkQualifiedNameToSsid(data[0]),
-                qualifiedName: data[0],
-                type: {
-                    "802-11-wireless": "wifi",
-                    "802-3-ethernet": "ethernet",
-                    "loopback": "loopback"
-                }[data[1]] || "unknown",
-                connected: data[2] == "yes"
-            };
-        });
-    });
-};
-
-exports.networkScanWifi = function() {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
-        return Promise.resolve([]);
-    }
-
-    return exports.executeCommand("nmcli", ["device", "wifi", "rescan"]).then(function() {
-        return exports.executeCommand("nmcli", ["--terse", "--escape", "yes", "--colors", "no", "--get-values", "ssid,bssid,chan,rate,signal,security,active", "device", "wifi", "list"]);
-    }).then(function(output) {
-        var lines = output.stdout.split("\n").filter((line) => line != "");
-
-        return lines.map(function(line) {
-            var data = exports.parseNmcliLine(line);
-
-            return {
-                name: data[0],
-                bssid: data[1],
-                channel: parseInt(data[2]),
-                bandwidth: parseInt(data[3]),
-                signal: parseInt(data[4]),
-                security: data[5].split(" ").filter((data) => data != "").map((data) => ({
-                    "WEP": "wep",
-                    "WPA1": "wpa1",
-                    "WPA2": "wpa2",
-                    "802.1X": "802_1x"
-                }[data] || "unknown")),
-                connected: data[6] == "yes"
-            };
-        });
-    });
-};
-
-exports.networkDisconnectWifi = function(name) {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
-        return Promise.resolve();
-    }
-
-    return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.qualifiedName == networkSsidToQualifiedName(name) && result.connected);
-
-        if (matchingResults.length == 0) {
-            return Promise.resolve();
-        }
-
-        return exports.executeCommand("nmcli", ["connection", "down", networkSsidToQualifiedName(name)]);
-    });
-};
-
-exports.networkForgetWifi = function(name) {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
-        return Promise.resolve();
-    }
-
-    return exports.networkList().then(function(results) {
-        var matchingResults = results.filter((result) => result.qualifiedName == networkSsidToQualifiedName(name));
-
-        if (matchingResults.length == 0) {
-            return Promise.resolve();
-        }
-
-        return exports.executeCommand("nmcli", ["connection", "delete", networkSsidToQualifiedName(name)]); // This should also disconnect if already connected
-    });
-};
-
-exports.networkConfigureWifi = function(name, auth = {}) {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
-        return Promise.resolve();
-    }
-
-    return exports.networkForgetWifi(name).then(function() {
-        return exports.executeCommand("nmcli", ["connection", "add", "type", "wifi", "connection.id", networkSsidToQualifiedName(name), "ssid", name, ...Object.entries(auth).flat()]);
-    });
-};
-
-exports.networkConnectWifi = function(name) {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
-        return Promise.resolve();
-    }
-
-    return exports.networkDisconnectWifi().then(function() {
-        return exports.executeCommand("nmcli", ["device", "wifi", "connect", name], null);
-    }).then(function(data) {
-        if (data.stdout.includes("Error:")) {
-            if (data.stdout.includes("(7)")) {
-                return Promise.resolve("invalidAuth");
-            }
-
-            return Promise.reject("Could not connect to Wi-Fi network");
-        }
-
-        return Promise.resolve("connected");
-    });
-};
-
-exports.networkGetProxy = function() {
-    return config.read("proxy.gsc");
-};
-
-function setProxyForAllSessions(data) {
-    return Promise.all([
-        electron.session.defaultSession,
-        ...electron.webContents.getAllWebContents().map((webContents) => webContents.session)
-    ].map(function(session) {
-        return session.setProxy(data);
-    }));
-}
-
-exports.networkUpdateProxy = function() {
-    return exports.networkGetProxy().then(function(data) {
-        var excludeMatches = (data.excludeMatches || [])
-            .filter((match) => match.trim() != "")
-            .join(",")
-        ;
-
-        // TODO: Investigate to what modes `excludeMatches` applies
-
-        switch (data?.mode) {
-            case "autoDetect":
-                return setProxyForAllSessions({
-                    mode: "auto_detect"
-                });
-
-            case "pacScriptUrl":
-                return setProxyForAllSessions({
-                    mode: "pac_script",
-                    pacScript: data.pacScriptUrl
-                });
-
-            case "socks":
-                return setProxyForAllSessions({
-                    mode: "fixed_servers",
-                    proxyRules: data.socksProxy
-                });
-
-            case "http":
-                var proxyRules = data.httpProxy;
-
-                if (data.httpsProxy && data.httpsProxy.trim() != "") {
-                    proxyRules = `http=${data.httpProxy};https=${data.httpsProxy}`;
-                }
-
-                return setProxyForAllSessions({
-                    mode: "fixed_servers",
-                    proxyRules,
-                    proxyBypassRules: excludeMatches
-                });
-
-            default:
-                return setProxyForAllSessions({mode: "direct"});
-        }
-    });
-};
-
-exports.networkSetProxy = function(data) {
-    return config.write("proxy.gsc", data).then(function() {
-        return exports.networkUpdateProxy();
-    });
-};
-
-exports.getContentLength = function(url) {
-    return electronFetch(url, {method: "HEAD", cache: "no-store"}).then(function(response) {
-        return Promise.resolve(Number(response.headers.get("Content-Length")));
-    });
-};
-
-exports.downloadFile = function(url, destination, getProcessId = false) {
-    var path = storage.getPath(destination).split("/");
-    var filename = path.pop();
-    var folder = path.join("/");
-
-    var id = downloadFileProcesses.length;
-    var abortControllerId = createAbortControllerId();
-
-    downloadFileProcesses.push({
-        status: "running",
-        downloadedBytes: null,
-        totalBytes: null,
-        progress: 0,
-        abortControllerId
-    });
-
-    downloadFileItems.push(null);
-
-    var promise = exports.getContentLength(url).then(function(downloadSize) {
-        return electronDl.download(main.window, url, {
-            filename,
-            directory: folder,
-            onStarted: function(item) {
-                if (downloadFileProcesses[id].status == "cancelled") {
-                    item.cancel();
-                }
-
-                downloadFileItems[id] = item;
-            },
-            onProgress: function(data) {
-                var total = data.totalBytes || downloadSize;
-
-                downloadFileProcesses[id].downloadedBytes = data.transferredBytes;
-                downloadFileProcesses[id].totalBytes = total;
-                downloadFileProcesses[id].progress = total > 0 ? (data.transferredBytes / total) : 0;
-            }
-        })
-    }).then(function() {
-        downloadFileProcesses[id].status = "success";
-
-        return Promise.resolve();
-    }).catch(function(error) {
-        console.error(error);
-
-        downloadFileProcesses[id].status = "error";
-
-        return Promise.reject(error);
-    });
-
-    abortControllers[abortControllerId].signal.onabort = function() {
-        exports.cancelFileDownload(id);
-    };
-
-    if (getProcessId) {
-        return Promise.resolve(id);
-    }
-
-    return promise;
-};
-
-exports.getDownloadFileInfo = function(id) {
-    if (id >= downloadFileProcesses.length) {
-        return Promise.reject("ID does not exist");
-    }
-
-    return Promise.resolve(downloadFileProcesses[id]);
-};
-
-exports.pauseFileDownload = function(id) {
-    if (id >= downloadFileProcesses.length) {
-        return Promise.reject("ID does not exist");
-    }
-
-    downloadFileProcesses[id].status = "paused";
-
-    downloadFileItems[id]?.pause();
-};
-
-exports.resumeFileDownload = function(id) {
-    if (id >= downloadFileProcesses.length) {
-        return Promise.reject("ID does not exist");
-    }
-
-    downloadFileProcesses[id].status = "running";
-
-    downloadFileItems[id]?.resume();
-};
-
-exports.cancelFileDownload = function(id) {
-    if (id >= downloadFileProcesses.length) {
-        return Promise.reject("ID does not exist");
-    }
-
-    downloadFileProcesses[id].status = "cancelled";
-
-    downloadFileItems[id]?.cancel();
-};
-
 exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
     var args = ["apt-get", "install", "-y", "-o", "APT::Status-Fd=1"];
 
@@ -780,7 +445,7 @@ exports.aptInstallPackages = function(packageNames, downloadOnly = false) {
     args.push(...packageNames);
 
     var id = aptInstallationProcesses.length;
-    var abortControllerId = createAbortControllerId();
+    var abortControllerId = exports.createAbortControllerId();
 
     aptInstallationProcesses.push({
         status: "running",

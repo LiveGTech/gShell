@@ -24,6 +24,7 @@ import * as info from "gshell://global/info.js";
 import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
+import * as mobile from "gshell://system/mobile.js";
 import * as updates from "gshell://system/updates.js";
 import * as interaction from "gshell://system/interaction.js";
 import * as input from "gshell://input/input.js";
@@ -81,6 +82,7 @@ $g.waitForLoad().then(function() {
     powerMenu.init();
     sleep.init();
     network.init();
+    mobile.init();
     updates.init();
     input.init();
     personalisation.init();

@@ -21,6 +21,7 @@ var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
+var network = require("./network");
 var linux = require("./linux");
 var control = require("./control");
 var xorg = require("./xorg");
@@ -76,7 +77,7 @@ electron.app.on("ready", function() {
     }).then(function() {
         return system.setupLinuxAppIntegration();
     }).then(function() {
-        return system.networkUpdateProxy();
+        return network.updateProxy();
     }).then(function() {
         return system.getScreenResolution();
     }).then(function(resolution) {

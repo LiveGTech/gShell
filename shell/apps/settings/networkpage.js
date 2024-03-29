@@ -8,7 +8,6 @@
 */
 
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
-import * as screens from "gshell://lib/adaptui/src/screens.js";
 
 import * as settings from "./script.js";
 import * as shortcuts from "./shortcuts.js";

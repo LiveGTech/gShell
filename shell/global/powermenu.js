@@ -15,6 +15,7 @@ import * as sleep from "gshell://system/sleep.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 var powerButtonIsDown = false;
+var powerMenuTriggered = false;
 var powerButtonTimeout = null;
 
 export function open(forceBlur = false) {
@@ -49,20 +50,28 @@ export function handlePowerButtonDown() {
     }
 
     powerButtonIsDown = true;
+    powerMenuTriggered = false;
 
     clearTimeout(powerButtonTimeout);
 
     powerButtonTimeout = setTimeout(function() {
         open(true);
 
+        powerMenuTriggered = true;
         powerButtonTimeout = null;
     }, 1_000);
 }
 
 export function handlePowerButtonUp() {
+    if (!powerButtonIsDown) {
+        return;
+    }
+
     powerButtonIsDown = false;
 
-    sleep.toggle();
+    if (!powerMenuTriggered) {
+        sleep.toggle();
+    }
 
     clearTimeout(powerButtonTimeout);
 

@@ -15,6 +15,8 @@ var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
 var config = require("./config");
+var network = require("./network");
+var mobile = require("./mobile");
 var permissions = require("./permissions");
 var term = require("./term");
 var linux = require("./linux");
@@ -162,59 +164,75 @@ ipcMain.handle("power_getState", function(event, data) {
 });
 
 ipcMain.handle("network_list", function(event, data) {
-    return system.networkList();
+    return network.list();
 });
 
 ipcMain.handle("network_scanWifi", function(event, data) {
-    return system.networkScanWifi();
+    return network.scanWifi();
 });
 
 ipcMain.handle("network_disconnectWifi", function(event, data) {
-    return system.networkDisconnectWifi(data.name);
+    return network.disconnectWifi(data.name);
 });
 
 ipcMain.handle("network_forgetWifi", function(event, data) {
-    return system.networkForgetWifi(data.name);
+    return network.forgetWifi(data.name);
 });
 
 ipcMain.handle("network_configureWifi", function(event, data) {
-    return system.networkConfigureWifi(data.name, data.auth);
+    return network.configureWifi(data.name, data.auth);
 });
 
 ipcMain.handle("network_connectWifi", function(event, data) {
-    return system.networkConnectWifi(data.name);
+    return network.connectWifi(data.name);
 });
 
 ipcMain.handle("network_getProxy", function(event, data) {
-    return system.networkGetProxy();
+    return network.getProxy();
 });
 
 ipcMain.handle("network_setProxy", function(event, data) {
-    return system.networkSetProxy(data);
+    return network.setProxy(data);
 });
 
 ipcMain.handle("network_getContentLength", function(event, data) {
-    return system.getContentLength(data.url);
+    return network.getContentLength(data.url);
 });
 
 ipcMain.handle("network_downloadFile", function(event, data) {
-    return system.downloadFile(data.url, data.destination, data.getProcessId);
+    return network.downloadFile(data.url, data.destination, data.getProcessId);
 });
 
 ipcMain.handle("network_getDownloadFileInfo", function(event, data) {
-    return system.getDownloadFileInfo(data.id);
+    return network.getDownloadFileInfo(data.id);
 });
 
 ipcMain.handle("network_pauseFileDownload", function(event, data) {
-    return system.pauseFileDownload(data.id);
+    return network.pauseFileDownload(data.id);
 });
 
 ipcMain.handle("network_resumeFileDownload", function(event, data) {
-    return system.resumeFileDownload(data.id);
+    return network.resumeFileDownload(data.id);
 });
 
 ipcMain.handle("network_cancelFileDownload", function(event, data) {
-    return system.cancelFileDownload(data.id);
+    return network.cancelFileDownload(data.id);
+});
+
+ipcMain.handle("mobile_listModems", function(event, data) {
+    return mobile.listModems();
+});
+
+ipcMain.handle("mobile_setModemActiveState", function(event, data) {
+    return mobile.setModemActiveState(data.modemId, data.enable);
+});
+
+ipcMain.handle("mobile_getSignalInfo", function(event, data) {
+    return mobile.getSignalInfo(data.modemId);
+});
+
+ipcMain.handle("mobile_setSignalPollInterval", function(event, data) {
+    return mobile.setSignalPollInterval(data.modemId, data.interval);
 });
 
 ipcMain.handle("io_input", function(event, data) {
@@ -303,7 +321,7 @@ ipcMain.handle("webview_attach", function(event, data) {
         return system.setMediaFeatures();
     }).then(function() {
         // We must re-apply network proxy config since the new webview won't have it set yet
-        return system.networkUpdateProxy();
+        return network.updateProxy();
     });
 });
 

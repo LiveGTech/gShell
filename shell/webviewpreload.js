@@ -221,6 +221,18 @@ function userAgent() {
     }
 }
 
+function investigatorCommand(command, data = {}) {
+    // TODO: Add actual protocol commands as this command is just for testing purposes
+    if (command == "getBody") {
+        return Promise.resolve(document.body.outerHTML);
+    }
+
+    return Promise.reject({
+        code: "invalidCommand",
+        message: "The requested command is invalid."
+    });
+}
+
 electron.contextBridge.exposeInMainWorld("_sphere", {
     isSystemApp: function() {
         return window.location.href.startsWith("gshell://");
@@ -480,6 +492,22 @@ window.addEventListener("DOMContentLoaded", function() {
 
     electron.ipcRenderer.on("openFrame", function(event, data) {
         electron.ipcRenderer.sendToHost("openFrame", data);
+    });
+
+    electron.ipcRenderer.on("investigator_command", function(event, data) {
+        investigatorCommand(data.command, data.data).then(function(response) {
+            electron.ipcRenderer.sendToHost("investigator_response", {
+                id: data.id,
+                type: "success",
+                response
+            });
+        }).catch(function(response) {
+            electron.ipcRenderer.sendToHost("investigator_response", {
+                id: data.id,
+                type: "error",
+                response
+            });
+        });
     });
 
     electron.ipcRenderer.on("input_scrollIntoView", function() {

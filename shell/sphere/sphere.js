@@ -175,6 +175,10 @@ export class Browser {
         });
     }
 
+    openInvestigator() {
+        switcher.openApp("gshell://apps/investigator/index.html", {icon: "gshell://media/appdefault.svg"});
+    }
+
     openOptionsMenu() {
         var thisScope = this;
 
@@ -191,6 +195,15 @@ export class Browser {
                         .setAttribute("aria-hidden", true)
                         ,
                     $g.create("span").setText(_("sphere_menu_installApp"))
+                )
+            ,
+            $g.create("button")
+                .setAttribute("aui-mode", "icon")
+                .on("click", function() {
+                    thisScope.openInvestigator();
+                })
+                .add(
+                    $g.create("span").setText(_("sphere_menu_openInvestigator"))
                 )
         );
 

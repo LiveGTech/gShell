@@ -186,6 +186,7 @@
         "sphere_openMenu": "Ouvrir le menu",
 
         "sphere_menu_installApp": "Installer l'application",
+        "sphere_menu_openInvestigator": "Ouvrir Enquêteur Web",
 
         "permissions_selectUsbDevice_prefix": "Sélectionnez un appareil USB pour ",
         "permissions_selectUsbDevice_suffix": " pour accéder",

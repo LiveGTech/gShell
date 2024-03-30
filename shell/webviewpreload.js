@@ -47,6 +47,9 @@ var lastTooltip = null;
 var currentSelectElement = null;
 var privilegedDataUpdated = false;
 
+var investigatorListeningEventTypes = {};
+var investigatorConsoleLogs = [];
+
 function isTextualInput(element) {
     return element.matches(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
@@ -219,12 +222,66 @@ function userAgent() {
             return shadowed_requestDevice.apply(window.navigator.usb, arguments);
         };
     }
+
+    function storeConsoleValues(values) {
+        if (!window._investigator_consoleValues) {
+            return null;
+        }
+
+        window._investigator_consoleValues.push(values);
+
+        return window._investigator_consoleValues.length - 1;
+    }
+
+    function logValues(level, values) {
+        _sphere.investigator_consoleLog(level, values.map((value) => value.toString()), storeConsoleValues(values));
+    }
+
+    console.log = function() {
+        logValues("log", [...arguments]);
+    };
+
+    console.warn = function() {
+        logValues("warning", [...arguments]);
+    };
+
+    console.error = function() {
+        logValues("error", [...arguments]);
+    };
+}
+
+function investigatorEvent(event) {
+    if (!investigatorListeningEventTypes[event.type]) {
+        return;
+    }
+
+    electron.ipcRenderer.sendToHost("investigator_event", event);
 }
 
 function investigatorCommand(command, data = {}) {
-    // TODO: Add actual protocol commands as this command is just for testing purposes
-    if (command == "getBody") {
-        return Promise.resolve(document.body.outerHTML);
+    if (command == "evaluate") {
+        return Promise.resolve(electron.webFrame.executeJavaScript(data.code));
+    }
+
+    if (command == "getConsoleLogs") {
+        electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
+
+        return Promise.resolve(investigatorConsoleLogs);
+    }
+
+    if (command == "listenToEvent") {
+        if (data.eventType == "consoleLogAdded") {
+            electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
+
+            investigatorListeningEventTypes[data.eventType] = true;
+
+            return Promise.resolve();
+        }
+
+        return Promise.reject({
+            code: "invalidEventType",
+            message: "The event type to listen to is invalid."
+        });
     }
 
     return Promise.reject({
@@ -277,6 +334,16 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
     },
     permissions_setSelectUsbDeviceFilters: function(filters) {
         electron.ipcRenderer.sendToHost("permissions_setSelectUsbDeviceFilters", filters);
+    },
+    investigator_consoleLog: function(level, values, valueStorageId) {
+        investigatorConsoleLogs.push({level, values, valueStorageId});
+
+        investigatorEvent({
+            type: "consoleLogAdded",
+            level,
+            values,
+            valueStorageId
+        });
     }
 });
 

@@ -8,6 +8,7 @@
 */
 
 var responseCallbacks = [];
+var eventListeners = [];
 
 export function handleResponse(responseData) {
     var callbacks = responseCallbacks[responseData.id];
@@ -21,6 +22,26 @@ export function handleResponse(responseData) {
     (responseData.type != "error" ? callbacks.resolve : callbacks.reject)(responseData.response);
 
     responseCallbacks[responseData.id] = null;
+}
+
+export function handleEvent(webview, event) {
+    eventListeners.forEach(function(listener) {
+        if (listener.webview.get() != webview.get()) {
+            return;
+        }
+
+        if (listener.eventType != event.type) {
+            return;
+        }
+
+        listener.callback(event);
+    });
+}
+
+export function onEvent(webview, eventType, callback) {
+    eventListeners.push({webview, eventType, callback});
+
+    return call(webview, "listenToEvent", {eventType});
 }
 
 export function call(webview, command, data = {}) {

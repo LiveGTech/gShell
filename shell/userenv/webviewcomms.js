@@ -122,6 +122,10 @@ export function attach(webview, privileged, user = null) {
                 investigator.handleResponse(event.args[0]);
                 break;
 
+            case "investigator_event":
+                investigator.handleEvent(webview, event.args[0]);
+                break;
+
             case "input_show":
                 input.show();
                 break;

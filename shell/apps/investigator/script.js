@@ -30,11 +30,20 @@ $g.waitForLoad().then(function() {
 
     $g.sel("title").setText(_("webInvestigator"));
 
+    $g.theme.setProperty("primaryHue", "140");
+    $g.theme.setProperty("primarySaturation", "75%");
+    $g.theme.setProperty("primaryLightness", "25%");
+
     astronaut.render(
         Screen(true) (
-            Section (
-                Heading() ("LiveG Web Investigator"),
-                Paragraph() ("Hello, world! Welcome to Web Investigator.")
+            Header (
+                TextFragment() (_("webInvestigator"))
+            ),
+            Page(true) (
+                Section (
+                    Heading() ("LiveG Web Investigator"),
+                    Paragraph() ("Hello, world! Welcome to Web Investigator.")
+                )
             )
         )
     );

@@ -233,21 +233,25 @@ function userAgent() {
         return window._investigator_consoleValues.length - 1;
     }
 
-    function logValues(level, values) {
-        _sphere.investigator_consoleLog(level, values.map((value) => value.toString()), storeConsoleValues(values));
+    function logConsoleValues(level, values) {
+        _sphere.investigator_consoleLog(level, values.map((value) => String(value)), storeConsoleValues(values));
     }
 
     console.log = function() {
-        logValues("log", [...arguments]);
+        logConsoleValues("log", [...arguments]);
     };
 
     console.warn = function() {
-        logValues("warning", [...arguments]);
+        logConsoleValues("warning", [...arguments]);
     };
 
     console.error = function() {
-        logValues("error", [...arguments]);
+        logConsoleValues("error", [...arguments]);
     };
+
+    window.addEventListener("error", function(event) {
+        logConsoleValues("error", [event.error.stack]);
+    });
 }
 
 function investigatorEvent(event) {

@@ -44,6 +44,12 @@ export function onEvent(webview, eventType, callback) {
     return call(webview, "listenToEvent", {eventType});
 }
 
+export function sendEventsToWebview(webview, eventType, destinationWebview) {
+    onEvent(webview, eventType, function(event) {
+        destinationWebview.get().send("investigator_event", event);
+    });
+}
+
 export function call(webview, command, data = {}) {
     return new Promise(function(resolve, reject) {
         responseCallbacks.push({resolve, reject});

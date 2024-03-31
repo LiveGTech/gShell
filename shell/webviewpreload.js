@@ -237,20 +237,49 @@ function userAgent() {
         _sphere.investigator_consoleLog(level, values.map((value) => String(value)), storeConsoleValues(values));
     }
 
+    var shadowed_consoleLog = console.log;
+
     console.log = function() {
+        shadowed_consoleLog(...arguments);
+
         logConsoleValues("log", [...arguments]);
     };
 
+    var shadowed_consoleWarn = console.warn;
+
     console.warn = function() {
+        shadowed_consoleWarn(...arguments);
+
         logConsoleValues("warning", [...arguments]);
     };
 
+    var shadowed_consoleError = console.error;
+
     console.error = function() {
+        shadowed_consoleError(...arguments);
+
         logConsoleValues("error", [...arguments]);
     };
 
     window.addEventListener("error", function(event) {
         logConsoleValues("error", [event.error.stack]);
+    });
+
+    Object.defineProperty(window, "_investigator_consoleReturn", {
+        value: Object.freeze(function(call) {
+            var value = null;
+
+            try {
+                value = call();
+    
+                logConsoleValues("return", [value]);
+            } catch (e) {
+                logConsoleValues("error", [e.stack]);
+            }
+    
+            return value;
+        }),
+        writable: false
     });
 }
 
@@ -264,7 +293,16 @@ function investigatorEvent(event) {
 
 function investigatorCommand(command, data = {}) {
     if (command == "evaluate") {
-        return Promise.resolve(electron.webFrame.executeJavaScript(data.code));
+        var escapedCode = data.code
+            .replace(/\\/g, "\\\\")
+            .replace(/\`/g, "\\`")
+        ;
+
+        if (escapedCode.startsWith("{")) {
+            escapedCode = `(${escapedCode})`;
+        }
+
+        return Promise.resolve(electron.webFrame.executeJavaScript(`window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`));`));
     }
 
     if (command == "getConsoleLogs") {
@@ -589,6 +627,10 @@ window.addEventListener("DOMContentLoaded", function() {
         currentSelectElement.value = data.value;
 
         currentSelectElement.dispatchEvent(new CustomEvent("change"));
+    });
+
+    electron.ipcRenderer.on("investigator_event", function(event, data) {
+        triggerPrivilegedDataEvent("investigator_event", data);
     });
 
     electron.ipcRenderer.on("term_read", function(event, data) {

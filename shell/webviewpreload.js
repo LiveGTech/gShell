@@ -283,6 +283,55 @@ function userAgent() {
         }),
         writable: false
     });
+
+    Object.defineProperty(window, "_investigator_serialiseValue", {
+        value: Object.freeze(function serialiseValue(value, path = [], summary = false) {
+            while (path.length > 0) {
+                if (value instanceof Object) {
+                    value = value[path[0]];
+                } else {
+                    return null;
+                }
+
+                path.shift();
+            }
+
+            if (Array.isArray(value)) {
+                if (summary) {
+                    return {type: "array", length: value.length, summary: true};
+                }
+
+                return {
+                    type: "array",
+                    length: value.length,
+                    items: value.map((item) => serialiseValue(item, [], true))
+                };
+            }
+
+            if (value instanceof Object) {
+                var constructorName = value.constructor != Object ? value.constructor.name : null;
+
+                if (summary) {
+                    return {type: "object", constructorName, summary: true};
+                }
+
+                var items = {};
+
+                Object.keys(value).forEach(function(key) {
+                    items[key] = serialiseValue(value[key], [], true);
+                });
+
+                return {
+                    type: "object",
+                    constructorName,
+                    items
+                };
+            }
+
+            return {type: "value", value};
+        }),
+        writable: false
+    });
 }
 
 function investigatorEvent(event) {
@@ -311,6 +360,23 @@ function investigatorCommand(command, data = {}) {
         electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
 
         return Promise.resolve(investigatorConsoleLogs);
+    }
+
+    if (command == "getConsoleValues") {
+        return Promise.resolve(electron.webFrame.executeJavaScript(
+            `window._investigator_consoleValues[${Number(data.valueStorageId)}].map((value) =>` +
+                `window._investigator_serialiseValue(value)` +
+            `);`
+        ));
+    }
+
+    if (command == "expandConsoleValue") {
+        return Promise.resolve(electron.webFrame.executeJavaScript(
+            `window._investigator_serialiseValue(value,` +
+                `window._investigator_consoleValues[${Number(data.valueStorageId)}][${Number(data.index)}],` +
+                JSON.stringify(data.path || []) +
+            `);`
+        ));
     }
 
     if (command == "listenToEvent") {

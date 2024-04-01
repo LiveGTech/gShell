@@ -77,6 +77,60 @@ const LOG_ENTRY_STYLES = new astronaut.StyleGroup([
     }, "*", "> div:empty::after")
 ]);
 
+export var ConsoleLogArray = astronaut.component("ConsoleLogArray", function(props, children) {
+    if (props.length == 0) {
+        return Text("[]");
+    }
+
+    if (props.summary) {
+        return Text(`(${props.length}) [...]`);
+    }
+
+    return TextFragment (
+        Text(`(${props.length}) [`),
+        ...props.items.map(function(item, i) {
+            return TextFragment (
+                ConsoleLogValue(item) (),
+                Text(i < props.items.length - 1 ? ", " : "")
+            )
+        }),
+        Text("]")
+    )
+});
+
+export var ConsoleLogObject = astronaut.component("ConsoleLogObject", function(props, children) {
+    if (props.summary) {
+        return Text(props.constructorName ? `${props.constructorName} {...}` : "{...}");
+    }
+
+    var keys = Object.keys(props.items);
+
+    return TextFragment (
+        Text(props.constructorName ? `${props.constructorName} {` : "{"),
+        ...keys.map(function(key, i) {
+            return TextFragment (
+                Text(key),
+                Text(": "),
+                ConsoleLogValue(props.items[key]) (),
+                Text(i < keys.length - 1 ? ", " : "")
+            )
+        }),
+        Text("}")
+    )
+});
+
+export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(props, children) {
+    if (props.type == "array") {
+        return ConsoleLogArray(props) (...children);
+    }
+
+    if (props.type == "object") {
+        return ConsoleLogObject(props) (...children);
+    }
+
+    return Text(props.value);
+});
+
 export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(props, children) {
     var icon = Icon({
         icon: {
@@ -88,8 +142,24 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
         type: "dark embedded"
     }) ();
 
+    var entryContainer = Container({
+        attributes: {
+            "aui-select": "hint"
+        }
+    }) (
+        Text(props.values.join(" "))
+    );
+
     if (props.level == "log") {
         icon.setStyle("opacity", "0");
+    }
+
+    if (props.valueStorageId != null) {
+        protocol.call("getConsoleValues", {valueStorageId: props.valueStorageId}).then(function(values) {
+            entryContainer.clear().add(
+                ...values.map((value) => TextFragment (ConsoleLogValue(value) (), Text(" ")))
+            );
+        });
     }
 
     return Container({
@@ -102,13 +172,7 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
         styleSets: [LOG_ENTRY_STYLES]
     }) (
         icon,
-        Container({
-            attributes: {
-                "aui-select": "hint"
-            }
-        }) (
-            Text(props.values.join(" "))
-        )
+        entryContainer
     );
 });
 

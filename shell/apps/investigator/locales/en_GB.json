@@ -6,6 +6,8 @@
         "textDirection": "ltr"
     },
     "source": {
-        "webInvestigator": "Web Investigator"
+        "webInvestigator": "Web Investigator",
+
+        "console": "Console"
     }
 }

@@ -12,6 +12,9 @@ import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 astronaut.unpack();
 
+import * as protocol from "./protocol.js";
+import * as console from "./console.js";
+
 $g.waitForLoad().then(function() {
     return $g.l10n.selectLocaleFromResources({
         "en_GB": "locales/en_GB.json",
@@ -37,13 +40,10 @@ $g.waitForLoad().then(function() {
     astronaut.render(
         Screen(true) (
             Header (
-                TextFragment() (_("webInvestigator"))
+                TextFragment() (_("console"))
             ),
             Page(true) (
-                Section (
-                    Heading() ("LiveG Web Investigator"),
-                    Paragraph() ("Hello, world! Welcome to Web Investigator.")
-                )
+                console.Console() ()
             )
         )
     );

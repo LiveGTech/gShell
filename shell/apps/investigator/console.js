@@ -15,6 +15,49 @@ import * as protocol from "./protocol.js";
 
 typeset.init();
 
+const EXPANDABLE_VALUE_STYLES = new astronaut.StyleGroup([
+    new astronaut.StyleSet({
+        "display": "inline",
+        "margin": "0"
+    }),
+    new astronaut.StyleSet({
+        "display": "inline",
+        "padding": "0"
+    }, "*", "summary"),
+    new astronaut.StyleSet({
+        "transform": "rotate(-90deg)"
+    }, "*", "summary::before"),
+    new astronaut.StyleSet({
+        "transform": "rotate(0deg)"
+    }, "[open]", "summary::before")
+]);
+
+const LOG_ENTRY_STYLES = new astronaut.StyleGroup([
+    new astronaut.StyleSet({
+        "display": "flex"
+    }),
+    new astronaut.StyleSet({
+        "width": "1rem",
+        "height": "1rem",
+        "margin-top": "0.2rem",
+        "margin-left": "0.2rem",
+        "margin-right": "0.2rem"
+    }, "*", "img[aui-icon]"),
+    new astronaut.StyleSet({
+        "flex-grow": "1",
+        "font-family": "var(--fontCode)",
+        "white-space": "pre-wrap",
+        "line-break": "strict"
+    }, "*", "> div"),
+    new astronaut.StyleSet({
+        "font-family": "var(--fontCode)"
+    }, "*", "> div *"),
+    new astronaut.StyleSet({
+        "content": "'.'",
+        "visibility": "hidden"
+    }, "*", "> div:empty::after")
+]);
+
 const INPUT_LINE_STYLES = new astronaut.StyleGroup([
     new astronaut.StyleSet({
         "display": "flex"
@@ -51,31 +94,64 @@ const INPUT_LINE_STYLES = new astronaut.StyleGroup([
     }, "*", "typeset-line:empty::after")
 ]);
 
-const LOG_ENTRY_STYLES = new astronaut.StyleGroup([
-    new astronaut.StyleSet({
-        "display": "flex"
-    }),
-    new astronaut.StyleSet({
-        "width": "1rem",
-        "height": "1rem",
-        "margin-top": "0.2rem",
-        "margin-left": "0.2rem",
-        "margin-right": "0.2rem"
-    }, "*", "img[aui-icon]"),
-    new astronaut.StyleSet({
-        "flex-grow": "1",
-        "font-family": "var(--fontCode)",
-        "white-space": "pre-wrap",
-        "line-break": "anywhere"
-    }, "*", "> div"),
-    new astronaut.StyleSet({
-        "font-family": "var(--fontCode)"
-    }, "*", "> div *"),
-    new astronaut.StyleSet({
-        "content": "'.'",
-        "visibility": "hidden"
-    }, "*", "> div:empty::after")
-]);
+export var ExpandableValue = astronaut.component("ExpandableValue", function(props, children) {
+    var accordion = Accordion({
+        ...props,
+        styleSets: [EXPANDABLE_VALUE_STYLES]
+    }) (
+        children[0],
+        Container({
+            styles: {
+                "margin-inline-start": "2rem"
+            }
+        }) (
+            ...children.slice(1)
+        )
+    );
+
+    var previouslyExpanded = false;
+
+    accordion.on("toggle", function() {
+        if (!previouslyExpanded) {
+            accordion.emit("expand");
+        }
+
+        previouslyExpanded = true;
+
+        accordion.ancestor(".console_logContainer").emit("autoscroll");
+    });
+
+    return accordion;
+});
+
+export var ConsoleLogString = astronaut.component("ConsoleLogString", function(props, children) {
+    if (props.isLoggedValue) {
+        return Text(children);
+    }
+
+    return TextFragment({
+        styles: {
+            color: "var(--typeset-highlight-string)"
+        }
+    }) (Text(`"${props.value}"`));
+});
+
+export var ConsoleLogNumber = astronaut.component("ConsoleLogNumber", function(props, children) {
+    return TextFragment({
+        styles: {
+            color: "var(--typeset-highlight-number)"
+        }
+    }) (Text(props.value));
+});
+
+export var ConsoleLogAtom = astronaut.component("ConsoleLogAtom", function(props, children) {
+    return TextFragment({
+        styles: {
+            color: "var(--typeset-highlight-valueKeyword)",
+            fontWeight: "bold"
+        }
+    }) (Text(props.value));
+});
 
 export var ConsoleLogArray = astronaut.component("ConsoleLogArray", function(props, children) {
     if (props.length == 0) {
@@ -86,16 +162,38 @@ export var ConsoleLogArray = astronaut.component("ConsoleLogArray", function(pro
         return Text(`(${props.length}) [...]`);
     }
 
-    return TextFragment (
-        Text(`(${props.length}) [`),
-        ...props.items.map(function(item, i) {
-            return TextFragment (
+    var childValues = props.items.map((item) => ConsoleLogValue({
+        ...item,
+        valueStorageId: props.valueStorageId,
+        index: props.index
+    }) ());
+
+    var expandedItems = Container() (
+        ...childValues.map((childValue, i) => Container (
+            childValue,
+            Text(i < props.items.length - 1 ? "," : "")
+        ))
+    );
+
+    var expandable = ExpandableValue (
+        TextFragment (
+            Text(`(${props.length}) [`),
+            ...props.items.map((item, i) => TextFragment (
                 ConsoleLogValue(item) (),
                 Text(i < props.items.length - 1 ? ", " : "")
-            )
-        }),
-        Text("]")
-    )
+            )),
+            Text("]")
+        ),
+        expandedItems
+    );
+
+    expandable.on("expand", function() {
+        childValues.forEach(function(childValue) {
+            childValue.inter.expand();
+        });
+    });
+
+    return expandable;
 });
 
 export var ConsoleLogObject = astronaut.component("ConsoleLogObject", function(props, children) {
@@ -105,30 +203,82 @@ export var ConsoleLogObject = astronaut.component("ConsoleLogObject", function(p
 
     var keys = Object.keys(props.items);
 
-    return TextFragment (
-        Text(props.constructorName ? `${props.constructorName} {` : "{"),
-        ...keys.map(function(key, i) {
-            return TextFragment (
-                Text(key),
-                Text(": "),
-                ConsoleLogValue(props.items[key]) (),
-                Text(i < keys.length - 1 ? ", " : "")
-            )
-        }),
-        Text("}")
-    )
+    var childValues = keys.map((key) => ConsoleLogValue({
+        ...props.items[key],
+        valueStorageId: props.valueStorageId,
+        index: props.index
+    }) ());
+
+    var expandedItems = Container() (
+        ...childValues.map((childValue, i) => Container (
+            Text(keys[i]),
+            Text(": "),
+            childValue,
+            Text(i < keys.length - 1 ? "," : "")
+        ))
+    );
+
+    var expandable = ExpandableValue (
+        TextFragment(
+            Text(props.constructorName ? `${props.constructorName} {` : "{"),
+            ...keys.map(function(key, i) {
+                return TextFragment (
+                    Text(key),
+                    Text(": "),
+                    ConsoleLogValue(props.items[key]) (),
+                    Text(i < keys.length - 1 ? ", " : "")
+                )
+            }),
+            Text("}")
+        ),
+        expandedItems
+    );
+
+    expandable.on("expand", function() {
+        childValues.forEach(function(childValue) {
+            childValue.inter.expand();
+        });
+    });
+
+    return expandable;
 });
 
-export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(props, children) {
-    if (props.type == "array") {
-        return ConsoleLogArray(props) (...children);
+export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(props, children, inter) {
+    var valueContainer = TextFragment() ();
+
+    function populateContainer(data) {
+        valueContainer.clear();
+
+        valueContainer.choose(
+            data.type,
+            "string", (element) => element.add(ConsoleLogString(data) ()),
+            "number", (element) => element.add(ConsoleLogNumber(data) ()),
+            "atom", (element) => element.add(ConsoleLogAtom(data) ()),
+            "array", (element) => element.add(ConsoleLogArray(data) ()),
+            "object", (element) => element.add(ConsoleLogObject(data) ()),
+            (element) => element.add(Text(JSON.stringify(data.value)))
+        );
     }
 
-    if (props.type == "object") {
-        return ConsoleLogObject(props) (...children);
-    }
+    inter.expand = function() {
+        protocol.call("expandConsoleValue", {
+            valueStorageId: props.valueStorageId,
+            index: props.index,
+            path: props.path
+        }).then(function(value) {
+            populateContainer({
+                ...value,
+                valueStorageId: props.valueStorageId,
+                index: props.index
+            });
 
-    return Text(props.value);
+            valueContainer.ancestor(".console_logContainer").emit("autoscroll");
+        });
+    };
+
+    populateContainer(props);
+
+    return valueContainer;
 });
 
 export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(props, children) {
@@ -157,7 +307,11 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
     if (props.valueStorageId != null) {
         protocol.call("getConsoleValues", {valueStorageId: props.valueStorageId}).then(function(values) {
             entryContainer.clear().add(
-                ...values.map((value) => TextFragment (ConsoleLogValue(value) (), Text(" ")))
+                ...values.map((value, i) => TextFragment (ConsoleLogValue({
+                    ...value,
+                    valueStorageId: props.valueStorageId,
+                    index: i
+                }) (), Text(" ")))
             );
         });
     }
@@ -183,7 +337,9 @@ export var Console = astronaut.component("Console", function(props, children) {
 
     var codeInput = codeInputEditor.find("textarea");
 
-    var logContainer = Container() ();
+    var logContainer = Container({
+        classes: ["console_logContainer"]
+    }) ();
 
     var codeInputContainer = Container({
         styleSets: [INPUT_LINE_STYLES]
@@ -226,7 +382,10 @@ export var Console = astronaut.component("Console", function(props, children) {
 
     consoleContainer.on("scroll", function(event) {
         atBottom = event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - 10;
-        console.log(atBottom);
+    });
+
+    logContainer.on("autoscroll", function() {
+        autoScroll();
     });
 
     codeInput.on("keydown", function(event) {

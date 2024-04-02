@@ -245,7 +245,10 @@ function userAgent() {
         logConsoleValues("log", [...arguments]);
     };
 
-    console.info = console.log;
+    console.log.toString = () => "function log() { [native code] }";
+
+    console.info = () => console.log(...arguments);
+    console.info.toString = () => "function info() { [native code] }";
 
     var shadowed_consoleWarn = console.warn;
 
@@ -255,6 +258,8 @@ function userAgent() {
         logConsoleValues("warning", [...arguments]);
     };
 
+    console.warn.toString = () => "function warn() { [native code] }";
+
     var shadowed_consoleError = console.error;
 
     console.error = function() {
@@ -262,6 +267,8 @@ function userAgent() {
 
         logConsoleValues("error", [...arguments]);
     };
+
+    console.error.toString = () => "function error() { [native code] }";
 
     window.addEventListener("error", function(event) {
         logConsoleValues("error", [event.error.stack]);
@@ -286,6 +293,10 @@ function userAgent() {
 
     Object.defineProperty(window, "_investigator_serialiseValue", {
         value: Object.freeze(function serialiseValue(value, path = [], summary = false) {
+            var originalPath = [...path];
+
+            path = [...path];
+
             while (path.length > 0) {
                 if (value instanceof Object) {
                     value = value[path[0]];
@@ -298,13 +309,22 @@ function userAgent() {
 
             if (Array.isArray(value)) {
                 if (summary) {
-                    return {type: "array", length: value.length, summary: true};
+                    return {
+                        type: "array",
+                        path: originalPath,
+                        length: value.length,
+                        summary: true
+                    };
                 }
 
                 return {
                     type: "array",
+                    path: originalPath,
                     length: value.length,
-                    items: value.map((item) => serialiseValue(item, [], true))
+                    items: value.map((item, i) => ({
+                        ...serialiseValue(item, [], true),
+                        path: [...originalPath, i]
+                    }))
                 };
             }
 
@@ -312,23 +332,63 @@ function userAgent() {
                 var constructorName = value.constructor != Object ? value.constructor.name : null;
 
                 if (summary) {
-                    return {type: "object", constructorName, summary: true};
+                    return {
+                        type: "object",
+                        path: originalPath,
+                        constructorName,
+                        summary: true
+                    };
                 }
 
                 var items = {};
 
                 Object.keys(value).forEach(function(key) {
                     items[key] = serialiseValue(value[key], [], true);
+                    items[key].path = [...originalPath, key];
                 });
 
                 return {
                     type: "object",
+                    path: originalPath,
                     constructorName,
                     items
                 };
             }
 
-            return {type: "value", value};
+            var type = "value";
+
+            if ([null, undefined, true, false, NaN, Infinity, -Infinity].includes(value)) {
+                type = "atom";
+
+                switch (value) {
+                    case undefined:
+                        value = "undefined";
+                        break;
+
+                    case Infinity:
+                        value = "Infinity";
+                        break;
+
+                    case -Infinity:
+                        value = "-Infinity";
+                        break;
+
+                    default:
+                        if (Number.isNaN(value)) {
+                            value = "NaN";
+                            break;
+                        }
+
+                        value = JSON.stringify(value);
+                        break;
+                }
+            } else if (typeof(value) == "string") {
+                type = "string";
+            } else if (typeof(value) == "number") {
+                type = "number";
+            }
+
+            return {type, value};
         }),
         writable: false
     });
@@ -372,7 +432,7 @@ function investigatorCommand(command, data = {}) {
 
     if (command == "expandConsoleValue") {
         return Promise.resolve(electron.webFrame.executeJavaScript(
-            `window._investigator_serialiseValue(value,` +
+            `window._investigator_serialiseValue(` +
                 `window._investigator_consoleValues[${Number(data.valueStorageId)}][${Number(data.index)}],` +
                 JSON.stringify(data.path || []) +
             `);`

@@ -328,6 +328,61 @@ function userAgent() {
                 };
             }
 
+            if (value instanceof Function) {
+                return {
+                    type: "function",
+                    path: originalPath,
+                    summary
+                }
+            }
+
+            if (value instanceof Node && value.nodeType == Node.TEXT_NODE) {
+                return {
+                    type: "textNode",
+                    path: originalPath,
+                    value: value.textContent
+                };
+            }
+
+            if (value instanceof HTMLElement) {
+                var attributes = {};
+
+                [...value.attributes].forEach(function(attribute) {
+                    var name = attribute.name;
+
+                    if (value == document.body && name == "liveg-a11y-scancolour") {
+                        return;
+                    }
+
+                    if (name == "sphere-:title") {
+                        name = "title";
+                    }
+
+                    attributes[name] = attribute.value;
+                });
+
+                if (summary) {
+                    return {
+                        type: "element",
+                        path: originalPath,
+                        tagName: value.tagName.toLowerCase(),
+                        attributes,
+                        summary: true
+                    };
+                }
+
+                return {
+                    type: "element",
+                    path: originalPath,
+                    tagName: value.tagName.toLowerCase(),
+                    attributes,
+                    children: [...value.childNodes].map((child, i) => ({
+                        ...serialiseValue(child, [], true),
+                        path: [...originalPath, "childNodes", i]
+                    }))
+                };
+            }
+
             if (value instanceof Object) {
                 var constructorName = value.constructor != Object ? value.constructor.name : null;
 
@@ -413,7 +468,7 @@ function investigatorCommand(command, data = {}) {
             escapedCode = `(${escapedCode})`;
         }
 
-        return Promise.resolve(electron.webFrame.executeJavaScript(`window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`));`));
+        return electron.webFrame.executeJavaScript(`window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`));`);
     }
 
     if (command == "getConsoleLogs") {

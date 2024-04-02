@@ -34,7 +34,11 @@ export function handleEvent(webview, event) {
             return;
         }
 
-        listener.callback(event);
+        try {
+            listener.callback(event);
+        } catch (e) {
+            console.error(e);
+        }
     });
 }
 

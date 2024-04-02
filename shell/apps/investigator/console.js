@@ -29,7 +29,7 @@ const EXPANDABLE_VALUE_STYLES = new astronaut.StyleGroup([
     }, "*", "summary::before"),
     new astronaut.StyleSet({
         "transform": "rotate(0deg)"
-    }, "[open]", "summary::before")
+    }, "[open]", "> summary::before")
 ]);
 
 const LOG_ENTRY_STYLES = new astronaut.StyleGroup([
@@ -126,7 +126,7 @@ export var ExpandableValue = astronaut.component("ExpandableValue", function(pro
 
 export var ConsoleLogString = astronaut.component("ConsoleLogString", function(props, children) {
     if (props.isLoggedValue) {
-        return Text(children);
+        return Text(props.value);
     }
 
     return TextFragment({
@@ -151,6 +151,82 @@ export var ConsoleLogAtom = astronaut.component("ConsoleLogAtom", function(props
             fontWeight: "bold"
         }
     }) (Text(props.value));
+});
+
+export var ConsoleLogFunction = astronaut.component("ConsoleLogFunction", function(props, children) {
+    return TextFragment({
+        styles: {
+            color: "var(--typeset-highlight-keyword)",
+            fontWeight: "bold"
+        }
+    }) (Text("function"));
+});
+
+export var ConsoleLogElement = astronaut.component("ConsoleLogElement", function(props, children) {
+    var summaryFragment = TextFragment (
+        TextFragment({
+            styles: {
+                color: "var(--typeset-highlight-syntaxSymbol)"
+            }
+        }) (Text("<")),
+        TextFragment({
+            styles: {
+                color: "var(--typeset-highlight-keyword)",
+                fontWeight: "bold"
+            }
+        }) (Text(props.tagName)),
+        ...Object.keys(props.attributes).map((key) => TextFragment (
+            Text(" "),
+            TextFragment({
+                styles: {
+                    color: "var(--typeset-highlight-identifier)"
+                }
+            }) (Text(key)),
+            TextFragment({
+                styles: {
+                    color: "var(--typeset-highlight-syntaxSymbol)"
+                }
+            }) (Text("=")),
+            TextFragment({
+                styles: {
+                    color: "var(--typeset-highlight-string)"
+                }
+            }) (Text(`"${props.attributes[key]}"`)))
+        ),
+        TextFragment({
+            styles: {
+                color: "var(--typeset-highlight-syntaxSymbol)"
+            }
+        }) (Text(">"))
+    );
+
+    if (props.summary) {
+        return summaryFragment;
+    }
+
+    var childValues = props.children.map((child) => ConsoleLogValue({
+        ...child,
+        valueStorageId: props.valueStorageId,
+        index: props.index
+    }) ());
+
+    var expandedChildren = Container() (
+        ...childValues.map((childValue) => Container (childValue))
+    );
+
+    var expandable = ExpandableValue (summaryFragment, expandedChildren);
+
+    expandable.on("expand", function() {
+        childValues.forEach(function(childValue) {
+            childValue.inter.expand();
+        });
+    });
+
+    return expandable;
+});
+
+export var ConsoleLogTextNode = astronaut.component("ConsoleLogTextNode", function(props, children) {
+    return Text(`"${props.value}"`);
 });
 
 export var ConsoleLogArray = astronaut.component("ConsoleLogArray", function(props, children) {
@@ -244,7 +320,11 @@ export var ConsoleLogObject = astronaut.component("ConsoleLogObject", function(p
 });
 
 export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(props, children, inter) {
-    var valueContainer = TextFragment() ();
+    var valueContainer = TextFragment({
+        styles: {
+            verticalAlign: "top"
+        }
+    }) ();
 
     function populateContainer(data) {
         valueContainer.clear();
@@ -254,6 +334,9 @@ export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(pro
             "string", (element) => element.add(ConsoleLogString(data) ()),
             "number", (element) => element.add(ConsoleLogNumber(data) ()),
             "atom", (element) => element.add(ConsoleLogAtom(data) ()),
+            "function", (element) => element.add(ConsoleLogFunction(data) ()),
+            "element", (element) => element.add(ConsoleLogElement(data) ()),
+            "textNode", (element) => element.add(ConsoleLogTextNode(data) ()),
             "array", (element) => element.add(ConsoleLogArray(data) ()),
             "object", (element) => element.add(ConsoleLogObject(data) ()),
             (element) => element.add(Text(JSON.stringify(data.value)))
@@ -309,6 +392,7 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
             entryContainer.clear().add(
                 ...values.map((value, i) => TextFragment (ConsoleLogValue({
                     ...value,
+                    isLoggedValue: props.level != "return",
                     valueStorageId: props.valueStorageId,
                     index: i
                 }) (), Text(" ")))

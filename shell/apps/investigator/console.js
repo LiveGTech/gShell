@@ -204,11 +204,7 @@ export var ConsoleLogElement = astronaut.component("ConsoleLogElement", function
         return summaryFragment;
     }
 
-    var childValues = props.children.map((child) => ConsoleLogValue({
-        ...child,
-        valueStorageId: props.valueStorageId,
-        index: props.index
-    }) ());
+    var childValues = props.children.map((child) => ConsoleLogValue(child) ());
 
     var expandedChildren = Container() (
         ...childValues.map((childValue) => Container (childValue))
@@ -238,11 +234,7 @@ export var ConsoleLogArray = astronaut.component("ConsoleLogArray", function(pro
         return Text(`(${props.length}) [...]`);
     }
 
-    var childValues = props.items.map((item) => ConsoleLogValue({
-        ...item,
-        valueStorageId: props.valueStorageId,
-        index: props.index
-    }) ());
+    var childValues = props.items.map((item) => ConsoleLogValue(item) ());
 
     var expandedItems = Container() (
         ...childValues.map((childValue, i) => Container (
@@ -279,11 +271,7 @@ export var ConsoleLogObject = astronaut.component("ConsoleLogObject", function(p
 
     var keys = Object.keys(props.items);
 
-    var childValues = keys.map((key) => ConsoleLogValue({
-        ...props.items[key],
-        valueStorageId: props.valueStorageId,
-        index: props.index
-    }) ());
+    var childValues = keys.map((key) => ConsoleLogValue(props.items[key]) ());
 
     var expandedItems = Container() (
         ...childValues.map((childValue, i) => Container (
@@ -344,16 +332,14 @@ export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(pro
     }
 
     inter.expand = function() {
+        if (props.valueStorageId == null) {
+            return;
+        }
+
         protocol.call("expandConsoleValue", {
-            valueStorageId: props.valueStorageId,
-            index: props.index,
-            path: props.path
+            valueStorageId: props.valueStorageId
         }).then(function(value) {
-            populateContainer({
-                ...value,
-                valueStorageId: props.valueStorageId,
-                index: props.index
-            });
+            populateContainer(value);
 
             valueContainer.ancestor(".console_logContainer").emit("autoscroll");
         });
@@ -387,14 +373,12 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
         icon.setStyle("opacity", "0");
     }
 
-    if (props.valueStorageId != null) {
-        protocol.call("getConsoleValues", {valueStorageId: props.valueStorageId}).then(function(values) {
+    if (props.logStorageId != null) {
+        protocol.call("getConsoleValues", {logStorageId: props.logStorageId}).then(function(values) {
             entryContainer.clear().add(
-                ...values.map((value, i) => TextFragment (ConsoleLogValue({
+                ...values.map((value) => TextFragment (ConsoleLogValue({
                     ...value,
-                    isLoggedValue: props.level != "return",
-                    valueStorageId: props.valueStorageId,
-                    index: i
+                    isLoggedValue: props.level != "return"
                 }) (), Text(" ")))
             );
         });

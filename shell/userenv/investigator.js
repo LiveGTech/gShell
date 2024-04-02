@@ -9,6 +9,7 @@
 
 var responseCallbacks = [];
 var eventListeners = [];
+var webviewListenedEvents = [];
 
 export function handleResponse(responseData) {
     var callbacks = responseCallbacks[responseData.id];
@@ -43,15 +44,35 @@ export function handleEvent(webview, event) {
 }
 
 export function onEvent(webview, eventType, callback) {
+    if (eventType == "reload") {
+        webview.on("dom-ready", function() {
+            callback({type: "reload"});
+        });
+
+        return;
+    }
+
     eventListeners.push({webview, eventType, callback});
 
     return call(webview, "listenToEvent", {eventType});
 }
 
 export function sendEventsToWebview(webview, eventType, destinationWebview) {
+    if (webviewListenedEvents.find((listenedEvent) => (
+        listenedEvent.webview == webview &&
+        listenedEvent.eventType == eventType &&
+        listenedEvent.destinationWebview == destinationWebview
+    ))) {
+        call(webview, "listenToEvent", {eventType});
+
+        return;
+    }
+
     onEvent(webview, eventType, function(event) {
         destinationWebview.get().send("investigator_event", event);
     });
+
+    webviewListenedEvents.push({webview, eventType, destinationWebview});
 }
 
 export function call(webview, command, data = {}) {

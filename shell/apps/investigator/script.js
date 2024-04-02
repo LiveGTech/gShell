@@ -31,6 +31,10 @@ $g.waitForLoad().then(function() {
         return locale.format(...arguments);
     };
 
+    protocol.on("reload", function() {
+        window.location.reload();
+    });
+
     $g.sel("title").setText(_("webInvestigator"));
 
     $g.theme.setProperty("primaryHue", "140");

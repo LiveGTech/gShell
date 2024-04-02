@@ -137,8 +137,12 @@ export class Browser {
         this.webview.get()?.goForward();
     }
 
-    reload() {
-        this.webview.get()?.reload();
+    reload(hard = false) {
+        if (hard) {
+            this.webview.get()?.reloadIgnoringCache();
+        } else {
+            this.webview.get()?.reload();
+        }
     }
 
     visitUrl(url) {
@@ -253,8 +257,8 @@ export class Browser {
                 .addClass("sphere_fullChromeOnly")
                 .setAttribute("title", _("sphere_reload"))
                 .setAttribute("aria-label", _("sphere_reload"))
-                .on("click", function() {
-                    thisScope.reload();
+                .on("click", function(event) {
+                    thisScope.reload(event.ctrlKey);
                 })
                 .add(
                     $g.create("img")

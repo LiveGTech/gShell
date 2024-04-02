@@ -29,7 +29,9 @@ exports.attach = function(webContents) {
     });
 
     webContents.session.setPermissionCheckHandler(function(webContents, permission, origin) {
-        origin = new URL(origin).origin; // To conform to same format used in renderer
+        if (origin.startsWith("http://") || origin.startsWith("https://")) {
+            origin = new URL(origin).origin; // To conform to same format used in renderer
+        }
 
         if (["bluetooth", "usb", "serial"].includes(permission)) {
             return true;

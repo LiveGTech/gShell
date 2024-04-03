@@ -506,15 +506,11 @@ function investigatorCommand(command, data = {}) {
     }
 
     if (command == "getConsoleValues") {
-        var result = electron.webFrame.executeJavaScript(
+        return electron.webFrame.executeJavaScript(
             `Promise.all(window._investigator_consoleLogs[${Number(data.logStorageId)}].map((value) =>` +
                 `window._investigator_serialiseValue(value)` +
             `));`
         );
-
-        console.log(result);
-
-        return result;
     }
 
     if (command == "expandConsoleValue") {

@@ -395,7 +395,10 @@ function userAgent() {
                         });
                     }
 
-                    return buildPromiseChain([...value.childNodes], (child) => serialiseValue(child, true)).then(function(children) {
+                    return buildPromiseChain(
+                        [...value.childNodes].filter((child) => !(child.nodeType == Node.TEXT_NODE && child.textContent.trim() == "")),
+                        (child) => serialiseValue(child, true)
+                    ).then(function(children) {
                         return Promise.resolve({
                             type: "element",
                             valueStorageId: storeConsoleValue(value),
@@ -493,7 +496,7 @@ function investigatorCommand(command, data = {}) {
             escapedCode = `(${escapedCode})`;
         }
 
-        return electron.webFrame.executeJavaScript(`window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`));`);
+        return electron.webFrame.executeJavaScript(`void(window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`)));`);
     }
 
     if (command == "getConsoleLogs") {

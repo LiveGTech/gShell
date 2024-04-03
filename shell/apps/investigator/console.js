@@ -238,8 +238,8 @@ export var ConsoleLogArray = astronaut.component("ConsoleLogArray", function(pro
 
     var expandedItems = Container() (
         ...childValues.map((childValue, i) => Container (
-            childValue,
-            Text(i < props.items.length - 1 ? "," : "")
+            Text(`${i}: `),
+            childValue
         ))
     );
 
@@ -277,8 +277,7 @@ export var ConsoleLogObject = astronaut.component("ConsoleLogObject", function(p
         ...childValues.map((childValue, i) => Container (
             Text(keys[i]),
             Text(": "),
-            childValue,
-            Text(i < keys.length - 1 ? "," : "")
+            childValue
         ))
     );
 

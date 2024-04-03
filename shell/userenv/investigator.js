@@ -10,6 +10,7 @@
 var responseCallbacks = [];
 var eventListeners = [];
 var webviewListenedEvents = [];
+var webviewsWithCspBypass = [];
 
 export function handleResponse(responseData) {
     var callbacks = responseCallbacks[responseData.id];
@@ -59,9 +60,9 @@ export function onEvent(webview, eventType, callback) {
 
 export function sendEventsToWebview(webview, eventType, destinationWebview) {
     if (webviewListenedEvents.find((listenedEvent) => (
-        listenedEvent.webview == webview &&
+        listenedEvent.webview.get() == webview.get() &&
         listenedEvent.eventType == eventType &&
-        listenedEvent.destinationWebview == destinationWebview
+        listenedEvent.destinationWebview.get() == destinationWebview.get()
     ))) {
         call(webview, "listenToEvent", {eventType});
 
@@ -77,17 +78,28 @@ export function sendEventsToWebview(webview, eventType, destinationWebview) {
 
 export function call(webview, command, data = {}) {
     return new Promise(function(resolve, reject) {
+        var webContentsId = webview.get().getWebContentsId();
+        var shouldSetBypassCsp = false;
+
         responseCallbacks.push({resolve, reject});
 
-        gShell.call("webview_send", {
-            webContentsId: webview.get().getWebContentsId(),
-            message: "investigator_command",
-            data: {
-                id: responseCallbacks.length - 1,
-                command,
-                data
-            },
-            sendToSubframes: false
+        if (command == "evaluate" && !webviewsWithCspBypass.includes(webview.get())) {
+            shouldSetBypassCsp = true;
+
+            webviewsWithCspBypass.push(webview.get());
+        }
+
+        (shouldSetBypassCsp ? gShell.call("webview_setCspBypass", {webContentsId, enabled: true}) : Promise.resolve()).then(function() {
+            gShell.call("webview_send", {
+                webContentsId,
+                message: "investigator_command",
+                data: {
+                    id: responseCallbacks.length - 1,
+                    command,
+                    data
+                },
+                sendToSubframes: false
+            });
         });
     });
 }

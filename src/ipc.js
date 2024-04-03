@@ -351,6 +351,14 @@ ipcMain.handle("webview_getMediaFeatures", function(event, data) {
     return system.getMediaFeatures();
 });
 
+ipcMain.handle("webview_setCspBypass", function(event, data) {
+    var webContents = electron.webContents.fromId(data.webContentsId);
+
+    main.ensureDebuggerAttached(webContents);
+
+    return webContents.debugger.sendCommand("Page.setBypassCSP", {enabled: data.enabled});
+});
+
 ipcMain.handle("webview_acknowledgeUserAgent", function(event, data) {
     return system.acknowledgeUserAgent(data.userAgent);
 });

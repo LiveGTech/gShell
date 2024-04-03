@@ -145,7 +145,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             }
 
             updateCancelButton.removeAttribute("title");
-            updateCancelButton.removeAttribute("sphere-:title");
+            updateCancelButton.removeAttribute("sphere-title");
 
             updateNoPowerOffMessage.hide();
         }

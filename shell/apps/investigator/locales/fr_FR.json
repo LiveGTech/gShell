@@ -8,6 +8,8 @@
     "source": {
         "webInvestigator": "Enquêteur Web",
 
+        "selectElement": "Sélectionnez un élément",
+
         "console": "Console"
     }
 }

@@ -66,7 +66,7 @@ export function hide() {
 export function init() {
     setInterval(function() {
         document.querySelectorAll("[title]").forEach(function(element) {
-            element.setAttribute("sphere-:title", Element.prototype.getAttribute.apply(element, ["title"]));
+            element.setAttribute("sphere-title", Element.prototype.getAttribute.apply(element, ["title"]));
             element.removeAttribute("title");
         });
     });
@@ -80,8 +80,8 @@ export function init() {
         var currentTooltip = null;
 
         while (true) {
-            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-:title")) {
-                currentTooltip = closestTitleElement.getAttribute("sphere-:title");
+            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-title")) {
+                currentTooltip = closestTitleElement.getAttribute("sphere-title");
 
                 break;
             }

@@ -41,10 +41,17 @@ $g.waitForLoad().then(function() {
     $g.theme.setProperty("primarySaturation", "75%");
     $g.theme.setProperty("primaryLightness", "25%");
 
+    var selectElementButton = HeaderActionButton({icon: "point", alt: _("selectElement")}) ();
+
+    selectElementButton.on("click", function() {
+        protocol.call("selectElement");
+    });
+
     astronaut.render(
         Screen(true) (
             Header (
-                TextFragment() (_("console"))
+                TextFragment() (_("console")),
+                selectElementButton
             ),
             Page(true) (
                 console.Console() ()

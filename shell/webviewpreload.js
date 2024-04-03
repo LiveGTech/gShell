@@ -374,11 +374,15 @@ function userAgent() {
                     [...value.attributes].forEach(function(attribute) {
                         var name = attribute.name;
 
-                        if (value == document.body && name == "liveg-a11y-scancolour") {
+                        if (value == document.body && name == "sphere-a11yscancolour") {
                             return;
                         }
 
-                        if (name == "sphere-:title") {
+                        if (name == "sphere-investigatorselected") {
+                            return;
+                        }
+
+                        if (name == "sphere-title") {
                             name = "title";
                         }
 
@@ -475,6 +479,23 @@ function userAgent() {
         }),
         writable: false
     });
+
+    Object.defineProperty(window, "_investigator_storeSelectedElement", {
+        value: Object.freeze(function() {
+            var element = document.querySelector("[sphere-investigatorselected]");
+
+            if (!element) {
+                return;
+            }
+
+            element.removeAttribute("[sphere-investigatorselected]");
+
+            window.$0 = element;
+
+            _sphere.investigator_elementSelected();
+        }),
+        writable: false
+    });
 }
 
 function investigatorEvent(event) {
@@ -483,6 +504,49 @@ function investigatorEvent(event) {
     }
 
     electron.ipcRenderer.sendToHost("investigator_event", event);
+}
+
+function investigatorSelectElementCallback(event) {
+    event.target.setAttribute("sphere-investigatorselected", true);
+
+    electron.webFrame.executeJavaScript("window._investigator_storeSelectedElement();");
+
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function investigatorPreventDefaultCallback(event) {
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function investigatorCancelSelectElementCallback(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setTimeout(function() {
+        investigatorSelectElement(true); 
+    });
+}
+
+function investigatorSelectElement(cancel = false) {
+    if (!cancel) {
+        document.body.setAttribute("sphere-investigatorselect", true);
+        document.body.addEventListener("mousedown", investigatorSelectElementCallback, {capture: true});
+        document.body.addEventListener("mouseup", investigatorCancelSelectElementCallback, {capture: true});
+
+        ["mousemove", "click"].forEach(function(eventType) {
+            document.body.addEventListener(eventType, investigatorPreventDefaultCallback, {capture: true});
+        });
+    } else {
+        document.body.removeAttribute("sphere-investigatorselect");
+        document.body.removeEventListener("mousedown", investigatorSelectElementCallback, {capture: true});
+        document.body.removeEventListener("mouseup", investigatorCancelSelectElementCallback, {capture: true});
+
+        ["mousemove", "click"].forEach(function(eventType) {
+            document.body.removeEventListener(eventType, investigatorPreventDefaultCallback, {capture: true});
+        });
+    }
 }
 
 function investigatorCommand(command, data = {}) {
@@ -517,6 +581,10 @@ function investigatorCommand(command, data = {}) {
         return electron.webFrame.executeJavaScript(
             `window._investigator_serialiseValue(window._investigator_consoleValues[${Number(data.valueStorageId)}]);`
         );
+    }
+
+    if (command == "selectElement") {
+        return investigatorSelectElement(data.cancel);
     }
 
     if (command == "listenToEvent") {
@@ -595,6 +663,9 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
             valueStorageIds,
             logStorageId
         });
+    },
+    investigator_elementSelected: function() {
+        investigatorEvent({type: "elementSelected"});
     }
 });
 
@@ -605,7 +676,7 @@ window.addEventListener("DOMContentLoaded", function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
 
         document.querySelectorAll("[title]").forEach(function(element) {
-            element.setAttribute("sphere-:title", Element.prototype.getAttribute.apply(element, ["title"]));
+            element.setAttribute("sphere-title", Element.prototype.getAttribute.apply(element, ["title"]));
             element.removeAttribute("title");
         });
     });
@@ -682,8 +753,8 @@ window.addEventListener("DOMContentLoaded", function() {
         var currentTooltip = null;
 
         while (true) {
-            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-:title")) {
-                currentTooltip = closestTitleElement.getAttribute("sphere-:title");
+            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-title")) {
+                currentTooltip = closestTitleElement.getAttribute("sphere-title");
 
                 break;
             }
@@ -787,7 +858,7 @@ window.addEventListener("DOMContentLoaded", function() {
     electron.ipcRenderer.on("update", function(event, data) {
         mainState = data;
 
-        document.querySelector("body").setAttribute("liveg-a11y-scancolour", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
+        document.querySelector("body").setAttribute("sphere-a11yscancolour", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
 
         isPrivileged = data.isPrivileged;
 

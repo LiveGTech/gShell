@@ -237,7 +237,7 @@ export class SwitchNavigation extends a11y.AssistiveTechnology {
 
     update() {
         $g.sel("body").setAttribute("liveg-a11y-switch", a11y.options.switch_enabled);
-        $g.sel("body").setAttribute("liveg-a11y-scancolour", a11y.options.switch_enabled ? a11y.options.switch_scanColour : "");
+        $g.sel("body").setAttribute("sphere-a11yscancolour", a11y.options.switch_enabled ? a11y.options.switch_scanColour : "");
     }
 
     startPointScan() {

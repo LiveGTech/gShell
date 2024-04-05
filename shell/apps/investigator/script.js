@@ -41,7 +41,25 @@ $g.waitForLoad().then(function() {
     $g.theme.setProperty("primarySaturation", "75%");
     $g.theme.setProperty("primaryLightness", "25%");
 
-    var selectElementButton = HeaderActionButton({icon: "point", alt: _("selectElement")}) ();
+    $g.theme.setProperty("secondaryHue", "140");
+    $g.theme.setProperty("secondarySaturation", "75%");
+    $g.theme.setProperty("secondaryLightness", "40%");
+
+    $g.theme.setProperty("dark-primaryHue", "140");
+    $g.theme.setProperty("dark-primarySaturation", "75%");
+    $g.theme.setProperty("dark-primaryLightness", "20%");
+
+    $g.theme.setProperty("dark-secondaryHue", "140");
+    $g.theme.setProperty("dark-secondarySaturation", "75%");
+    $g.theme.setProperty("dark-secondaryLightness", "25%");
+
+    var selectElementButton = HeaderActionButton({
+        icon: "point",
+        alt: _("selectElement"),
+        styles: {
+            zIndex: "2"
+        }
+    }) ();
 
     selectElementButton.on("click", function() {
         protocol.call("selectElement");

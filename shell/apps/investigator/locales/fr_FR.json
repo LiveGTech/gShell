@@ -10,6 +10,10 @@
 
         "selectElement": "Sélectionnez un élément",
 
-        "console": "Console"
+        "console": "Console",
+
+        "unresponsive_title": "L'objectif est devenu insensible",
+        "unresponsive_description": "Enquêteur Web n'est pas en mesure de communiquer avec l'objectif de débogage. La cible pourrait être congelée ou a été fermée ou déconnectée.",
+        "unresponsive_reconnect": "Reconnecter"
     }
 }

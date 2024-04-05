@@ -550,6 +550,12 @@ function investigatorSelectElement(cancel = false) {
 }
 
 function investigatorCommand(command, data = {}) {
+    if (command == "heartbeat") {
+        return electron.webFrame.executeJavaScript("null").then(function() {
+            return Promise.resolve();
+        });
+    }
+
     if (command == "evaluate") {
         var escapedCode = data.code
             .replace(/\\/g, "\\\\")
@@ -602,13 +608,13 @@ function investigatorCommand(command, data = {}) {
 
         return Promise.reject({
             code: "invalidEventType",
-            message: "The event type to listen to is invalid."
+            message: "The event type to listen to is invalid"
         });
     }
 
     return Promise.reject({
         code: "invalidCommand",
-        message: "The requested command is invalid."
+        message: "The requested command is invalid"
     });
 }
 

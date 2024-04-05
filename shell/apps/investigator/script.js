@@ -15,6 +15,8 @@ astronaut.unpack();
 import * as protocol from "./protocol.js";
 import * as console from "./console.js";
 
+const HEARTBEAT_INTERVAL = 1_000; // 3 seconds
+
 $g.waitForLoad().then(function() {
     return $g.l10n.selectLocaleFromResources({
         "en_GB": "locales/en_GB.json",
@@ -53,6 +55,18 @@ $g.waitForLoad().then(function() {
     $g.theme.setProperty("dark-secondarySaturation", "75%");
     $g.theme.setProperty("dark-secondaryLightness", "25%");
 
+    var unresponsiveReconnectButton = Button() (_("unresponsive_reconnect"));
+
+    var unresponsiveDialog = Dialog (
+        DialogContent (
+            Heading() (_("unresponsive_title")),
+            Paragraph() (_("unresponsive_description"))
+        ),
+        ButtonRow (
+            unresponsiveReconnectButton
+        )
+    );
+
     var selectElementButton = HeaderActionButton({
         icon: "point",
         alt: _("selectElement"),
@@ -61,19 +75,44 @@ $g.waitForLoad().then(function() {
         }
     }) ();
 
+    unresponsiveReconnectButton.on("click", function() {
+        window.location.reload();
+    });
+
     selectElementButton.on("click", function() {
         protocol.call("selectElement");
     });
 
+    var heartbeatReceived = true;
+
+    var heartbeatInterval = setInterval(function() {
+        if (!heartbeatReceived) {
+            clearInterval(heartbeatInterval);
+
+            window.console.warn("Heartbeat not received since last check");
+
+            unresponsiveDialog.dialogOpen();
+        }
+
+        heartbeatReceived = false;
+
+        protocol.call("heartbeat").then(function() {
+            heartbeatReceived = true;
+        });
+    }, HEARTBEAT_INTERVAL);
+
     astronaut.render(
-        Screen(true) (
-            Header (
-                TextFragment() (_("console")),
-                selectElementButton
+        Container (
+            Screen(true) (
+                Header (
+                    TextFragment() (_("console")),
+                    selectElementButton
+                ),
+                Page(true) (
+                    console.Console() ()
+                )
             ),
-            Page(true) (
-                console.Console() ()
-            )
+            unresponsiveDialog
         )
     );
 });

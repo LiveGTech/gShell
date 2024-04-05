@@ -488,7 +488,7 @@ function userAgent() {
                 return;
             }
 
-            element.removeAttribute("[sphere-investigatorselected]");
+            element.removeAttribute("sphere-investigatorselected");
 
             window.$0 = element;
 

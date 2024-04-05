@@ -35,6 +35,11 @@ body[sphere-a11yscancolour]:not([sphere-a11yscancolour=""]) [aria-role="group"]:
     outline-style: dashed!important;
 }
 
+
+body[sphere-investigatorselect], body[sphere-investigatorselect] * {
+    cursor: crosshair!important;
+}
+
 body[sphere-investigatorselect] *:hover:not(:has(*:hover)) {
     background: #ffaaaa!important;
     outline: 0.1rem ridge red!important;

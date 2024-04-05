@@ -435,6 +435,25 @@ export var Console = astronaut.component("Console", function(props, children) {
         }
     }
 
+    function evaluate(code) {
+        logContainer.add(
+            Container({
+                styleSets: [INPUT_LINE_STYLES]
+            }) (
+                Icon({icon: "forward", type: "dark embedded"}) (),
+                typeset.CodeEditor({
+                    language: "javascript",
+                    code,
+                    readOnly: true
+                }) ()
+            )
+        );
+
+        autoScroll();
+
+        return protocol.call("evaluate", {code});
+    }
+
     protocol.on("consoleLogAdded", function(event) {
         logContainer.add(ConsoleLogEntry(event) ());
         autoScroll();
@@ -457,27 +476,16 @@ export var Console = astronaut.component("Console", function(props, children) {
 
     codeInput.on("keydown", function(event) {
         if (event.key == "Enter" && !event.shiftKey) {
-            logContainer.add(
-                Container({
-                    styleSets: [INPUT_LINE_STYLES]
-                }) (
-                    Icon({icon: "forward", type: "dark embedded"}) (),
-                    typeset.CodeEditor({
-                        language: "javascript",
-                        code: codeInputEditor.inter.getCode(),
-                        readOnly: true
-                    }) ()
-                )
-            );
-
-            autoScroll();
-
-            protocol.call("evaluate", {code: codeInputEditor.inter.getCode()});
+            evaluate(codeInputEditor.inter.getCode());
 
             codeInputEditor.inter.setCode("");
 
             event.preventDefault();
         }
+    });
+
+    protocol.on("elementSelected", function() {
+        evaluate("$0");
     });
 
     return consoleContainer;

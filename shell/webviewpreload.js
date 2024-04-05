@@ -589,8 +589,12 @@ function investigatorCommand(command, data = {}) {
 
     if (command == "listenToEvent") {
         if (data.eventType == "consoleLogAdded") {
-            electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
+            investigatorListeningEventTypes[data.eventType] = true;
 
+            return electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
+        }
+
+        if (data.eventType == "elementSelected") {
             investigatorListeningEventTypes[data.eventType] = true;
 
             return Promise.resolve();

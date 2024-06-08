@@ -10,7 +10,6 @@
 var responseCallbacks = [];
 var eventListeners = [];
 var webviewListenedEvents = [];
-var webviewsWithCspBypass = [];
 
 export function handleResponse(responseData) {
     var callbacks = responseCallbacks[responseData.id];
@@ -79,27 +78,18 @@ export function sendEventsToWebview(webview, eventType, destinationWebview) {
 export function call(webview, command, data = {}) {
     return new Promise(function(resolve, reject) {
         var webContentsId = webview.get().getWebContentsId();
-        var shouldSetBypassCsp = false;
 
         responseCallbacks.push({resolve, reject});
 
-        if (command == "evaluate" && !webviewsWithCspBypass.includes(webview.get())) {
-            shouldSetBypassCsp = true;
-
-            webviewsWithCspBypass.push(webview.get());
-        }
-
-        (shouldSetBypassCsp ? gShell.call("webview_setCspBypass", {webContentsId, enabled: true}) : Promise.resolve()).then(function() {
-            gShell.call("webview_send", {
-                webContentsId,
-                message: "investigator_command",
-                data: {
-                    id: responseCallbacks.length - 1,
-                    command,
-                    data
-                },
-                sendToSubframes: false
-            });
+        gShell.call("webview_send", {
+            webContentsId,
+            message: "investigator_command",
+            data: {
+                id: responseCallbacks.length - 1,
+                command,
+                data
+            },
+            sendToSubframes: false
         });
     });
 }

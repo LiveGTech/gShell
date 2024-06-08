@@ -566,7 +566,9 @@ function investigatorCommand(command, data = {}) {
             escapedCode = `(${escapedCode})`;
         }
 
-        return electron.webFrame.executeJavaScript(`void(window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`)));`);
+        return electron.ipcRenderer.invoke("webview_evaluate", {
+            expression: `void(window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`)));`
+        });
     }
 
     if (command == "getConsoleLogs") {

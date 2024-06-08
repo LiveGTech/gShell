@@ -247,93 +247,101 @@ export function init() {
 
         trackedWindows[data.id] = trackedWindow;
 
+        trackedWindow.firstPaintCallback = function() {
+            if (trackedWindow.isOverlay) {
+                trackedWindow.overlayElement = $g.create("div")
+                    .addClass("switcher_overlay")
+                    .addClass("xorg_overlay")
+                    .addClass("unpainted")
+                    .setAttribute("hidden", true)
+                    .add(surfaceContainer)
+                ;
+    
+                $g.sel(".switcher_overlays").add(trackedWindow.overlayElement);
+    
+                switcher.showOverlay(trackedWindow.overlayElement);
+    
+                lastOverlayShownAt = Date.now();
+            } else {
+                switcher.openWindow(surfaceContainer, details, function(screenElement, appElement) {
+                    trackedWindows[data.id].screenElement = screenElement;
+                    trackedWindows[data.id].appElement = appElement;
+        
+                    appElement.addClass("switcher_indirectClose");
+                    screenElement.addClass("switcher_indirectResize");
+                    screenElement.addClass("switcher_overrideConstraints");
+        
+                    var lastEventX = null;
+                    var lastEventY = null;
+                    var lastEventWidth = null;
+                    var lastEventHeight = null;
+        
+                    appElement.on("switcherclose", function(event) {
+                        gShell.call("xorg_askWindowToClose", {id: data.id});
+                    });
+        
+                    screenElement.on("switchermove", function(event) {
+                        if (lastEventX == event.detail.geometry.x && lastEventY == event.detail.geometry.y) {
+                            return;
+                        }
+        
+                        var offsets = switcher.getWindowContentsOffsets(screenElement, true);
+        
+                        trackedWindow.x = event.detail.geometry.x + offsets.contentsX;
+                        trackedWindow.y = event.detail.geometry.y + offsets.contentsY;
+        
+                        gShell.call("xorg_moveWindow", {
+                            id: data.id,
+                            x: trackedWindow.x,
+                            y: trackedWindow.y
+                        });
+        
+                        lastEventX = event.detail.geometry.x;
+                        lastEventY = event.detail.geometry.y;
+                    });
+        
+                    screenElement.on("switcherresize", function(event) {
+                        if (lastEventWidth == event.detail.geometry.width && lastEventHeight == event.detail.geometry.height) {
+                            return;
+                        }
+        
+                        if (trackedWindow.processingResize) {
+                            return;
+                        }
+                        
+                        var offsets = switcher.getWindowContentsOffsets(screenElement);
+        
+                        trackedWindow.width = event.detail.geometry.width - offsets.windowWidth;
+                        trackedWindow.height = event.detail.geometry.height - offsets.windowHeight;
+        
+                        gShell.call("xorg_resizeWindow", {
+                            id: data.id,
+                            width: trackedWindow.width,
+                            height: trackedWindow.height
+                        });
+        
+                        if (!event.detail.maximising) {
+                            ensureWindowSize(trackedWindow);
+                        }
+        
+                        lastEventWidth = event.detail.geometry.width;
+                        lastEventHeight = event.detail.geometry.height;
+        
+                        trackedWindow.processingResize = true;
+                    });
+                });
+            }
+    
+            ensureWindowSize(trackedWindow);
+            updateXorgWindowPosition(trackedWindow);
+            checkWindowProperties(trackedWindow);
+        };
+
         if (trackedWindow.isOverlay) {
-            trackedWindow.overlayElement = $g.create("div")
-                .addClass("switcher_overlay")
-                .addClass("xorg_overlay")
-                .addClass("unpainted")
-                .setAttribute("hidden", true)
-                .add(surfaceContainer)
-            ;
+            trackedWindow.firstPaintCallback();
 
-            $g.sel(".switcher_overlays").add(trackedWindow.overlayElement);
-
-            switcher.showOverlay(trackedWindow.overlayElement);
-
-            lastOverlayShownAt = Date.now();
-        } else {
-            switcher.openWindow(surfaceContainer, details, function(screenElement, appElement) {
-                trackedWindows[data.id].screenElement = screenElement;
-                trackedWindows[data.id].appElement = appElement;
-    
-                appElement.addClass("switcher_indirectClose");
-                screenElement.addClass("switcher_indirectResize");
-                screenElement.addClass("switcher_overrideConstraints");
-    
-                var lastEventX = null;
-                var lastEventY = null;
-                var lastEventWidth = null;
-                var lastEventHeight = null;
-    
-                appElement.on("switcherclose", function(event) {
-                    gShell.call("xorg_askWindowToClose", {id: data.id});
-                });
-    
-                screenElement.on("switchermove", function(event) {
-                    if (lastEventX == event.detail.geometry.x && lastEventY == event.detail.geometry.y) {
-                        return;
-                    }
-    
-                    var offsets = switcher.getWindowContentsOffsets(screenElement, true);
-    
-                    trackedWindow.x = event.detail.geometry.x + offsets.contentsX;
-                    trackedWindow.y = event.detail.geometry.y + offsets.contentsY;
-    
-                    gShell.call("xorg_moveWindow", {
-                        id: data.id,
-                        x: trackedWindow.x,
-                        y: trackedWindow.y
-                    });
-    
-                    lastEventX = event.detail.geometry.x;
-                    lastEventY = event.detail.geometry.y;
-                });
-    
-                screenElement.on("switcherresize", function(event) {
-                    if (lastEventWidth == event.detail.geometry.width && lastEventHeight == event.detail.geometry.height) {
-                        return;
-                    }
-    
-                    if (trackedWindow.processingResize) {
-                        return;
-                    }
-                    
-                    var offsets = switcher.getWindowContentsOffsets(screenElement);
-    
-                    trackedWindow.width = event.detail.geometry.width - offsets.windowWidth;
-                    trackedWindow.height = event.detail.geometry.height - offsets.windowHeight;
-    
-                    gShell.call("xorg_resizeWindow", {
-                        id: data.id,
-                        width: trackedWindow.width,
-                        height: trackedWindow.height
-                    });
-    
-                    if (!event.detail.maximising) {
-                        ensureWindowSize(trackedWindow);
-                    }
-    
-                    lastEventWidth = event.detail.geometry.width;
-                    lastEventHeight = event.detail.geometry.height;
-    
-                    trackedWindow.processingResize = true;
-                });
-            });
+            trackedWindow.firstPaintCallback = null;
         }
-
-        ensureWindowSize(trackedWindow);
-        updateXorgWindowPosition(trackedWindow);
-        checkWindowProperties(trackedWindow);
     });
 
     gShell.on("xorg_releaseWindow", function(event, data) {
@@ -469,6 +477,12 @@ export function init() {
                 width: trackedWindow.width,
                 height: trackedWindow.height
             });
+        }
+        
+        if (data.image.width > 1 && data.image.height > 1 && trackedWindow.firstPaintCallback != null) {
+            trackedWindow.firstPaintCallback();
+
+            trackedWindow.firstPaintCallback = null;
         }
     });
 }

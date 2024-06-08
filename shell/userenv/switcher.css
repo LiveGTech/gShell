@@ -146,6 +146,7 @@ body[device-type="desktop"] .switcher_empty > div {
     margin-inline-end: -12%;
     background-color: black;
     vertical-align: bottom;
+    overflow: hidden;
     touch-action: none;
     transform: scale(0.7);
     transition: 0.5s transform;

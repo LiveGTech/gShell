@@ -674,10 +674,7 @@ export class InputMethod {
 }
 
 export function updateInputMethodEditor() {
-    if (
-        (currentKeyboardLayout == null || currentKeyboardLayout.currentInputMethod == null) ||
-        ($g.sel(".input").hasClass("imeOnly") && currentKeyboardLayout.currentInputMethod.onlyShowWithKeyboard)
-    ) {
+    if (currentKeyboardLayout == null || currentKeyboardLayout.currentInputMethod == null) {
         inputMethodEditorElement.clear();
         
         return;
@@ -1201,6 +1198,10 @@ export function getBestInputMode() {
 
 export function show(mode = getBestInputMode()) {
     if (mode == inputModes.NONE) {
+        return;
+    }
+
+    if (mode == inputModes.IME_ONLY && currentKeyboardLayout.currentInputMethod.onlyShowWithKeyboard) {
         return;
     }
 

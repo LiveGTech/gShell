@@ -441,6 +441,7 @@ export class InputMethod {
         this.nGramLength = metadata.nGramLength || 4;
         this.allowPartialWords = metadata.allowPartialWords || false;
         this.maxCandidates = metadata.maxCandidates || 3;
+        this.onlyShowWithKeyboard = metadata.onlyShowWithKeyboard || false;
 
         this.remainingWordPart = "";
 
@@ -673,7 +674,10 @@ export class InputMethod {
 }
 
 export function updateInputMethodEditor() {
-    if (currentKeyboardLayout == null || currentKeyboardLayout.currentInputMethod == null) {
+    if (
+        (currentKeyboardLayout == null || currentKeyboardLayout.currentInputMethod == null) ||
+        ($g.sel(".input").hasClass("imeOnly") && currentKeyboardLayout.currentInputMethod.onlyShowWithKeyboard)
+    ) {
         inputMethodEditorElement.clear();
         
         return;

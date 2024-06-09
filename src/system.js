@@ -323,8 +323,7 @@ exports.getPowerState = function() {
         typeof(device.data?.hardware?.batteryStateReporter) == "string" &&
         typeof(device.data?.hardware?.batteryStateMapping) == "object" &&
         typeof(device.data?.hardware?.batteryLevelReporter) == "string"
-    )
-    ) {
+    )) {
         // Invalid device description for battery
         return Promise.resolve({
             state: null,

@@ -4,3 +4,6 @@
 [submodule "shell/apps/calculator"]
 	path = shell/apps/calculator
 	url = https://github.com/LiveGTech/Calculator
+[submodule "shell/lib/tsengine"]
+	path = shell/lib/tsengine
+	url = https://github.com/LiveGTech/Typeset-Engine.git

@@ -47,6 +47,9 @@ var lastTooltip = null;
 var currentSelectElement = null;
 var privilegedDataUpdated = false;
 
+var investigatorListeningEventTypes = {};
+var investigatorConsoleLogs = [];
+
 function isTextualInput(element) {
     return element.matches(INPUT_SELECTOR) && !(NON_TEXTUAL_INPUTS.includes(String(element.getAttribute("type") || "").toLowerCase()));
 }
@@ -120,7 +123,7 @@ function userAgent() {
     class Terminal {
         #key = null;
         #eventListeners = [];
-    
+
         constructor(file, args = [], options = {}) {
             this.file = file;
             this.args = args;
@@ -132,23 +135,23 @@ function userAgent() {
         get key() {
             return this.#key;
         }
-    
+
         #ensureAccess() {
             if (!_sphere.isPrivileged()) {
                 throw new Error("Permission denied for access to terminal");
             }
         }
-    
+
         spawn() {
             var thisScope = this;
-    
+
             return waitForPrivilegedDataAccess().then(function() {
                 thisScope.#ensureAccess();
 
                 return _sphere.callPrivilegedCommand("term_create", {file: thisScope.file, args: thisScope.args, options: thisScope.options});
             }).then(function(key) {
                 thisScope.#key = key;
-    
+
                 return _sphere.callPrivilegedCommand("term_spawn", {key});
             });
         }
@@ -209,6 +212,412 @@ function userAgent() {
         TerminalExitEvent,
         Terminal
     };
+
+    if (window.navigator.usb) {
+        var shadowed_requestDevice = window.navigator.usb.requestDevice;
+
+        window.navigator.usb.requestDevice = function(options) {
+            _sphere.permissions_setSelectUsbDeviceFilters(options?.filters || []);
+
+            return shadowed_requestDevice.apply(window.navigator.usb, arguments);
+        };
+    }
+
+    function storeConsoleValue(value) {
+        if (!window._investigator_consoleValues) {
+            return null;
+        }
+
+        var currentIndex = window._investigator_consoleValues.indexOf(value);
+
+        if (currentIndex >= 0) {
+            return currentIndex;
+        }
+
+        window._investigator_consoleValues.push(value);
+
+        return window._investigator_consoleValues.length - 1;
+    }
+
+    function storeConsoleValues(values) {
+        return values.map(storeConsoleValue);
+    }
+
+    function logConsoleValues(level, values) {
+        window._investigator_consoleLogs ||= [];
+
+        window._investigator_consoleLogs.push(values);
+
+        _sphere.investigator_consoleLog(
+            level,
+            values.map((value) => String(value)),
+            storeConsoleValues(values),
+            window._investigator_consoleLogs.length - 1
+        );
+    }
+
+    var shadowed_consoleLog = console.log;
+
+    console.log = function() {
+        shadowed_consoleLog(...arguments);
+
+        logConsoleValues("log", [...arguments]);
+    };
+
+    console.log.toString = () => "function log() { [native code] }";
+
+    console.info = () => console.log(...arguments);
+    console.info.toString = () => "function info() { [native code] }";
+
+    var shadowed_consoleWarn = console.warn;
+
+    console.warn = function() {
+        shadowed_consoleWarn(...arguments);
+
+        logConsoleValues("warning", [...arguments]);
+    };
+
+    console.warn.toString = () => "function warn() { [native code] }";
+
+    var shadowed_consoleError = console.error;
+
+    console.error = function() {
+        shadowed_consoleError(...arguments);
+
+        logConsoleValues("error", [...arguments]);
+    };
+
+    console.error.toString = () => "function error() { [native code] }";
+
+    window.addEventListener("error", function(event) {
+        logConsoleValues("error", [event.error.stack]);
+    });
+
+    Object.defineProperty(window, "_investigator_consoleReturn", {
+        value: Object.freeze(function(call) {
+            var value = null;
+
+            try {
+                value = call();
+
+                logConsoleValues("return", [value]);
+            } catch (e) {
+                logConsoleValues("error", [e instanceof Error ? `${e.constructor.name}: ${e.message}` : e]);
+            }
+
+            return value;
+        }),
+        writable: false
+    });
+
+    function buildPromiseChain(items, mapper) {
+        var promiseChain = Promise.resolve();
+        var results = [];
+
+        items.forEach(function(item) {
+            promiseChain = promiseChain.then(function() {
+                return mapper(item);
+            }).then(function(result) {
+                results.push(result);
+
+                return Promise.resolve();
+            });
+        });
+
+        return promiseChain.then(function() {
+            return Promise.resolve(results);
+        });
+    }
+
+    function defer(...values) {
+        return new Promise(function(resolve, reject) {
+            requestAnimationFrame(function() {
+                resolve(...values);
+            });
+        });
+    }
+
+    Object.defineProperty(window, "_investigator_serialiseValue", {
+        value: Object.freeze(function serialiseValue(value, summary = false) {
+            return defer().then(function() {
+                if (Array.isArray(value)) {
+                    if (summary) {
+                        return Promise.resolve({
+                            type: "array",
+                            valueStorageId: storeConsoleValue(value),
+                            length: value.length,
+                            summary: true
+                        });
+                    }
+
+                    return buildPromiseChain(value, (item) => serialiseValue(item, true)).then(function(items) {
+                        return Promise.resolve({
+                            type: "array",
+                            valueStorageId: storeConsoleValue(value),
+                            length: value.length,
+                            items
+                        });
+                    });
+                }
+
+                if (value instanceof Function) {
+                    return Promise.resolve({type: "function", valueStorageId: null});
+                }
+
+                if (value instanceof Node && value.nodeType == Node.TEXT_NODE) {
+                    return Promise.resolve({type: "textNode", valueStorageId: null, value: value.textContent});
+                }
+
+                if (value instanceof HTMLElement) {
+                    var attributes = {};
+
+                    [...value.attributes].forEach(function(attribute) {
+                        var name = attribute.name;
+
+                        if (value == document.body && name == "sphere-a11yscancolour") {
+                            return;
+                        }
+
+                        if (name == "sphere-investigatorselected") {
+                            return;
+                        }
+
+                        if (name == "sphere-title") {
+                            name = "title";
+                        }
+
+                        attributes[name] = attribute.value;
+                    });
+
+                    if (summary) {
+                        return Promise.resolve({
+                            type: "element",
+                            valueStorageId: storeConsoleValue(value),
+                            tagName: value.tagName.toLowerCase(),
+                            attributes,
+                            summary: true
+                        });
+                    }
+
+                    return buildPromiseChain(
+                        [...value.childNodes].filter((child) => !(child.nodeType == Node.TEXT_NODE && child.textContent.trim() == "")),
+                        (child) => serialiseValue(child, true)
+                    ).then(function(children) {
+                        return Promise.resolve({
+                            type: "element",
+                            valueStorageId: storeConsoleValue(value),
+                            tagName: value.tagName.toLowerCase(),
+                            attributes,
+                            children
+                        });
+                    });
+                }
+
+                if (value instanceof Object) {
+                    var constructorName = value.constructor != Object ? value.constructor.name : null;
+
+                    if (summary) {
+                        return Promise.resolve({
+                            type: "object",
+                            valueStorageId: storeConsoleValue(value),
+                            constructorName,
+                            summary: true
+                        });
+                    }
+                    
+                    return buildPromiseChain(Object.keys(value), (key) => serialiseValue(value[key], true)).then(function(itemValues) {
+                        var items = {};
+
+                        Object.keys(value).forEach(function(key, i) {
+                            items[key] = itemValues[i];
+                        });
+
+                        return Promise.resolve({
+                            type: "object",
+                            valueStorageId: storeConsoleValue(value),
+                            constructorName,
+                            items
+                        });
+                    });
+                }
+
+                var type = "value";
+
+                if ([null, undefined, true, false, NaN, Infinity, -Infinity].includes(value)) {
+                    type = "atom";
+
+                    switch (value) {
+                        case undefined:
+                            value = "undefined";
+                            break;
+
+                        case Infinity:
+                            value = "Infinity";
+                            break;
+
+                        case -Infinity:
+                            value = "-Infinity";
+                            break;
+
+                        default:
+                            if (Number.isNaN(value)) {
+                                value = "NaN";
+                                break;
+                            }
+
+                            value = JSON.stringify(value);
+                            break;
+                    }
+                } else if (typeof(value) == "string") {
+                    type = "string";
+                } else if (typeof(value) == "number") {
+                    type = "number";
+                }
+
+                return Promise.resolve({type, valueStorageId: null, value});
+            });
+        }),
+        writable: false
+    });
+
+    Object.defineProperty(window, "_investigator_storeSelectedElement", {
+        value: Object.freeze(function() {
+            var element = document.querySelector("[sphere-investigatorselected]");
+
+            if (!element) {
+                return;
+            }
+
+            element.removeAttribute("sphere-investigatorselected");
+
+            window.$0 = element;
+
+            _sphere.investigator_elementSelected();
+        }),
+        writable: false
+    });
+}
+
+function investigatorEvent(event) {
+    if (!investigatorListeningEventTypes[event.type]) {
+        return;
+    }
+
+    electron.ipcRenderer.sendToHost("investigator_event", event);
+}
+
+function investigatorSelectElementCallback(event) {
+    event.target.setAttribute("sphere-investigatorselected", true);
+
+    electron.webFrame.executeJavaScript("window._investigator_storeSelectedElement();");
+
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function investigatorPreventDefaultCallback(event) {
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function investigatorCancelSelectElementCallback(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setTimeout(function() {
+        investigatorSelectElement(true); 
+    });
+}
+
+function investigatorSelectElement(cancel = false) {
+    if (!cancel) {
+        document.body.setAttribute("sphere-investigatorselect", true);
+        document.body.addEventListener("mousedown", investigatorSelectElementCallback, {capture: true});
+        document.body.addEventListener("mouseup", investigatorCancelSelectElementCallback, {capture: true});
+
+        ["mousemove", "click"].forEach(function(eventType) {
+            document.body.addEventListener(eventType, investigatorPreventDefaultCallback, {capture: true});
+        });
+    } else {
+        document.body.removeAttribute("sphere-investigatorselect");
+        document.body.removeEventListener("mousedown", investigatorSelectElementCallback, {capture: true});
+        document.body.removeEventListener("mouseup", investigatorCancelSelectElementCallback, {capture: true});
+
+        ["mousemove", "click"].forEach(function(eventType) {
+            document.body.removeEventListener(eventType, investigatorPreventDefaultCallback, {capture: true});
+        });
+    }
+}
+
+function investigatorCommand(command, data = {}) {
+    if (command == "heartbeat") {
+        return electron.webFrame.executeJavaScript("null").then(function() {
+            return Promise.resolve();
+        });
+    }
+
+    if (command == "evaluate") {
+        var escapedCode = data.code
+            .replace(/\\/g, "\\\\")
+            .replace(/\`/g, "\\`")
+        ;
+
+        if (escapedCode.startsWith("{")) {
+            escapedCode = `(${escapedCode})`;
+        }
+
+        return electron.ipcRenderer.invoke("webview_evaluate", {
+            expression: `void(window._investigator_consoleReturn(() => window.eval(\`${escapedCode}\`)));`
+        });
+    }
+
+    if (command == "getConsoleLogs") {
+        electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
+
+        return Promise.resolve(investigatorConsoleLogs);
+    }
+
+    if (command == "getConsoleValues") {
+        return electron.webFrame.executeJavaScript(
+            `Promise.all(window._investigator_consoleLogs[${Number(data.logStorageId)}].map((value) =>` +
+                `window._investigator_serialiseValue(value)` +
+            `));`
+        );
+    }
+
+    if (command == "expandConsoleValue") {
+        return electron.webFrame.executeJavaScript(
+            `window._investigator_serialiseValue(window._investigator_consoleValues[${Number(data.valueStorageId)}]);`
+        );
+    }
+
+    if (command == "selectElement") {
+        return investigatorSelectElement(data.cancel);
+    }
+
+    if (command == "listenToEvent") {
+        if (data.eventType == "consoleLogAdded") {
+            investigatorListeningEventTypes[data.eventType] = true;
+
+            return electron.webFrame.executeJavaScript("window._investigator_consoleValues ||= [];");
+        }
+
+        if (data.eventType == "elementSelected") {
+            investigatorListeningEventTypes[data.eventType] = true;
+
+            return Promise.resolve();
+        }
+
+        return Promise.reject({
+            code: "invalidEventType",
+            message: "The event type to listen to is invalid"
+        });
+    }
+
+    return Promise.reject({
+        code: "invalidCommand",
+        message: "The requested command is invalid"
+    });
 }
 
 electron.contextBridge.exposeInMainWorld("_sphere", {
@@ -262,6 +671,23 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
         }
 
         electron.ipcRenderer.sendToHost("a11y_readout_announce", data);
+    },
+    permissions_setSelectUsbDeviceFilters: function(filters) {
+        electron.ipcRenderer.sendToHost("permissions_setSelectUsbDeviceFilters", filters);
+    },
+    investigator_consoleLog: function(level, values, valueStorageIds, logStorageId) {
+        investigatorConsoleLogs.push({level, values, valueStorageIds, logStorageId});
+
+        investigatorEvent({
+            type: "consoleLogAdded",
+            level,
+            values,
+            valueStorageIds,
+            logStorageId
+        });
+    },
+    investigator_elementSelected: function() {
+        investigatorEvent({type: "elementSelected"});
     }
 });
 
@@ -272,7 +698,7 @@ window.addEventListener("DOMContentLoaded", function() {
         lastInputScrollLeft = document.activeElement.scrollLeft;
 
         document.querySelectorAll("[title]").forEach(function(element) {
-            element.setAttribute("sphere-:title", Element.prototype.getAttribute.apply(element, ["title"]));
+            element.setAttribute("sphere-title", Element.prototype.getAttribute.apply(element, ["title"]));
             element.removeAttribute("title");
         });
     });
@@ -289,19 +715,19 @@ window.addEventListener("DOMContentLoaded", function() {
         if (event.target.matches(INPUT_SELECTOR)) {
             if (!isTextualInput(event.target) || event.target.matches(":disabled")) {
                 electron.ipcRenderer.sendToHost("input_hide");
-    
+
                 return;
             }
-    
+
             electron.ipcRenderer.sendToHost("input_show");
 
             event.target.focus();
-    
+
             return;
         }
-    
+
         electron.ipcRenderer.sendToHost("input_hide");
-    
+
         return;
     });
 
@@ -312,7 +738,7 @@ window.addEventListener("DOMContentLoaded", function() {
             }
 
             var eventObject = {};
-    
+
             for (var key in event) {
                 if (["string", "number", "boolean", "bigint"].includes(typeof(event[key])) || event[key] == null) {
                     eventObject[key] = event[key];
@@ -325,7 +751,7 @@ window.addEventListener("DOMContentLoaded", function() {
             eventObject.targetLeft = targetRect.left;
             eventObject.targetWidth = targetRect.width;
             eventObject.targetHeight = targetRect.height;
-    
+
             electron.ipcRenderer.sendToHost("eventPropagation", type, eventObject);
         });
     });
@@ -349,8 +775,8 @@ window.addEventListener("DOMContentLoaded", function() {
         var currentTooltip = null;
 
         while (true) {
-            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-:title")) {
-                currentTooltip = closestTitleElement.getAttribute("sphere-:title");
+            if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-title")) {
+                currentTooltip = closestTitleElement.getAttribute("sphere-title");
 
                 break;
             }
@@ -454,10 +880,10 @@ window.addEventListener("DOMContentLoaded", function() {
     electron.ipcRenderer.on("update", function(event, data) {
         mainState = data;
 
-        document.querySelector("body").setAttribute("liveg-a11y-readout", data.a11y_options.readout_enabled);
-        document.querySelector("body").setAttribute("liveg-a11y-switch", data.a11y_options.switch_enabled);
+        document.querySelector("body").setAttribute("sphere-a11yreadout", data.a11y_options.readout_enabled);
+        document.querySelector("body").setAttribute("sphere-a11yswitch", data.a11y_options.switch_enabled);
 
-        document.querySelector("body").setAttribute("liveg-a11y-scancolour", (
+        document.querySelector("body").setAttribute("sphere-a11y-scancolour", (
             (data.a11y_options.readout_enabled && data.a11y_options.readout_scanColour) ||
             (data.a11y_options.switch_enabled && data.a11y_options.switch_scanColour) ||
             ""
@@ -486,6 +912,22 @@ window.addEventListener("DOMContentLoaded", function() {
         electron.ipcRenderer.sendToHost("openFrame", data);
     });
 
+    electron.ipcRenderer.on("investigator_command", function(event, data) {
+        investigatorCommand(data.command, data.data).then(function(response) {
+            electron.ipcRenderer.sendToHost("investigator_response", {
+                id: data.id,
+                type: "success",
+                response
+            });
+        }).catch(function(response) {
+            electron.ipcRenderer.sendToHost("investigator_response", {
+                id: data.id,
+                type: "error",
+                response
+            });
+        });
+    });
+
     electron.ipcRenderer.on("input_scrollIntoView", function() {
         document.activeElement.scrollIntoView({block: "nearest", inline: "nearest"});
     });
@@ -494,6 +936,10 @@ window.addEventListener("DOMContentLoaded", function() {
         currentSelectElement.value = data.value;
 
         currentSelectElement.dispatchEvent(new CustomEvent("change"));
+    });
+
+    electron.ipcRenderer.on("investigator_event", function(event, data) {
+        triggerPrivilegedDataEvent("investigator_event", data);
     });
 
     electron.ipcRenderer.on("term_read", function(event, data) {

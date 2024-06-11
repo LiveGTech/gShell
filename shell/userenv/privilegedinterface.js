@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 import * as system from "gshell://system/system.js";
 import * as network from "gshell://system/network.js";
@@ -17,6 +18,7 @@ import * as term from "gshell://system/term.js";
 import * as input from "gshell://input/input.js";
 import * as personalisation from "gshell://config/personalisation.js";
 import * as a11y from "gshell://a11y/a11y.js";
+import * as investigator from "gshell://userenv/investigator.js";
 
 export var data = {};
 
@@ -29,6 +31,8 @@ export var commands = {
     network_forgetWifi: (data) => network.forgetWifi(data.name),
     network_configureWifi: (data) => network.configureWifi(data.name, data.auth),
     network_connectWifi: (data) => network.connectWifi(data.name),
+    network_getProxy: network.getProxy,
+    network_setProxy: network.setProxy,
     l10n_setLocale: (data) => l10n.setLocale(data.localeCode),
     input_loadInputDataFromConfig: input.loadInputDataFromConfig,
     input_saveInputDataToConfig: (data) => input.saveInputDataToConfig(data.data),
@@ -44,6 +48,8 @@ export var commands = {
     updates_setShouldAutoCheckForUpdates: (data) => updates.setShouldAutoCheckForUpdates(data.value),
     updates_setShouldAutoRestart: (data) => updates.setShouldAutoRestart(data.value),
     interaction_setOption: (data) => interaction.setOption(data.name, data.value),
+    investigator_listenToEvent: (data, metadata) => investigator.sendEventsToWebview(webviewManager.webviewsByWebContentsId[data.webContentsId], data.eventType, metadata.webview),
+    investigator_call: (data) => investigator.call(webviewManager.webviewsByWebContentsId[data.webContentsId], data.command, data.data),
     term_create: (data, metadata) => term.createForPrivilegedInterface(metadata, data.file, data.args, data.options),
     term_isRunning: (data) => Promise.resolve(term.getTerminalByKey(data.key).isRunning),
     term_spawn: (data) => term.getTerminalByKey(data.key).spawn(),

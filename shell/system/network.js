@@ -8,9 +8,10 @@
 */
 
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
+import * as info from "gshell://global/info.js";
 
 export const LIST_UPDATE_INTERVAL = 5 * 1_000; // 5 seconds
-export const WIFI_SCAN_INTERVAL = 60 * 1_000; // 1 minute
+export const WIFI_SCAN_INTERVAL = 20 * 1_000; // 20 seconds
 export const WIFI_CONNECTING_SCAN_INTERVAL = 2 * 1_000; // 2 seconds
 
 export var listResults = [];
@@ -24,6 +25,8 @@ export function getList() {
 
         privilegedInterface.setData("network_listResults", data);
 
+        info.applyNetwork();
+
         return Promise.resolve(data);
     });
 }
@@ -33,6 +36,8 @@ export function scanWifi() {
         wifiScanResults = data;
 
         privilegedInterface.setData("network_wifiScanResults", data);
+
+        info.applyNetwork();
 
         return Promise.resolve(data);
     });
@@ -79,6 +84,14 @@ export function connectWifi(name) {
 
         return Promise.reject(error);
     });
+}
+
+export function getProxy() {
+    return gShell.call("network_getProxy");
+}
+
+export function setProxy(data) {
+    return gShell.call("network_setProxy", data);
 }
 
 export function init() {

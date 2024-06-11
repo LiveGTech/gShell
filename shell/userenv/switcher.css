@@ -146,6 +146,7 @@ body[device-type="desktop"] .switcher_empty > div {
     margin-inline-end: -12%;
     background-color: black;
     vertical-align: bottom;
+    overflow: hidden;
     touch-action: none;
     transform: scale(0.7);
     transition: 0.5s transform;
@@ -250,6 +251,13 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.closing
 body[device-type="desktop"] .switcher.allowSelect .switcher_screen:not(.closing) {
     width: 50%!important;
     height: unset!important;
+}
+
+body[device-type="desktop"] .switcher.allowSelect .switcher_renderSurface {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
 }
 
 .switcher.gesturing:not(.gestureSwitching) .switcher_screen {
@@ -456,6 +464,10 @@ html[aui-istouch="false"] .switcher_tabActivateButton:hover, .switcher_tabActiva
     transition: 0.5s width, 0.5s height;
 }
 
+.switcher_tabIcon.fit {
+    padding: 0.3rem;
+}
+
 .switcher_titleBar.hideTabs .switcher_tabIcon {
     width: 1.8rem;
     height: 1.8rem;
@@ -493,6 +505,18 @@ body:not([device-type="desktop"]) .switcher_tabNewButton {
     display: none;
 }
 
+.switcher_tab.switcher_forceClose .switcher_tabCloseButton {
+    background-color: var(--dangerousUI);
+}
+
+.switcher_tab.switcher_forceClose .switcher_tabCloseButton:is(html[aui-istouch="false"] :hover, :active) {
+    background-color: var(--dangerousUIPress);
+}
+
+.switcher_tab.switcher_forceClose .switcher_tabCloseButton img[aui-icon] {
+    filter: contrast(0) brightness(10)!important;
+}
+
 .switcher_titleBar.hideTabs .switcher_tabNewButton {
     display: none;
 }
@@ -512,6 +536,18 @@ body:not([device-type="desktop"]) .switcher_windowButtons {
 
 .switcher_screen:not(.maximised) .switcher_restoreButton {
     display: none;
+}
+
+.switcher_screen.switcher_forceClose .switcher_closeButton {
+    background-color: var(--dangerousUI);
+}
+
+.switcher_screen.switcher_forceClose .switcher_closeButton:is(html[aui-istouch="false"] :hover, :active) {
+    background-color: var(--dangerousUIPress);
+}
+
+.switcher_screen.switcher_forceClose .switcher_closeButton img[aui-icon] {
+    filter: contrast(0) brightness(10)!important;
 }
 
 .switcher_screenOptions {
@@ -557,6 +593,7 @@ body[device-type="desktop"] .switcher_screenOptions {
     flex-direction: column;
     height: 100%;
     gap: 0.5rem;
+    overflow: hidden;
 }
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_apps {
@@ -609,6 +646,45 @@ body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_app {
 
 body[device-type="desktop"] .switcher:not(.allowSelect) .switcher_screen.maximised .switcher_app {
     border-radius: 0;
+}
+
+.switcher_overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.switcher_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100vh - 4rem);
+    border: 0.1rem solid rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    border-radius: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.switcher_overlay::-webkit-scrollbar-track {
+    background-color: var(--secondaryBackground);
+    border-start-end-radius: 0.5rem;
+    border-end-end-radius: 0.5rem;
+}
+
+.switcher_overlay.unpainted {
+    display: none;
+}
+
+.switcher_overlay .xorg_surface canvas {
+    margin-bottom: calc(-0.25rem - 0.6px);
+}
+
+.switcher_overlay.panel {
+    background-color: var(--secondaryBackground);
+    color: var(--secondaryText);
+    padding: 0.5rem;
 }
 
 @keyframes switcher_desktopShowSelect {

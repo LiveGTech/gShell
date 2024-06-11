@@ -14,6 +14,7 @@
         "apply": "Appliquer",
         "add": "Ajouter",
         "save": "Enregistrer",
+        "saving": "Enregistrement...",
         "remove": "Supprimer",
         "none": "(Aucune)",
         "optional": "(Optionnel)",
@@ -34,7 +35,6 @@
         "network": "Réseau",
 
         "network_summary": "Wi-Fi, Ethernet",
-        "network_summaryConnected": "Connecté",
         "network_summaryConnectedWifi": "Connecté à {name}",
         "network_summaryConnectedEthernet": "Connecté via Ethernet",
         "network_summaryDisconnected": "Déconnecté",
@@ -86,6 +86,30 @@
 
         "network_connectionError_title": "Impossible de se connecter au réseau",
         "network_connectionError_description": "Vérifiez la configuration du réseau et le matériel pour voir s'il fonctionne correctement, puis essayez de vous reconnecter.",
+
+        "network_proxyConfig": "Proxys",
+        "network_proxyConfig_summary": "Activer et configurer des proxys pour envoyer le trafic réseau via",
+        "network_proxyConfig_description": "Configurez les proxys pour envoyer des données de demande réseau via. Vous pouvez également choisir des sites à exclure de la proxyation, pour lesquels une connexion directe sera utilisée à la place.",
+
+        "network_proxyConfig_direct": "Utilisez une connexion directe (n'utilisez pas de serveurs proxy)",
+
+        "network_proxyConfig_autoDetect": "Détecter automatiquement les paramètres de proxy à utiliser pour ce réseau",
+
+        "network_proxyConfig_pacScriptUrl": "Obtenez des paramètres de proxy à utiliser à partir d'un script PAC",
+        "network_proxyConfig_pacScriptUrl_url": "URL vers le script PAC",
+
+        "network_proxyConfig_socks": "Utilisez un proxy SOCKS",
+        "network_proxyConfig_socks_url": "URL vers le proxy SOCKS",
+
+        "network_proxyConfig_http": "Utiliser les proxys HTTP/HTTPS",
+        "network_proxyConfig_http_httpUrl": "URL vers le proxy HTTP",
+        "network_proxyConfig_http_httpsUrl": "URL vers le proxy HTTPS",
+
+        "network_proxyConfig_excludeMatches_title": "Sites à exclure de proxy",
+        "network_proxyConfig_excludeMatches_description": "Entrez les URL des sites qui ne doivent pas être proxés, avec une URL par ligne.",
+        "network_proxyConfig_excludeMatches_label": "Liste des sites à exclure",
+
+        "network_proxyConfig_saveNotice": "Les paramètres de proxy que vous choisissez ne seront appliqués que lorsque vous les aurez enregistrés.",
 
         "l10n": "Langue et saisie",
 

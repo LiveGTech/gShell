@@ -145,7 +145,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
             }
 
             updateCancelButton.removeAttribute("title");
-            updateCancelButton.removeAttribute("sphere-:title");
+            updateCancelButton.removeAttribute("sphere-title");
 
             updateNoPowerOffMessage.hide();
         }
@@ -238,7 +238,7 @@ export var UpdatesPage = astronaut.component("UpdatesPage", function(props, chil
 
                 updateNowButton.on("click", function() {
                     _sphere.callPrivilegedCommand("updates_startUpdate", {update}).catch(function(error) {
-                        console.error("Error occured during update:", error);
+                        console.error("Error occurred during update:", error);
 
                         var dialog = UpdateFailureDialog({error, isRecoverable: RECOVERABLE_ERRORS.includes(error)}) ();
 

@@ -13,6 +13,7 @@ import * as system from "gshell://system/system.js";
 import * as device from "gshell://system/device.js";
 import * as debug from "gshell://system/debug.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
+import * as permissions from "gshell://config/permissions.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as pointer from "gshell://global/pointer.js";
 import * as tooltips from "gshell://global/tooltips.js";
@@ -23,6 +24,7 @@ import * as info from "gshell://global/info.js";
 import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
+import * as mobile from "gshell://system/mobile.js";
 import * as updates from "gshell://system/updates.js";
 import * as interaction from "gshell://system/interaction.js";
 import * as input from "gshell://input/input.js";
@@ -33,6 +35,8 @@ import * as home from "gshell://userenv/home.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as oobs from "gshell://oobs/oobs.js";
 import * as sphere from "gshell://sphere/sphere.js";
+import * as linux from "gshell://integrations/linux.js";
+import * as xorg from "gshell://integrations/xorg.js";
 
 window.$g = $g;
 
@@ -69,13 +73,16 @@ $g.waitForLoad().then(function() {
 
     return lockScreen.loadUsers();
 }).then(function() {
+    permissions.init();
     pointer.init();
     tooltips.init();
     select.init();
     a11y.init();
     info.init();
     powerMenu.init();
+    sleep.init();
     network.init();
+    mobile.init();
     updates.init();
     input.init();
     personalisation.init();
@@ -83,6 +90,8 @@ $g.waitForLoad().then(function() {
     switcher.init();
     oobs.init();
     sphere.init();
+    linux.init();
+    xorg.init();
 
     if (oobsActivated) {
         $g.sel("#oobs").screenFade();

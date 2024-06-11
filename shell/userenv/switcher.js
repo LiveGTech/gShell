@@ -17,19 +17,23 @@ import * as device from "gshell://system/device.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as sphere from "gshell://sphere/sphere.js";
+import * as linux from "gshell://integrations/linux.js";
 
 export const MAX_WAIT_UNTIL_LAUNCH = 2 * 1_000; // 2 seconds
 export const WINDOW_RESIZE_BORDER_THICKNESS = calc.getRemSize(0.6);
 export const DESKTOP_MIN_WINDOW_WIDTH = calc.getRemSize(20);
 export const DESKTOP_MIN_WINDOW_HEIGHT = calc.getRemSize(15);
+export const DESKTOP_ABSOLUTE_MIN_WINDOW_WIDTH = calc.getRemSize(9); // For windows that override constraints (such as Xorg windows)
+export const DESKTOP_ABSOLUTE_MIN_WINDOW_HEIGHT = calc.getRemSize(4); // For windows that override constraints (such as Xorg windows)
 export const DESKTOP_DEFAULT_WINDOW_WIDTH = calc.getRemSize(40);
 export const DESKTOP_DEFAULT_WINDOW_HEIGHT = calc.getRemSize(30);
+export const DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE = 500; // 500 milliseconds; enough time to allow indirect close handlers to respond quickly
 
 export var main = null;
 
 const WINDOW_STACK_WRAPAROUND = 10;
 
-var topmostZIndex = 1;
+var windowStackingOrder = [];
 var windowStackStep = 0;
 var switcherBarGesturing = false;
 var switcherBarSwitching = false;
@@ -105,13 +109,13 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
             this.screenSelected = true;
 
-            this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+            this.element.find(":scope > *").forEach((element) => setWindowGeometry(element, getWindowGeometry(element), true));
 
             this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
             screenElement.find("*:is(.switcher_titleBar, .switcher_apps)").removeAttribute("inert");
 
             if (device.data?.type == "desktop") {
-                screenElement.setStyle("z-index", topmostZIndex++);
+                bringWindowForward(screenElement);
             }
 
             showWindow(screenElement);
@@ -162,12 +166,20 @@ export class Switcher extends screenScroll.ScrollableScreen {
 
         $g.sel(".desktop_appListButton").removeClass("selected");
 
-        this.element.find(":scope > *").getAll().forEach((element) => setWindowGeometry($g.sel(element)));
+        this.element.find(":scope > *").forEach((element) => setWindowGeometry(element, getWindowGeometry(element), true));
     }
 }
 
 export function init() {
     var pressedOnce = false;
+
+    $g.sel("body").on("click", function(event) {
+        if ($g.sel(event.target).is(".switcher_overlay, .switcher_overlay *")) {
+            return;
+        }
+
+        $g.sel(".switcher_overlay.getBlurEvents").emit("bluroverlay");
+    });
 
     $g.sel(".switcher_home").on("click", function() {
         if (device.data?.type == "desktop") {
@@ -293,8 +305,8 @@ export function init() {
     }
 }
 
-export function getWindowGeometry(element) {
-    if (element.get().geometry) {
+export function getWindowGeometry(element, forceRecalculation = false) {
+    if (element.get().geometry && !forceRecalculation) {
         return element.get().geometry;
     }
 
@@ -308,12 +320,31 @@ export function getWindowGeometry(element) {
     };
 }
 
-export function setWindowGeometry(element, geometry = getWindowGeometry(element)) {
+export function setWindowGeometry(element, geometry = getWindowGeometry(element), directResize = false) {
     if (device.data?.type != "desktop") {
         return;
     }
 
-    element.get().geometry = geometry;
+    var canResizeDirectly = directResize || !element.is(".switcher_indirectResize");
+
+    var minWidth = element.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_WIDTH : DESKTOP_MIN_WINDOW_WIDTH;
+    var minHeight = element.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_HEIGHT : DESKTOP_MIN_WINDOW_HEIGHT;
+
+    if (geometry.width < minWidth) {
+        geometry.width = minWidth;
+    }
+
+    if (geometry.height < minHeight) {
+        geometry.height = minHeight;
+    }
+
+    if (canResizeDirectly) {
+        element.get().geometry = geometry;
+    } else {
+        element.get().geometry ||= {width: geometry.width, height: geometry.height};
+        element.get().geometry.x = geometry.x;
+        element.get().geometry.y = geometry.y;
+    }
 
     if ($g.sel("#switcherView .switcher").is(".allowSelect")) {
         return;
@@ -327,9 +358,48 @@ export function setWindowGeometry(element, geometry = getWindowGeometry(element)
     } else {
         element.setStyle("left", `${geometry.x || 0}px`);
         element.setStyle("top", `${geometry.y || 0}px`);
-        element.setStyle("width", `${geometry.width || 0}px`);
-        element.setStyle("height", `${geometry.height || 0}px`);
+
+        if (canResizeDirectly) {
+            element.setStyle("width", `${geometry.width || 0}px`);
+            element.setStyle("height", `${geometry.height || 0}px`);
+        }
     }
+}
+
+export function sendMoveEvent(element, geometry = getWindowGeometry(element, true), otherDetail = {}) {
+    element.emit("switchermove", {geometry, ...otherDetail});
+}
+
+export function sendResizeEvent(element, geometry = getWindowGeometry(element, true), otherDetail = {}) {
+    element.emit("switcherresize", {geometry, ...otherDetail});
+}
+
+export function getWindowContentsGeometry(element) {
+    return getWindowGeometry(element.find(".switcher_apps"), true);
+}
+
+export function getWindowContentsOffsets(element, forceRecalculation = false) {
+    var windowGeometry = getWindowGeometry(element, forceRecalculation);
+    var recalculatedWindowGeometry = getWindowGeometry(element, true); // Use recaluclated value to get actual geometry when maximised
+    var windowContentsGeometry = getWindowContentsGeometry(element);
+
+    return {
+        contentsX: windowContentsGeometry.x - windowGeometry.x,
+        contentsY: windowContentsGeometry.y - windowGeometry.y,
+        windowWidth: recalculatedWindowGeometry.width - windowContentsGeometry.width,
+        windowHeight: recalculatedWindowGeometry.height - windowContentsGeometry.height
+    };
+}
+
+export function setWindowContentsGeometry(element, geometry = getWindowContentsGeometry(element), directResize = false) {
+    var offsets = getWindowContentsOffsets(element);
+
+    setWindowGeometry(element, {
+        x: geometry.x - offsets.contentsX,
+        y: geometry.y - offsets.contentsY,
+        width: geometry.width + offsets.windowWidth,
+        height: geometry.height + offsets.windowHeight
+    }, directResize);
 }
 
 export function openWindow(windowContents, appDetails = null, elementCallback = function() {}) {
@@ -488,10 +558,11 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                                 )
                             ,
                             $g.create("button")
+                                .addClass("switcher_closeButton")
                                 .setAttribute("title", _("switcher_close"))
                                 .setAttribute("aria-label", _("switcher_close"))
                                 .on("click", function() {
-                                    closeWindow(screenElement);
+                                    closeWindow(screenElement, undefined, screenElement.is(".switcher_forceClose"));
                                 })
                                 .add(
                                     $g.create("img")
@@ -571,7 +642,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 .addClass("desktop_appListButton_icon")
                 .setAttribute("aria-hidden", true)
                 .on("error", function() {
-                    screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", "gshell://media/appdefault.svg");
+                    screenElement.get().appListButton.find(".desktop_appListButton_icon")
+                        .removeClass("fit")
+                        .setAttribute("src", "gshell://media/appdefault.svg")
+                    ;
                 })
         )
         .on("click", function() {
@@ -601,6 +675,9 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
             return;
         }
 
+        var minWidth = screenElement.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_WIDTH : DESKTOP_MIN_WINDOW_WIDTH;
+        var minHeight = screenElement.is(".switcher_overrideConstraints") ? DESKTOP_ABSOLUTE_MIN_WINDOW_HEIGHT : DESKTOP_MIN_WINDOW_HEIGHT;
+
         var pointerDeltaX = event.clientX - pointerStartX;
         var pointerDeltaY = event.clientY - pointerStartY;
         var newGeometry = {...getWindowGeometry(screenElement)};
@@ -613,6 +690,9 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 x: event.clientX - (getWindowGeometry(screenElement).width / 2),
                 y: event.clientY - (screenElement.find(".switcher_titleBar").get().getBoundingClientRect().height / 2)
             });
+
+            sendMoveEvent(screenElement);
+            sendResizeEvent(screenElement);
             
             initialGeometry = {...getWindowGeometry(screenElement)};
         }
@@ -628,10 +708,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 newGeometry.width = initialGeometry.width + pointerDeltaX;
             }
 
-            if (newGeometry.width < DESKTOP_MIN_WINDOW_WIDTH) {
-                var distance = DESKTOP_MIN_WINDOW_WIDTH - newGeometry.width;
+            if (newGeometry.width < minWidth) {
+                var distance = minWidth - newGeometry.width;
 
-                newGeometry.width = DESKTOP_MIN_WINDOW_WIDTH;
+                newGeometry.width = minWidth;
 
                 if (moveResizeMode.resizeWest) {
                     newGeometry.x = initialGeometry.x + pointerDeltaX - distance;
@@ -654,10 +734,10 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
                 newGeometry.height = initialGeometry.height + pointerDeltaY;
             }
 
-            if (newGeometry.height < DESKTOP_MIN_WINDOW_HEIGHT) {
-                var distance = DESKTOP_MIN_WINDOW_HEIGHT - newGeometry.height;
+            if (newGeometry.height < minHeight) {
+                var distance = minHeight - newGeometry.height;
 
-                newGeometry.height = DESKTOP_MIN_WINDOW_HEIGHT;
+                newGeometry.height = minHeight;
 
                 if (moveResizeMode.resizeNorth) {
                     newGeometry.y = initialGeometry.y + pointerDeltaY - distance;
@@ -675,6 +755,22 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         handleHorizontal();
 
         setWindowGeometry(screenElement, newGeometry);
+
+        new ResizeObserver(function() {
+            if (!screenElement.hasClass("maximised") || screenElement.hasClass("transitioning")) {
+                return;
+            }
+
+            sendResizeEvent(screenElement);
+        }).observe(screenElement.get());
+
+        if (newGeometry.x != initialGeometry.x || newGeometry.y != initialGeometry.y) {
+            sendMoveEvent(screenElement, newGeometry);
+        }
+
+        if (newGeometry.width != initialGeometry.width || newGeometry.height != initialGeometry.height) {
+            sendResizeEvent(screenElement, newGeometry);
+        }
     });
 
     $g.sel("body").on("pointerup", function() {
@@ -810,7 +906,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                         .addClass("switcher_tabIcon")
                         .setAttribute("aria-hidden", true)
                         .on("error", function() {
-                            tab.find(".switcher_tabIcon").setAttribute("src", "gshell://media/appdefault.svg");
+                            tab.find(".switcher_tabIcon")
+                                .removeClass("fit")
+                                .setAttribute("src", "gshell://media/appdefault.svg")
+                            ;
                         })
                     ,
                     $g.create("span")
@@ -826,7 +925,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                         goHome();
                     }
 
-                    closeApp(app);
+                    closeApp(app, tab.is(".switcher_forceClose"));
                 })
                 .add(
                     $g.create("img")
@@ -845,17 +944,10 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
     app.get().lastIcon = null;
 
     if (appDetails != null) {
-        app.get().lastTitle = appDetails.displayName;
-        app.get().lastIcon = appDetails.icon;
-
-        element.find(".switcher_screenButton").setAttribute("aria-label", appDetails.displayName);
-
-        tab.find(".switcher_tabTitle").setText(appDetails.displayName);
-        tab.find(".switcher_tabIcon").setAttribute("src", appDetails.icon);
+        setAppTitle(app, appDetails.displayName);
+        setAppIcon(app, appDetails.icon);
 
         element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: appDetails.displayName, count: getWindowAppCount(element) + 1}));
-        element.get().appListButton.setAttribute("aria-label", appDetails.displayName);
-        element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", appDetails.icon);
     }
 
     element.find("webview").on("page-title-updated", function(event) {
@@ -863,16 +955,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
             return;
         }
 
-        app.get().lastTitle = event.title;
-
-        if (tab.hasClass("selected")) {
-            element.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
-
-            element.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(element)}));
-            element.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
-        }
-
-        tab.find(".switcher_tabTitle").setText(app.get().lastTitle);
+        setAppTitle(app, event.title);
     });
 
     element.find("webview").on("page-favicon-updated", function(event) {
@@ -880,13 +963,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
             return;
         }
 
-        app.get().lastIcon = appDetails?.icon || event.favicons[0];
-
-        if (tab.hasClass("selected")) {
-            element.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", app.get().lastIcon);
-        }
-
-        tab.find(".switcher_tabIcon").setAttribute("src", app.get().lastIcon);
+        setAppIcon(app, appDetails?.icon || event.favicons[0]);
     });
 
     tab.on("click", function() {
@@ -920,11 +997,17 @@ export function maximiseWindow(element, animated = true) {
     }
 
     element.addClass("maximised");
-    setWindowGeometry(element);
+
+    setWindowGeometry(element, getWindowGeometry(element), true);
+    sendMoveEvent(element, element.ancestor(".switcher"), true, {maximising: true});
+    sendResizeEvent(element, getWindowGeometry(element.ancestor(".switcher"), true), {maximising: true});
 
     if (animated) {
         setTimeout(function() {
             element.removeClass("transitioning");
+
+            sendMoveEvent(element);
+            sendResizeEvent(element);
         }, aui_a11y.prefersReducedMotion() ? 0 : 500);
     }
 }
@@ -935,16 +1018,34 @@ export function restoreWindow(element, animated = true) {
     }
 
     element.removeClass("maximised");
-    setWindowGeometry(element);
+
+    setWindowGeometry(element, getWindowGeometry(element), true);
 
     if (animated) {
         setTimeout(function() {
             element.removeClass("transitioning");
+
+            sendMoveEvent(element);
+            sendResizeEvent(element);
         }, aui_a11y.prefersReducedMotion() ? 0 : 500);
     }
 }
 
-export function closeWindow(element, animate = true) {
+export function closeWindow(element, animate = true, force = false) {
+    var indirectCloseApps = element.find(".switcher_app.switcher_indirectClose");
+
+    if (!force && indirectCloseApps.items().length > 0) {
+        indirectCloseApps.forEach(function(appElement) {
+            closeApp(appElement);
+        });
+
+        setTimeout(function() {
+            element?.addClass("switcher_forceClose");
+        }, DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE);
+
+        return Promise.resolve();
+    }
+
     return new Promise(function(resolve, reject) {
         var listButton = $g.sel(`.desktop_appListButton[data-id="${element.getAttribute("data-id")}"]`);
         var isLastScreen = $g.sel("#switcherView .switcher_screen").items().length == 1;
@@ -954,6 +1055,8 @@ export function closeWindow(element, animate = true) {
 
         function removeScreen() {
             element.find("webview").emit("switcherclose");
+
+            windowStackingOrder = windowStackingOrder.filter((currentElement) => currentElement.get() != element.get());
 
             element.remove();
         }
@@ -981,11 +1084,46 @@ export function closeWindow(element, animate = true) {
 }
 
 export function getWindowStackingOrder() {
-    return $g.sel("#switcherView .switcher")
-        .find(".switcher_screen")
-        .items()
-        .sort((a, b) => Number(a.getStyle("z-index")) - Number(b.getStyle("z-index")))
-    ;
+    return windowStackingOrder;
+}
+
+function updateWindowStackingOrder() {
+    var zIndex = 1;
+
+    windowStackingOrder.forEach(function(element) {
+        element.setStyle("z-index", zIndex++);
+    });
+}
+
+export function bringWindowForward(element) {
+    var stackingIndex = windowStackingOrder.indexOf(element);
+
+    if (stackingIndex >= 0) {
+        windowStackingOrder.splice(stackingIndex, 1);
+    }
+
+    windowStackingOrder.push(element);
+
+    windowStackingOrder = windowStackingOrder.sort(function(a, b) {
+        function matchPriority(selector) {
+            if (a.is(selector) && !b.is(selector)) {
+                return 1;
+            }
+
+            if (b.is(selector) && !a.is(selector)) {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        // Combine each criterion with `||` operator, with criterions that have a higher priority being checked first
+        return (
+            matchPriority(".switcher_overlay")
+        );
+    });
+
+    updateWindowStackingOrder();
 }
 
 export function openApp(url, appDetails = null, targetWindow = null) {
@@ -995,7 +1133,15 @@ export function openApp(url, appDetails = null, targetWindow = null) {
         return;
     }
 
+    if (url.split("?")[0] == "gsspecial://linuxapp") {
+        linux.launchApp($g.core.parameter("name", url));
+
+        return;
+    }
+
     return webviewManager.spawnAsUser(url, null, {privileged: url.startsWith("gshell://")}).then(function(webview) {
+        webview.appDetails = appDetails;
+
         var contents = $g.create("div").add(
             $g.create("main").add(webview)
         );
@@ -1033,6 +1179,48 @@ export function openApp(url, appDetails = null, targetWindow = null) {
     });
 }
 
+export function setAppTitle(app, title) {
+    var screenElement = app.ancestor(".switcher_screen");
+
+    app.get().lastTitle = title;
+
+    if (app.get().tab.hasClass("selected")) {
+        screenElement.find(".switcher_screenButton").setAttribute("aria-label", app.get().lastTitle);
+
+        screenElement.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: app.get().lastTitle, count: getWindowAppCount(screenElement)}));
+        screenElement.get().appListButton.setAttribute("aria-label", app.get().lastTitle);
+    }
+
+    app.get().tab.find(".switcher_tabTitle").setText(app.get().lastTitle);
+}
+
+export function setAppIcon(app, icon, fit = false) {
+    var screenElement = app.ancestor(".switcher_screen");
+
+    app.get().lastIcon = icon;
+    app.get().lastIconIsFitted = fit;
+
+    if (app.get().tab.hasClass("selected")) {
+        screenElement.get().appListButton.find(".desktop_appListButton_icon")
+            .setAttribute("src", app.get().lastIcon)
+            .condition(
+                fit,
+                (element) => element.addClass("fit"),
+                (element) => element.removeClass("fit")
+            )
+        ;
+    }
+
+    app.get().tab.find(".switcher_tabIcon")
+        .setAttribute("src", app.get().lastIcon)
+        .condition(
+            fit,
+            (element) => element.addClass("fit"),
+            (element) => element.removeClass("fit")
+        )
+    ;
+}
+
 export function selectApp(element) {
     var screenElement = element.ancestor(".switcher_screen");
 
@@ -1047,16 +1235,34 @@ export function selectApp(element) {
 
         screenElement.get().appListButton.setAttribute("title", _("switcher_appListTitle", {title: element.get().lastTitle, count: getWindowAppCount(screenElement)}));
         screenElement.get().appListButton.setAttribute("aria-label", element.get().lastTitle);
-        screenElement.get().appListButton.find(".desktop_appListButton_icon").setAttribute("src", element.get().lastIcon);
+
+        screenElement.get().appListButton.find(".desktop_appListButton_icon")
+            .setAttribute("src", element.get().lastIcon)
+            .condition(
+                element.get().lastIconIsFitted,
+                (element) => element.addClass("fit"),
+                (element) => element.removeClass("fit")
+            )
+        ;
     }
 }
 
-export function closeApp(element) {
+export function closeApp(element, force = false) {
     var screenElement = element.ancestor(".switcher_screen");
     var allTabElements = screenElement.find(".switcher_tab:not(.transitioning)").getAll();
 
+    if (!force && element.is(".switcher_indirectClose")) {
+        element.emit("switcherclose");
+
+        setTimeout(function() {
+            element.get()?.tab?.addClass("switcher_forceClose");
+        }, DELAY_BEFORE_CLOSE_BECOMES_FORCE_CLOSE);
+
+        return Promise.resolve();
+    }
+
     if (allTabElements.length <= 1) {
-        closeWindow(screenElement);
+        closeWindow(screenElement, undefined, true);
 
         return;
     }
@@ -1086,7 +1292,7 @@ export function getWindowAppCount(element) {
     return element.find(".switcher_tab:not(.transitioning)").getAll().length;
 }
 
-export function setAppCustomTab(element, title, icon) {
+export function setAppCustomTab(element, title, icon = null) {
     element.get().usingCustomTab = true;
 
     element.get().tab.find(".switcher_tabTitle").setText(title || "");
@@ -1162,4 +1368,28 @@ export function goHome() {
     }
 
     return $g.sel("#home").screenFade();
+}
+
+export function showOverlay(element, animated = !aui_a11y.prefersReducedMotion()) {
+    bringWindowForward(element);
+
+    if (animated) {
+        return element.fadeIn(250);
+    }
+
+    element.setStyle("opacity", "1");
+    element.show();
+
+    return Promise.resolve();
+}
+
+export function hideOverlay(element, animated = !aui_a11y.prefersReducedMotion()) {
+    if (animated) {
+        return element.fadeOut(250);
+    }
+
+    element.setStyle("opacity", "0");
+    element.hide();
+
+    return Promise.resolve();
 }

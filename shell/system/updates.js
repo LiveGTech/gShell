@@ -813,7 +813,7 @@ export function startUpdate(update) {
 
         return Promise.resolve();
     }).catch(function(error) {
-        console.error("Error occured during update:", error);
+        console.error("Error occurred during update:", error);
 
         if (updateCancelled) {
             error = "GOS_UPDATE_CANCELLED";

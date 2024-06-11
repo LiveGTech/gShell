@@ -142,32 +142,32 @@
     pointer-events: none;
 }
 
-body[liveg-a11y-scancolour="red"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+body[sphere-a11yscancolour="red"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
     border: 0.3rem ridge #ff0000;
     background-color: rgba(255, 0, 0, 0.3);
 }
 
-body[liveg-a11y-scancolour="green"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+body[sphere-a11yscancolour="green"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
     border: 0.3rem ridge #00ff00;
     background-color: rgba(0, 255, 0, 0.3);
 }
 
-body[liveg-a11y-scancolour="blue"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+body[sphere-a11yscancolour="blue"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
     border: 0.3rem ridge #0000ff;
     background-color: rgba(0, 0, 255, 0.3);
 }
 
-body[liveg-a11y-scancolour="yellow"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+body[sphere-a11yscancolour="yellow"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
     border: 0.3rem ridge #ffff00;
     background-color: rgba(255, 255, 0, 0.3);
 }
 
-body[liveg-a11y-scancolour="pink"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+body[sphere-a11yscancolour="pink"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
     border: 0.3rem ridge #ff00ff;
     background-color: rgba(255, 0, 255, 0.3);
 }
 
-body[liveg-a11y-scancolour="aqua"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
+body[sphere-a11yscancolour="aqua"] *:is(.a11y_switch_pointScanAxis, .a11y_switch_pointScanRefiner) {
     border: 0.3rem ridge #00ffff;
     background-color: rgba(0, 255, 255, 0.3);
 }

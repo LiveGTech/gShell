@@ -8,14 +8,33 @@
 */
 
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
-import * as screens from "gshell://lib/adaptui/src/screens.js";
 
 import * as settings from "./script.js";
 import * as shortcuts from "./shortcuts.js";
 import * as wifiAuthModes from "./wifiauthmodes.js";
 
 export var NetworkPage = astronaut.component("NetworkPage", function(props, children) {
-    var wifiScanResultsContainer = Container() ();
+    var wifiScanResultsContainer = Container({
+        styles: {
+            marginLeft: "-0.5rem",
+            marginRight: "-0.5rem"
+        }
+    }) ();
+
+    var proxyConfigButton = IconListButton (
+        Icon("router", "dark embedded") (),
+        Container (
+            BoldTextFragment() (_("network_proxyConfig")),
+            LineBreak() (),
+            _("network_proxyConfig_summary")
+        )
+    );
+
+    proxyConfigButton.on("click", function() {
+        settings.visitInnerScreen(
+            ProxyConfigScreen() ()
+        );
+    });
 
     function updateData() {
         var data = _sphere.getPrivilegedData();
@@ -104,6 +123,9 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
             shortcuts.ShortcutLandmark("network_wifi") (),
             Heading(2) (_("network_wifiNetworks")),
             wifiScanResultsContainer
+        ),
+        Section (
+            proxyConfigButton
         )
     );
 });
@@ -260,7 +282,7 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
             var connectButton = Button() (_("network_wifiAp_connect"));
 
             if (data?.network_connectingToWifi == props.accessPoint.name) {
-                connectButton.setAttribute("disabled", true);
+                connectButton.addAttribute("disabled");
                 connectButton.setText(_("network_wifiAp_connecting"));
             }
 
@@ -350,6 +372,226 @@ export var WifiApScreen = astronaut.component("WifiApScreen", function(props, ch
     return screen;
 });
 
+export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function(props, children) {
+    var modeRadioButtons = {
+        direct: RadioButtonInput({group: "network_proxyMode"}) (),
+        autoDetect: RadioButtonInput({group: "network_proxyMode"}) (),
+        pacScriptUrl: RadioButtonInput({group: "network_proxyMode"}) (),
+        socks: RadioButtonInput({group: "network_proxyMode"}) (),
+        http: RadioButtonInput({group: "network_proxyMode"}) ()
+    };
+
+    var valueInputs = {
+        pacScriptUrl: Input({type: "url", attributes: {"spellcheck": "false"}}) (),
+        socksProxy: Input({type: "url", attributes: {"spellcheck": "false"}}) (),
+        httpProxy: Input({type: "url", attributes: {"spellcheck": "false"}}) (),
+        httpsProxy: Input({type: "url", placeholder: _("optional"), attributes: {"spellcheck": "false"}}) ()
+    };
+
+    var requiredValuesForModes = {
+        pacScriptUrl: [valueInputs.pacScriptUrl],
+        socks: [valueInputs.socksProxy],
+        http: [valueInputs.httpProxy]
+    };
+
+    var excludeMatchesInput = TextInputArea({attributes: {"spellcheck": "false"}}) ();
+
+    var excludeMatchesAccordion = Accordion({mode: "boxed"}) (
+        Text(_("network_proxyConfig_excludeMatches_title")),
+        Paragraph() (_("network_proxyConfig_excludeMatches_description")),
+        Label (
+            Text(_("network_proxyConfig_excludeMatches_label")),
+            excludeMatchesInput
+        )
+    );
+
+    var modeDependencies = {
+        pacScriptUrl: Dependency (
+            Label (
+                Text((_("network_proxyConfig_pacScriptUrl_url"))),
+                valueInputs.pacScriptUrl
+            )
+        ),
+        socks: Dependency (
+            Label (
+                Text(_("network_proxyConfig_socks_url")),
+                valueInputs.socksProxy
+            )
+        ),
+        http: Dependency (
+            Label (
+                Text(_("network_proxyConfig_http_httpUrl")),
+                valueInputs.httpProxy
+            ),
+            Label (
+                Text(_("network_proxyConfig_http_httpsUrl")),
+                valueInputs.httpsProxy
+            ),
+            excludeMatchesAccordion
+        )
+    };
+
+    var saveButton = Button() (_("save"));
+    var cancelButton = Button({mode: "secondary"}) (_("cancel"));
+
+    var saving = false;
+
+    var screen = settings.InnerScreen({title: _("network_proxyConfig")}) (
+        Page(true) (
+            Section (
+                Heading() (_("network_proxyConfig")),
+                Paragraph() (_("network_proxyConfig_description")),
+                Label (
+                    modeRadioButtons.direct,
+                    BoldTextFragment() (_("network_proxyConfig_direct"))
+                ),
+                Label (
+                    modeRadioButtons.autoDetect,
+                    BoldTextFragment() (_("network_proxyConfig_autoDetect"))
+                ),
+                Label (
+                    modeRadioButtons.pacScriptUrl,
+                    BoldTextFragment() (_("network_proxyConfig_pacScriptUrl"))
+                ),
+                modeDependencies.pacScriptUrl,
+                Label (
+                    modeRadioButtons.socks,
+                    BoldTextFragment() (_("network_proxyConfig_socks"))
+                ),
+                modeDependencies.socks,
+                Label (
+                    modeRadioButtons.http,
+                    BoldTextFragment() (_("network_proxyConfig_http"))
+                ),
+                modeDependencies.http
+            ),
+            Section (
+                Paragraph() (_("network_proxyConfig_saveNotice")),
+                ButtonRow (
+                    saveButton,
+                    cancelButton
+                )
+            )
+        )
+    );
+
+    function getSelectedMode() {
+        return Object.keys(modeRadioButtons).find(function(mode) {
+            if (modeRadioButtons[mode].getValue()) {
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    function updateDependencies() {
+        Object.keys(modeDependencies).forEach(function(mode) {
+            if (modeRadioButtons[mode].getValue()) {
+                modeDependencies[mode].removeAttribute("inert");
+
+                if (mode == "http" && excludeMatchesInput.getValue().trim() != "") {
+                    excludeMatchesAccordion.addAttribute("open");
+                }
+            } else {
+                modeDependencies[mode].setAttribute("inert", "dependent");
+
+                if (mode == "http") {
+                    excludeMatchesAccordion.removeAttribute("open");
+                }
+            }
+        });
+    }
+
+    function areRequiredFieldsSatisfied() {
+        var selectedMode = getSelectedMode();
+
+        if (!selectedMode) {
+            return false;
+        }
+
+        var requiredValues = requiredValuesForModes[selectedMode] || [];
+        var allSatisfied = true;
+
+        requiredValues.forEach(function(requiredValue) {
+            if (requiredValue.getValue().trim() == "") {
+                allSatisfied = false;
+            }
+        });
+
+        return allSatisfied;
+    }
+
+    function checkCanSave() {
+        if (areRequiredFieldsSatisfied() && !saving) {
+            saveButton.removeAttribute("disabled");
+        } else {
+            saveButton.addAttribute("disabled");
+        }
+    }
+
+    Object.values(modeRadioButtons).forEach(function(radioButton) {
+        radioButton.on("change", function() {
+            updateDependencies();
+            checkCanSave();
+        });
+    });
+
+    Object.values(valueInputs).forEach(function(valueInput) {
+        valueInput.on("input", function() {
+            checkCanSave();
+        });
+    });
+
+    var exit = screen.inter.exit;
+
+    saveButton.on("click", function() {
+        var selectedMode = getSelectedMode();
+        var values = {};
+
+        Object.keys(valueInputs).forEach(function(key) {
+            values[key] = valueInputs[key].getValue();
+        });
+
+        if (selectedMode == null) {
+            throw new Error("No proxy mode selected (trap)");
+        }
+
+        saving = true;
+
+        checkCanSave();
+
+        saveButton.setText(_("saving"));
+
+        _sphere.callPrivilegedCommand("network_setProxy", {
+            mode: selectedMode,
+            ...values,
+            excludeMatches: excludeMatchesInput.getValue().split("\n")
+        }).then(function() {
+            exit();
+        });
+    });
+
+    cancelButton.on("click", function() {
+        exit();
+    });
+
+    _sphere.callPrivilegedCommand("network_getProxy").then(function(data) {
+        modeRadioButtons[data.mode || "direct"].setValue(true);
+
+        Object.keys(valueInputs).forEach(function(key) {
+            valueInputs[key].setValue(data[key] || "");
+        });
+
+        excludeMatchesInput.setValue(data.excludeMatches?.join("\n") || "");
+
+        updateDependencies();
+        checkCanSave();
+    });
+
+    return screen;
+});
+
 export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfigDialog", function(props, children) {
     var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
 
@@ -415,7 +657,7 @@ export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfi
         if (currentAuthModeConfigElement.inter.isValid()) {
             connectButton.removeAttribute("disabled");
         } else {
-            connectButton.setAttribute("disabled", true);
+            connectButton.addAttribute("disabled");
         }
     }
 
@@ -474,8 +716,6 @@ export function connectSummary(summary) {
             summary.setText(_("network_summaryConnectedWifi", {name: wifiScanConnectedResults[0].name}));
         } else if (ethernetConnections.length > 0) {
             summary.setText(_("network_summaryConnectedEthernet"));
-        } else if (genericConnections.length > 0) {
-            summary.setText(_("network_summaryConnected"));
         } else {
             summary.setText(_("network_summaryDisconnected"));
         }

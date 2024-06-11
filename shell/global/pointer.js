@@ -19,6 +19,8 @@ export function init() {
             y = data.y / device.data.display.scaleFactor;
 
             requestAnimationFrame(update);
+
+            // TODO: Add mouse pointer element (this works regardless of whether inside Xorg app or not)
         });
     });
 }

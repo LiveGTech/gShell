@@ -9,6 +9,7 @@
         "percentage": "{value}%",
 
         "ok": "OK",
+        "cancel": "Cancel",
         "unknown": "Unknown",
 
         "size_bytes": {
@@ -28,7 +29,25 @@
         "info_batteryIcon_discharging": "Battery - discharging",
         "info_batteryIcon_unknown": "Battery - unknown",
 
+        "info_networkIcon_connectedWifi": "Network - connected to {name} ({signal}% signal strength)",
+        "info_networkIcon_connectedEthernet": "Network - connected via Ethernet",
+        "info_networkIcon_disconnected": "Network - disconnected",
+
+        "info_mobileIcon_technology": {
+            "'{technology}' == 'gsm'": "GSM (2G)",
+            "'{technology}' == 'cdma1x'": "CDMA2000 1X (3G)",
+            "'{technology}' == 'evdo'": "EVDO (3G)",
+            "'{technology}' == 'umts'": "UMTS (3G)",
+            "'{technology}' == 'lte'": "LTE (4G)",
+            "'{technology}' == '5g'": "5G",
+            "false": "unknown technology"
+        },
+
+        "info_mobileIcon_signal": "Mobile - connected via {technology} ({signal}% signal strength)",
+        "info_mobileIcon_noSignal": "Mobile - no signal",
+
         "powerMenu_lock": "Lock",
+        "powerMenu_sleep": "Sleep",
         "powerMenu_shutDown": "Shut down",
         "powerMenu_restart": "Restart",
 
@@ -167,6 +186,12 @@
         "sphere_openMenu": "Open menu",
 
         "sphere_menu_installApp": "Install app",
+        "sphere_menu_openInvestigator": "Open Web Investigator",
+
+        "permissions_selectUsbDevice_prefix": "Select a USB device for ",
+        "permissions_selectUsbDevice_suffix": " to access",
+
+        "permissions_noDevicesFound": "No devices found",
 
         "updates_rolledBackDialog_title": "System update was not successful",
         "updates_rolledBackDialog_description": "A problem prevented LiveG OS from installing an update, and so the system has been reverted to the previous version.",

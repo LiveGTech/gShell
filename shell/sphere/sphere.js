@@ -137,8 +137,12 @@ export class Browser {
         this.webview.get()?.goForward();
     }
 
-    reload() {
-        this.webview.get()?.reload();
+    reload(hard = false) {
+        if (hard) {
+            this.webview.get()?.reloadIgnoringCache();
+        } else {
+            this.webview.get()?.reload();
+        }
     }
 
     visitUrl(url) {
@@ -171,8 +175,15 @@ export class Browser {
                 },
                 url,
                 icon: thisScope.lastIcon
-            });
+            }, ["url"]);
         });
+    }
+
+    openInvestigator() {
+        switcher.openApp(
+            `gshell://apps/investigator/index.html?wcid=${encodeURIComponent(this.webview.get().getWebContentsId())}`,
+            {icon: "gshell://media/appdefault.svg"}
+        );
     }
 
     openOptionsMenu() {
@@ -191,6 +202,15 @@ export class Browser {
                         .setAttribute("aria-hidden", true)
                         ,
                     $g.create("span").setText(_("sphere_menu_installApp"))
+                )
+            ,
+            $g.create("button")
+                .setAttribute("aui-mode", "icon")
+                .on("click", function() {
+                    thisScope.openInvestigator();
+                })
+                .add(
+                    $g.create("span").setText(_("sphere_menu_openInvestigator"))
                 )
         );
 
@@ -237,8 +257,8 @@ export class Browser {
                 .addClass("sphere_fullChromeOnly")
                 .setAttribute("title", _("sphere_reload"))
                 .setAttribute("aria-label", _("sphere_reload"))
-                .on("click", function() {
-                    thisScope.reload();
+                .on("click", function(event) {
+                    thisScope.reload(event.ctrlKey);
                 })
                 .add(
                     $g.create("img")
@@ -307,20 +327,6 @@ export class Browser {
     }
 }
 
-export function init() {
-    webviewComms.onEvent("click", function(event) {
-        if (!event.isTrusted) {
-            return;
-        }
-
-        if ($g.sel(document.activeElement).is(".sphere_addressInput")) {
-            $g.sel("body").focus();
-
-            input.hide(true);
-        }
-    });
-}
-
 export function openBrowser(startUrl = undefined, tryOpeningInNewTab = false) {
     var browser = new Browser(startUrl);
 
@@ -355,5 +361,25 @@ export function openBrowser(startUrl = undefined, tryOpeningInNewTab = false) {
     return switcher.openWindow(browser.render(), details, function(screenElement, appElement) {
         browser.screenElement = screenElement;
         browser.appElement = appElement;
+    });
+}
+
+export function init() {
+    webviewComms.onEvent("click", function(event) {
+        if (!event.isTrusted) {
+            return;
+        }
+
+        if ($g.sel(document.activeElement).is(".sphere_addressInput")) {
+            $g.sel("body").focus();
+
+            input.hide(true);
+        }
+    });
+
+    gShell.on("control_propertyChange", function(event, data) {
+        if (data.name == "actions/openInSphere") {
+            openBrowser(data.value.trim(), true);
+        }
     });
 }

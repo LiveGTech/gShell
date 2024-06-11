@@ -97,7 +97,24 @@ export function getTerminalByKey(key) {
 }
 
 export function createForPrivilegedInterface(metadata, file, args, options) {
-    return gShell.call("system_getFlags").then(function(flags) {
+    var rootDirectory;
+    var controlFilesystemLocation;
+
+    return gShell.call("system_getRootDirectory").then(function(directory) {
+        rootDirectory = directory;
+
+        return gShell.call("linux_getControlFilesystemLocation");
+    }).then(function(location) {
+        controlFilesystemLocation = location;
+
+        return gShell.call("system_getFlags");
+    }).then(function(flags) {
+        if (metadata.user && metadata.useSystemUserInSimulator && !flags.isRealHardware) {
+            console.log(`Would run as user \`${metadata.user.linuxUsername}\` on real hardware: ${file} ${args.join(" ")}`);
+
+            metadata.user = null;
+        }
+
         if (metadata.user != null) {
             options.env ||= {};
 
@@ -107,6 +124,9 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
             options.env["XDG_SESSION_TYPE"] ||= "x11";
             options.env["XDG_SESSION_DESKTOP"] ||= "gshell";
             options.env["XDG_CURRENT_DESKTOP"] ||= "gShell";
+            options.env["GDK_CORE_DEVICE_EVENTS"] ||= "1";
+            options.env["LD_PRELOAD"] ||= `${rootDirectory}/src/clib/libgslai.so`;
+            options.env["GOS_CONTROL"] ||= controlFilesystemLocation;
 
             if (flags.isRealHardware) {
                 options.env["XAUTHORITY"] ||= `/home/${metadata.user.linuxUsername}/.Xauthority`;
@@ -135,17 +155,19 @@ export function createForPrivilegedInterface(metadata, file, args, options) {
 
         var terminal = new Terminal(file || "bash", args, options);
 
-        terminal.onRead(function(data) {
-            metadata.webview.get().send("term_read", {key: terminal.key, data});
-        });
-
-        terminal.onExit(function(exitCode, signal) {
-            metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
-        });
-
-        metadata.webview.on("switcherclose", function() {
-            terminal.kill("SIGHUP");
-        });
+        if (metadata.webview) {
+            terminal.onRead(function(data) {
+                metadata.webview.get().send("term_read", {key: terminal.key, data});
+            });
+    
+            terminal.onExit(function(exitCode, signal) {
+                metadata.webview.get().send("term_exit", {key: terminal.key, exitCode, signal});
+            });
+    
+            metadata.webview.on("switcherclose", function() {
+                terminal.kill("SIGHUP");
+            });
+        }
 
         return Promise.resolve(terminal.key);
     });

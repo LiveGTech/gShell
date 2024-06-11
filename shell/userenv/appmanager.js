@@ -45,7 +45,7 @@ function findBestIcon(icons) {
 
                 var sizeValue = parseInt(match[1]) * parseInt(match[2]);
 
-                if(sizeValue > biggestSize) {
+                if (sizeValue > biggestSize) {
                     biggestSize = sizeValue;
                 }
             });
@@ -122,9 +122,13 @@ export class ManifestData {
     }
 }
 
-export function install(appDetails) {
+export function install(appDetails, updateSameUsingProperties = [], updateOnly = false) {
     var user;
     var resource = null;
+    var updated = false;
+
+    // Reverse `updateSameUsingProperties` so that higher-priority properties are applied last
+    updateSameUsingProperties = [...updateSameUsingProperties].reverse();
 
     return users.ensureCurrentUser().then(function(userData) {
         user = userData;
@@ -134,25 +138,19 @@ export function install(appDetails) {
         }
 
         var iconUrl = appDetails.icon;
-        var mimeType;
 
         appDetails.icon = null; // Discard URL so that it is never loaded if resource saving fails
 
         return fetch(iconUrl).then(function(response) {
-            mimeType = response.headers.get("Content-Type").split(";")[0];
+            appDetails.iconMimeType = response.headers.get("Content-Type").split(";")[0];
 
-            if (!(mimeType in ICON_MIME_TYPES_TO_FILE_EXTENSIONS)) {
+            if (!(appDetails.iconMimeType in ICON_MIME_TYPES_TO_FILE_EXTENSIONS)) {
                 return Promise.reject(`Icon MIME type (\`${mimeType}\`) not allowed when installing app: ${iconUrl}`);
             }
 
             return response.arrayBuffer();
         }).then(function(data) {
-            resource = new resources.Resource(ICON_MIME_TYPES_TO_FILE_EXTENSIONS[mimeType], data);
-
-            return resource.save();
-        }).then(function() {
-            appDetails.icon = resource.url;
-            appDetails.iconResourceId = resource.id;
+            appDetails.iconData = data;
 
             return Promise.resolve();
         }).catch(function(error) {
@@ -161,16 +159,46 @@ export function install(appDetails) {
             return Promise.resolve();
         });
     }).then(function() {
+        if (!appDetails.iconData || !appDetails.iconMimeType) {
+            return Promise.resolve();
+        }
+
+        var resource = new resources.Resource(ICON_MIME_TYPES_TO_FILE_EXTENSIONS[appDetails.iconMimeType], appDetails.iconData);
+
+        return resource.save().then(function() {
+            appDetails.icon = resource.url;
+            appDetails.iconResourceId = resource.id;
+
+            return Promise.resolve();
+        });
+    }).then(function() {
+        delete appDetails.iconData;
+        delete appDetails.iconMimeType;
+
         return config.edit(`users/${user.uid}/apps.gsc`, function(data) {
             data.apps ||= {};
 
             var appId = $g.core.generateKey();
 
-            data.apps[appId] = appDetails;
+            if (updateSameUsingProperties.length > 0) {
+                updateSameUsingProperties.reverse().forEach(function(property) {
+                    Object.keys(data.apps).forEach(function(otherAppId) {
+                        var otherAppDetails = data.apps[otherAppId];
 
-            if (resource != null) {
-                data.apps[appId].icon
+                        if (otherAppDetails[property] == appDetails[property]) {
+                            appId = otherAppId;
+                            updated = true;
+                        }
+                    });
+                });
             }
+
+            if (updateOnly && !updated) {
+                // Don't do anything as we don't want a new entry
+                return Promise.resolve(data);
+            }
+
+            data.apps[appId] = appDetails;
 
             // TODO: Add notification telling user app has been added
 
@@ -178,6 +206,8 @@ export function install(appDetails) {
         });
     }).then(function() {
         return home.load();
+    }).then(function() {
+        return Promise.resolve(updated);
     });
 }
 
@@ -208,5 +238,5 @@ export function installFromManifestData(manifestData) {
                 icon: shortcut.icon
             };
         })
-    });
+    }, ["scope", "url"]);
 }

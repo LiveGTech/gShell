@@ -14,6 +14,7 @@
         "apply": "Apply",
         "add": "Add",
         "save": "Save",
+        "saving": "Saving...",
         "remove": "Remove",
         "none": "(None)",
         "optional": "(Optional)",
@@ -34,7 +35,6 @@
         "network": "Network",
 
         "network_summary": "Wi-Fi, Ethernet",
-        "network_summaryConnected": "Connected",
         "network_summaryConnectedWifi": "Connected to {name}",
         "network_summaryConnectedEthernet": "Connected via Ethernet",
         "network_summaryDisconnected": "Disconnected",
@@ -86,6 +86,30 @@
 
         "network_connectionError_title": "Couldn't connect to network",
         "network_connectionError_description": "Check the network configuration and hardware to see if it is working properly, and try connecting again.",
+
+        "network_proxyConfig": "Proxies",
+        "network_proxyConfig_summary": "Enable and configure proxies to send network traffic through",
+        "network_proxyConfig_description": "Configure which proxies to send network request data through. You can also choose sites to exclude from proxying, for which a direct connection will be used instead.",
+
+        "network_proxyConfig_direct": "Use a direct connection (don't use proxy servers)",
+
+        "network_proxyConfig_autoDetect": "Automatically detect proxy settings to use for this network",
+
+        "network_proxyConfig_pacScriptUrl": "Get proxy settings to use from a PAC script",
+        "network_proxyConfig_pacScriptUrl_url": "URL to PAC script",
+
+        "network_proxyConfig_socks": "Use a SOCKS proxy",
+        "network_proxyConfig_socks_url": "URL to SOCKS proxy",
+
+        "network_proxyConfig_http": "Use HTTP/HTTPS proxies",
+        "network_proxyConfig_http_httpUrl": "URL to HTTP proxy",
+        "network_proxyConfig_http_httpsUrl": "URL to HTTPS proxy",
+
+        "network_proxyConfig_excludeMatches_title": "Sites to exclude from proxying",
+        "network_proxyConfig_excludeMatches_description": "Enter the URLs of sites that should not be proxied, with one URL per line.",
+        "network_proxyConfig_excludeMatches_label": "List of sites to exclude",
+
+        "network_proxyConfig_saveNotice": "The proxy settings you choose will not be applied until you save them.",
 
         "l10n": "Language and input",
 

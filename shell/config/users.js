@@ -105,7 +105,6 @@ export class User {
 
         const UID = this.uid;
         const USERNAME = this.linuxUsername;
-        const USER_FOLDER_LOCATION = `/system/storage/users/${UID}/files`;
 
         return gShell.call("system_getLinuxUsersList").then(function(usernames) {
             if (usernames.includes(thisScope.linuxUsername)) {
@@ -121,8 +120,7 @@ export class User {
 
             [
                 ["sudo", ["useradd", USERNAME]],
-                ["sudo", ["mkdir", "-p", USER_FOLDER_LOCATION]],
-                ["sudo", ["ln", "-s", USER_FOLDER_LOCATION, `/home/${USERNAME}`]],
+                ["sudo", ["ln", "-s", `/system/storage/users/${UID}/files`, `/home/${USERNAME}`]],
                 ["sudo", ["cp", "-r", "/etc/skel/.", `/home/${USERNAME}`]],
                 ["sudo", ["usermod", "-aG", "liveg,users", USERNAME]],
                 ["sudo", ["usermod", "-s", "/bin/bash", USERNAME]]
@@ -149,6 +147,13 @@ export class User {
             return gShell.call("system_executeCommand", {
                 command: "sudo",
                 args: ["chown", "-R", `${USERNAME}:${USERNAME}`, `/home/${USERNAME}/.`]
+            });
+        }).then(function() {
+            // Ensure user's directory is writeable by `system` user
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["chown", "system:system", `/system/storage/users/${UID}`]
             });
         }).then(function() {
             // Ensure that user is added to or removed from the `sudo` group
@@ -205,7 +210,14 @@ export class User {
     }
 
     init() {
-        return this.ensureLinuxUser();
+        var thisScope = this;
+
+        // Ensure that user's `files` folder exists
+        return gShell.call("storage_newFolder", {
+            location: `users/${this.uid}/files`
+        }).then(function() {
+            return thisScope.ensureLinuxUser();
+        });
     }
 
     save() {
@@ -277,7 +289,9 @@ export function onUserStateChange(callback) {
 export function create(uid = $g.core.generateKey(), data = {}) {
     var user = new User(uid, data);
 
-    return user.save().then(function() {
+    return user.ensureLinuxUser().then(function() {
+        return user.save();
+    }).then(function() {
         return Promise.resolve(user);
     });
 }

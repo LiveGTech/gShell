@@ -25,6 +25,13 @@
                 },
                 {
                     "name": {
+                        "en_GB": "Proxies",
+                        "fr_FR": "Proxys"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=network_proxyConfig"
+                },
+                {
+                    "name": {
                         "en_GB": "Language and input",
                         "fr_FR": "Langue et saisie"
                     },

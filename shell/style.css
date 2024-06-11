@@ -23,6 +23,7 @@
 @import url("gshell://userenv/switcher.css");
 @import url("gshell://oobs/oobs.css");
 @import url("gshell://sphere/sphere.css");
+@import url("gshell://config/permissions.css");
 
 html, body {
     width: 100vw;

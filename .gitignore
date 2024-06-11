@@ -1,4 +1,5 @@
 node_modules/
 .vscode/
 dist/
-media/oobs/renders
+src/clib/
+media/oobs/renders/

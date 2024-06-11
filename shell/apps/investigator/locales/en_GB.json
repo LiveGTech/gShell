@@ -1,0 +1,19 @@
+{
+    "localeCode": "en_GB",
+    "metadata": {
+        "name": "English (United Kingdom)",
+        "nameShort": "English",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "webInvestigator": "Web Investigator",
+
+        "selectElement": "Select element",
+
+        "console": "Console",
+
+        "unresponsive_title": "Target has become unresponsive",
+        "unresponsive_description": "Web Investigator is unable to communicate with the debug target. The target may have become frozen, or has been closed or disconnected.",
+        "unresponsive_reconnect": "Reconnect"
+    }
+}

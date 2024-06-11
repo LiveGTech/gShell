@@ -63,7 +63,7 @@ export function visitInnerScreen(screen) {
     root.add(screen);
 
     setTimeout(function() {
-        screen.screenForward();        
+        screen.screenForward();
     });
 }
 

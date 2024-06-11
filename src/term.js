@@ -9,6 +9,7 @@
 
 const pty = require("node-pty");
 
+var main = require("./main");
 var flags = require("./flags");
 var storage = require("./storage");
 
@@ -20,10 +21,12 @@ exports.allProcesses = [];
 exports.spawn = function(file = "bash", readCallback = function(data) {}, exitCallback = function(exitCode, signal) {}, args = [], options = {}) {
     options.cwd ||= storage.storageFilesystemLocation;
 
-    options.env = {
-        ...process.env,
-        ...(options.env || {})
-    };
+    options.env = {...process.env, ...(options.env || {})};
+
+    if (!flags.isRealHardware) {
+        // On real hardware, we add files in `bin` to `/usr/bin` instead
+        options.env["PATH"] = `${main.rootDirectory}/src/bin` + (options.env["PATH"] ? ":" + options.env["PATH"] : "");
+    }
 
     if (!flags.isRealHardware && !flags.allowHostControl) {
         exports.allProcesses.push({readCallback, exitCallback});

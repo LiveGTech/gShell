@@ -441,6 +441,7 @@ export class InputMethod {
         this.nGramLength = metadata.nGramLength || 4;
         this.allowPartialWords = metadata.allowPartialWords || false;
         this.maxCandidates = metadata.maxCandidates || 3;
+        this.onlyShowWithKeyboard = metadata.onlyShowWithKeyboard || false;
 
         this.remainingWordPart = "";
 
@@ -1197,6 +1198,10 @@ export function getBestInputMode() {
 
 export function show(mode = getBestInputMode()) {
     if (mode == inputModes.NONE) {
+        return;
+    }
+
+    if (mode == inputModes.IME_ONLY && currentKeyboardLayout.currentInputMethod.onlyShowWithKeyboard) {
         return;
     }
 

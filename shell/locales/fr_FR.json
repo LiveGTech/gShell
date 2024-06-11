@@ -9,6 +9,7 @@
         "percentage": "{value} %",
 
         "ok": "OK",
+        "cancel": "Annuler",
         "unknown": "Inconnue",
 
         "size_bytes": {
@@ -28,7 +29,25 @@
         "info_batteryIcon_discharging": "Batterie - décharge",
         "info_batteryIcon_unknown": "Batterie - inconnue",
 
+        "info_networkIcon_connectedWifi": "Réseau - connecté à {name} (force du signal {signal} %)",
+        "info_networkIcon_connectedEthernet": "Réseau - connecté via Ethernet",
+        "info_networkIcon_disconnected": "Réseau - déconnecté",
+
+        "info_mobileIcon_technology": {
+            "'{technology}' == 'gsm'": "GSM (2G)",
+            "'{technology}' == 'cdma1x'": "CDMA2000 1X (3G)",
+            "'{technology}' == 'evdo'": "EVDO (3G)",
+            "'{technology}' == 'umts'": "UMTS (3G)",
+            "'{technology}' == 'lte'": "LTE (4G)",
+            "'{technology}' == '5g'": "5G",
+            "false": "technologie inconnue"
+        },
+
+        "info_mobileIcon_signal": "Mobile - connecté via {technology} (force du signal {signal} %)",
+        "info_mobileIcon_noSignal": "Mobile - pas de signal",
+
         "powerMenu_lock": "Verrouiller",
+        "powerMenu_sleep": "Dormir",
         "powerMenu_shutDown": "Arrêter",
         "powerMenu_restart": "Redémarrer",
 
@@ -167,6 +186,12 @@
         "sphere_openMenu": "Ouvrir le menu",
 
         "sphere_menu_installApp": "Installer l'application",
+        "sphere_menu_openInvestigator": "Ouvrir Enquêteur Web",
+
+        "permissions_selectUsbDevice_prefix": "Sélectionnez un appareil USB pour ",
+        "permissions_selectUsbDevice_suffix": " pour accéder",
+
+        "permissions_noDevicesFound": "Aucun périphérique trouvé",
 
         "updates_rolledBackDialog_title": "La mise à jour du système a échoué",
         "updates_rolledBackDialog_description": "Un problème a empêché LiveG OS d'installer une mise à jour, et le système est donc revenu à la version précédente.",

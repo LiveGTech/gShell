@@ -78,10 +78,14 @@ function createApp(appDetails) {
         .add(
             $g.create("img")
                 .addClass("home_icon")
+                .condition(appDetails.fitIcon, (element) => element.addClass("fit"))
                 .setAttribute("src", appDetails.icon || "gshell://media/appdefault.svg")
                 .setAttribute("aria-hidden", true)
                 .on("error", function() {
-                    button.find(".home_icon").setAttribute("src", "gshell://media/appdefault.svg")
+                    button.find(".home_icon")
+                        .setAttribute("src", "gshell://media/appdefault.svg")
+                        .removeClass("fit")
+                    ;
                 })
             ,
             $g.create("span").condition(
@@ -96,6 +100,8 @@ function createApp(appDetails) {
             )
         )
         .on("click", function() {
+            $g.sel(".desktop_appMenu").menuClose();
+
             if (typeof(appDetails.url) != "string") {
                 return;
             }
@@ -202,7 +208,7 @@ export function init() {
 export function load() {
     return users.getCurrentUser().then(function(user) {
         if (user == null) {
-            return; // No user signed in right now
+            return Promise.resolve(); // No user signed in right now
         }
 
         var defaultConfigData;
@@ -292,6 +298,8 @@ export function load() {
             scrollers.forEach(function(scroller, i) {
                 scroller.applyPagination($g.sel($g.sel(".home_pagination").getAll()[i]));
             });
+
+            return Promise.resolve();
         });
     });
 }

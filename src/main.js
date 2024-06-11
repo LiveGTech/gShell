@@ -13,7 +13,7 @@ const path = require("path");
 const fs = require("fs");
 const electron = require("electron");
 
-exports.IS_DEBUG_BUILD = false;
+exports.IS_DEBUG_BUILD = true;
 
 exports.rootDirectory = electron.app.isPackaged ? process.resourcesPath : path.join(__dirname, "/..");
 
@@ -21,6 +21,9 @@ var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
+var network = require("./network");
+var linux = require("./linux");
+var control = require("./control");
 var xorg = require("./xorg");
 var ipc = require("./ipc");
 
@@ -67,6 +70,14 @@ electron.app.on("ready", function() {
 
     storage.init().then(function() {
         return device.init(flags.deviceDescriptionLocation || undefined);
+    }).then(function() {
+        return linux.init();
+    }).then(function() {
+        return control.init();
+    }).then(function() {
+        return system.setupLinuxAppIntegration();
+    }).then(function() {
+        return network.updateProxy();
     }).then(function() {
         return system.getScreenResolution();
     }).then(function(resolution) {

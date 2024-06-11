@@ -15,7 +15,13 @@ var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
 var config = require("./config");
+var network = require("./network");
+var mobile = require("./mobile");
+var permissions = require("./permissions");
 var term = require("./term");
+var linux = require("./linux");
+var control = require("./control");
+var xorg = require("./xorg");
 
 var ipcMain = electron.ipcMain;
 
@@ -45,6 +51,10 @@ ipcMain.handle("system_executeCommand", function(event, data) {
 
 ipcMain.handle("system_isInstallationMedia", function(event, data) {
     return system.isInstallationMedia();
+});
+
+ipcMain.handle("system_getProcessInfo", function(event, data) {
+    return system.getProcessInfo(data.pid);
 });
 
 ipcMain.handle("system_copyFiles", function(event, data) {
@@ -154,51 +164,75 @@ ipcMain.handle("power_getState", function(event, data) {
 });
 
 ipcMain.handle("network_list", function(event, data) {
-    return system.networkList();
+    return network.list();
 });
 
 ipcMain.handle("network_scanWifi", function(event, data) {
-    return system.networkScanWifi();
+    return network.scanWifi();
 });
 
 ipcMain.handle("network_disconnectWifi", function(event, data) {
-    return system.networkDisconnectWifi(data.name);
+    return network.disconnectWifi(data.name);
 });
 
 ipcMain.handle("network_forgetWifi", function(event, data) {
-    return system.networkForgetWifi(data.name);
+    return network.forgetWifi(data.name);
 });
 
 ipcMain.handle("network_configureWifi", function(event, data) {
-    return system.networkConfigureWifi(data.name, data.auth);
+    return network.configureWifi(data.name, data.auth);
 });
 
 ipcMain.handle("network_connectWifi", function(event, data) {
-    return system.networkConnectWifi(data.name);
+    return network.connectWifi(data.name);
+});
+
+ipcMain.handle("network_getProxy", function(event, data) {
+    return network.getProxy();
+});
+
+ipcMain.handle("network_setProxy", function(event, data) {
+    return network.setProxy(data);
 });
 
 ipcMain.handle("network_getContentLength", function(event, data) {
-    return system.getContentLength(data.url);
+    return network.getContentLength(data.url);
 });
 
 ipcMain.handle("network_downloadFile", function(event, data) {
-    return system.downloadFile(data.url, data.destination, data.getProcessId);
+    return network.downloadFile(data.url, data.destination, data.getProcessId);
 });
 
 ipcMain.handle("network_getDownloadFileInfo", function(event, data) {
-    return system.getDownloadFileInfo(data.id);
+    return network.getDownloadFileInfo(data.id);
 });
 
 ipcMain.handle("network_pauseFileDownload", function(event, data) {
-    return system.pauseFileDownload(data.id);
+    return network.pauseFileDownload(data.id);
 });
 
 ipcMain.handle("network_resumeFileDownload", function(event, data) {
-    return system.resumeFileDownload(data.id);
+    return network.resumeFileDownload(data.id);
 });
 
 ipcMain.handle("network_cancelFileDownload", function(event, data) {
-    return system.cancelFileDownload(data.id);
+    return network.cancelFileDownload(data.id);
+});
+
+ipcMain.handle("mobile_listModems", function(event, data) {
+    return mobile.listModems();
+});
+
+ipcMain.handle("mobile_setModemActiveState", function(event, data) {
+    return mobile.setModemActiveState(data.modemId, data.enable);
+});
+
+ipcMain.handle("mobile_getSignalInfo", function(event, data) {
+    return mobile.getSignalInfo(data.modemId);
+});
+
+ipcMain.handle("mobile_setSignalPollInterval", function(event, data) {
+    return mobile.setSignalPollInterval(data.modemId, data.interval);
 });
 
 ipcMain.handle("io_input", function(event, data) {
@@ -255,9 +289,21 @@ ipcMain.handle("webview_attach", function(event, data) {
         });
 
         return {action: "deny"};
-    })
+    });
+
+    permissions.attach(webContents);
 
     main.ensureDebuggerAttached(webContents);
+
+    var interval = setInterval(function() {
+        if (webContents.isDestroyed()) {
+            clearInterval(interval);
+
+            return;
+        }
+
+        webContents.setZoomFactor(1);
+    });
 
     return webContents.debugger.sendCommand("Emulation.setDeviceMetricsOverride", {
         width: 0,
@@ -266,6 +312,8 @@ ipcMain.handle("webview_attach", function(event, data) {
         scale: device.data.display.scaleFactor,
         mobile: device.data?.type == "mobile"
     }).then(function() {
+        webContents.setZoomFactor(1);
+
         return webContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
             userAgent: data.userAgent,
             userAgentMetadata: data.userAgentMetadata
@@ -275,6 +323,9 @@ ipcMain.handle("webview_attach", function(event, data) {
     }).then(function() {
         // We must re-apply media features since the new webview won't have them yet
         return system.setMediaFeatures();
+    }).then(function() {
+        // We must re-apply network proxy config since the new webview won't have it set yet
+        return network.updateProxy();
     });
 });
 
@@ -302,6 +353,19 @@ ipcMain.handle("webview_setMediaFeature", function(event, data) {
 
 ipcMain.handle("webview_getMediaFeatures", function(event, data) {
     return system.getMediaFeatures();
+});
+
+ipcMain.handle("webview_evaluate", function(event, data) {
+    var webContents = electron.webContents.fromId(data.webContentsId ?? event.sender.id);
+
+    main.ensureDebuggerAttached(webContents);
+
+    return webContents.debugger.sendCommand("Runtime.evaluate", {
+        expression: data.expression,
+        allowUnsafeEvalBlockedByCSP: true
+    }).then(function() {
+        return Promise.resolve();
+    });
 });
 
 ipcMain.handle("webview_acknowledgeUserAgent", function(event, data) {
@@ -352,6 +416,14 @@ ipcMain.handle("webview_getManifest", function(event, data) {
     });
 });
 
+ipcMain.handle("permissions_respondToRequest", function(event, data) {
+    return permissions.respondToRequest(data.requestId, data.permission, data.origin, data.granted);
+});
+
+ipcMain.handle("permissions_respondToUsbSelectionRequest", function(event, data) {
+    return permissions.respondToUsbSelectionRequest(data.requestId, data.selectedDeviceId);
+});
+
 ipcMain.handle("term_spawn", function(event, data) {
     var id = null;
 
@@ -382,6 +454,42 @@ ipcMain.handle("term_write", function(event, data) {
 
 ipcMain.handle("term_setSize", function(event, data) {
     return term.setSize(data.id, data.columns, data.rows);
+});
+
+ipcMain.handle("linux_getAppInfo", function(event, data) {
+    return linux.getAppInfo(data.processName);
+});
+
+ipcMain.handle("linux_getControlFilesystemLocation", function(event, data) {
+    return Promise.resolve(control.controlFilesystemLocation);
+});
+
+ipcMain.handle("xorg_getWindowProperties", function(event, data) {
+    return xorg.getWindowProperties(data.id);
+});
+
+ipcMain.handle("xorg_getWindowGeometry", function(event, data) {
+    return xorg.getWindowGeometry(data.id);
+});
+
+ipcMain.handle("xorg_moveWindow", function(event, data) {
+    return xorg.moveWindow(data.id, data.x, data.y);
+});
+
+ipcMain.handle("xorg_resizeWindow", function(event, data) {
+    return xorg.resizeWindow(data.id, data.width, data.height);
+});
+
+ipcMain.handle("xorg_askWindowToClose", function(event, data) {
+    return xorg.askWindowToClose(data.id);
+});
+
+ipcMain.handle("xorg_sendWindowInputEvent", function(event, data) {
+    return xorg.sendWindowInputEvent(data.id, data.eventType, data.eventData);
+});
+
+ipcMain.handle("xorg_forceWindowToRepaint", function(event, data) {
+    return xorg.forceWindowToRepaint(data.id);
 });
 
 ipcMain.handle("dev_isDebugBuild", function(event, data) {

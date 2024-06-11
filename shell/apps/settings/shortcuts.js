@@ -12,6 +12,7 @@ import * as aui_a11y from "gshell://lib/adaptui/src/a11y.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
 
 import * as settings from "./script.js";
+import * as network from "./networkpage.js";
 import * as a11y from "./a11ypage.js";
 
 export var ShortcutLandmark = astronaut.component({name: "ShortcutLandmark", positionals: ["name"]}, function(props, children) {
@@ -45,6 +46,15 @@ export function run(name = getName()) {
         case "network":
         case "network_wifi":
             settings.switchToPage("network");
+            break;
+
+        case "network_proxyConfig":
+            settings.switchToPage("network");
+
+            settings.visitInnerScreen(
+                network.ProxyConfigScreen() ()
+            );
+
             break;
 
         case "l10n":

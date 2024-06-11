@@ -883,7 +883,7 @@ window.addEventListener("DOMContentLoaded", function() {
         document.querySelector("body").setAttribute("sphere-a11yreadout", data.a11y_options.readout_enabled);
         document.querySelector("body").setAttribute("sphere-a11yswitch", data.a11y_options.switch_enabled);
 
-        document.querySelector("body").setAttribute("sphere-a11y-scancolour", (
+        document.querySelector("body").setAttribute("sphere-a11yscancolour", (
             (data.a11y_options.readout_enabled && data.a11y_options.readout_scanColour) ||
             (data.a11y_options.switch_enabled && data.a11y_options.switch_scanColour) ||
             ""

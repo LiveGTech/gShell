@@ -118,14 +118,20 @@ export function update() {
         value: options.display_reduceMotion ? "reduce" : "no-preference"
     });
 
-    $g.sel("body").setAttribute("liveg-a11y-readout", options.readout_enabled);
-    $g.sel("body").setAttribute("liveg-a11y-switch", options.switch_enabled);
+    $g.sel("body").setAttribute("sphere-a11yreadout", options.readout_enabled);
+    $g.sel("body").setAttribute("sphere-a11yswitch", options.switch_enabled);
 
-    $g.sel("body").setAttribute("liveg-a11y-scancolour", (
+    $g.sel("body").setAttribute("sphere-a11yscancolour", (
         (options.readout_enabled && options.readout_scanColour) ||
         (options.switch_enabled && options.switch_scanColour) ||
         ""
     ));
+
+    console.log((
+        (options.readout_enabled && options.readout_scanColour) ||
+        (options.switch_enabled && options.switch_scanColour) ||
+        ""
+    ), $g.sel("body").getAttribute("sphere-a11yscancolour"));
 
     assistiveTechnologies.forEach((tech) => tech.update());
 

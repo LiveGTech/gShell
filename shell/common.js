@@ -245,9 +245,9 @@
 
         lastElement = element;
 
-        document.querySelectorAll("[liveg-a11y-selected]").forEach((element) => element.removeAttribute("liveg-a11y-selected"));
+        document.querySelectorAll("[sphere-a11yselected]").forEach((element) => element.removeAttribute("sphere-a11yselected"));
 
-        element.setAttribute("liveg-a11y-selected", true);
+        element.setAttribute("sphere-a11yselected", true);
 
         var role = element.getAttribute("role");
         var state = null;

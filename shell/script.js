@@ -99,6 +99,8 @@ $g.waitForLoad().then(function() {
         $g.sel("#lockScreenMain").screenFade();
     }
 
+    import("gshell://common.js");
+
     // TODO: Implement auth options in Settings from Debug Environment
     // users.get("test").then(function(user) {
     //     var credentials = new auth.UserAuthCredentials(user);

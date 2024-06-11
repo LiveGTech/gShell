@@ -7,31 +7,43 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
-body[sphere-a11yscancolour="red"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour="red"] *:is(:focus, [aria-role="group"]:focus-within),
+body[sphere-a11yreadout="true"][sphere-a11yscancolour="red"] [sphere-a11yselected]
+{
     outline: 0.3rem ridge #ff0000!important;
 }
 
-body[sphere-a11yscancolour="green"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour="green"] *:is(:focus, [aria-role="group"]:focus-within),
+body[sphere-a11yreadout="true"][sphere-a11yscancolour="green"] [sphere-a11yselected]
+{
     outline: 0.3rem ridge #00ff00!important;
 }
 
-body[sphere-a11yscancolour="blue"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour="blue"] *:is(:focus, [aria-role="group"]:focus-within),
+body[sphere-a11yreadout="true"][sphere-a11yscancolour="blue"] [sphere-a11yselected]
+{
     outline: 0.3rem ridge #0000ff!important;
 }
 
-body[sphere-a11yscancolour="yellow"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour="yellow"] *:is(:focus, [aria-role="group"]:focus-within),
+body[sphere-a11yreadout="true"][sphere-a11yscancolour="yellow"] [sphere-a11yselected]
+{
     outline: 0.3rem ridge #ffff00!important;
 }
 
-body[sphere-a11yscancolour="pink"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour="pink"] *:is(:focus, [aria-role="group"]:focus-within),
+body[sphere-a11yreadout="true"][sphere-a11yscancolour="pink"] [sphere-a11yselected]
+{
     outline: 0.3rem ridge #ff00ff!important;
 }
 
-body[sphere-a11yscancolour="aqua"] *:is(:focus, [aria-role="group"]:focus-within) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour="aqua"] *:is(:focus, [aria-role="group"]:focus-within),
+body[sphere-a11yreadout="true"][sphere-a11yscancolour="aqua"] [sphere-a11yselected]
+{
     outline: 0.3rem ridge #00ffff!important;
 }
 
-body[sphere-a11yscancolour]:not([sphere-a11yscancolour=""]) [aria-role="group"]:focus-within:not(:focus) {
+body[sphere-a11yswitch="true"][sphere-a11yscancolour]:not([sphere-a11yscancolour=""]) [aria-role="group"]:focus-within:not(:focus) {
     outline-style: dashed!important;
 }
 

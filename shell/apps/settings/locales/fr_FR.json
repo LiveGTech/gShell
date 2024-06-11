@@ -143,6 +143,15 @@
 
         "a11y_summary": "Personnaliser l'accès visuel, auditif et de navigation",
 
+        "a11y_readout": "Navigation par Lecteur",
+        "a11y_readout_summary": "Parlez ou lisez du texte à l'écran et des descriptions graphiques",
+        "a11y_readout_description": "La Navigation par Lecteur vous permet de lire des descriptions textuelles et graphiques affichées à l'écran par synthèse vocale ou d'un écran braille actualisable.",
+        "a11y_readout_enable": "Activer la Navigation par Lecteur",
+
+        "a11y_readout_disableDialog_title": "Désactiver la Navigation par Lecteur ?",
+        "a11y_readout_disableDialog_description": "Aucun texte ne sera lisible via la synthèse vocale ou un écran braille actualisable tant que l'interrupteur de navigation n'est pas réactivé.",
+        "a11y_readout_disableDialog_turnOff": "Désactiver",
+
         "a11y_switch": "Navigation par Interrupteur",
         "a11y_switch_summary": "Contrôle total et navigation avec au moins un interrupteur",
         "a11y_switch_description": "La Navigation par Interrupteur vous permet d'accéder à votre appareil et de le parcourir à l'aide d'un ou plusieurs interrupteurs, tels que des boutons-poussoirs, des pédales, des interrupteurs sip-and-puff, etc.",

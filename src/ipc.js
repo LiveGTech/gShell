@@ -17,6 +17,7 @@ var device = require("./device");
 var config = require("./config");
 var network = require("./network");
 var mobile = require("./mobile");
+var monitors = require("./monitors");
 var permissions = require("./permissions");
 var term = require("./term");
 var linux = require("./linux");
@@ -265,6 +266,10 @@ ipcMain.handle("io_getPointerPosition", function(event, data) {
         x: pointerPoint.x - offsetPoint.x,
         y: pointerPoint.y - offsetPoint.y
     });
+});
+
+ipcMain.handle("io_getMonitors", function(event, data) {
+    return monitors.get();
 });
 
 ipcMain.handle("webview_attach", function(event, data) {

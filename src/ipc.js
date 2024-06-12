@@ -272,6 +272,10 @@ ipcMain.handle("io_getMonitors", function(event, data) {
     return monitors.get();
 });
 
+ipcMain.handle("io_setMonitors", function(event, data) {
+    return monitors.set(data.monitors);
+});
+
 ipcMain.handle("webview_attach", function(event, data) {
     var webContents = electron.webContents.fromId(data.webContentsId);
 

@@ -15,17 +15,45 @@ exports.get = function() {
         return Promise.resolve({
             monitors: [
                 {
-                    id: "HDMI-1",
-                    connected: true,
+                    id: "HDMI-0",
+                    isConnected: true,
+                    isConfigured: true,
+                    x: 0,
+                    y: 0,
+                    width: 1920,
+                    height: 1080,
                     modes: [
                         {
+                            id: "1920x1080",
                             width: 1920,
                             height: 1080,
-                            active: true,
-                            preferred: true,
+                            isActive: true,
+                            isPreferred: true,
                             frequencies: [
-                                {frequency: 60, active: true, preferred: true},
-                                {frequency: 50, active: false, preferred: false}
+                                {frequency: 60, isActive: true, isPreferred: true},
+                                {frequency: 50, isActive: false, isPreferred: false}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "HDMI-1",
+                    isConnected: true,
+                    isConfigured: true,
+                    x: 0,
+                    y: 0,
+                    width: 1280,
+                    height: 800,
+                    modes: [
+                        {
+                            id: "1280x800",
+                            width: 1280,
+                            height: 800,
+                            isActive: true,
+                            isPreferred: true,
+                            frequencies: [
+                                {frequency: 60, isActive: true, isPreferred: true},
+                                {frequency: 50, isActive: false, isPreferred: false}
                             ]
                         }
                     ]
@@ -47,13 +75,14 @@ exports.get = function() {
 
                 currentMonitor = {
                     id: parts[0],
-                    connected: parts[1] == "connected",
-                    configured: false,
+                    isConnected: parts[1] == "connected",
+                    isPrimary: parts[2] == "primary",
+                    isConfigured: false,
                     modes: []
                 };
 
                 if (position) {
-                    currentMonitor.configured = true;
+                    currentMonitor.isConfigured = true;
                     currentMonitor.x = parseInt(position[3]);
                     currentMonitor.y = parseInt(position[4]);
                     currentMonitor.width = parseInt(position[1]);
@@ -74,41 +103,42 @@ exports.get = function() {
             if (resolution) {
                 var frequencies = [];
                 var currentFrequency = null;
-                var active = false;
-                var preferred = false;
+                var isActive = false;
+                var isPreferred = false;
 
                 parts.slice(1).forEach(function(part) {
                     if (part == "+") {
-                        currentFrequency.preferred = true;
-                        preferred = true;
+                        currentFrequency.isPreferred = true;
+                        isPreferred = true;
 
                         return;
                     }
 
                     currentFrequency = {
                         frequency: parseFloat(part.match(/^([0-9.]+)/)[1]),
-                        active: false,
-                        preferred: false
+                        isActive: false,
+                        isPreferred: false
                     };
 
                     if (part.match(/\*\+?$/)) {
-                        currentFrequency.active = true;
-                        active = true;
+                        currentFrequency.isActive = true;
+                        isActive = true;
                     }
 
                     if (part.match(/\+$/)) {
-                        currentFrequency.preferred = true;
-                        preferred = true;
+                        currentFrequency.isPreferred = true;
+                        isPreferred = true;
                     }
 
                     frequencies.push(currentFrequency);
                 });
 
                 currentMonitor.modes.push({
+                    id: parts[0],
                     width: parseInt(resolution[1]),
                     height: parseInt(resolution[2]),
-                    active,
-                    preferred,
+                    isActive,
+                    isPreferred,
                     frequencies
                 });
             }
@@ -116,4 +146,25 @@ exports.get = function() {
 
         return Promise.resolve({monitors});
     });
+};
+
+exports.set = function(monitors) {
+    return system.executeOrLogCommand("xrandr", monitors.map((monitor) => (
+        monitor.isEnabled ?
+        [
+            "--output", monitor.id,
+            "--mode", monitor.modeId,
+            "--pos", `${monitor.x}x${monitor.y}`,
+            ...(monitor.isPrimary ? ["--primary"] : []),
+            "--transform", (monitor.transformationMatrix || [
+                1, 0, 0,
+                0, 1, 0,
+                0, 0, 1
+            ]).join(",")
+        ] :
+        [
+            "--output", monitor.id,
+            "--off"
+        ]
+    )).flat());
 };

@@ -24,6 +24,7 @@ import * as info from "gshell://global/info.js";
 import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
+import * as monitors from "gshell://system/monitors.js";
 import * as mobile from "gshell://system/mobile.js";
 import * as updates from "gshell://system/updates.js";
 import * as interaction from "gshell://system/interaction.js";
@@ -48,6 +49,8 @@ $g.waitForLoad().then(function() {
     return system.init();
 }).then(function() {
     return device.init();
+}).then(function() {
+    return monitors.init();
 }).then(function() {
     return debug.init();
 }).then(function() {

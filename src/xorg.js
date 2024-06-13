@@ -11,6 +11,7 @@ const x11 = require("@liveg/x11");
 
 var main = require("./main");
 var flags = require("./flags");
+var monitors = require("./monitors");
 
 const REQUIRED_ATOMS = [
     "WM_PROTOCOLS",
@@ -32,6 +33,7 @@ var root;
 var X;
 var Composite;
 var Damage;
+var Randr;
 var atoms = {};
 var mainWindowId = null;
 var mapRequestedWindowIds = [];
@@ -562,6 +564,22 @@ exports.init = function() {
                     }
 
                     break;
+
+                case "RRScreenChangeNotify":
+                    main.window.webContents.send("xorg_monitorChange");
+
+                    if (flags.isRealHardware || flags.useHostMonitorLayout) {                        
+                        monitors.get().then(function(monitorData) {
+                            main.window.setPosition(0, 0);
+
+                            main.window.setSize(
+                                monitorData.workArea.width,
+                                monitorData.workArea.height
+                            );
+                        });
+                    }
+
+                    break;
             }
         });
     }).then(function() {
@@ -583,6 +601,12 @@ exports.init = function() {
         return promisify(X.require, X, "damage");
     }).then(function(extension) {
         Damage = extension;
+
+        return promisify(X.require, X, "randr");
+    }).then(function(extension) {
+        Randr = extension;
+
+        Randr.SelectInput(root, Randr.NotifyMask.ScreenChange);
 
         return promisify(Composite.GetOverlayWindow, X, root);
     }).then(function(overlayWindowId) {

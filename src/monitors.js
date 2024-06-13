@@ -11,33 +11,74 @@ var flags = require("./flags");
 var system = require("./system");
 
 exports.get = function() {
-    if (!flags.isRealHardware && !flags.allowHostControl) {
+    if (!flags.isRealHardware && !flags.useHostMonitorLayout) {
+        if (flags.simulateDualMonitorLayout) {
+            return Promise.resolve({
+                workArea: {
+                    width: 1920,
+                    height: 800,
+                    maxWidth: 32767,
+                    maxHeight: 32767
+            },
+                monitors: [
+                    {
+                        id: "HDMI-0",
+                        isConnected: true,
+                        isConfigured: true,
+                        x: 0,
+                        y: 0,
+                        width: 960,
+                        height: 800,
+                        modes: [
+                            {
+                                id: "960x800",
+                                width: 960,
+                                height: 800,
+                                isActive: true,
+                                isPreferred: true,
+                                frequencies: [
+                                    {frequency: 60, isActive: true, isPreferred: true},
+                                    {frequency: 50, isActive: false, isPreferred: false}
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: "HDMI-1",
+                        isConnected: true,
+                        isConfigured: true,
+                        x: 960,
+                        y: 0,
+                        width: 960,
+                        height: 800,
+                        modes: [
+                            {
+                                id: "960x800",
+                                width: 960,
+                                height: 800,
+                                isActive: true,
+                                isPreferred: true,
+                                frequencies: [
+                                    {frequency: 60, isActive: true, isPreferred: true},
+                                    {frequency: 50, isActive: false, isPreferred: false}
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            });
+        }
+
         return Promise.resolve({
+            workArea: {
+                width: 1280,
+                height: 800,
+                maxWidth: 32767,
+                maxHeight: 32767
+        },
             monitors: [
                 {
                     id: "HDMI-0",
-                    isConnected: true,
-                    isConfigured: true,
-                    x: 0,
-                    y: 0,
-                    width: 1920,
-                    height: 1080,
-                    modes: [
-                        {
-                            id: "1920x1080",
-                            width: 1920,
-                            height: 1080,
-                            isActive: true,
-                            isPreferred: true,
-                            frequencies: [
-                                {frequency: 60, isActive: true, isPreferred: true},
-                                {frequency: 50, isActive: false, isPreferred: false}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "HDMI-1",
                     isConnected: true,
                     isConfigured: true,
                     x: 0,
@@ -64,11 +105,23 @@ exports.get = function() {
 
     return system.executeCommand("xrandr", ["--query"]).then(function(output) {
         var lines = output.stdout.split("\n").filter((line) => line != "");
+        var workArea = {width: 0, height: 0, maxWidth: Infinity, maxHeight: Infinity};
         var monitors = [];
         var currentMonitor = null;
 
         lines.forEach(function(line) {
             var parts = line.split(/\s+/).filter((part) => part != "");
+
+            var workAreaMatch = line.match(/Screen 0: minimum \d+ x \d+, current (\d+) x (\d+), maximum (\d+) x (\d+)/);
+
+            if (workAreaMatch) {
+                workArea = {
+                    width: parseInt(workAreaMatch[1]),
+                    height: parseInt(workAreaMatch[2]),
+                    maxWidth: parseInt(workAreaMatch[3]),
+                    maxHeight: parseInt(workAreaMatch[4])
+                };
+            }
 
             if (["connected", "disconnected"].includes(parts[1])) {
                 var position = parts.map((part) => part.match(/(\d+)x(\d+)([+-]\d+)([+-]\d+)/)).find((part) => part != null);
@@ -144,7 +197,7 @@ exports.get = function() {
             }
         });
 
-        return Promise.resolve({monitors});
+        return Promise.resolve({workArea, monitors});
     });
 };
 

@@ -7,6 +7,7 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+export var workArea = null;
 export var trackedMonitors = [];
 export var outputStatesChanged = false;
 
@@ -133,6 +134,8 @@ export function getPrimaryConnectedMonitor() {
 
 export function update() {
     return gShell.call("io_getMonitors").then(function(data) {
+        workArea = data.workArea;
+
         trackedMonitors = trackedMonitors.filter((monitor) => data.monitors.find((monitorData) => monitorData.id == monitor.id));
 
         data.monitors.forEach(function(monitorData) {
@@ -148,6 +151,8 @@ export function update() {
 
             monitor.updateCallbacks.forEach((callback) => callback());
         });
+
+        return Promise.resolve();
     });
 }
 
@@ -166,5 +171,15 @@ export function apply(forceSetOutputStates) {
 
     return gShell.call("io_setMonitors", {
         monitors: trackedMonitors.map((monitor) => monitor.outputState).filter((outputState) => outputState != null)
+    });
+}
+
+export function init() {
+    return update().then(function() {
+        gShell.on("xorg_monitorChange", function() {
+            update();
+        });
+
+        return Promise.resolve();
     });
 }

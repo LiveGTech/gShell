@@ -1034,7 +1034,7 @@ export function restoreWindow(element, animated = true) {
 export function closeWindow(element, animate = true, force = false) {
     var indirectCloseApps = element.find(".switcher_app.switcher_indirectClose");
 
-    if (!force && indirectCloseApps.items().length > 0) {
+    if (!force && indirectCloseApps.exists()) {
         indirectCloseApps.forEach(function(appElement) {
             closeApp(appElement);
         });

@@ -244,7 +244,7 @@ export function load() {
                 Object.values(configData.apps).forEach(function(app) {
                     var firstFreePage = homeElement.find(".home_page").filter((page) => page.find(".home_app").items().length < 24);
 
-                    if (firstFreePage.items().length == 0) {
+                    if (!firstFreePage.exists()) {
                         firstFreePage = $g.create("div").addClass("home_page");
 
                         homeElement.add(firstFreePage);

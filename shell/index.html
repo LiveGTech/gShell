@@ -21,7 +21,7 @@
         <aui-screen id="startup"></aui-screen>
         <aui-screen class="lockScreen" id="lockScreenMain" hidden>
             <div class="displays">
-                <div class="display">
+                <div class="display primary">
                     <header class="infoBar infoBar_overlay">
                         <span></span>
                         <img alt="" aui-icon="light" class="info_mobileIcon">
@@ -47,12 +47,14 @@
                         </aui-buttons>
                     </dialog>
                 </div>
-                <div class="display"></div>
+                <div class="display extendedTemplate">
+                    <img src="gshell://media/backgrounds/world6.jpg" class="lockScreen_background" aria-hidden="true">
+                </div>
             </div>
         </aui-screen>
         <aui-screen hidden class="lockScreen" id="lockScreenAuth" hidden>
             <div class="displays">
-                <div class="display">
+                <div class="display primary">
                     <header class="infoBar infoBar_overlay">
                         <span></span>
                         <img alt="" aui-icon="light" class="info_mobileIcon">
@@ -71,7 +73,7 @@
         </aui-screen>
         <aui-screen id="home" hidden>
             <div class="displays">
-                <div class="display hasSurfaces">
+                <div class="display primary hasSurfaces">
                     <div>
                         <header class="infoBar">
                             <span class="info_time"></span>
@@ -97,7 +99,7 @@
         </aui-screen>
         <aui-screen id="switcherView" hidden>
             <div class="displays">
-                <div class="display hasSurfaces">
+                <div class="display primary hasSurfaces">
                     <img src="gshell://media/backgrounds/world7.jpg" class="desktop_background" aria-hidden="true">
                     <div>
                         <header class="infoBar">
@@ -109,16 +111,7 @@
                             <span aui-mode="part" class="info_batteryLevel"></span>
                         </header>
                     </div>
-                    <div class="surface">
-                        <div class="switcher"></div>
-                        <div class="switcher_empty">
-                            <div>
-                                <img aui-icon="light" src="gshell://lib/adaptui/icons/carousel.svg" alt="">
-                                <h2 translate>switcher_empty</h2>
-                            </div>
-                        </div>
-                        <div class="switcher_overlays"></div>
-                    </div>
+                    <div class="surface switcherBounds"></div>
                     <div class="switcherBar">
                         <button tl:aria-label="switcher_goHome" class="switcher_home" translate="attributesOnly">
                             <img src="gshell://media/logo.svg" alt="">
@@ -139,11 +132,22 @@
                         <span class="info_time"></span>
                     </div>
                 </div>
+                <div class="display extendedTemplate">
+                    <img src="gshell://media/backgrounds/world7.jpg" class="desktop_background" aria-hidden="true">
+                </div>
             </div>
+            <div class="switcher"></div>
+            <div class="switcher_empty">
+                <div>
+                    <img aui-icon="light" src="gshell://lib/adaptui/icons/carousel.svg" alt="">
+                    <h2 translate>switcher_empty</h2>
+                </div>
+            </div>
+            <div class="switcher_overlays"></div>
         </aui-screen>
         <aui-screen id="oobs" hidden>
             <div class="displays">
-                <div class="display hasSurfaces">
+                <div class="display primary hasSurfaces">
                     <div>
                         <header class="infoBar showOnDesktop">
                             <span class="info_time"></span>

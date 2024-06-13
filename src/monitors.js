@@ -8,10 +8,45 @@
 */
 
 var flags = require("./flags");
+var device = require("./device");
 var system = require("./system");
 
 exports.get = function() {
     if (!flags.isRealHardware && !flags.useHostMonitorLayout) {
+        if (device.data?.type == "mobile") {
+            return Promise.resolve({
+                workArea: {
+                    width: 360,
+                    height: 720
+                },
+                monitors: [
+                    {
+                        id: "eDP-0",
+                        type: "internalDisplay",
+                        isConnected: true,
+                        isConfigured: true,
+                        x: 0,
+                        y: 0,
+                        width: 360,
+                        height: 720,
+                        modes: [
+                            {
+                                id: "360x720",
+                                width: 360,
+                                height: 720,
+                                isActive: true,
+                                isPreferred: true,
+                                frequencies: [
+                                    {frequency: 60, isActive: true, isPreferred: true},
+                                    {frequency: 90, isActive: false, isPreferred: false}
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            });
+        }
+
         if (flags.simulateDualMonitorLayout) {
             return Promise.resolve({
                 workArea: {
@@ -19,10 +54,11 @@ exports.get = function() {
                     height: 800,
                     maxWidth: 32767,
                     maxHeight: 32767
-            },
+                },
                 monitors: [
                     {
                         id: "HDMI-0",
+                        type: "monitor",
                         isConnected: true,
                         isConfigured: true,
                         x: 0,
@@ -45,6 +81,7 @@ exports.get = function() {
                     },
                     {
                         id: "HDMI-1",
+                        type: "monitor",
                         isConnected: true,
                         isConfigured: true,
                         x: 960,
@@ -79,6 +116,7 @@ exports.get = function() {
             monitors: [
                 {
                     id: "HDMI-0",
+                    type: "monitor",
                     isConnected: true,
                     isConfigured: true,
                     x: 0,
@@ -128,6 +166,7 @@ exports.get = function() {
 
                 currentMonitor = {
                     id: parts[0],
+                    type: "monitor",
                     isConnected: parts[1] == "connected",
                     isPrimary: parts[2] == "primary",
                     isConfigured: false,

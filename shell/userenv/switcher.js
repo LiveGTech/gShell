@@ -294,6 +294,12 @@ export function init() {
 
     main = new Switcher($g.sel(".switcher"));
 
+    updateSwitcherBounds();
+
+    new ResizeObserver(function() {
+        updateSwitcherBounds();
+    }).observe($g.sel(".switcherBounds").get());
+
     if (device.data?.type == "desktop") {
         setInterval(function() {
             if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").getAll().length > 0) {
@@ -303,6 +309,17 @@ export function init() {
             }
         });
     }
+}
+
+export function updateSwitcherBounds() {
+    var rect = $g.sel(".switcherBounds").get().getBoundingClientRect();
+
+    $g.sel(".switcher, .switcher_empty").applyStyle({
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`
+    });
 }
 
 export function getWindowGeometry(element, forceRecalculation = false) {
@@ -871,10 +888,12 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     main.selectScreen(screenElement);
 
-    main.targetScrollX = screenElement.get().offsetLeft;
-    main.scrolling = false;
+    setTimeout(function() {
+        main.targetScrollX = screenElement.get().offsetLeft;
+        main.scrolling = false;
 
-    main._targetScroll();
+        main._targetScroll();
+    });
 
     $g.sel(".desktop_appMenu").menuClose();
 
@@ -1093,6 +1112,8 @@ function updateWindowStackingOrder() {
     windowStackingOrder.forEach(function(element) {
         element.setStyle("z-index", zIndex++);
     });
+
+    $g.sel(".desktop_appBar").setStyle("z-index", zIndex + 1);
 }
 
 export function bringWindowForward(element) {

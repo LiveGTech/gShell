@@ -7,6 +7,9 @@
     Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 */
 
+
+import * as displays from "gshell://system/displays.js";
+
 export var workArea = null;
 export var trackedMonitors = [];
 export var outputStatesChanged = false;
@@ -32,6 +35,23 @@ export class Monitor {
         });
     }
 
+    get x() {
+        console.log(this.outputState);
+        return this.outputState.x;
+    }
+
+    get y() {
+        return this.outputState.y;
+    }
+
+    get width() {
+        return this.getMode().width;
+    }
+
+    get height() {
+        return this.getMode().height;
+    }
+
     onUpdate(callback) {
         this.updateCallbacks.push(callback);
     }
@@ -54,10 +74,13 @@ export class Monitor {
                 view: "extend",
                 x: 0,
                 y: 0
+            } : (["monitor", "internalDisplay"].includes(this.inputState.type) ? {
+                view: "extend",
+                ...findNextSuitableExtendedMonitorPosition()
             } : {
                 view: "mirror",
                 mirrorTarget: primaryConnectedMonitor
-            })
+            }))
         };
     }
 
@@ -91,7 +114,7 @@ export class Monitor {
 
             mirrorTarget.applyConfigDefaults();
 
-            if (mirrorTarget == this || mirrorTarget.config.view == "mirror") {
+            if (this == getPrimaryConnectedMonitor() || mirrorTarget == this || mirrorTarget.config.view == "mirror") {
                 this.config.view = "extend";
             } else {
                 this.outputState.x = mirrorTarget.outputState.x;
@@ -118,6 +141,8 @@ export class Monitor {
         if (this.config.view == "extend") {
             this.outputState.x = this.config.x || 0;
             this.outputState.y = this.config.y || 0;
+
+            delete this.outputState.transformationMatrix;
         }
     }
 }
@@ -130,6 +155,24 @@ export function getPrimaryConnectedMonitor() {
     var connectedMonitors = getConnectedMonitors();
 
     return connectedMonitors.find((monitor) => monitor.inputState.isPrimary) || connectedMonitors[0] || null;
+}
+
+export function findNextSuitableExtendedMonitorPosition() {
+    var x = 0;
+    var y = 0;
+
+    trackedMonitors.forEach(function(monitor) {
+        if (monitor.config == null) {
+            return;
+        }
+
+        if (monitor.x + monitor.width > x) {
+            x = monitor.x + monitor.width;
+            y = monitor.y;
+        }
+    });
+
+    return {x, y};
 }
 
 export function update() {
@@ -151,6 +194,14 @@ export function update() {
 
             monitor.updateCallbacks.forEach((callback) => callback());
         });
+
+        trackedMonitors.forEach(function(monitor) {
+            if (monitor.outputState == null) {
+                monitor.applyOutputState();
+            }
+        });
+
+        displays.applyMonitorsToDisplays();
 
         return Promise.resolve();
     });

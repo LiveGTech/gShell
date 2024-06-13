@@ -10,6 +10,8 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as calc from "gshell://lib/adaptui/src/calc.js";
 
+import * as monitors from "gshell://system/monitors.js";
+
 export class Containment {
     constructor(top = false, bottom = false, left = false, right = false) {
         this.top = top;
@@ -101,4 +103,60 @@ export function fitElementInsideDisplay(element, shouldIncludeAppBar = true) {
     }
 
     return true;
+}
+
+export function applyMonitorsToDisplays() {
+    var primaryMonitor = monitors.getPrimaryConnectedMonitor();
+
+    var extendedMonitors = monitors.getConnectedMonitors().filter(function(monitor) {
+        if (monitor == primaryMonitor) {
+            return false;
+        }
+
+        monitor.applyConfigDefaults();
+        
+        return monitor.config.view == "extend";
+    });
+
+    $g.sel(".display.primary").applyStyle({
+        top: `${primaryMonitor.y}px`,
+        left: `${primaryMonitor.x}px`,
+        width: `${primaryMonitor.width}px`,
+        height: `${primaryMonitor.height}px`
+    });
+
+    $g.sel(".displays").forEach(function(displayGroup) {
+        var existingExtendedDisplays = displayGroup.find(".display.extended").items();
+
+        extendedMonitors.forEach(function(monitor) {
+            var display = existingExtendedDisplays.shift();
+    
+            if (!display) {
+                var extendedTemplate = displayGroup.find(".display.extendedTemplate");
+
+                if (!extendedTemplate.exists()) {
+                    extendedTemplate = $g.create("div");
+                }
+
+                display = extendedTemplate
+                    .copy()
+                    .removeClass("extendedTemplate")
+                    .addClass("extended")
+                ;
+
+                displayGroup.add(display);
+            }
+
+            display.applyStyle({
+                top: `${monitor.y}px`,
+                left: `${monitor.x}px`,
+                width: `${monitor.width}px`,
+                height: `${monitor.height}px`
+            });
+        });
+
+        existingExtendedDisplays.forEach(function(display) {
+            display.remove();
+        });
+    });
 }

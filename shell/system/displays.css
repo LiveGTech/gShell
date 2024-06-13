@@ -21,6 +21,6 @@
     background-color: black;
 }
 
-.display:not(:first-child) {
+.display.extendedTemplate {
     display: none;
 }

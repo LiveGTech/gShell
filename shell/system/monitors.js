@@ -62,7 +62,7 @@ export class Monitor {
             return;
         }
 
-        if (!this.inputState.isConfigured || this.inputState.modes.length == 0) {
+        if (!this.inputState.isConnected || this.inputState.modes.length == 0) {
             throw new Error("Cannot generate default config for monitor that is not connected");
         }
 

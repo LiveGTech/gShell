@@ -41,6 +41,7 @@ var switcherBarTouchStartX = null;
 var switcherBarTouchStartY = null;
 var switcherBarScrollStartX = null;
 var switcherBarTriggerDistance = 0;
+var lastAppBarRect = null;
 
 export class WindowMoveResizeMode {
     constructor() {
@@ -70,11 +71,32 @@ export class Switcher extends screenScroll.ScrollableScreen {
         var thisScope = this;
 
         setInterval(function() {
+            var anyWindowIntersectsWithAppBar = false;
+
             thisScope.element.find(".switcher_screen").forEach(function(screenElement) {
                 if (screenElement.get().querySelector(".switcher_apps").contains(document.activeElement) && !screenElement.hasClass("selected")) {
                     screenElement.find(".switcher_screenButton").focus();
                 }
+
+                if (lastAppBarRect != null) {
+                    var screenGeometry = getWindowGeometry(screenElement);
+
+                    if (
+                        screenGeometry.x <= lastAppBarRect.x + lastAppBarRect.width &&
+                        screenGeometry.x + screenGeometry.width > lastAppBarRect.x &&
+                        screenGeometry.y <= lastAppBarRect.y + lastAppBarRect.height &&
+                        screenGeometry.y + screenGeometry.height > lastAppBarRect.y
+                    ) {
+                        anyWindowIntersectsWithAppBar = true;
+                    }
+                }
             });
+
+            if (anyWindowIntersectsWithAppBar) {
+                $g.sel("#switcherView").addClass("hasWindowIntersectingAppBar");
+            } else {
+                $g.sel("#switcherView").removeClass("hasWindowIntersectingAppBar");
+            }
         });
 
         if (device.data?.type == "desktop") {
@@ -320,6 +342,8 @@ export function updateSwitcherBounds() {
         width: `${rect.width}px`,
         height: `${rect.height}px`
     });
+
+    lastAppBarRect = $g.sel(".desktop_appBar").get().getBoundingClientRect();
 }
 
 export function getWindowGeometry(element, forceRecalculation = false) {

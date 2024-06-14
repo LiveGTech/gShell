@@ -45,7 +45,7 @@ body:not([device-type="desktop"]) .desktop_appBar {
     display: none;
 }
 
-#switcherView.hasMaximisedWindow:not(.switcherOpen) .desktop_appBar {
+#switcherView:is(.hasMaximisedWindow, .hasWindowIntersectingAppBar):not(.switcherOpen) .desktop_appBar {
     background-color: rgba(0, 0, 0, 0.5);
 }
 

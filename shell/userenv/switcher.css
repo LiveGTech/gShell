@@ -11,7 +11,7 @@ body[device-type="desktop"] #switcherView .surface {
     border-radius: 0;
 }
 
-body[device-type="desktop"] #switcherView:not(.hasMaximisedWindow) .surface.maskApplied {
+body[device-type="desktop"] #switcherView:not(.hasMaximisedWindow, .hasWindowIntersectingAppBar) .surface.maskApplied {
     -webkit-mask-image: -webkit-linear-gradient(90deg, transparent 0%, black 0.5rem);
     mask-image: linear-gradient(90deg, transparent 0%, black 0.5rem);
 }

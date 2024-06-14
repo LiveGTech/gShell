@@ -108,7 +108,7 @@ exports.get = function() {
 
         return Promise.resolve({
             workArea: {
-                width: 1280,
+                width: 1200,
                 height: 800,
                 maxWidth: 32767,
                 maxHeight: 32767
@@ -121,12 +121,12 @@ exports.get = function() {
                     isConfigured: true,
                     x: 0,
                     y: 0,
-                    width: 1280,
+                    width: 1200,
                     height: 800,
                     modes: [
                         {
-                            id: "1280x800",
-                            width: 1280,
+                            id: "1200x800",
+                            width: 1200,
                             height: 800,
                             isActive: true,
                             isPreferred: true,

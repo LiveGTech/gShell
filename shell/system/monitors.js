@@ -36,7 +36,6 @@ export class Monitor {
     }
 
     get x() {
-        console.log(this.outputState);
         return this.outputState.x;
     }
 

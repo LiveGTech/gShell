@@ -27,10 +27,12 @@ export class Monitor {
         this.onUpdate(function() {
             if (thisScope.inputState.isConnected && !thisScope.inputState.isConfigured) {
                 thisScope.applyOutputState(true);
+                apply();
             }
 
             if (thisScope.inputState.isConfigured && !thisScope.inputState.isConnected) {
                 thisScope.applyOutputState(false);
+                apply();
             }
         });
     }

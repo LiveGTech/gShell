@@ -78,7 +78,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
                     screenElement.find(".switcher_screenButton").focus();
                 }
 
-                if (lastAppBarRect != null) {
+                if (lastAppBarRect != null && !screenElement.hasClass("minimised")) {
                     var screenGeometry = getWindowGeometry(screenElement);
 
                     if (

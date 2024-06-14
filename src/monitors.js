@@ -192,7 +192,7 @@ exports.get = function() {
 
             var resolution = parts[0].match(/^(\d+)x(\d+)$/);
 
-            if (resolution) {
+            if (resolution && !parts[1].startsWith("(")) {
                 var frequencies = [];
                 var currentFrequency = null;
                 var isActive = false;

@@ -138,7 +138,7 @@ export function applyMonitorsToDisplays() {
                 var extendedTemplate = displayGroup.find(".display.extendedTemplate");
 
                 if (!extendedTemplate.exists()) {
-                    extendedTemplate = $g.create("div");
+                    extendedTemplate = $g.create("div").addClass("display");
                 }
 
                 display = extendedTemplate

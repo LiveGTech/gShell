@@ -10,6 +10,7 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as calc from "gshell://lib/adaptui/src/calc.js";
 
+import * as device from "gshell://system/device.js";
 import * as monitors from "gshell://system/monitors.js";
 
 export class Containment {
@@ -106,6 +107,8 @@ export function fitElementInsideDisplay(element, shouldIncludeAppBar = true) {
 }
 
 export function applyMonitorsToDisplays() {
+    const SCALE_FACTOR = device.data?.display?.scaleFactor || 1;
+
     var primaryMonitor = monitors.getPrimaryConnectedMonitor();
 
     var extendedMonitors = monitors.getConnectedMonitors().filter(function(monitor) {
@@ -119,10 +122,10 @@ export function applyMonitorsToDisplays() {
     });
 
     $g.sel(".display.primary").applyStyle({
-        top: `${primaryMonitor.y}px`,
-        left: `${primaryMonitor.x}px`,
-        width: `${primaryMonitor.width}px`,
-        height: `${primaryMonitor.height}px`
+        top: `${primaryMonitor.y / SCALE_FACTOR}px`,
+        left: `${primaryMonitor.x / SCALE_FACTOR}px`,
+        width: `${primaryMonitor.width / SCALE_FACTOR}px`,
+        height: `${primaryMonitor.height / SCALE_FACTOR}px`
     });
 
     $g.sel(".displays").forEach(function(displayGroup) {
@@ -148,10 +151,10 @@ export function applyMonitorsToDisplays() {
             }
 
             display.applyStyle({
-                top: `${monitor.y}px`,
-                left: `${monitor.x}px`,
-                width: `${monitor.width}px`,
-                height: `${monitor.height}px`
+                top: `${monitor.y / SCALE_FACTOR}px`,
+                left: `${monitor.x / SCALE_FACTOR}px`,
+                width: `${monitor.width / SCALE_FACTOR}px`,
+                height: `${monitor.height / SCALE_FACTOR}px`
             });
         });
 

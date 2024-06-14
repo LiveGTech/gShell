@@ -267,7 +267,7 @@ export class KeyboardLayout {
                                         currentLandmarkedKey = currentLandmarkedKey.next("button");
     
                                         landmarkedKeys.push(currentLandmarkedKey);
-                                    } while (currentLandmarkedKey.getAll().length > 0 && currentLandmarkedKey.is("button:not(.input_keyboard_landmark"))
+                                    } while (currentLandmarkedKey.exists() && currentLandmarkedKey.is("button:not(.input_keyboard_landmark"))
 
                                     landmarkedKeys.pop(); // The next landmark
     

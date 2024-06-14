@@ -70,9 +70,9 @@ export class Switcher extends screenScroll.ScrollableScreen {
         var thisScope = this;
 
         setInterval(function() {
-            thisScope.element.find(".switcher_screen").getAll().forEach(function(screenElement) {
-                if (screenElement.querySelector(".switcher_apps").contains(document.activeElement) && !$g.sel(screenElement).hasClass("selected")) {
-                    $g.sel(screenElement).find(".switcher_screenButton").focus();
+            thisScope.element.find(".switcher_screen").forEach(function(screenElement) {
+                if (screenElement.get().querySelector(".switcher_apps").contains(document.activeElement) && !screenElement.hasClass("selected")) {
+                    screenElement.find(".switcher_screenButton").focus();
                 }
             });
         });
@@ -302,7 +302,7 @@ export function init() {
 
     if (device.data?.type == "desktop") {
         setInterval(function() {
-            if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").getAll().length > 0) {
+            if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").exists()) {
                 $g.sel("#switcherView").addClass("hasMaximisedWindow");
             } else {   
                 $g.sel("#switcherView").removeClass("hasMaximisedWindow");
@@ -839,7 +839,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         screenElement.get().appListButton.removeClass("transitioning");
     }
 
-    if (screenElement.find("webview").getAll().length > 0 && !appDetails?.instantLaunch) {
+    if (screenElement.find("webview").exists() && !appDetails?.instantLaunch) {
         screenElement.find("webview").on("dom-ready", function() {
             finishLaunch();
         });
@@ -940,7 +940,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                 .setAttribute("title", _("switcher_closeTab"))
                 .setAttribute("aria-label", _("switcher_closeTab"))
                 .on("click", function() {
-                    if (app.ancestor(".switcher_screen").find(".switcher_app").getAll().length <= 1) {
+                    if (app.ancestor(".switcher_screen").find(".switcher_app").items().length <= 1) {
                         goHome();
                     }
 
@@ -1310,7 +1310,7 @@ export function closeApp(element, force = false) {
 }
 
 export function getWindowAppCount(element) {
-    return element.find(".switcher_tab:not(.transitioning)").getAll().length;
+    return element.find(".switcher_tab:not(.transitioning)").items().length;
 }
 
 export function setAppCustomTab(element, title, icon = null) {

@@ -263,7 +263,7 @@ function getSelectedDiskInfo() {
 }
 
 function checkInstallDisk() {
-    if ($g.sel("[name='oobs_installDisks']:checked").getAll().length == 0) {
+    if (!$g.sel("[name='oobs_installDisks']:checked").exists()) {
         $g.sel(".oobs_installDisk_error").setText(_("oobs_installDisk_emptyError"));
 
         return;
@@ -802,9 +802,7 @@ export function init() {
 
         return gShell.call("system_isInstallationMedia");
     }).then(function(isInstallationMedia) {
-        $g.sel("button[oobs-choosestep]").getAll().forEach(function(element) {
-            element = $g.sel(element);
-    
+        $g.sel("button[oobs-choosestep]").forEach(function(element) {    
             element.on("click", function() {
                 if (isInstallationMedia && element.hasAttribute("oobs-choosestepim")) {
                     selectStep(element.getAttribute("oobs-choosestepim"));

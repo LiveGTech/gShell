@@ -128,9 +128,7 @@ export function init() {
 
     views.grid.select();
 
-    $g.sel(".home").getAll().forEach(function(homeElement) {
-        homeElement = $g.sel(homeElement);
-
+    $g.sel(".home").forEach(function(homeElement) {
         var scroller = new screenScroll.ScrollableScreen(homeElement);
 
         scrollers.push(scroller);
@@ -168,9 +166,7 @@ export function init() {
             return;
         }
 
-        $g.sel(".home_appMenuView.search").getAll().forEach(function(homeElement) {
-            homeElement = $g.sel(homeElement);
-
+        $g.sel(".home_appMenuView.search").forEach(function(homeElement) {
             homeElement.clear();
 
             Object.values(results)
@@ -234,9 +230,7 @@ export function load() {
                 }
             });
 
-            $g.sel(".home").getAll().forEach(function(homeElement) {
-                homeElement = $g.sel(homeElement);
-
+            $g.sel(".home").forEach(function(homeElement) {
                 homeElement.clear();
 
                 $g.sel(".home_appMenuView.alphabetical").clear();
@@ -254,9 +248,7 @@ export function load() {
                 });
             });
 
-            $g.sel(".home_appMenuView.alphabetical").getAll().forEach(function(homeElement) {
-                homeElement = $g.sel(homeElement);
-
+            $g.sel(".home_appMenuView.alphabetical").forEach(function(homeElement) {
                 homeElement.clear();
 
                 Object.values(configData.apps)

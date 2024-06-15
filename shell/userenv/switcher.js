@@ -923,7 +923,11 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     elementCallback(screenElement, app);
 
-    return $g.sel("#switcherView").screenFade(); // FIXME: Only do this when on home screen and not on lock screen
+    if (!$g.sel("#home").is("[hidden]")) {
+        return $g.sel("#switcherView").screenFade();
+    }
+
+    return Promise.resolve();
 }
 
 export function addAppToWindow(element, windowContents, appDetails = null) {

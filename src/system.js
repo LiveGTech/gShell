@@ -333,8 +333,8 @@ exports.getPowerState = function() {
 
     try {
         return Promise.resolve({
-            state: device.data?.hardware?.batteryStateMapping?.[fs.readFileSync(String(device.data?.hardware.batteryStateReporter), "utf8").split("\n")[0]] || null,
-            level: parseInt(fs.readFileSync(String(device.data?.hardware.batteryLevelReporter), "utf8").split("\n")[0])
+            state: device.data?.hardware?.batteryStateMapping?.[fs.readFileSync(String(device.data?.hardware.batteryStateReporter), "utf8").replace(/\n$/, "")] || null,
+            level: parseInt(fs.readFileSync(String(device.data?.hardware.batteryLevelReporter), "utf8").replace(/\n$/, ""))
         });
     } catch (e) {
         return Promise.reject(e);

@@ -573,8 +573,8 @@ exports.init = function() {
                             main.window.setPosition(0, 0);
 
                             main.window.setSize(
-                                monitorData.workArea.width,
-                                monitorData.workArea.height
+                                monitorData.workArea.width + 1,
+                                monitorData.workArea.height + 1
                             );
                         });
                     }

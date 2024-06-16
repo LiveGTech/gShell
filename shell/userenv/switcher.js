@@ -927,7 +927,15 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         return $g.sel("#switcherView").screenFade();
     }
 
-    return Promise.resolve();
+    if (aui_a11y.prefersReducedMotion()) {
+        return Promise.resolve();
+    }
+
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            resolve();
+        }, 500);
+    });
 }
 
 export function addAppToWindow(element, windowContents, appDetails = null) {

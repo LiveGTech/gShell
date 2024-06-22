@@ -144,7 +144,9 @@ body[device-type="desktop"] .switcher_empty > div {
     position: relative;
     flex-shrink: 0;
     width: 100%;
+    min-width: 0;
     height: 100%;
+    min-height: 0;
     margin-inline-start: -12%;
     margin-inline-end: -12%;
     background-color: black;

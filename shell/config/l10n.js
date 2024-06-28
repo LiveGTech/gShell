@@ -17,9 +17,11 @@ export var currentLocale = null;
 
 export function apply(localeCode = "en_GB") {
     return $g.l10n.selectLocaleFromResources({
+        "ca_ES": "gshell://locales/ca_ES.json",
         "en_GB": "gshell://locales/en_GB.json",
         "fr_FR": "gshell://locales/fr_FR.json"
     }, "en_GB", {
+        "ca_ES": "en_GB",
         "fr_FR": "en_GB"
     }, localeCode).then(function(locale) {
         window._ = function() {

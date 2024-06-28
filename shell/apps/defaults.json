@@ -3,6 +3,7 @@
         "settings": {
             "fallbackLocale": "en_GB",
             "name": {
+                "ca_ES": "Configuració",
                 "en_GB": "Settings",
                 "fr_FR": "Paramètres"
             },
@@ -11,6 +12,7 @@
             "shortcuts": [
                 {
                     "name": {
+                        "ca_ES": "Xarxa",
                         "en_GB": "Network",
                         "fr_FR": "Réseau"
                     },
@@ -18,6 +20,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Xarxes Wi-Fi",
                         "en_GB": "Wi-Fi networks",
                         "fr_FR": "Réseaux Wi-Fi"
                     },
@@ -25,6 +28,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Servidors intermediaris",
                         "en_GB": "Proxies",
                         "fr_FR": "Proxys"
                     },
@@ -32,6 +36,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Llengua i entrada",
                         "en_GB": "Language and input",
                         "fr_FR": "Langue et saisie"
                     },
@@ -39,6 +44,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Entrada de teclat",
                         "en_GB": "Keyboard input",
                         "fr_FR": "Entrée au clavier"
                     },
@@ -46,6 +52,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Personalització",
                         "en_GB": "Personalisation",
                         "fr_FR": "Personnalisation"
                     },
@@ -53,6 +60,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Tema",
                         "en_GB": "Theme",
                         "fr_FR": "Theme"
                     },
@@ -60,6 +68,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Accessibilitat",
                         "en_GB": "Accessibility",
                         "fr_FR": "Accessibilité"
                     },
@@ -67,6 +76,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Navegació amb interruptors",
                         "en_GB": "Switch Navigation",
                         "fr_FR": "Navigation par Interrupteur"
                     },
@@ -74,6 +84,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Interacció i privacitat",
                         "en_GB": "Interaction and privacy",
                         "fr_FR": "Interaction et confidentialité"
                     },
@@ -81,6 +92,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Telemetria d'investigació d'ús del dispositiu",
                         "en_GB": "Device usage research telemetry",
                         "fr_FR": "Télémétrie de recherche sur l'utilisation des appareils"
                     },
@@ -88,6 +100,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Informació de privacitat",
                         "en_GB": "Privacy information",
                         "fr_FR": "Informations de confidentialité"
                     },
@@ -95,6 +108,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Actualitzacions del sistema",
                         "en_GB": "System updates",
                         "fr_FR": "Mises à jour système"
                     },
@@ -102,6 +116,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Sobre aquest dispositiu",
                         "en_GB": "About this device",
                         "fr_FR": "À propos de cet appareil"
                     },
@@ -109,6 +124,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Opcions avançades",
                         "en_GB": "Advanced options",
                         "fr_FR": "Options avancées"
                     },
@@ -116,6 +132,7 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Informació del dispositiu",
                         "en_GB": "Device information",
                         "fr_FR": "Informations sur cet appareil"
                     },
@@ -126,6 +143,7 @@
         "sphere": {
             "fallbackLocale": "en_GB",
             "name": {
+                "ca_ES": "Esfera",
                 "en_GB": "Sphere",
                 "fr_FR": "Sphère"
             },
@@ -135,6 +153,7 @@
         "terminal": {
             "fallbackLocale": "en_GB",
             "name": {
+                "ca_ES": "Terminal",
                 "en_GB": "Terminal",
                 "fr_FR": "Terminal"
             },
@@ -144,6 +163,7 @@
         "calculator": {
             "fallbackLocale": "en_GB",
             "name": {
+                "ca_ES": "Calculadora",
                 "en_GB": "Calculator",
                 "fr_FR": "Calculatrice"
             },

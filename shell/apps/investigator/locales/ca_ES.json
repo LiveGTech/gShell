@@ -1,0 +1,19 @@
+{
+    "localeCode": "ca_ES",
+    "metadata": {
+        "name": "Català (Espanya)",
+        "nameShort": "Català",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "webInvestigator": "Investigador Web",
+
+        "selectElement": "Selecciona un element",
+
+        "console": "Consola",
+
+        "unresponsive_title": "L'objectiu no respon",
+        "unresponsive_description": "L'Investigador Web no pot comunicar-se amb l'objectiu de depuració. És possible que l'objectiu s'hagi congelat, o hagi estat tancat o desconnectat.",
+        "unresponsive_reconnect": "Reconnecta"
+    }
+}

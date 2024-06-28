@@ -100,9 +100,11 @@ export var InnerScreen = astronaut.component("InnerScreen", function(props, chil
 
 $g.waitForLoad().then(function() {
     return $g.l10n.selectLocaleFromResources({
+        "ca_ES": "locales/ca_ES.json",
         "en_GB": "locales/en_GB.json",
         "fr_FR": "locales/fr_FR.json"
     }, "en_GB", {
+        "ca_ES": "en_GB",
         "fr_FR": "en_GB"
     });
 }).then(function(locale) {

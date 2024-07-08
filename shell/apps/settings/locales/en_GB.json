@@ -216,7 +216,7 @@
         "advanced_updates": "System updates",
 
         "advanced_updates_updateCircuit": "Update circuit",
-        "advanced_updates_updateCircuit_description": "Get access to pre-release features by switching to a different update circuit. Switching to other update circuits may reduce system stability.",
+        "advanced_updates_updateCircuit_description": "Get access to pre-release features by switching to a different update circuit. This may reduce system stability.",
 
         "about": "About this device",
         "about_summary": "View OS and hardware information",

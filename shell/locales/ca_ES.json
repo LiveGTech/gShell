@@ -1,0 +1,216 @@
+{
+    "localeCode": "ca_ES",
+    "metadata": {
+        "name": "Català (Espanya)",
+        "nameShort": "Català",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "percentage": "{value}%",
+
+        "ok": "D'acord",
+        "cancel": "Cancel·la",
+        "unknown": "Desconegut",
+
+        "size_bytes": {
+            "{size} == 1": "{size} byte",
+            "{size} != 1": "{size} bytes"
+        },
+        "size_kb": "{size} KB",
+        "size_mb": "{size} MB",
+        "size_gb": "{size} GB",
+        "size_tb": "{size} TB",
+        "size_kib": "{size} KiB",
+        "size_mib": "{size} MiB",
+        "size_gib": "{size} GiB",
+        "size_tib": "{size} TiB",
+
+        "info_batteryIcon_charging": "Bateria - carregant-se",
+        "info_batteryIcon_discharging": "Bateria - descarregant-se",
+        "info_batteryIcon_unknown": "Bateria - estat desconegut",
+
+        "info_networkIcon_connectedWifi": "Xarxa - connectat a {name} ({signal}% d’intensitat de senyal)",
+        "info_networkIcon_connectedEthernet": "Xarxa - connectat per cable",
+        "info_networkIcon_disconnected": "Xarxa - desconnectat",
+
+        "info_mobileIcon_technology": {
+            "'{technology}' == 'gsm'": "GSM (2G)",
+            "'{technology}' == 'cdma1x'": "CDMA2000 1X (3G)",
+            "'{technology}' == 'evdo'": "EVDO (3G)",
+            "'{technology}' == 'umts'": "UMTS (3G)",
+            "'{technology}' == 'lte'": "LTE (4G)",
+            "'{technology}' == '5g'": "5G",
+            "false": "tecnologia desconeguda"
+        },
+
+        "info_mobileIcon_signal": "Mòbil - connectat via {technology} ({signal}% d’intensitat de senyal)",
+        "info_mobileIcon_noSignal": "Mòbil - sense senyal",
+
+        "powerMenu_lock": "Bloqueja",
+        "powerMenu_sleep": "Suspèn",
+        "powerMenu_shutDown": "Apaga",
+        "powerMenu_restart": "Reinicia",
+
+        "input_key_shift": "Majúscules",
+        "input_key_backspace": "Retrocés",
+        "input_key_space": "Espai",
+        "input_key_enter": "Retorn",
+        "input_option_hide": "Amaga el teclat",
+        "input_option_emoji": "Emoji",
+
+        "lockScreen_unlock": "Desbloqueja",
+        "lockScreen_enterPasscode": "Introdueix el codi d'accés",
+        "lockScreen_incorrectPasscode": "Codi d'accés incorrecte, torna-ho a provar",
+        "lockScreen_delete": "Esborra",
+
+        "switcher_goHome": "Vés a l'inici",
+        "switcher_openHomeMenu": "Obre el menú d'inici",
+        "switcher_toggleList": "Commuta el selector d’aplicacions",
+        "switcher_appListTitle": {
+            "{count} == 1": "{title}",
+            "{count} != 1": "{title} ({count})"
+        },
+        "switcher_newTab": "Pestanya nova",
+        "switcher_minimise": "Minimitza",
+        "switcher_maximise": "Maximitza",
+        "switcher_restore": "Restaura",
+        "switcher_close": "Tanca",
+        "switcher_closeTab": "Tanca la pestanya",
+        "switcher_closeAll": "Tanca-ho tot",
+        "switcher_empty": "No hi ha aplicacions obertes",
+
+        "home_searchPlaceholder": "Cerca qualsevol cosa...",
+        "home_gridView": "Vista en quadrícula",
+        "home_alphabeticalView": "Vista alfabètica",
+        "home_powerOptions": "Opcions d'energia",
+
+        "home_searchInSphere_prefix": "Cerca ",
+        "home_searchInSphere_suffix": " a l'Esfera",
+
+        "oobs_previous": "Anterior",
+        "oobs_next": "Següent",
+        "oobs_confirm": "Confirma",
+        "oobs_continue": "Continua",
+        "oobs_finish": "Acaba",
+        "oobs_restart": "Reinicia",
+
+        "oobs_powerOptions": "Opcions d'energia",
+        "oobs_a11yOptions": "Opcions d'accessibilitat",
+
+        "oobs_l10n_localeVariation": "Language region/variation",
+        "oobs_l10n_keyboardLayout": "Disposició del teclat",
+
+        "oobs_installAsk_title": "Vols instal·lar el LiveG OS?",
+        "oobs_installAsk_description1": "Pots instal·lar el LiveG OS a l'emmagatzematge intern d'aquest dispositiu ara, o provar-lo sense instal·lar-lo abans.",
+        "oobs_installAsk_description2": "Si tries provar el LiveG OS sense instal·lar-lo, els fitxers que desis i els canvis que facis al LiveG OS es perdran quan el sistema s'apagui.",
+        "oobs_installAsk_install_title": "Instal·la el LiveG OS a l'emmagatzematge intern",
+        "oobs_installAsk_install_description": "Podràs triar el disc i la partició on instal·lar-lo",
+        "oobs_installAsk_tryOut_title": "Prova el LiveG OS sense instal·lar-lo",
+        "oobs_installAsk_tryOut_description": "Els canvis es perdran i l'emmagatzematge intern no es veurà afectat",
+
+        "oobs_installDisk_title": "Trieu un disc on instal·lar",
+        "oobs_installDisk_description": "Abans d'instal·lar el LiveG OS, podràs configurar les particions del disc on s'instal·larà.",
+        "oobs_installDisk_emptyError": "Si us plau, selecciona un disc on instal·lar el LiveG OS.",
+        "oobs_installDisks_diskUnlabelledTitle": "Sense etiqueta ({name}; disc {number})",
+        "oobs_installDisks_diskLabelledTitle": "{label} ({name}; disc {number})",
+        "oobs_installDisks_diskTotalSize": "{size} de mida total",
+        "oobs_installDisks_noneMessage_title": "No hi ha discs disponibles",
+        "oobs_installDisks_noneMessage_description": "Apaga el sistema i comprova si els discs estan connectats.",
+
+        "oobs_installPartition_title": "Tria una partició",
+        "oobs_installPartition_description": "Les particions són àrees del disc que es poden reservar per a diferents propòsits (com per a instal·lar diversos sistemes operatius). Tria com vols particionar el disc quan s'instal·li el LiveG OS.",
+        "oobs_installPartition_erase_title": "Esborra tot el disc i instal·la el LiveG OS",
+        "oobs_installPartition_erase_description": "Es perdran totes les dades emmagatzemades al disc triat. Les particions recomanades per a instal·lar el LiveG OS es crearan automàticament.",
+        "oobs_installPartition_existing_title": "Instal·la el LiveG OS a una partició existent",
+        "oobs_installPartition_existing_partitionToSelect": "Partició per esborrar i instal·lar-hi el sistema operatiu",
+        "oobs_installPartition_existing_partition": "{name} ({size})",
+        "oobs_installPartition_new_title": "Crea una nova partició per instal·lar-hi el LiveG OS",
+        "oobs_installPartition_new_size": "Mida de la nova partició (MiB)",
+        "oobs_installPartition_noneExistNotice": "(No n'existeix cap que sigui compatible amb el LiveG OS)",
+        "oobs_installPartition_maxPrimaryReachedNotice": "(S'ha assolit el límit màxim de particions primàries)",
+        "oobs_installPartition_minimumSizeError": "La mida de la partició a crear no pot ser zero.",
+        "oobs_installPartition_notEnoughSpaceError": "No hi ha prou espai lliure per instal·lar el LiveG OS amb aquesta configuració. Es requereix un espai lliure mínim de {sizeMetric} ({sizeIec}) per instal·lar el LiveG OS.",
+
+        "oobs_installConfirm_title": "Preparat per la instal·lació?",
+        "oobs_installConfirm_description1": "Ara és el millor moment per revisar les opcions que has fet en els passos anteriors abans que comenci la instal·lació.",
+        "oobs_installConfirm_description2": "No podràs revertir la configuració del teu dispositiu ni recuperar cap dada esborrada, tret que hagis fet prèviament una còpia de seguretat de l'emmagatzematge intern del teu dispositiu.",
+        "oobs_installConfirm_description3": "Tampoc podràs tornar als passos anteriors mentre s'estigui instal·lant el LiveG OS.",
+
+        "oobs_installProcess_title": "S'està instal·lant el LiveG OS...",
+        "oobs_installProcess_warning": "Això pot trigar una estona. Si us plau, no apaguis aquest dispositiu.",
+        "oobs_installProcess_status_partitioning": "S'estan configurant les particions del disc...",
+        "oobs_installProcess_status_formatting": "S'està formatant la partició seleccionada...",
+        "oobs_installProcess_status_copying": "S'estan copiant els fitxers del sistema...",
+        "oobs_installProcess_status_copyingProgress": "S'estan copiant els fitxers del sistema... ({progress}%)",
+        "oobs_installProcess_status_installingBootloader": "S'està instal·lant el gestor d'arrencada...",
+        "oobs_installProcess_status_finalising": "S'està acabant...",
+
+        "oobs_installFinish_title": "Ja està tot instal·lat!",
+        "oobs_installFinish_description": "El LiveG OS ja s'ha instal·lat. El sistema es reiniciarà en 10 segons perquè puguis continuar configurant el LiveG OS.",
+
+        "oobs_installFail_title": "La instal·lació no ha tingut èxit",
+        "oobs_installFail_description": "S'ha produït un error que ha provocat que s'avortés la instal·lació del LiveG OS. Potser voldràs revisar les opcions que has triat i tornar-ho a provar.",
+        "oobs_installFail_error": "Codi d'error:",
+
+        "oobs_userProfile_title": "Obtinguem alguns detalls sobre tu",
+        "oobs_userProfile_displayNameLabel": "Com et dius?",
+        "oobs_userProfile_displayNameHint": "Recomanem que introdueixis el teu nom complet, però qualsevol nom (com un sobrenom o nom d'usuari) està bé.",
+        "oobs_userProfile_displayNameEmptyError": "Si us plau, introdueix el teu nom.",
+        "oobs_userProfile_displayNameLengthError": "El nom que has introduït és massa llarg; si us plau, escurça'l",
+
+        "oobs_interaction_title": "Tria com vols interactuar amb el LiveG",
+        "oobs_interaction_description": "Depèn de tu com el teu dispositiu pot contactar amb els serveis del LiveG a través d'internet per ajudar a millorar el LiveG OS. Pots activar o desactivar aquestes opcions en qualsevol moment, i qualsevol dada enviada des del teu dispositiu no contindrà res que pugui revelar la teva informació personal.",
+        "oobs_interaction_checkForUpdates_title": "Comprova automàticament les actualitzacions del sistema en segon pla",
+        "oobs_interaction_checkForUpdates_description": "El teu dispositiu no s'actualitzarà automàticament sense el teu consentiment, però es recomana activar aquesta opció perquè puguis ser notificat quan surti una nova versió o actualització de seguretat de LiveG OS.",
+        "oobs_interaction_researchTelemetry_title": "Opta per participar en la telemetria d'investigació d'ús del dispositiu",
+        "oobs_interaction_researchTelemetry_description": "S'enviarà informació sobre com uses el teu dispositiu (com ara quines aplicacions tens instal·lades i quins ajustos del sistema tens activats) al LiveG OS perquè es puguin fer millores al LiveG OS basades en el teu propi ús.",
+        "oobs_interaction_researchTelemetry_notifyChanges": "Notifica'm quan canviïn els objectius de la investigació",
+        "oobs_interaction_privacy_title": "Descobreix més sobre la teva privadesa quan uses el LiveG OS:",
+
+        "oobs_finish_title": "Ja hem acabat!",
+        "oobs_finish_description1": "Això és tot el que necessitem de tu per configurar el teu dispositiu. Quan estiguis preparat, pots començar a usar-lo immediatament.",
+        "oobs_finish_description2": "Ara és el millor moment per revisar les opcions que has triat en els passos anteriors abans que es finalitzi la configuració del teu dispositiu. Sempre pots canviar les opcions que has triat més tard a l'aplicació de Configuració.",
+
+        "sphere": "Esfera",
+
+        "sphere_back": "Enrere",
+        "sphere_forward": "Endavant",
+        "sphere_reload": "Recarrega",
+
+        "sphere_showTabList": "Mostra la llista de pestanyes",
+        "sphere_showTabListAlt": {
+            "{count} == 1": "Mostra la llista de pestanyes ({count} pestanya oberta)",
+            "{count} != 1": "Mostra la llista de pestanyes ({count} pestanyes obertes)"
+        },
+
+        "sphere_openMenu": "Obre el menú",
+
+        "sphere_menu_installApp": "Instal·la l'aplicació",
+        "sphere_menu_openInvestigator": "Obre l'Investigador Web",
+
+        "permissions_selectUsbDevice_prefix": "Selecciona un dispositiu USB per ",
+        "permissions_selectUsbDevice_suffix": " per accedir",
+
+        "permissions_noDevicesFound": "No s'han trobat dispositius",
+
+        "updates_rolledBackDialog_title": "L'actualització del sistema no ha tingut èxit",
+        "updates_rolledBackDialog_description": "Un problema ha impedit que el LiveG OS instal·lés una actualització, i per tant el sistema ha tornat a la versió anterior.",
+
+        "a11y_switch": "Navegació per commutació",
+        "a11y_switch_openMainMenu": "Menú",
+        "a11y_switch_switchToItemScan": "Escaneig d'elements",
+        "a11y_switch_switchToPointScan": "Escaneig de punts",
+        "a11y_switch_quickSettings": "Configuració ràpida",
+        "a11y_switch_scanSlower": "Escaneig més lent",
+        "a11y_switch_scanFaster": "Escaneig més ràpid",
+        "a11y_switch_done": "Fet",
+        "a11y_switch_click": "Click",
+        "a11y_switch_swipe": "Lliscar",
+        "a11y_switch_pinch": "Ajuntar els dits",
+        "a11y_switch_rotate": "Gira",
+        "a11y_switch_doubleClick": "Double click",
+        "a11y_switch_mouseButtons": "Botons del ratolí",
+
+        "a11y_reduceMotion": "Redueix el moviment"
+    }
+}

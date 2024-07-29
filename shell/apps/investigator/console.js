@@ -9,7 +9,10 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
-import * as typeset from "gshell://lib/tsengine/src/typeset.js";
+
+window.TYPESET_ENGINE_AUI_URL_PREFIX = "gshell://lib/adaptui";
+
+var typeset = await import("gshell://lib/tsengine/src/typeset.js");
 
 import * as protocol from "./protocol.js";
 

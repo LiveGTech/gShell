@@ -4,6 +4,7 @@
         {"title": "Bienvenue", "description": "Veuillez choisir votre langue dans la liste ci-dessous.", "textDirection": "ltr"},
         {"title": "欢迎", "description": "请从下面的列表中选择您的语言。", "textDirection": "ltr"},
         {"title": "Bienvenido", "description": "Elija su idioma de la lista a continuación.", "textDirection": "ltr"},
+        {"title": "Welcome", "description": "Please choose your language from the list below.", "textDirection": "ltr"},
         {"title": "أهلا وسهلا", "description": "الرجاء اختيار لغتك من القائمة أدناه.", "textDirection": "rtl"},
         {"title": "Willkommen", "description": "Bitte wählen Sie Ihre Sprache aus der Liste unten aus.", "textDirection": "ltr"},
         {"title": "Benvenuto", "description": "Si prega di scegliere la lingua dall'elenco sottostante.", "textDirection": "ltr"},
@@ -14,7 +15,7 @@
             "name": "Català",
             "baseLocale": "ca_ES",
             "locales": {
-                "ca_ES": "Català (Espanya)",
+                "ca_ES": "Català (Espanya)"
             }
         },
         {

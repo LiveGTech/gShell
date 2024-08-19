@@ -1,0 +1,38 @@
+{
+    "localeCode": "ca_ES",
+    "variant": "qwerty",
+    "metadata": {
+        "variantName": "QWERTY català",
+        "physicalLayout": "es",
+        "physicalVariant": "cat"
+    },
+    "inputMethodPaths": [],
+    "states": {
+        "lowercase": [
+            "{.lm}qwert{.lm}yuiop",
+            "{.lm}asdfg{.lm}hjklç",
+            "{.lm}{.shift:1.5}zxcv{.lm}bnm{.backspace:1.5}",
+            "{.lm}{1#?:@symbol1:1.5},{.space:5}.{.enter:1.5}"
+        ],
+        "uppercase": [
+            "{.lm}QWERT{.lm}YUIOP",
+            "{.lm}ASDFG{.lm}HJKLÇ",
+            "{.lm}{.shift:1.5}ZXCV{.lm}BNM{.backspace:1.5}",
+            "{.lm}{1#?:@symbol1:1.5}!{.space:5}?{.enter:1.5}"
+        ],
+        "symbol1": [
+            "{.lm}12345{.lm}67890",
+            "{.lm}@€·&(){.lm}*+-/",
+            "{.lm}{=%>:@symbol2:1.5}#\"':{.lm};!?{.backspace:1.5}",
+            "{.lm}{abc:@lowercase:1.5},{.space:5}.{.enter:1.5}"
+        ],
+        "symbol2": [
+            "{.lm}¬©®™×{.lm}÷π±~°",
+            "{.lm}$£·¢¥^{.lm}[]{.u:7b}{.u:7d}",
+            "{.lm}{1#?:@symbol1:1.5}_`\\={.lm}<>%{.backspace:1.5}",
+            "{.lm}{abc:@lowercase:1.5},{.space:5}.{.enter:1.5}"
+        ]
+    },
+    "defaultState": "lowercase",
+    "shiftState": "uppercase"
+}

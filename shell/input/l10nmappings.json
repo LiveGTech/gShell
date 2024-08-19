@@ -1,5 +1,8 @@
 {
     "mappings": {
+        "ca_ES": [
+            "gshell://input/layouts/ca_ES_qwerty.gkbl"
+        ],
         "en_GB": [
             "gshell://input/layouts/en_GB_qwerty.gkbl"
         ],

@@ -415,6 +415,27 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
         }).join(";");
     }
 
+    const FORMAT_MODES = {
+        "s": (value) => Text(value),
+        "d": (value) => Text(parseInt(value)),
+        "i": (value) => Text(parseInt(value)),
+        "f": (value) => Text(parseFloat(value)),
+        "o": (value) => indexedValue(value),
+        "O": (value) => indexedValue(value),
+        "c": function(value) {
+            entryContainer.add(styledFragment);
+
+            styledFragment = TextFragment({
+                attributes: {
+                    "style": sanitiseStyle(value),
+                    "data-styled": true
+                }
+            }) ();
+
+            return TextFragment() ();
+        }
+    };
+
     if (props.level != "return" && typeof(firstValue) == "string" && firstValue.indexOf("%") >= 0) {
         firstValue.split("%").forEach(function(part, partIndex) {
             if (partIndex == 0) {
@@ -424,27 +445,6 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
             }
 
             var format = part[0];
-
-            const FORMAT_MODES = {
-                "s": (value) => Text(value),
-                "d": (value) => Text(parseInt(value)),
-                "i": (value) => Text(parseInt(value)),
-                "f": (value) => Text(parseFloat(value)),
-                "o": (value) => indexedValue(value),
-                "O": (value) => indexedValue(value),
-                "c": function(value) {
-                    entryContainer.add(styledFragment);
-
-                    styledFragment = TextFragment({
-                        attributes: {
-                            "style": sanitiseStyle(value),
-                            "data-styled": true
-                        }
-                    }) ();
-
-                    return TextFragment() ();
-                }
-            };
 
             if (format in FORMAT_MODES && remainingValues.length > 0) {
                 part = part.substring(1);

@@ -182,7 +182,7 @@ export class Browser {
     openInvestigator() {
         switcher.openApp(
             `gshell://apps/investigator/index.html?wcid=${encodeURIComponent(this.webview.get().getWebContentsId())}`,
-            {icon: "gshell://media/appdefault.svg"}
+            {icon: "gshell://apps/investigator/icon.svg"}
         );
     }
 

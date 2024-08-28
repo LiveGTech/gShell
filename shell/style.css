@@ -31,7 +31,7 @@ html, body {
     overflow: hidden;
 }
 
-#off {
+#off, #monitors_curtain {
     position: fixed;
     top: 0;
     bottom: 0;

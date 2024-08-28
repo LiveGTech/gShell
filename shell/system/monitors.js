@@ -240,11 +240,11 @@ export function init() {
     return update().then(function() {
         gShell.on("xorg_monitorChange", function() {
             $g.sel("#monitors_curtain").fadeIn(250).then(function() {
-                return delay(100);
+                return delay(1_000);
             }).then(function() {
                 return update();   
             }).then(function() {
-                return delay(100);
+                return delay(1_000);
             }).then(function() {
                 $g.sel("#monitors_curtain").fadeOut(250);
             });

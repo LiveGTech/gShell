@@ -105,7 +105,6 @@ export class User {
 
         const UID = this.uid;
         const USERNAME = this.linuxUsername;
-        const DISPLAY_NAME = this.displayName;
 
         return gShell.call("system_getLinuxUsersList").then(function(usernames) {
             if (usernames.includes(thisScope.linuxUsername)) {
@@ -138,9 +137,7 @@ export class User {
         }).then(function() {
             // Ensure that user has localised folder
 
-            if (!DISPLAY_NAME) {
-                return Promise.resolve();
-            }
+            const DISPLAY_NAME = thisScope.displayName || USERNAME;
 
             // TODO: Run this when a user signs in so that their user folder is always theirs (in case two users with same display name exist)
 
@@ -150,7 +147,7 @@ export class User {
             }).then(function() {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
-                    args: ["ln", "-sfn", `/${_("usersFolder")}/${DISPLAY_NAME}`]
+                    args: ["ln", "-sfn", `/system/storage/users/${UID}/files`, `/${_("usersFolder")}/${DISPLAY_NAME}`]
                 });
             }).then(function() {
                 return gShell.call("system_executeCommand", {

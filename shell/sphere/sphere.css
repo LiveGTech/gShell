@@ -13,10 +13,23 @@
     --primaryUIPress: rgb(200, 200, 200);
     --secondaryBackground: white;
     --secondaryText: black;
+    --hardReloadUI: hsl(220, 90%, 65%);
 }
 
 .sphere main {
     top: 0;
+}
+
+.sphere_reloadButton.reload img {
+    animation: 1s sphere_reloadIcon;
+}
+
+.sphere_reloadButton.hardReload {
+    animation: 1s sphere_hardReload;
+}
+
+.sphere_reloadButton.hardReload img {
+    animation: 1s sphere_hardReloadIcon;
 }
 
 .sphere_addressInput {
@@ -46,6 +59,41 @@ webview {
 
 .sphere.fullChrome .sphere_notFullChromeOnly {
     display: none;
+}
+
+@keyframes sphere_reloadIcon {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sphere_hardReload {
+    0% {
+        background-color: var(--hardReloadUI);
+    }
+
+    100% {
+        background-color: var(--primaryUI);
+    }
+}
+
+@keyframes sphere_hardReloadIcon {
+    0% {
+        transform: rotate(0);
+        filter: contrast(0.5) brightness(10);
+    }
+
+    50% {
+        filter: contrast(0) brightness(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @media (prefers-color-scheme: dark) {

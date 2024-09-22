@@ -137,7 +137,7 @@ export class User {
         }).then(function() {
             // Ensure that user has localised folder
 
-            const DISPLAY_NAME = thisScope.displayName || USERNAME;
+            const DISPLAY_NAME = thisScope.displayName.replace(/\//g, "").trim() || USERNAME;
 
             // TODO: Run this when a user signs in so that their user folder is always theirs (in case two users with same display name exist)
 

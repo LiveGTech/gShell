@@ -11,7 +11,7 @@
     <head>
         <title>LiveG gShell Environment</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src gshell://* storage://* http://* https://* data: blob:; img-src * gshell://* storage://* data: blob:; script-src * gshell://* 'unsafe-eval'">
+        <meta http-equiv="Content-Security-Policy" content="default-src gshell://* storage://* http://* https://* data: blob:; style-src gshell://* storage://* 'unsafe-inline'; img-src * gshell://* storage://* data: blob:; script-src * gshell://* 'unsafe-eval'">
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
         <link rel="stylesheet" href="gshell://lib/adaptui/src/adaptui.css">
         <link rel="stylesheet" href="gshell://style.css">
@@ -248,6 +248,7 @@
         <div class="a11y_switch_pointScanAxis" a11y-pointscanaxis="y" hidden></div>
         <div class="a11y_switch_menu" hidden></div>
         <div class="tooltip" hidden></div>
+        <div id="cursor"></div>
         <div class="debug_buildMessage" hidden></div>
         <div hidden id="monitors_curtain"></div>
         <div hidden id="off"></div>

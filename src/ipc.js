@@ -258,13 +258,13 @@ ipcMain.handle("io_setKeyboardLayout", function(event, data) {
     return system.setKeyboardLayout(data.layout, data.variant);
 });
 
-ipcMain.handle("io_getPointerPosition", function(event, data) {
-    var pointerPoint = electron.screen.getCursorScreenPoint();
+ipcMain.handle("io_getMouseCursorPosition", function(event, data) {
+    var cursorPoint = electron.screen.getCursorScreenPoint();
     var offsetPoint = main.window.getContentBounds();
 
     return Promise.resolve({
-        x: pointerPoint.x - offsetPoint.x,
-        y: pointerPoint.y - offsetPoint.y
+        x: cursorPoint.x - offsetPoint.x,
+        y: cursorPoint.y - offsetPoint.y
     });
 });
 

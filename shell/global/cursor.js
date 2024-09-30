@@ -42,4 +42,9 @@ export function init() {
             requestAnimationFrame(updateAuthoritative);
         });
     });
+
+    $g.sel("body").on("pointermove", function(event) {
+        x = event.clientX;
+        y = event.clientY;
+    });
 }

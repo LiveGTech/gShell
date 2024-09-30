@@ -21,6 +21,7 @@
 }
 
 .sphere_reloadButton.reload img {
+    transform: rotate(1deg);
     animation: 1s sphere_reloadIcon;
 }
 
@@ -29,6 +30,7 @@
 }
 
 .sphere_reloadButton.hardReload img {
+    transform: rotate(1deg);
     animation: 1s sphere_hardReloadIcon;
 }
 
@@ -63,7 +65,7 @@ webview {
 
 @keyframes sphere_reloadIcon {
     0% {
-        transform: rotate(0);
+        transform: rotate(1deg);
     }
 
     100% {
@@ -83,7 +85,7 @@ webview {
 
 @keyframes sphere_hardReloadIcon {
     0% {
-        transform: rotate(0);
+        transform: rotate(1deg);
         filter: contrast(0.5) brightness(10);
     }
 

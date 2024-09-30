@@ -135,6 +135,27 @@ export class User {
 
             return promiseChain;
         }).then(function() {
+            // Ensure that user has localised folder
+
+            const DISPLAY_NAME = (thisScope.displayName || "").replace(/\//g, "").trim() || USERNAME;
+
+            // TODO: Run this when a user signs in so that their user folder is always theirs (in case two users with same display name exist)
+
+            return gShell.call("system_executeCommand", {
+                command: "sudo",
+                args: ["mkdir", "-p", `/${_("usersFolder")}`]
+            }).then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["ln", "-sfn", `/system/storage/users/${UID}/files`, `/${_("usersFolder")}/${DISPLAY_NAME}`]
+                });
+            }).then(function() {
+                return gShell.call("system_executeCommand", {
+                    command: "sudo",
+                    args: ["chown", `${USERNAME}:${USERNAME}`, `/${_("usersFolder")}/${DISPLAY_NAME}`]
+                });
+            });
+        }).then(function() {
             // Ensure that user permissions for user folder are set
 
             return gShell.call("system_executeCommand", {

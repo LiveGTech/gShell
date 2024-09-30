@@ -229,10 +229,22 @@ export function apply(forceSetOutputStates) {
 export function init() {
     $g.sel("#monitors_curtain").hide();
 
+    function delay(duration) {
+        return new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                resolve();
+            }, duration);
+        });
+    }
+
     return update().then(function() {
         gShell.on("xorg_monitorChange", function() {
             $g.sel("#monitors_curtain").fadeIn(250).then(function() {
-                return update();                
+                return delay(1_000);
+            }).then(function() {
+                return update();   
+            }).then(function() {
+                return delay(1_000);
             }).then(function() {
                 $g.sel("#monitors_curtain").fadeOut(250);
             });

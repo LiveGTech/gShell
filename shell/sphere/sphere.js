@@ -138,10 +138,24 @@ export class Browser {
     }
 
     reload(hard = false) {
+        var thisScope = this;
+
         if (hard) {
             this.webview.get()?.reloadIgnoringCache();
+
+            this.uiChrome.find(".sphere_reloadButton").removeClass("hardReload");
+
+            setTimeout(function() {
+                thisScope.uiChrome.find(".sphere_reloadButton").addClass("hardReload"); 
+            });
         } else {
             this.webview.get()?.reload();
+
+            this.uiChrome.find(".sphere_reloadButton").removeClass("reload");
+
+            setTimeout(function() {
+                thisScope.uiChrome.find(".sphere_reloadButton").addClass("reload");
+            });
         }
     }
 
@@ -255,6 +269,7 @@ export class Browser {
             ,
             $g.create("button")
                 .addClass("sphere_fullChromeOnly")
+                .addClass("sphere_reloadButton")
                 .setAttribute("title", _("sphere_reload"))
                 .setAttribute("aria-label", _("sphere_reload"))
                 .on("click", function(event) {

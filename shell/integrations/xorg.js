@@ -14,9 +14,12 @@ import * as displays from "gshell://system/displays.js";
 import * as switcher from "gshell://userenv/switcher.js";
 import * as linux from "gshell://integrations/linux.js";
 
-const KEYBOARD_KEY_MAPPINGS = { // Mapping `KeyboardEvent.key` to an XCB keycode
+const KEYBOARD_KEY_MAPPINGS = { // Mapping `KeyboardEvent.key` to an XCB keycode (use `xev` to find new keycodes)
     "Enter": 36,
-    "Escape": 9
+    "Escape": 9,
+    "Control": 37,
+    "Alt": 64,
+    "Shift": 50
 };
 
 const MOUSE_BUTTON_MAPPINGS = { // Mapping `MouseEvent.button` to an Xorg mouse button ID
@@ -195,24 +198,50 @@ export function init() {
                 trackedWindow.lastAbsoluteX = event.clientX;
                 trackedWindow.lastAbsoluteY = event.clientY;
 
+                var promiseChain = Promise.resolve();
+
+                function checkEventModifierKey(key, condition, eventOrder = ["keydown"]) {
+                    if (eventType == "mousedown" && condition) {
+                        promiseChain = promiseChain.then(function() {
+                            return sendKeyToWindow(trackedWindow, key, eventOrder);
+                        });
+                    }
+                }
+
+                checkEventModifierKey("Control", event.ctrlKey);
+                checkEventModifierKey("Alt", event.altKey);
+                checkEventModifierKey("Shift", event.shiftKey);
+
                 (eventType == "mouseup" ? [eventType, "mouseenter"] : [eventType]).forEach(function(eventType) {
-                    gShell.call("xorg_sendWindowInputEvent", {
-                        id: data.id,
-                        eventType,
-                        eventData: {
-                            x: trackedWindow.lastX,
-                            y: trackedWindow.lastY,
-                            absoluteX: trackedWindow.lastAbsoluteX,
-                            absoluteY: trackedWindow.lastAbsoluteY,
-                            button: MOUSE_BUTTON_MAPPINGS[currentMouseButton]
-                        }
+                    promiseChain = promiseChain.then(function() {
+                        return gShell.call("xorg_sendWindowInputEvent", {
+                            id: data.id,
+                            eventType,
+                            eventData: {
+                                x: trackedWindow.lastX,
+                                y: trackedWindow.lastY,
+                                absoluteX: trackedWindow.lastAbsoluteX,
+                                absoluteY: trackedWindow.lastAbsoluteY,
+                                button: MOUSE_BUTTON_MAPPINGS[currentMouseButton],
+                                ctrlKey: event.ctrlKey,
+                                altKey: event.altKey,
+                                shiftKey: event.shiftKey
+                            }
+                        });
                     });
                 });
                 
                 if (trackedWindow.isOverlay && Date.now() - trackedWindow.createdAt >= DELAY_BEFORE_OVERLAY_KEYS_SENT && eventType == "mouseup") {
                     // Workaround to activate GTK menu buttons; delayed to prevent activation when menu is positioned on top of opener
-                    sendKeyToWindow(trackedWindow, "Enter");
+
+                    promiseChain = promiseChain.then(function() {
+                        return sendKeyToWindow(trackedWindow, "Enter");
+                    });
                 }
+
+                checkEventModifierKey("Control", event.ctrlKey, ["keyup"]);
+                checkEventModifierKey("Alt", event.altKey, ["keyup"]);
+                checkEventModifierKey("Shift", event.shiftKey, ["keyup"]);
 
                 event.preventDefault();
             });
@@ -487,7 +516,7 @@ export function init() {
     });
 }
 
-export function sendKeyToWindow(trackedWindow, key) {
+export function sendKeyToWindow(trackedWindow, key, eventOrder = ["keydown", "keyup"]) {
     var id = Object.keys(trackedWindows).find((id) => trackedWindows[id] == trackedWindow);
 
     if (id == null) {
@@ -496,7 +525,7 @@ export function sendKeyToWindow(trackedWindow, key) {
 
     var promiseChain = Promise.resolve();
 
-    ["keydown", "keyup"].forEach(function(eventType) {
+    eventOrder.forEach(function(eventType) {
         promiseChain = promiseChain.then(function() {
             return gShell.call("xorg_sendWindowInputEvent", {
                 id,

@@ -28,6 +28,15 @@ const SUPPORTED_ATOMS = [
 
 const MAX_PROPERTY_LENGTH = 10_000;
 
+// `xcb_key_but_mask_t`
+const xcbKeyButtonMask = {
+    SHIFT: 1,
+    CONTROL: 4,
+    BUTTON_1: 256,
+    BUTTON_2: 512,
+    BUTTON_3: 1024
+};
+
 var display;
 var root;
 var X;
@@ -342,10 +351,18 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
 
                 if (eventData.button != null) {
                     state |= {
-                        1: x11.eventMask.Button1Motion,
-                        2: x11.eventMask.Button2Motion,
-                        3: x11.eventMask.Button3Motion
+                        1: xcbKeyButtonMask.BUTTON_1,
+                        2: xcbKeyButtonMask.BUTTON_2,
+                        3: xcbKeyButtonMask.BUTTON_3
                     }[eventData.button];
+                }
+
+                if (eventData.ctrlKey) {
+                    state |= xcbKeyButtonMask.CONTROL;
+                }
+
+                if (eventData.shiftKey) {
+                    state |= xcbKeyButtonMask.SHIFT;
                 }
 
                 // `xcb_button_press_event_t`/`xcb_button_release_event_t`/`xcb_motion_notify_event_t`

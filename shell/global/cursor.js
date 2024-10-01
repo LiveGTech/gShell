@@ -22,7 +22,7 @@ export function setType(type) {
         return response.text();
     }).then(function(html) {
         $g.sel("#cursor").setHTML(html);
-    })
+    });
 }
 
 export function init() {

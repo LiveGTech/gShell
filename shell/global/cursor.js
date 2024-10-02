@@ -22,6 +22,8 @@ export function setType(type) {
         return response.text();
     }).then(function(html) {
         $g.sel("#cursor").setHTML(html);
+
+        return Promise.resolve();
     });
 }
 
@@ -46,5 +48,15 @@ export function init() {
     $g.sel("body").on("pointermove", function(event) {
         x = event.clientX;
         y = event.clientY;
+
+        var currentElementCursor = getComputedStyle(event.target).cursor;
+
+        if (currentElementCursor == "auto") {
+            currentElementCursor = "default";
+        }
+
+        setType(currentElementCursor).catch(function(error) {
+            console.warn(error);
+        });
     });
 }

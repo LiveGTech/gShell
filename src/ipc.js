@@ -262,7 +262,14 @@ ipcMain.handle("io_getMouseCursorPosition", function(event, data) {
     var cursorPoint = electron.screen.getCursorScreenPoint();
     var offsetPoint = main.window.getContentBounds();
 
-    // FIXME: Prevent mouse from getting stuck when main window is out of focus (Xorg app is receiving mouse events instead)
+    if (!main.window.isFocused() && flags.allowXorgWindowManagement) {
+        return xorg.getCursorInfo().then(function(data) {
+            return Promise.resolve({
+                x: data.x - offsetPoint.x,
+                y: data.y - offsetPoint.y
+            });
+        })
+    }
 
     return Promise.resolve({
         x: cursorPoint.x - offsetPoint.x,

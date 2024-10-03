@@ -9,7 +9,7 @@
 
 ./buildclibs
 
-Xephyr +xinerama -ac -screen 1200x800 :1 -nocursor &
+Xephyr +xinerama -ac -screen 1200x800 :1 -nocursor -glamor &
 
 xephyrProcess=$!
 

@@ -216,12 +216,23 @@ exports.getWindowGeometry = function(id) {
     }).then(function(trackedWindow) {    
         return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
     }).then(function(geometry) {
-        return {
+        return Promise.resolve({
             x: geometry.xPos,
             y: geometry.yPos,
             width: geometry.width,
             height: geometry.height
-        };
+        });
+    }).then(releaseTurn).catch(releaseTurnAnyway);
+};
+
+exports.getCursorInfo = function() {
+    return waitForTurn().then(function() {
+        return promisify(X.QueryPointer, X, mainWindowId);
+    }).then(function(data) {
+        return Promise.resolve({
+            x: data.rootX,
+            y: data.rootY
+        });
     }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 

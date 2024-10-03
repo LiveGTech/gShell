@@ -58,6 +58,7 @@
 .home_app > span {
     display: block;
     width: 100%;
+    min-height: 1rem;
     font-size: 0.8rem;
     overflow: hidden;
     text-overflow: ellipsis;

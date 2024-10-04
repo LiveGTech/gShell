@@ -766,8 +766,14 @@ window.addEventListener("DOMContentLoaded", function() {
         var currentElementCursor = getComputedStyle(event.target).cursor;
 
         if (currentElementCursor == "auto") {
-            // TODO: Detect text nodes
-            currentElementCursor = "default";
+            var range = document.caretRangeFromPoint(event.clientX, event.clientY);
+
+            currentElementCursor = (
+                range &&
+                range.startContainer.nodeType == Node.TEXT_NODE &&
+                range.startOffset > 0 &&
+                range.endOffset < range.startContainer.textContent.length
+            ) ? "text" : "default";
         }
 
         electron.ipcRenderer.sendToHost("cursor_setType", currentElementCursor);

@@ -29,8 +29,6 @@ export var y = 0;
 export var currentType = null;
 
 export function setType(type) {
-    console.log(type);
-
     if (currentType == type || !CURSOR_TYPES[type]) {
         return Promise.resolve();
     }

@@ -120,26 +120,30 @@ function checkWindowProperties(trackedWindow) {
 
         return gShell.call("system_getProcessInfo", {pid: data.pid});
     }).then(function(data) {
+        if (data == null) {
+            return Promise.resolve();
+        }
+
         var processName = linux.resolveProcessName(data.name);
 
-        return gShell.call("linux_getAppInfo", {processName});
-    }).then(function(appDetails) {
-        if (trackedWindow.appElement && appDetails != null) {
-            var title = titleUsed;
-            var currentLocale = l10n.currentLocale.localeCode;
-
-            title ||= appDetails.localisedNames[currentLocale.split("_")[0]];
-            title ||= appDetails.localisedNames[currentLocale];
-            title ||= appDetails.name;
-
-            switcher.setAppTitle(trackedWindow.appElement, title);
-
-            if (appDetails.icon) {
-                switcher.setAppIcon(trackedWindow.appElement, URL.createObjectURL(
-                    new Blob([appDetails.icon.data.buffer], {type: appDetails.icon.mimeType})
-                ), true);
+        return gShell.call("linux_getAppInfo", {processName}).then(function(appDetails) {
+            if (trackedWindow.appElement && appDetails != null) {
+                var title = titleUsed;
+                var currentLocale = l10n.currentLocale.localeCode;
+    
+                title ||= appDetails.localisedNames[currentLocale.split("_")[0]];
+                title ||= appDetails.localisedNames[currentLocale];
+                title ||= appDetails.name;
+    
+                switcher.setAppTitle(trackedWindow.appElement, title);
+    
+                if (appDetails.icon) {
+                    switcher.setAppIcon(trackedWindow.appElement, URL.createObjectURL(
+                        new Blob([appDetails.icon.data.buffer], {type: appDetails.icon.mimeType})
+                    ), true);
+                }
             }
-        }
+        });
     });
 }
 

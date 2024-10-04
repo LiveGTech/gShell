@@ -13,6 +13,7 @@ import * as permissions from "gshell://config/permissions.js";
 import * as investigator from "gshell://userenv/investigator.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as input from "gshell://input/input.js";
+import * as cursor from "gshell://global/cursor.js";
 import * as tooltips from "gshell://global/tooltips.js";
 import * as select from "gshell://global/select.js";
 
@@ -132,6 +133,10 @@ export function attach(webview, privileged, user = null) {
 
             case "input_hide":
                 input.hide();
+                break;
+
+            case "cursor_setType":
+                cursor.setType(event.args[0]);
                 break;
 
             case "tooltips_show":

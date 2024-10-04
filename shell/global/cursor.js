@@ -9,14 +9,33 @@
 
 import * as device from "gshell://system/device.js";
 
+export const CURSOR_TYPES = {
+    default: {
+        originX: 0,
+        originY: 0
+    },
+    pointer: {
+        originX: 6,
+        originY: 0
+    },
+    text: {
+        originX: 4,
+        originY: 10
+    }
+};
+
 export var x = 0;
 export var y = 0;
 export var currentType = null;
 
 export function setType(type) {
-    if (currentType == type) {
+    console.log(type);
+
+    if (currentType == type || !CURSOR_TYPES[type]) {
         return Promise.resolve();
     }
+
+    currentType = type;
 
     return fetch(`gshell://media/cursors/${type}.svg`).then(function(response) {
         return response.text();
@@ -31,7 +50,9 @@ export function init() {
     setType("default");
 
     function updateRendering() {
-        $g.sel("#cursor").setStyle("transform", `translate(${x}px, ${y}px)`);
+        var typeInfo = CURSOR_TYPES[currentType];
+
+        $g.sel("#cursor").setStyle("transform", `translate(${x - (typeInfo.originX || 0)}px, ${y - (typeInfo.originY || 0)}px)`);
     }
 
     requestAnimationFrame(function updateAuthoritative() {

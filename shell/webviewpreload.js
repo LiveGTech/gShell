@@ -763,6 +763,14 @@ window.addEventListener("DOMContentLoaded", function() {
 
         var closestTitleElement = event.target;
         var currentTooltip = null;
+        var currentElementCursor = getComputedStyle(event.target).cursor;
+
+        if (currentElementCursor == "auto") {
+            // TODO: Detect text nodes
+            currentElementCursor = "default";
+        }
+
+        electron.ipcRenderer.sendToHost("cursor_setType", currentElementCursor);
 
         while (true) {
             if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-title")) {

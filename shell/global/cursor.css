@@ -12,3 +12,18 @@
     pointer-events: none;
     z-index: 5;
 }
+
+#cursor .progress_spinner {
+    animation: 1s infinite cursor_spinner;
+    transform-origin: 5.55px 4.55px;
+}
+
+@keyframes cursor_spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -10,15 +10,31 @@
 import * as device from "gshell://system/device.js";
 
 export const CURSOR_TYPES = {
-    default: {
+    "default": {
         originX: 0,
         originY: 0
     },
-    pointer: {
+    "none": {
+        originX: 0,
+        originY: 0
+    },
+    "context-menu": {
+        originX: 0,
+        originY: 0
+    },
+    "help": {
+        originX: 0,
+        originY: 0
+    },
+    "pointer": {
         originX: 6,
         originY: 0
     },
-    text: {
+    "progress": {
+        originX: 0,
+        originY: 0
+    },
+    "text": {
         originX: 4,
         originY: 10
     }
@@ -29,7 +45,11 @@ export var y = 0;
 export var currentType = null;
 
 export function setType(type) {
-    if (currentType == type || !CURSOR_TYPES[type]) {
+    if (!CURSOR_TYPES[type]) {
+        type = "default";
+    }
+
+    if (currentType == type) {
         return Promise.resolve();
     }
 

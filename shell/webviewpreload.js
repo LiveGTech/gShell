@@ -769,10 +769,13 @@ window.addEventListener("DOMContentLoaded", function() {
             var range = document.caretRangeFromPoint(event.clientX, event.clientY);
 
             currentElementCursor = (
-                range &&
-                range.startContainer.nodeType == Node.TEXT_NODE &&
-                range.startOffset > 0 &&
-                range.endOffset < range.startContainer.textContent.length
+                event.target.hasAttribute("contenteditable") ||
+                (
+                    range &&
+                    range.startContainer.nodeType == Node.TEXT_NODE &&
+                    range.startOffset > 0 &&
+                    range.endOffset < range.startContainer.textContent.length
+                )
             ) ? "text" : "default";
         }
 

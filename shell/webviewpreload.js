@@ -763,7 +763,8 @@ window.addEventListener("DOMContentLoaded", function() {
 
         var closestTitleElement = event.target;
         var currentTooltip = null;
-        var currentElementCursor = getComputedStyle(event.target).cursor;
+        var currentElementStyle = getComputedStyle(event.target);
+        var currentElementCursor = currentElementStyle.cursor;
 
         if (currentElementCursor == "auto") {
             var range = document.caretRangeFromPoint(event.clientX, event.clientY);
@@ -771,6 +772,7 @@ window.addEventListener("DOMContentLoaded", function() {
             currentElementCursor = (
                 event.target.hasAttribute("contenteditable") ||
                 (
+                    currentElementStyle.userSelect != "none" &&
                     range &&
                     range.startContainer.nodeType == Node.TEXT_NODE &&
                     range.startOffset > 0 &&

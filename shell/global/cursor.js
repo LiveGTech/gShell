@@ -8,6 +8,7 @@
 */
 
 import * as device from "gshell://system/device.js";
+import * as webviewComms from "gshell://userenv/webviewcomms.js";
 
 export const CURSOR_TYPES = {
     "default": {
@@ -43,6 +44,8 @@ export const CURSOR_TYPES = {
 export var x = 0;
 export var y = 0;
 export var currentType = null;
+export var mouseShouldShow = false;
+export var mouseIsShowing = false;
 
 export function setType(type) {
     if (!CURSOR_TYPES[type]) {
@@ -80,6 +83,16 @@ export function init() {
 
             updateRendering();
 
+            if (mouseIsShowing != mouseShouldShow) {
+                if (mouseShouldShow) {
+                    $g.sel("#cursor").fadeIn();
+                } else {
+                    $g.sel("#cursor").fadeOut();
+                }
+
+                mouseIsShowing = mouseShouldShow;
+            }
+
             requestAnimationFrame(updateAuthoritative);
         });
     });
@@ -97,5 +110,13 @@ export function init() {
         setType(currentElementCursor).catch(function(error) {
             console.warn(error);
         });
+
+        mouseShouldShow = event.pointerType == "mouse";
     });
+
+    webviewComms.onEvent("pointermove", (event) => mouseShouldShow = event.pointerType == "mouse");
+
+    if (device.data?.type != "desktop") {
+        $g.sel("#cursor").hide();
+    }
 }

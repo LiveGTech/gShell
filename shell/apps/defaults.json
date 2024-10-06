@@ -150,6 +150,16 @@
             "url": "gsspecial://sphere",
             "icon": "gshell://sphere/icon.svg"
         },
+        "files": {
+            "fallbackLocale": "en_GB",
+            "name": {
+                "ca_ES": "Fitxers",
+                "en_GB": "Files",
+                "fr_FR": "Fichiers"
+            },
+            "url": "gshell://apps/files/index.html",
+            "icon": "gshell://apps/files/icon.svg"
+        },
         "terminal": {
             "fallbackLocale": "en_GB",
             "name": {

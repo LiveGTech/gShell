@@ -35,6 +35,10 @@ export const CURSOR_TYPES = {
         originX: 0,
         originY: 0
     },
+    "wait": {
+        originX: 10,
+        originY: 10
+    },
     "text": {
         originX: 4,
         originY: 10

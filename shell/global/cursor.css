@@ -18,6 +18,11 @@
     transform-origin: 5.55px 4.55px;
 }
 
+#cursor .wait_spinner {
+    animation: 1s infinite cursor_spinner;
+    transform-origin: 2.7px 2.7px;
+}
+
 @keyframes cursor_spinner {
     0% {
         transform: rotate(0deg);

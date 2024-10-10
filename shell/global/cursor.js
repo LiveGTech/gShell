@@ -92,8 +92,8 @@ export const CURSOR_TYPE_ALIASES = {
     "w-resize": "ew-resize",
     "ne-resize": "nesw-resize",
     "nw-resize": "nwse-resize",
-    "se-resize": "nesw-resize",
-    "sw-resize": "nwse-resize"
+    "se-resize": "nwse-resize",
+    "sw-resize": "nesw-resize"
 };
 
 export var x = 0;

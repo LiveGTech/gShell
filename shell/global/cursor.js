@@ -39,10 +39,61 @@ export const CURSOR_TYPES = {
         originX: 10,
         originY: 10
     },
+    "cell": {
+        originX: 7,
+        originY: 7
+    },
+    "crosshair": {
+        originX: 9,
+        originY: 9
+    },
     "text": {
         originX: 4,
         originY: 10
+    },
+    "vertical-text": {
+        originX: 10,
+        originY: 4
+    },
+    "copy": {
+        originX: 0,
+        originY: 0
+    },
+    "move": {
+        originX: 10,
+        originY: 10
+    },
+    "alias": {
+        originX: 0,
+        originY: 0
+    },
+    "ew-resize": {
+        originX: 10,
+        originY: 3
+    },
+    "ns-resize": {
+        originX: 3,
+        originY: 10
+    },
+    "nesw-resize": {
+        originX: 7,
+        originY: 7
+    },
+    "nwse-resize": {
+        originX: 7,
+        originY: 7
     }
+};
+
+export const CURSOR_TYPE_ALIASES = {
+    "n-resize": "ns-resize",
+    "e-resize": "ew-resize",
+    "s-resize": "ns-resize",
+    "w-resize": "ew-resize",
+    "ne-resize": "nesw-resize",
+    "nw-resize": "nwse-resize",
+    "se-resize": "nesw-resize",
+    "sw-resize": "nwse-resize"
 };
 
 export var x = 0;
@@ -52,6 +103,8 @@ export var mouseShouldShow = false;
 export var mouseIsShowing = false;
 
 export function setType(type) {
+    type = CURSOR_TYPE_ALIASES[type] || type;
+
     if (!CURSOR_TYPES[type]) {
         type = "default";
     }

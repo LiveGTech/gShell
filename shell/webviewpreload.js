@@ -101,7 +101,52 @@ function triggerPrivilegedDataEvent(eventType, data) {
 }
 
 function userAgent() {
+    const ACCESS_KEY = {};
+
     var allTerminals = [];
+
+    function ensureAccess(accessKey, asConstructor) {
+        if (accessKey != ACCESS_KEY) {
+            throw new TypeError(asConstructor ? "Illegal constructor" : "Illegal invocation");
+        }
+    }
+
+    function encapsulateFunction(name, thing) {
+        thing.toString = function() {
+            return `function ${name}() { [native code] }`
+        };
+
+        return thing;
+    }
+
+    function encapsulateClass(thing, name = null) {
+        Object.getOwnPropertyNames(thing.prototype).forEach(function(name) {
+            if (Object.getOwnPropertyDescriptor(thing.prototype, name).get) {
+                return;
+            }
+
+            var property = thing.prototype[name];
+
+            if (property instanceof Function) {
+                thing.prototype[name].toString = function() {
+                    return `function ${name}() { [native code] }`;
+                };
+            }
+        });
+
+        thing.toString ??= function() {
+            return `function ${name ?? thing.name}() { [native code] }`;
+        };
+
+        return thing;
+    }
+
+    function overrideClass(base, thing) {
+        Object.setPrototypeOf(thing, base);
+        Object.setPrototypeOf(thing.prototype, base.prototype);
+
+        return encapsulateClass(thing, base.name);
+    }
 
     class TerminalDataEvent extends Event {
         constructor(data) {
@@ -208,19 +253,111 @@ function userAgent() {
     });
 
     window.sphere = {
-        TerminalDataEvent,
-        TerminalExitEvent,
-        Terminal
+        TerminalDataEvent: encapsulateClass(TerminalDataEvent),
+        TerminalExitEvent: encapsulateClass(TerminalExitEvent),
+        Terminal: encapsulateClass(Terminal)
     };
 
     if (window.navigator.usb) {
         var shadowed_requestDevice = window.navigator.usb.requestDevice;
 
-        window.navigator.usb.requestDevice = function(options) {
+        window.navigator.usb.requestDevice = encapsulateFunction("requestDevice", function(options) {
             _sphere.permissions_setSelectUsbDeviceFilters(options?.filters || []);
 
             return shadowed_requestDevice.apply(window.navigator.usb, arguments);
-        };
+        });
+    }
+
+    if (_sphere.isSystemApp()) {
+        window.FileSystemDirectoryHandle = class {};
+    }
+
+    if (window.FileSystemDirectoryHandle) {
+        window.FileSystemDirectoryHandle = overrideClass(FileSystemDirectoryHandle, class {
+            #path = [];
+    
+            constructor(accessKey, path) {
+                ensureAccess(accessKey, true);
+    
+                this.#path = path;
+            }
+    
+            _getPath(accessKey) {
+                ensureAccess(accessKey);
+    
+                return [...this.#path];
+            }
+    
+            _getEntries(accessKey) {
+                // TODO: Implement this
+                return ["a", "b", "c"];
+            }
+    
+            get kind() {
+                return "directory";
+            }
+    
+            get name() {
+                return this.#path.at(-1);
+            }
+    
+            getDirectoryHandle(name) {
+                // TODO: Check if the folder exists first
+    
+                return Promise.resolve(new FileSystemDirectoryHandle(ACCESS_KEY, [...this.#path, name]));
+            }
+    
+            resolve(possibleDescendant) {
+                var otherPath = possibleDescendant._getPath(ACCESS_KEY);
+    
+                for (var part of this.#path) {
+                    var otherPathPart = otherPath.shift();
+    
+                    if (otherPathPart != part) {
+                        return Promise.resolve(null);
+                    }
+                }
+    
+                return Promise.resolve(otherPath);
+            }
+    
+            entries() {
+                var thisScope = this;
+
+                return (async function*() {
+                    for (var key of thisScope._getEntries(ACCESS_KEY)) {
+                        yield {key, value: thisScope.getDirectoryHandle(key)};
+                    }
+                })();
+            }
+    
+            keys() {
+                var thisScope = this;
+
+                return (async function*() {
+                    for (var key of thisScope._getEntries(ACCESS_KEY)) {
+                        yield key;
+                    }
+                })();
+            }
+    
+            values() {
+                var thisScope = this;
+
+                return (async function*() {
+                    for (var key of thisScope._getEntries(ACCESS_KEY)) {
+                        yield thisScope.getDirectoryHandle(key);
+                    }
+                })();
+            }
+        });
+    }
+
+    if (window.showDirectoryPicker || _sphere.isSystemApp()) {
+        window.showDirectoryPicker = encapsulateFunction("showDirectoryPicker", function() {
+            // TODO: Make this actually show a folder picker dialog
+            return Promise.resolve(new FileSystemDirectoryHandle(ACCESS_KEY, ["tmp"]));
+        });
     }
 
     function storeConsoleValue(value) {
@@ -258,36 +395,29 @@ function userAgent() {
 
     var shadowed_consoleLog = console.log;
 
-    console.log = function() {
+    console.log = encapsulateFunction("log", function() {
         shadowed_consoleLog(...arguments);
 
         logConsoleValues("log", [...arguments]);
-    };
+    });
 
-    console.log.toString = () => "function log() { [native code] }";
-
-    console.info = () => console.log(...arguments);
-    console.info.toString = () => "function info() { [native code] }";
+    console.info = encapsulateFunction("info", () => console.log(...arguments));
 
     var shadowed_consoleWarn = console.warn;
 
-    console.warn = function() {
+    console.warn = encapsulateFunction("warn", function() {
         shadowed_consoleWarn(...arguments);
 
         logConsoleValues("warning", [...arguments]);
-    };
-
-    console.warn.toString = () => "function warn() { [native code] }";
+    });
 
     var shadowed_consoleError = console.error;
 
-    console.error = function() {
+    console.error = encapsulateFunction("error", function() {
         shadowed_consoleError(...arguments);
 
         logConsoleValues("error", [...arguments]);
-    };
-
-    console.error.toString = () => "function error() { [native code] }";
+    });
 
     window.addEventListener("error", function(event) {
         logConsoleValues("error", [event.error.stack]);

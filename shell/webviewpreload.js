@@ -269,7 +269,57 @@ function userAgent() {
     }
 
     if (_sphere.isSystemApp()) {
+        window.FileSystemFileHandle = class {};
         window.FileSystemDirectoryHandle = class {};
+    }
+
+    if (window.FileSystemFileHandle) {
+        window.FileSystemFileHandle = overrideClass(FileSystemFileHandle, class {
+            #path = [];
+            #lastModified = null;
+
+            constructor(accessKey, path, lastModified) {
+                ensureAccess(accessKey, true);
+
+                this.#path = path;
+                this.#lastModified = lastModified;
+            }
+
+            _getPath(accessKey) {
+                ensureAccess(accessKey);
+    
+                return [...this.#path];
+            }
+
+            _getPathString(accessKey) {
+                ensureAccess(accessKey);
+
+                return "/" + this._getPath(ACCESS_KEY).join("/");
+            }
+
+            get kind() {
+                return "file";
+            }
+    
+            get name() {
+                return this.#path.at(-1);
+            }
+
+            async getFile() {
+                try {
+                    var data = await _sphere.callPrivilegedCommand("storage_read", {
+                        location: this._getPathString(ACCESS_KEY),
+                        encoding: null
+                    });
+
+                    return new File([data], this.name, {
+                        lastModified: this.#lastModified
+                    });
+                } catch (error) {
+                    throw new DOMException("Cannot read file", "NotFoundError");
+                }
+            }
+        });
     }
 
     if (window.FileSystemDirectoryHandle) {
@@ -287,12 +337,29 @@ function userAgent() {
     
                 return [...this.#path];
             }
-    
-            _getEntries(accessKey) {
-                // TODO: Implement this
-                return ["a", "b", "c"];
+
+            _getPathString(accessKey, child = null) {
+                ensureAccess(accessKey);
+
+                var path = this._getPath(ACCESS_KEY);
+
+                if (child != null) {
+                    path.push(child);
+                }
+
+                return "/" + path.join("/");
             }
     
+            async _getEntries(accessKey) {
+                ensureAccess(accessKey);
+
+                try {
+                    return await _sphere.callPrivilegedCommand("storage_listFolderWithStats", {location: this._getPathString(ACCESS_KEY)});
+                } catch (error) {
+                    throw new DOMException("Cannot find directory entry", "NotFoundError");
+                }
+            }
+
             get kind() {
                 return "directory";
             }
@@ -300,11 +367,41 @@ function userAgent() {
             get name() {
                 return this.#path.at(-1);
             }
-    
-            getDirectoryHandle(name) {
-                // TODO: Check if the folder exists first
-    
-                return Promise.resolve(new FileSystemDirectoryHandle(ACCESS_KEY, [...this.#path, name]));
+
+            async _getHandle(accessKey, name, stats = null) {
+                ensureAccess(accessKey);
+
+                if ([".", ".."].includes(name) || name.match(/\//) || !(await this._getEntries(ACCESS_KEY)).map((entry) => entry.name).includes(name)) {
+                    throw new DOMException("Cannot find entry", "NotFoundError");
+                }
+
+                stats ||= await _sphere.callPrivilegedCommand("storage_stat", {location: this._getPathString(ACCESS_KEY, name)});
+
+                if (stats.isDirectory) {
+                    return new FileSystemDirectoryHandle(ACCESS_KEY, [...this.#path, name]);
+                }
+
+                return new FileSystemFileHandle(ACCESS_KEY, [...this.#path, name], stats.mtimeMs);
+            }
+
+            async getDirectoryHandle(name) {
+                var handle = await this._getHandle(ACCESS_KEY, name);
+
+                if (!(handle instanceof FileSystemDirectoryHandle)) {
+                    throw new DOMException("Entry is not a directory", "NotFoundError");
+                }
+
+                return handle;
+            }
+
+            async getFileHandle(name) {
+                var handle = await this._getHandle(ACCESS_KEY, name);
+
+                if (!(handle instanceof FileSystemFileHandle)) {
+                    throw new DOMException("Entry is not a file", "NotFoundError");
+                }
+
+                return handle;
             }
     
             resolve(possibleDescendant) {
@@ -325,8 +422,8 @@ function userAgent() {
                 var thisScope = this;
 
                 return (async function*() {
-                    for (var key of thisScope._getEntries(ACCESS_KEY)) {
-                        yield {key, value: thisScope.getDirectoryHandle(key)};
+                    for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
+                        yield {key: entry.name, value: thisScope._getHandle(ACCESS_KEY, entry.name, entry)};
                     }
                 })();
             }
@@ -335,8 +432,8 @@ function userAgent() {
                 var thisScope = this;
 
                 return (async function*() {
-                    for (var key of thisScope._getEntries(ACCESS_KEY)) {
-                        yield key;
+                    for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
+                        yield entry.name;
                     }
                 })();
             }
@@ -345,8 +442,8 @@ function userAgent() {
                 var thisScope = this;
 
                 return (async function*() {
-                    for (var key of thisScope._getEntries(ACCESS_KEY)) {
-                        yield thisScope.getDirectoryHandle(key);
+                    for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
+                        yield thisScope._getHandle(ACCESS_KEY, entry.name, entry);
                     }
                 })();
             }
@@ -356,7 +453,11 @@ function userAgent() {
     if (window.showDirectoryPicker || _sphere.isSystemApp()) {
         window.showDirectoryPicker = encapsulateFunction("showDirectoryPicker", function() {
             // TODO: Make this actually show a folder picker dialog
-            return Promise.resolve(new FileSystemDirectoryHandle(ACCESS_KEY, ["tmp"]));
+            if (!_sphere.isSystemApp()) {
+                throw new Error("Permission denied");
+            }
+
+            return Promise.resolve(new FileSystemDirectoryHandle(ACCESS_KEY, []));
         });
     }
 

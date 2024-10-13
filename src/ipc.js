@@ -114,6 +114,10 @@ ipcMain.handle("storage_listFolder", function(event, data) {
     return storage.listFolder(data.location);
 });
 
+ipcMain.handle("storage_listFolderWithStats", function(event, data) {
+    return storage.listFolderWithStats(data.location);
+});
+
 ipcMain.handle("storage_stat", function(event, data) {
     return storage.stat(data.location);
 });

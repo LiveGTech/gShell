@@ -25,6 +25,10 @@ export var data = {};
 export var commands = {
     system_shutDown: (data) => system.shutDown(data.reason),
     system_restart: (data) => system.restart(data.reason),
+    storage_read: (data) => gShell.call("storage_read", data),
+    storage_listFolder: (data) => gShell.call("storage_listFolder", data),
+    storage_listFolderWithStats: (data) => gShell.call("storage_listFolderWithStats", data),
+    storage_stat: (data) => gShell.call("storage_stat", data),
     network_getList: network.getList,
     network_scanWifi: network.scanWifi,
     network_disconnectWifi: (data) => network.disconnectWifi(data.name),

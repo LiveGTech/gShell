@@ -29,6 +29,7 @@ export var commands = {
     storage_listFolder: (data) => gShell.call("storage_listFolder", data),
     storage_listFolderWithStats: (data) => gShell.call("storage_listFolderWithStats", data),
     storage_stat: (data) => gShell.call("storage_stat", data),
+    storage_exists: (data) => gShell.call("storage_exists", data),
     network_getList: network.getList,
     network_scanWifi: network.scanWifi,
     network_disconnectWifi: (data) => network.disconnectWifi(data.name),

@@ -276,12 +276,14 @@ function userAgent() {
     if (window.FileSystemFileHandle) {
         window.FileSystemFileHandle = overrideClass(FileSystemFileHandle, class {
             #path = [];
+            #size = null;
             #lastModified = null;
 
-            constructor(accessKey, path, lastModified) {
+            constructor(accessKey, path, size, lastModified) {
                 ensureAccess(accessKey, true);
 
                 this.#path = path;
+                this.#size = size;
                 this.#lastModified = lastModified;
             }
 
@@ -306,18 +308,42 @@ function userAgent() {
             }
 
             async getFile() {
-                try {
-                    var data = await _sphere.callPrivilegedCommand("storage_read", {
-                        location: this._getPathString(ACCESS_KEY),
-                        encoding: null
-                    });
+                return new (overrideClass(File, class {
+                    #name = null;
+                    #size = null;
+                    #lastModified = null;
 
-                    return new File([data], this.name, {
-                        lastModified: this.#lastModified
-                    });
-                } catch (error) {
-                    throw new DOMException("Cannot read file", "NotFoundError");
-                }
+                    constructor(name, size, lastModified) {
+                        this.#name = name;
+                        this.#size = size;
+                        this.#lastModified = lastModified;
+                    }
+
+                    get lastModified() {
+                        return this.#lastModified;
+                    }
+
+                    get lastModifiedDate() {
+                        return new Date(this.lastModified);
+                    }
+
+                    get name() {
+                        return this.#name;
+                    }
+
+                    get type() {
+                        // TODO: Compute type from filename
+                        return "";
+                    }
+
+                    get size() {
+                        return this.#size;
+                    }
+
+                    get webkitRelativePath() {
+                        return "";
+                    }
+                }))(this.name, this.#size, this.#lastModified);
             }
         });
     }
@@ -368,20 +394,22 @@ function userAgent() {
                 return this.#path.at(-1);
             }
 
-            async _getHandle(accessKey, name, stats = null) {
+            async _getHandle(accessKey, name, stats = null, checkExistence = true) {
                 ensureAccess(accessKey);
 
-                if ([".", ".."].includes(name) || name.match(/\//) || !(await this._getEntries(ACCESS_KEY)).map((entry) => entry.name).includes(name)) {
+                var pathString = this._getPathString(ACCESS_KEY, name);
+
+                if ([".", ".."].includes(name) || name.match(/\//) || (checkExistence && !(await _sphere.callPrivilegedCommand("storage_exists", {location: pathString})))) {
                     throw new DOMException("Cannot find entry", "NotFoundError");
                 }
 
-                stats ||= await _sphere.callPrivilegedCommand("storage_stat", {location: this._getPathString(ACCESS_KEY, name)});
+                stats ||= await _sphere.callPrivilegedCommand("storage_stat", {location: pathString});
 
                 if (stats.isDirectory) {
                     return new FileSystemDirectoryHandle(ACCESS_KEY, [...this.#path, name]);
                 }
 
-                return new FileSystemFileHandle(ACCESS_KEY, [...this.#path, name], stats.mtimeMs);
+                return new FileSystemFileHandle(ACCESS_KEY, [...this.#path, name], stats.size, stats.mtimeMs);
             }
 
             async getDirectoryHandle(name) {
@@ -423,7 +451,7 @@ function userAgent() {
 
                 return (async function*() {
                     for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
-                        yield {key: entry.name, value: thisScope._getHandle(ACCESS_KEY, entry.name, entry)};
+                        yield {key: entry.name, value: thisScope._getHandle(ACCESS_KEY, entry.name, entry, false)};
                     }
                 })();
             }
@@ -443,7 +471,7 @@ function userAgent() {
 
                 return (async function*() {
                     for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
-                        yield thisScope._getHandle(ACCESS_KEY, entry.name, entry);
+                        yield thisScope._getHandle(ACCESS_KEY, entry.name, entry, false);
                     }
                 })();
             }

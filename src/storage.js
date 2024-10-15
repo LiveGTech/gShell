@@ -193,11 +193,17 @@ exports.listFolderWithStats = function(location) {
             var entries = [];
 
             for (var name of data) {
-                var stats = await exports.stat(`${location}/${name}`);
+                try {
+                    var stats = await exports.stat(`${location}/${name}`);
 
-                stats.name = name;
+                    stats.name = name;
 
-                entries.push(stats);
+                    entries.push(stats);
+                } catch (error) {
+                    console.warn(error);
+
+                    entries.push({name});
+                }
             }
 
             resolve(entries);

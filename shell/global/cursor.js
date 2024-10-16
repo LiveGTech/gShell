@@ -86,6 +86,9 @@ export const CURSOR_TYPES = {
 };
 
 export const CURSOR_TYPE_ALIASES = {
+    "all-scroll": "move",
+    "col-resize": "ew-resize",
+    "row-resize": "ns-resize",
     "n-resize": "ns-resize",
     "e-resize": "ew-resize",
     "s-resize": "ns-resize",

@@ -9,7 +9,7 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 
-import * as pointer from "gshell://global/pointer.js";
+import * as cursor from "gshell://global/cursor.js";
 import * as device from "gshell://system/device.js";
 
 var lastTooltip = null;
@@ -36,13 +36,13 @@ export function show(text) {
 
         tooltip.removeAttribute("hidden");
 
-        var xPosition = pointer.x + 16;
-        var yPosition = pointer.y;
+        var xPosition = cursor.x + 16;
+        var yPosition = cursor.y;
         var tooltipWidth = tooltip.get().clientWidth;
         var tooltipHeight = tooltip.get().clientHeight;
 
         if (xPosition + tooltipWidth >= window.innerWidth) {
-            xPosition = pointer.x - tooltipWidth - 16;
+            xPosition = cursor.x - tooltipWidth - 16;
         }
 
         if (yPosition + tooltipHeight >= window.innerHeight) {

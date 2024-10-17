@@ -1,5 +1,8 @@
 {
     "mappings": {
+        "ca_ES": [
+            "gshell://input/layouts/ca_ES_qwerty.gkbl"
+        ],
         "en_GB": [
             "gshell://input/layouts/en_GB_qwerty.gkbl"
         ],
@@ -14,6 +17,7 @@
         ]
     },
     "languageNames": {
+        "ca_ES": "Català (Espanya)",
         "en_GB": "English (United Kingdom)",
         "en_US": "English (United States)",
         "fr_FR": "Français (France)",

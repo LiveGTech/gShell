@@ -1,0 +1,233 @@
+{
+    "localeCode": "ca_ES",
+    "metadata": {
+        "name": "Català (Espanya)",
+        "nameShort": "Català",
+        "textDirection": "ltr"
+    },
+    "source": {
+        "settings": "Configuració",
+
+        "back": "Enrere",
+        "ok": "D'acord",
+        "cancel": "Cancel·la",
+        "apply": "Aplica",
+        "add": "Afegeix",
+        "save": "Desa",
+        "saving": "Desant...",
+        "remove": "Elimina",
+        "none": "(Cap)",
+        "optional": "(Opcional)",
+
+        "size_bytes": {
+            "{size} == 1": "{size} byte",
+            "{size} != 1": "{size} bytes"
+        },
+        "size_kb": "{size} KB",
+        "size_mb": "{size} MB",
+        "size_gb": "{size} GB",
+        "size_tb": "{size} TB",
+        "size_kib": "{size} KiB",
+        "size_mib": "{size} MiB",
+        "size_gib": "{size} GiB",
+        "size_tib": "{size} TiB",
+
+        "network": "Xarxa",
+
+        "network_summary": "Wi-Fi, Ethernet",
+        "network_summaryConnectedWifi": "Connectat a {name}",
+        "network_summaryConnectedEthernet": "Connectat via Ethernet",
+        "network_summaryDisconnected": "Desconnectat",
+
+        "network_connected": "Connectat",
+
+        "network_wifiNetworks": "Xarxes Wi-Fi",
+        "network_wifiScanResultDetails": "{details} ({bandwidth} Mb/s)",
+        "network_wifiSecurityType_open": "Oberta",
+        "network_wifiSecurityType_secured": "Segura",
+        "network_wifiSecurityType_unknown": "Seguretat desconeguda",
+        "network_wifiNetworksNone_title": "No hi ha cap  xarxa Wi-Fi a l'abast",
+        "network_wifiNetworksNone_description": "Apropa't a un router Wi-Fi per obtenir millor recepció.",
+
+        "network_wifiAp_connect": "Connecta",
+        "network_wifiAp_connecting": "Connectant...",
+        "network_wifiAp_disconnect": "Desconnecta",
+        "network_wifiAp_forget": "Oblida",
+        "network_wifiAp_channelDetails": "Detalls del canal",
+        "network_wifiAp_channel": "Canal {channel}",
+        "network_wifiAp_bssid": "BSSID",
+        "network_wifiAp_signalStrength": "Intensitat del senyal",
+        "network_wifiAp_signalStrength_value": "{value}%",
+        "network_wifiAp_bandwidth": "Amplada de banda",
+        "network_wifiAp_bandwidth_value": {
+            "{value} == 1": "{value} megabit/segon",
+            "{value} != 1": "{value} megabits/segon"
+        },
+
+        "network_wifiConfig_title": "Connecta a {name}",
+        "network_wifiConfig_authMode": "Mode d'autenticació",
+        "network_wifiConfig_authMode_none": "Cap",
+        "network_wifiConfig_authMode_wep": "WEP",
+        "network_wifiConfig_authMode_wpa": "WPA1/WPA2",
+        "network_wifiConfig_authMode_wpa_802_1x": "WPA1/WPA2 802.1x (enterprise)",
+        "network_wifiConfig_connect": "Connecta",
+
+        "network_wifiConfig_authModes_password": "Contrasenya",
+
+        "network_wifiConfig_authModes_innerAuthMode": "Mode d'autenticació intern",
+        "network_wifiConfig_authModes_innerAuthMode_mschapv2": "MS-CHAP V2",
+        "network_wifiConfig_authModes_innerAuthMode_gtc": "GTC",
+        "network_wifiConfig_authModes_innerAuthMode_username": "Nom d'usuari (identitat)",
+        "network_wifiConfig_authModes_innerAuthMode_anonymousIdentity": "Identitat anònima",
+
+        "network_invalidAuth_title": "No s'ha pogut autenticar amb la xarxa",
+        "network_invalidAuth_description": "Comprova els detalls que necessites introduir per connectar-te a aquesta xarxa (com ara contrasenyes) i intenta connectar-te de nou.",
+        "network_invalidAuth_description_fromSaved": "Sembla que els detalls necessaris per connectar-se (com ara contrasenyes) han canviat des de l'última vegada que et vas connectar. Intenta connectar-te de nou.It seems that the details needed to connect (such as passwords) have changed since you last connected. Try connecting again.",
+
+        "network_connectionError_title": "No s'ha pogut connectar a la xarxa",
+        "network_connectionError_description": "Comprova la configuració de la xarxa i el maquinari per veure si funciona correctament, i intenta connectar-te de nou.",
+
+        "network_proxyConfig": "Servidors intermediaris",
+        "network_proxyConfig_summary": "Activa i configura els servidors intermediaris per enviar el tràfic de xarxa a través d'ells",
+        "network_proxyConfig_description": "Configura quins servidors intermediaris utilitzar per enviar les dades de sol·licitud de xarxa. També pots triar llocs per excloure del servidor intermediari, per als quals s'utilitzarà una connexió directa.",
+
+        "network_proxyConfig_direct": "Utilitza una connexió directa (no utilitzis servidors intermediaris)",
+
+        "network_proxyConfig_autoDetect": "Detecta automàticament la configuració del servidor intermediari a utilitzar per a aquesta xarxa",
+
+        "network_proxyConfig_pacScriptUrl": "Obtén la configuració del servidor intermediari d'un script PAC",
+        "network_proxyConfig_pacScriptUrl_url": "URL del script PAC",
+
+        "network_proxyConfig_socks": "Utilitza un servidor intermediari SOCKS",
+        "network_proxyConfig_socks_url": "URL del servidor intermediari SOCKS",
+
+        "network_proxyConfig_http": "Utilitza servidors intermediaris HTTP/HTTPS",
+        "network_proxyConfig_http_httpUrl": "URL del servidor intermediari HTTP",
+        "network_proxyConfig_http_httpsUrl": "URL del servidor intermediari HTTPS",
+
+        "network_proxyConfig_excludeMatches_title": "Llocs per excloure del servidor intermediari",
+        "network_proxyConfig_excludeMatches_description": "Introdueix les URLs dels llocs que no s'han de passar pel servidor intermediari, amb una URL per línia.",
+        "network_proxyConfig_excludeMatches_label": "Llista de llocs a excloure",
+
+        "network_proxyConfig_saveNotice": "La configuració del servidor intermediari que triïs no s'aplicarà fins que la desis.",
+
+        "l10n": "Idioma i entrada",
+
+        "l10n_summary": "Canvia la configuració d'idioma, regió i teclat",
+
+        "l10n_systemLanguage": "Idioma del sistema",
+        "l10n_changeMessage": "El nou idioma que escolleixis s'aplicarà a les aplicacions un cop s'hagin reiniciat.",
+
+        "l10n_input": "Entrada de teclat",
+
+        "l10n_input_layout_title": "Distribucions de teclat",
+        "l10n_input_layout_description": "Pots afegir múltiples distribucions de teclat per canviar fàcilment entre diferents idiomes i modes d'entrada quan escriguis text.",
+        "l10n_input_layout_addAction": "Afegeix una distribució",
+        "l10n_input_layout_add": "Afegeix distribució",
+        "l10n_input_layout_configure": "Configura la distribució",
+
+        "l10n_input_layout_language": "Idioma",
+        "l10n_input_layout_layout": "Distribució",
+        "l10n_input_layout_inputMethod": "Mètode d'entrada",
+
+        "personalisation": "Personalització",
+
+        "personalisation_summary": "Canvia el fons i el tema actuals",
+        
+        "personalisation_theme": "Tema",
+
+        "personalisation_themeMode_light": "Mode clar",
+        "personalisation_themeMode_dark": "Mode fosc",
+
+        "a11y": "Accessibilitat",
+
+        "a11y_summary": "Personalitza l'accés visual, auditiu i de navegació",
+
+        "a11y_switch": "Navegació per commutador",
+        "a11y_switch_summary": "Control total i navegació amb almenys un commutador",
+        "a11y_switch_description": "La navegació per commutador et permet accedir i navegar pel teu dispositiu utilitzant un o més commutadors — com ara botons, pedals, commutadors d'aspiració i bufada, entre d'altres.",
+        "a11y_switch_enable": "Activa la navegació per commutador",
+
+        "a11y_switch_disableDialog_title": "Desactivar la Navegació per commutador?",
+        "a11y_switch_disableDialog_description": "No podràs navegar utilitzant un commutador fins que la Navegació per commutador s'activi de nou",
+        "a11y_switch_disableDialog_turnOff": "Desactivar",
+
+        "a11y_reduceMotion": "Redueix les animacions i el moviment no essencial",
+
+        "interaction": "Interacció i privacitat",
+        "interaction_summary": "Tria com vols interactuar amb LiveG",
+
+        "interaction_checkForUpdates": "Busca actualitzacions del sistema automàticament en segon pla",
+        "interaction_checkForUpdates_description": "El teu dispositiu no s'actualitzarà automàticament sense el teu consentiment, però es recomana activar aquesta opció perquè puguis ser notificat quan surti una nova versió o actualització de seguretat de LiveG OS.",
+
+        "interaction_researchTelemetry": "Telemetria d'investigació d'ús del dispositiu",
+        "interaction_researchTelemetry_description1": "Quan està activat, s'enviarà informació sobre com utilitzes el teu dispositiu (com ara quines aplicacions tens instal·lades i quins ajustos del sistema tens activats) a LiveG perquè es puguin fer millores a LiveG OS basades en el teu propi ús",
+        "interaction_researchTelemetry_description2": "Els resultats estadístics acumulatius produïts a partir de les dades recollides com a part d'una gran mostra de dispositius poden ser compartits públicament en interès de la transparència. Els objectius de la investigació poden canviar entre actualitzacions del sistema, i pots triar si vols ser notificat d'aquests canvis.",
+        "interaction_researchTelemetry_enable": "Activa la telemetria d'investigació",
+        "interaction_researchTelemetry_notifyChanges": "Notifica'm quan canviïn els objectius de la investigació",
+
+        "interaction_privacyInfo": "Informació de privacitat",
+        "interaction_privacyInfo_description": "La informació que LiveG recull del teu dispositiu s'utilitza per ajudar LiveG a determinar quines millores s'han de fer o prioritzar a LiveG OS. Quan tens aquestes opcions d'interacció activades, qualsevol dada enviada des del teu dispositiu no contindrà res que pugui revelar la teva informació personal. Pots optar per activar o desactivar aquestes opcions en qualsevol moment.",
+        "interaction_privacyInfo_link": "Més informació sobre la teva privacitat quan utilitzes LiveG OS",
+
+        "updates": "Actualitzacions del sistema",
+        "updates_summary": "Instal·la actualitzacions que aporten millores al teu dispositiu",
+
+        "updates_loading": "Carregant informació de les actualitzacions...",
+        "updates_latest": "Última actualització",
+        "updates_updateNow": "Actualitza ara",
+        "updates_checkAgain": "Comprova de nou",
+        "updates_restart": "Reinicia",
+        "updates_cancelRestart": "Cancel·la el reinici",
+        "updates_restartAfterComplete": "Reinicia el dispositiu després de completar l'actualització",
+        "updates_powerWarning": "Això pot trigar una estona. Si us plau, no apaguis aquest dispositiu.",
+        "updates_cannotCancel": "No pots cancel·lar l'actualització en aquesta etapa.",
+
+        "updates_info_name": " LiveG OS",
+        "updates_info_version": " {version}",
+        "updates_info_estimatedDownloadSize": "Mida de la descàrrega (estimada): {size}",
+
+        "updates_upToDate_title": "El teu dispositiu està actualitzat",
+        "updates_upToDate_description": "L'última actualització per al teu dispositiu ja està instal·lada.",
+
+        "updates_checkingFailed_title": "No s'han pogut comprovar les actualitzacions",
+        "updates_checkingFailed_description": "Comprova la teva connexió a internet i torna-ho a provar.",
+
+        "updates_offline_title": "Estàs fora de línia",
+        "updates_offline_description": "Per comprovar si hi ha actualitzacions disponibles, connecta't a internet.",
+
+        "updates_status_notStarted": "Iniciant l'actualització...",
+        "updates_status_updatingDownloadSources": "Actualitzant la llista de fonts de descàrrega...",
+        "updates_status_downloading": "Descarregant els fitxers necessaris per a l'actualització... ({progress}%)",
+        "updates_status_extracting": "Extraient els fitxers d'actualització... ({progress}%)",
+        "updates_status_installing": "Instal·lant l'actualització... ({progress}%)",
+
+        "updates_failed_title": "L'actualització no ha tingut èxit",
+        "updates_failed_description_recoverable": "S'ha produït un error que ha provocat la interrupció de l'actualització, i no s'han fet canvis al sistema. Comprova la teva connexió a internet i torna-ho a provar.",
+        "updates_failed_description_unstable": "S'ha produït un error que ha provocat la interrupció de l'actualització mentre s'estaven fent canvis al sistema. Si experimentes alguna inestabilitat del sistema, potser hauries de tornar a instal·lar LiveG OS en aquest dispositiu.",
+        "updates_failed_error": "Codi d'error:",
+
+        "updates_readyToRestart_description": "Aquesta actualització ja s'ha instal·lat. Quan estiguis llest, reinicia el teu dispositiu per aplicar l'actualització.",
+        "updates_readyToRestart_autoRestartWarning": "Aquest dispositiu es reiniciarà automàticament en 10 segons.",
+
+        "advanced": "Opcions avançades",
+        "advanced_summary": "Configuracions addicionals per a usuaris avançats i desenvolupadors",
+
+        "advanced_updates": "Actualitzacions del sistema",
+
+        "advanced_updates_updateCircuit": "Circuit d'actualitzacions",
+        "advanced_updates_updateCircuit_description": "Accedeix a funcions prèvies al llançament canviant a un circuit d'actualització diferent. Això pot reduir l'estabilitat del sistema.",
+
+        "about": "Sobre aquest dispositiu",
+        "about_summary": "Veure informació del sistema operatiu i del maquinari",
+
+        "about_name": " LiveG OS",
+        "about_version": "Versió {version}",
+        "about_copyright": "Copyright © LiveG. Tots els drets reservats.",
+
+        "about_deviceInfo": "Informació del dispositiu",
+        "about_deviceInfo_name": "Nom del producte",
+        "about_deviceInfo_manufacturer": "Fabricant",
+        "about_deviceInfo_serial": "Número de sèrie"
+    }
+}

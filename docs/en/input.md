@@ -46,7 +46,7 @@ Acts as the enter key of a keyboard; inserting a newline character, or confirmin
 Used as a spacer, and is not a key. The spacer will be given a width that spans ▲ keys (for example, using `{:1}` will add space to the row that spans one key in width).
 
 #### `{.u:▲}`
-Creates a key comprised of the Unicode characters defined as a comma-delimeted (`,`) list of codepoints ▲ (for example, `{.u:1f636,200d,1f32b,fe0f}` will insert the face in clouds (😶‍🌫️) emoji).
+Creates a key comprised of the Unicode characters defined as a comma-delimited (`,`) list of codepoints ▲ (for example, `{.u:1f636,200d,1f32b,fe0f}` will insert the face in clouds (😶‍🌫️) emoji).
 
 #### `{.lm}`
 Used as a landmark for [Switch Navigation](a11y.md#switchnavigationswitchjs) accessibility that groups all keys after it (up until the next landmark) for faster text entry, and so is not key in itself (but represents a group of keys).

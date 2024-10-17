@@ -167,6 +167,8 @@ export function selectStep(stepName) {
         $g.sel(`#oobs .oobs_step:not([aui-template="gshell://oobs/${stepName}.html"]) video`).getAll().forEach((element) => element.currentTime = 0);
 
         $g.sel(`#oobs .oobs_step:not([hidden]) video`).get()?.play();
+
+        return Promise.resolve();
     });
 }
 
@@ -263,7 +265,7 @@ function getSelectedDiskInfo() {
 }
 
 function checkInstallDisk() {
-    if ($g.sel("[name='oobs_installDisks']:checked").getAll().length == 0) {
+    if (!$g.sel("[name='oobs_installDisks']:checked").exists()) {
         $g.sel(".oobs_installDisk_error").setText(_("oobs_installDisk_emptyError"));
 
         return;
@@ -765,6 +767,7 @@ export function init() {
 
         $g.sel(".oobs_languages").clear().add(
             ...data.languages.map((language) => $g.create("button")
+                .setAttribute("data-locale", language.baseLocale)
                 .setAttribute("aui-listitem", true)
                 .setText(language.name)
                 .on("click", function() {
@@ -793,18 +796,18 @@ export function init() {
                 })
             )
         );
-    });
 
-    selectStep("welcome");
+        selectStep("welcome").then(function() {
+            $g.sel(".oobs_languages button[data-locale='en_GB']").focus();
+        });
+    });
 
     gShell.call("system_getFlags").then(function(result) {
         flags = result;
 
         return gShell.call("system_isInstallationMedia");
     }).then(function(isInstallationMedia) {
-        $g.sel("button[oobs-choosestep]").getAll().forEach(function(element) {
-            element = $g.sel(element);
-    
+        $g.sel("button[oobs-choosestep]").forEach(function(element) {    
             element.on("click", function() {
                 if (isInstallationMedia && element.hasAttribute("oobs-choosestepim")) {
                     selectStep(element.getAttribute("oobs-choosestepim"));

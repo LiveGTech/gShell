@@ -22,6 +22,7 @@ var system = require("./system");
 var storage = require("./storage");
 var device = require("./device");
 var network = require("./network");
+var monitors = require("./monitors");
 var linux = require("./linux");
 var control = require("./control");
 var xorg = require("./xorg");
@@ -79,11 +80,11 @@ electron.app.on("ready", function() {
     }).then(function() {
         return network.updateProxy();
     }).then(function() {
-        return system.getScreenResolution();
-    }).then(function(resolution) {
+        return monitors.get();
+    }).then(function(monitorData) {
         exports.window = new electron.BrowserWindow({
-            width: resolution.width + 1,
-            height: resolution.height + 1,
+            width: monitorData.workArea.width + 1,
+            height: monitorData.workArea.height + 1,
             show: false,
             backgroundColor: "#000000",
             webPreferences: {

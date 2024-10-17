@@ -18,6 +18,10 @@ exports.systemDirectory = flags.isRealHardware ? "/system" : path.normalize(`${e
 exports.storageFilesystemLocation = path.normalize(`${exports.systemDirectory}/storage`);
 
 exports.getPath = function(location) {
+    if (location.startsWith("/")) {
+        return location;
+    }
+
     var absolutePath = path.normalize(`${exports.storageFilesystemLocation}/${location}`);
 
     if (!absolutePath.startsWith(exports.storageFilesystemLocation)) {
@@ -167,8 +171,43 @@ exports.stat = function(location) {
                 return;
             }
 
-            resolve(stats);
+            resolve({
+                ...stats,
+                isFile: stats.isFile(),
+                isSymbolicLink: stats.isSymbolicLink(),
+                isDirectory: stats.isDirectory()
+            });
         })
+    });
+};
+
+exports.listFolderWithStats = function(location) {
+    return new Promise(function(resolve, reject) {
+        fs.readdir(exports.getPath(location), async function(error, data) {
+            if (error) {
+                reject(error);
+
+                return;
+            }
+
+            var entries = [];
+
+            for (var name of data) {
+                try {
+                    var stats = await exports.stat(`${location}/${name}`);
+
+                    stats.name = name;
+
+                    entries.push(stats);
+                } catch (error) {
+                    console.warn(error);
+
+                    entries.push({name});
+                }
+            }
+
+            resolve(entries);
+        });
     });
 };
 

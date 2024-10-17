@@ -11,6 +11,7 @@ const x11 = require("@liveg/x11");
 
 var main = require("./main");
 var flags = require("./flags");
+var monitors = require("./monitors");
 
 const REQUIRED_ATOMS = [
     "WM_PROTOCOLS",
@@ -27,11 +28,21 @@ const SUPPORTED_ATOMS = [
 
 const MAX_PROPERTY_LENGTH = 10_000;
 
+// `xcb_key_but_mask_t`
+const xcbKeyButtonMask = {
+    SHIFT: 1,
+    CONTROL: 4,
+    BUTTON_1: 256,
+    BUTTON_2: 512,
+    BUTTON_3: 1024
+};
+
 var display;
 var root;
 var X;
 var Composite;
 var Damage;
+var Randr;
 var atoms = {};
 var mainWindowId = null;
 var mapRequestedWindowIds = [];
@@ -205,12 +216,23 @@ exports.getWindowGeometry = function(id) {
     }).then(function(trackedWindow) {    
         return mustBeTracking(id, () => promisify(X.GetGeometry, X, trackedWindow.pixmapId));
     }).then(function(geometry) {
-        return {
+        return Promise.resolve({
             x: geometry.xPos,
             y: geometry.yPos,
             width: geometry.width,
             height: geometry.height
-        };
+        });
+    }).then(releaseTurn).catch(releaseTurnAnyway);
+};
+
+exports.getCursorInfo = function() {
+    return waitForTurn().then(function() {
+        return promisify(X.QueryPointer, X, mainWindowId);
+    }).then(function(data) {
+        return Promise.resolve({
+            x: data.rootX,
+            y: data.rootY
+        });
     }).then(releaseTurn).catch(releaseTurnAnyway);
 };
 
@@ -340,10 +362,18 @@ exports.sendWindowInputEvent = function(id, eventType, eventData) {
 
                 if (eventData.button != null) {
                     state |= {
-                        1: x11.eventMask.Button1Motion,
-                        2: x11.eventMask.Button2Motion,
-                        3: x11.eventMask.Button3Motion
+                        1: xcbKeyButtonMask.BUTTON_1,
+                        2: xcbKeyButtonMask.BUTTON_2,
+                        3: xcbKeyButtonMask.BUTTON_3
                     }[eventData.button];
+                }
+
+                if (eventData.ctrlKey) {
+                    state |= xcbKeyButtonMask.CONTROL;
+                }
+
+                if (eventData.shiftKey) {
+                    state |= xcbKeyButtonMask.SHIFT;
                 }
 
                 // `xcb_button_press_event_t`/`xcb_button_release_event_t`/`xcb_motion_notify_event_t`
@@ -562,6 +592,22 @@ exports.init = function() {
                     }
 
                     break;
+
+                case "RRScreenChangeNotify":
+                    main.window.webContents.send("xorg_monitorChange");
+
+                    if (flags.isRealHardware || flags.useHostMonitorLayout) {                        
+                        monitors.get().then(function(monitorData) {
+                            main.window.setPosition(0, 0);
+
+                            main.window.setSize(
+                                monitorData.workArea.width + 1,
+                                monitorData.workArea.height + 1
+                            );
+                        });
+                    }
+
+                    break;
             }
         });
     }).then(function() {
@@ -583,6 +629,12 @@ exports.init = function() {
         return promisify(X.require, X, "damage");
     }).then(function(extension) {
         Damage = extension;
+
+        return promisify(X.require, X, "randr");
+    }).then(function(extension) {
+        Randr = extension;
+
+        Randr.SelectInput(root, Randr.NotifyMask.ScreenChange);
 
         return promisify(Composite.GetOverlayWindow, X, root);
     }).then(function(overlayWindowId) {

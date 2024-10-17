@@ -42,6 +42,7 @@ The form factor of the target device, such as whether the device is a smartphone
 
 Valid values include:
 
+* `"desktop"`: A desktop computer or laptop
 * `"mobile"`: A mobile smartphone
 
 ### `platform`

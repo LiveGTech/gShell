@@ -7,3 +7,6 @@
 [submodule "shell/lib/tsengine"]
 	path = shell/lib/tsengine
 	url = https://github.com/LiveGTech/Typeset-Engine.git
+[submodule "shell/apps/files"]
+	path = shell/apps/files
+	url = https://github.com/LiveGTech/Files

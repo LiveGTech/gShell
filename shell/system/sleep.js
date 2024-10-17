@@ -73,4 +73,8 @@ export function init() {
     onWake(function() {
         $g.sel("#off").fadeOut();
     });
+
+    gShell.on("device_lidClose", function() {
+        enter();
+    });
 }

@@ -41,6 +41,7 @@ var switcherBarTouchStartX = null;
 var switcherBarTouchStartY = null;
 var switcherBarScrollStartX = null;
 var switcherBarTriggerDistance = 0;
+var lastAppBarRect = null;
 
 export class WindowMoveResizeMode {
     constructor() {
@@ -70,11 +71,32 @@ export class Switcher extends screenScroll.ScrollableScreen {
         var thisScope = this;
 
         setInterval(function() {
-            thisScope.element.find(".switcher_screen").getAll().forEach(function(screenElement) {
-                if (screenElement.querySelector(".switcher_apps").contains(document.activeElement) && !$g.sel(screenElement).hasClass("selected")) {
-                    $g.sel(screenElement).find(".switcher_screenButton").focus();
+            var anyWindowIntersectsWithAppBar = false;
+
+            thisScope.element.find(".switcher_screen").forEach(function(screenElement) {
+                if (screenElement.get().querySelector(".switcher_apps").contains(document.activeElement) && !screenElement.hasClass("selected")) {
+                    screenElement.find(".switcher_screenButton").focus();
+                }
+
+                if (lastAppBarRect != null && !screenElement.hasClass("minimised")) {
+                    var screenGeometry = getWindowGeometry(screenElement);
+
+                    if (
+                        screenGeometry.x <= lastAppBarRect.x + lastAppBarRect.width &&
+                        screenGeometry.x + screenGeometry.width > lastAppBarRect.x &&
+                        screenGeometry.y <= lastAppBarRect.y + lastAppBarRect.height &&
+                        screenGeometry.y + screenGeometry.height > lastAppBarRect.y
+                    ) {
+                        anyWindowIntersectsWithAppBar = true;
+                    }
                 }
             });
+
+            if (anyWindowIntersectsWithAppBar) {
+                $g.sel("#switcherView").addClass("hasWindowIntersectingAppBar");
+            } else {
+                $g.sel("#switcherView").removeClass("hasWindowIntersectingAppBar");
+            }
         });
 
         if (device.data?.type == "desktop") {
@@ -294,15 +316,34 @@ export function init() {
 
     main = new Switcher($g.sel(".switcher"));
 
+    updateSwitcherBounds();
+
+    new ResizeObserver(function() {
+        updateSwitcherBounds();
+    }).observe($g.sel(".switcherBounds").get());
+
     if (device.data?.type == "desktop") {
         setInterval(function() {
-            if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").getAll().length > 0) {
+            if ($g.sel("#switcherView .switcher .switcher_screen.maximised:not(.minimised)").exists()) {
                 $g.sel("#switcherView").addClass("hasMaximisedWindow");
             } else {   
                 $g.sel("#switcherView").removeClass("hasMaximisedWindow");
             }
         });
     }
+}
+
+export function updateSwitcherBounds() {
+    var rect = $g.sel(".switcherBounds").get().getBoundingClientRect();
+
+    $g.sel(".switcher, .switcher_empty").applyStyle({
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`
+    });
+
+    lastAppBarRect = $g.sel(".desktop_appBar").get().getBoundingClientRect();
 }
 
 export function getWindowGeometry(element, forceRecalculation = false) {
@@ -822,7 +863,7 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
         screenElement.get().appListButton.removeClass("transitioning");
     }
 
-    if (screenElement.find("webview").getAll().length > 0 && !appDetails?.instantLaunch) {
+    if (screenElement.find("webview").exists() && !appDetails?.instantLaunch) {
         screenElement.find("webview").on("dom-ready", function() {
             finishLaunch();
         });
@@ -871,16 +912,30 @@ export function openWindow(windowContents, appDetails = null, elementCallback = 
 
     main.selectScreen(screenElement);
 
-    main.targetScrollX = screenElement.get().offsetLeft;
-    main.scrolling = false;
+    setTimeout(function() {
+        main.targetScrollX = screenElement.get().offsetLeft;
+        main.scrolling = false;
 
-    main._targetScroll();
+        main._targetScroll();
+    });
 
     $g.sel(".desktop_appMenu").menuClose();
 
     elementCallback(screenElement, app);
 
-    return $g.sel("#switcherView").screenFade();
+    if (!$g.sel("#home").is("[hidden]")) {
+        return $g.sel("#switcherView").screenFade();
+    }
+
+    if (aui_a11y.prefersReducedMotion()) {
+        return Promise.resolve();
+    }
+
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            resolve();
+        }, 500);
+    });
 }
 
 export function addAppToWindow(element, windowContents, appDetails = null) {
@@ -921,7 +976,7 @@ export function addAppToWindow(element, windowContents, appDetails = null) {
                 .setAttribute("title", _("switcher_closeTab"))
                 .setAttribute("aria-label", _("switcher_closeTab"))
                 .on("click", function() {
-                    if (app.ancestor(".switcher_screen").find(".switcher_app").getAll().length <= 1) {
+                    if (app.ancestor(".switcher_screen").find(".switcher_app").items().length <= 1) {
                         goHome();
                     }
 
@@ -1034,7 +1089,7 @@ export function restoreWindow(element, animated = true) {
 export function closeWindow(element, animate = true, force = false) {
     var indirectCloseApps = element.find(".switcher_app.switcher_indirectClose");
 
-    if (!force && indirectCloseApps.items().length > 0) {
+    if (!force && indirectCloseApps.exists()) {
         indirectCloseApps.forEach(function(appElement) {
             closeApp(appElement);
         });
@@ -1093,6 +1148,8 @@ function updateWindowStackingOrder() {
     windowStackingOrder.forEach(function(element) {
         element.setStyle("z-index", zIndex++);
     });
+
+    $g.sel(".desktop_appBar").setStyle("z-index", zIndex + 1);
 }
 
 export function bringWindowForward(element) {
@@ -1289,7 +1346,7 @@ export function closeApp(element, force = false) {
 }
 
 export function getWindowAppCount(element) {
-    return element.find(".switcher_tab:not(.transitioning)").getAll().length;
+    return element.find(".switcher_tab:not(.transitioning)").items().length;
 }
 
 export function setAppCustomTab(element, title, icon = null) {

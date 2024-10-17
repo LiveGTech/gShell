@@ -10,6 +10,9 @@
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as calc from "gshell://lib/adaptui/src/calc.js";
 
+import * as device from "gshell://system/device.js";
+import * as monitors from "gshell://system/monitors.js";
+
 export class Containment {
     constructor(top = false, bottom = false, left = false, right = false) {
         this.top = top;
@@ -101,4 +104,62 @@ export function fitElementInsideDisplay(element, shouldIncludeAppBar = true) {
     }
 
     return true;
+}
+
+export function applyMonitorsToDisplays() {
+    const SCALE_FACTOR = device.data?.display?.scaleFactor || 1;
+
+    var primaryMonitor = monitors.getPrimaryConnectedMonitor();
+
+    var extendedMonitors = monitors.getConnectedMonitors().filter(function(monitor) {
+        if (monitor == primaryMonitor) {
+            return false;
+        }
+
+        monitor.applyConfigDefaults();
+        
+        return monitor.config.view == "extend";
+    });
+
+    $g.sel(".display.primary").applyStyle({
+        top: `${primaryMonitor.y / SCALE_FACTOR}px`,
+        left: `${primaryMonitor.x / SCALE_FACTOR}px`,
+        width: `${primaryMonitor.width / SCALE_FACTOR}px`,
+        height: `${primaryMonitor.height / SCALE_FACTOR}px`
+    });
+
+    $g.sel(".displays").forEach(function(displayGroup) {
+        var existingExtendedDisplays = displayGroup.find(".display.extended").items();
+
+        extendedMonitors.forEach(function(monitor) {
+            var display = existingExtendedDisplays.shift();
+    
+            if (!display) {
+                var extendedTemplate = displayGroup.find(".display.extendedTemplate");
+
+                if (!extendedTemplate.exists()) {
+                    extendedTemplate = $g.create("div").addClass("display");
+                }
+
+                display = extendedTemplate
+                    .copy()
+                    .removeClass("extendedTemplate")
+                    .addClass("extended")
+                ;
+
+                displayGroup.add(display);
+            }
+
+            display.applyStyle({
+                top: `${monitor.y / SCALE_FACTOR}px`,
+                left: `${monitor.x / SCALE_FACTOR}px`,
+                width: `${monitor.width / SCALE_FACTOR}px`,
+                height: `${monitor.height / SCALE_FACTOR}px`
+            });
+        });
+
+        existingExtendedDisplays.forEach(function(display) {
+            display.remove();
+        });
+    });
 }

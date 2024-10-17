@@ -15,7 +15,7 @@ var flags = require("./flags");
 var system = require("./system");
 var storage = require("./storage");
 
-const WATCH_FILE_INTERVAL = 100;
+const WATCH_FILE_INTERVAL = 100; // 100 milliseconds
 
 exports.controlFilesystemLocation = path.normalize(`${storage.systemDirectory}/control`);
 

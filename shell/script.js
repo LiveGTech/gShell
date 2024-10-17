@@ -15,7 +15,7 @@ import * as debug from "gshell://system/debug.js";
 import * as webviewManager from "gshell://userenv/webviewmanager.js";
 import * as permissions from "gshell://config/permissions.js";
 import * as l10n from "gshell://config/l10n.js";
-import * as pointer from "gshell://global/pointer.js";
+import * as cursor from "gshell://global/cursor.js";
 import * as tooltips from "gshell://global/tooltips.js";
 import * as select from "gshell://global/select.js";
 import * as a11y from "gshell://a11y/a11y.js";
@@ -24,6 +24,7 @@ import * as info from "gshell://global/info.js";
 import * as powerMenu from "gshell://global/powermenu.js";
 import * as sleep from "gshell://system/sleep.js";
 import * as network from "gshell://system/network.js";
+import * as monitors from "gshell://system/monitors.js";
 import * as mobile from "gshell://system/mobile.js";
 import * as updates from "gshell://system/updates.js";
 import * as interaction from "gshell://system/interaction.js";
@@ -48,6 +49,8 @@ $g.waitForLoad().then(function() {
     return system.init();
 }).then(function() {
     return device.init();
+}).then(function() {
+    return monitors.init();
 }).then(function() {
     return debug.init();
 }).then(function() {
@@ -74,7 +77,7 @@ $g.waitForLoad().then(function() {
     return lockScreen.loadUsers();
 }).then(function() {
     permissions.init();
-    pointer.init();
+    cursor.init();
     tooltips.init();
     select.init();
     a11y.init();

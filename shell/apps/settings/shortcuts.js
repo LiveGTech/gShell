@@ -31,7 +31,7 @@ export function jumpToLandmark(name = getName()) {
     setTimeout(function() {
         var element = $g.sel("[shortcut-name]").filter((element) => element.getAttribute("shortcut-name") == name);
 
-        if (element.items().length == 0) {
+        if (!element.exists()) {
             return;
         }
 

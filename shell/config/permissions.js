@@ -243,7 +243,7 @@ export function init() {
         var selectedDeviceId = null;
 
         function checkSelectedDevice() {
-            if (deviceList.find("input:checked").items().length == 0) {
+            if (!deviceList.find("input:checked").exists()) {
                 selectedDeviceId = null;
 
                 confirmButton.addAttribute("disabled");

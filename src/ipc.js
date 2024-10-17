@@ -17,6 +17,7 @@ var device = require("./device");
 var config = require("./config");
 var network = require("./network");
 var mobile = require("./mobile");
+var monitors = require("./monitors");
 var permissions = require("./permissions");
 var term = require("./term");
 var linux = require("./linux");
@@ -111,6 +112,10 @@ ipcMain.handle("storage_newFolder", function(event, data) {
 
 ipcMain.handle("storage_listFolder", function(event, data) {
     return storage.listFolder(data.location);
+});
+
+ipcMain.handle("storage_listFolderWithStats", function(event, data) {
+    return storage.listFolderWithStats(data.location);
 });
 
 ipcMain.handle("storage_stat", function(event, data) {
@@ -261,14 +266,31 @@ ipcMain.handle("io_setCapsLockEnabled", function(event, data) {
     return system.setCapsLockEnabled(data.enabled);
 });
 
-ipcMain.handle("io_getPointerPosition", function(event, data) {
-    var pointerPoint = electron.screen.getCursorScreenPoint();
+ipcMain.handle("io_getMouseCursorPosition", function(event, data) {
+    var cursorPoint = electron.screen.getCursorScreenPoint();
     var offsetPoint = main.window.getContentBounds();
 
+    if (!main.window.isFocused() && flags.allowXorgWindowManagement) {
+        return xorg.getCursorInfo().then(function(data) {
+            return Promise.resolve({
+                x: data.x - offsetPoint.x,
+                y: data.y - offsetPoint.y
+            });
+        })
+    }
+
     return Promise.resolve({
-        x: pointerPoint.x - offsetPoint.x,
-        y: pointerPoint.y - offsetPoint.y
+        x: cursorPoint.x - offsetPoint.x,
+        y: cursorPoint.y - offsetPoint.y
     });
+});
+
+ipcMain.handle("io_getMonitors", function(event, data) {
+    return monitors.get();
+});
+
+ipcMain.handle("io_setMonitors", function(event, data) {
+    return monitors.set(data.monitors);
 });
 
 ipcMain.handle("webview_attach", function(event, data) {

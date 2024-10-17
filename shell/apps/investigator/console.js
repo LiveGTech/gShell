@@ -9,11 +9,31 @@
 
 import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as astronaut from "gshell://lib/adaptui/astronaut/astronaut.js";
-import * as typeset from "gshell://lib/tsengine/src/typeset.js";
+
+window.TYPESET_ENGINE_AUI_URL_PREFIX = "gshell://lib/adaptui";
+
+var typeset = await import("gshell://lib/tsengine/src/typeset.js");
 
 import * as protocol from "./protocol.js";
 
 typeset.init();
+
+const ALLOWED_CSS_PROPERTIES = [
+    "background",
+    "background-color",
+    "color",
+    "font",
+    "font-size",
+    "font-weight",
+    "font-family",
+    "text-decoration",
+    "text-transform",
+    "box-shadow",
+    "text-shadow",
+    "border",
+    "border-radius",
+    "opacity"
+];
 
 const EXPANDABLE_VALUE_STYLES = new astronaut.StyleGroup([
     new astronaut.StyleSet({
@@ -51,7 +71,7 @@ const LOG_ENTRY_STYLES = new astronaut.StyleGroup([
     }, "*", "> div"),
     new astronaut.StyleSet({
         "font-family": "var(--fontCode)"
-    }, "*", "> div *"),
+    }, "*", "> div *:not([data-styled], [data-styled] *)"),
     new astronaut.StyleSet({
         "content": "'.'",
         "visibility": "hidden"
@@ -349,6 +369,14 @@ export var ConsoleLogValue = astronaut.component("ConsoleLogValue", function(pro
     return valueContainer;
 });
 
+export var IndexedValue = astronaut.component("TaggedValue", function(props, children) {
+    return TextFragment({
+        attributes: {
+            "data-index": props.index
+        }
+    }) (...children);
+});
+
 export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(props, children) {
     var icon = Icon({
         icon: {
@@ -364,9 +392,81 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
         attributes: {
             "aui-select": "hint"
         }
-    }) (
-        Text(props.values.join(" "))
-    );
+    }) ();
+
+    var styledFragment = TextFragment() ();
+
+    var remainingValues = [...props.values];
+    var firstValue = remainingValues.shift();
+
+    function indexedValue(initialValue) {
+        return IndexedValue({index: props.values.length - remainingValues.length - 1}) (initialValue);
+    }
+
+    function sanitiseStyle(style) {
+        return style.split(";").filter(function(part) {
+            var property = part.split(":")[0].trim().toLowerCase();
+
+            if (!ALLOWED_CSS_PROPERTIES.includes(property)) {
+                return false;
+            }
+
+            return true;
+        }).join(";");
+    }
+
+    const FORMAT_MODES = {
+        "s": (value) => Text(value),
+        "d": (value) => Text(parseInt(value)),
+        "i": (value) => Text(parseInt(value)),
+        "f": (value) => Text(parseFloat(value)),
+        "o": (value) => indexedValue(value),
+        "O": (value) => indexedValue(value),
+        "c": function(value) {
+            entryContainer.add(styledFragment);
+
+            styledFragment = TextFragment({
+                attributes: {
+                    "style": sanitiseStyle(value),
+                    "data-styled": true
+                }
+            }) ();
+
+            return TextFragment() ();
+        }
+    };
+
+    if (props.level != "return" && typeof(firstValue) == "string" && firstValue.indexOf("%") >= 0) {
+        firstValue.split("%").forEach(function(part, partIndex) {
+            if (partIndex == 0) {
+                styledFragment.add(Text(part));
+
+                return;
+            }
+
+            var format = part[0];
+
+            if (format in FORMAT_MODES && remainingValues.length > 0) {
+                part = part.substring(1);
+
+                styledFragment.add(FORMAT_MODES[format](String(remainingValues.shift())));
+            } else {
+                part = `%${part}`;
+            }
+
+            styledFragment.add(Text(part));
+        });
+    } else {
+        styledFragment.add(indexedValue(firstValue));
+    }
+
+    while (remainingValues.length > 0) {
+        var value = remainingValues.shift();
+
+        styledFragment.add(TextFragment() (Text(" "), indexedValue(value)));
+    }
+
+    entryContainer.add(styledFragment);
 
     if (props.level == "log") {
         icon.setStyle("opacity", "0");
@@ -374,12 +474,14 @@ export var ConsoleLogEntry = astronaut.component("ConsoleLogEntry", function(pro
 
     if (props.logStorageId != null) {
         protocol.call("getConsoleValues", {logStorageId: props.logStorageId}).then(function(values) {
-            entryContainer.clear().add(
-                ...values.map((value) => TextFragment (ConsoleLogValue({
-                    ...value,
-                    isLoggedValue: props.level != "return"
-                }) (), Text(" ")))
-            );
+            values.forEach(function(value, index) {
+                entryContainer.find(`[data-index="${index}"]`).clear().add(
+                    ConsoleLogValue({
+                        ...value,
+                        isLoggedValue: props.level != "return"
+                    }) ()
+                );
+            });
         });
     }
 

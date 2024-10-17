@@ -16,6 +16,7 @@ astronaut.unpack();
 
 import * as shortcuts from "./shortcuts.js";
 import * as network from "./networkpage.js";
+import * as users from "./userspage.js";
 import * as l10n from "./l10npage.js";
 import * as personalisation from "./personalisationpage.js";
 import * as a11y from "./a11ypage.js";
@@ -26,6 +27,7 @@ import * as about from "./aboutpage.js";
 
 export const PAGE_ICONS = {
     network: "wifi",
+    users: "user",
     l10n: "language",
     personalisation: "brush",
     a11y: "a11y",
@@ -100,9 +102,11 @@ export var InnerScreen = astronaut.component("InnerScreen", function(props, chil
 
 $g.waitForLoad().then(function() {
     return $g.l10n.selectLocaleFromResources({
+        "ca_ES": "locales/ca_ES.json",
         "en_GB": "locales/en_GB.json",
         "fr_FR": "locales/fr_FR.json"
     }, "en_GB", {
+        "ca_ES": "en_GB",
         "fr_FR": "en_GB"
     });
 }).then(function(locale) {
@@ -117,6 +121,7 @@ $g.waitForLoad().then(function() {
     $g.sel("title").setText(_("settings"));
 
     pages.network = network.NetworkPage() ();
+    pages.users = users.UsersPage() ();
     pages.l10n = l10n.L10nPage() ();
     pages.personalisation = personalisation.PersonalisationPage() ();
     pages.a11y = a11y.A11yPage() ();

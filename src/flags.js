@@ -20,6 +20,8 @@ exports.deviceDescriptionLocation = exports.argv["device-desc-location"] || null
 exports.deviceType = exports.argv["device-type"] || null;
 exports.inXephyr = !!exports.argv["in-xephyr"];
 exports.allowXorgWindowManagement = exports.isRealHardware || exports.inXephyr || !!exports.argv["allow-xorg-window-management"];
+exports.useHostMonitorLayout = !!exports.argv["use-host-monitor-layout"];
+exports.simulateDualMonitorLayout = !!exports.argv["sim-dual-monitor"];
 
 exports.enableA11yReadout = !!exports.argv["enable-a11y-readout"];
 exports.enableA11ySwitch = !!exports.argv["enable-a11y-switch"];

@@ -101,7 +101,52 @@ function triggerPrivilegedDataEvent(eventType, data) {
 }
 
 function userAgent() {
+    const ACCESS_KEY = {};
+
     var allTerminals = [];
+
+    function ensureAccess(accessKey, asConstructor) {
+        if (accessKey != ACCESS_KEY) {
+            throw new TypeError(asConstructor ? "Illegal constructor" : "Illegal invocation");
+        }
+    }
+
+    function encapsulateFunction(name, thing) {
+        thing.toString = function() {
+            return `function ${name}() { [native code] }`
+        };
+
+        return thing;
+    }
+
+    function encapsulateClass(thing, name = null) {
+        Object.getOwnPropertyNames(thing.prototype).forEach(function(name) {
+            if (Object.getOwnPropertyDescriptor(thing.prototype, name).get) {
+                return;
+            }
+
+            var property = thing.prototype[name];
+
+            if (property instanceof Function) {
+                thing.prototype[name].toString = function() {
+                    return `function ${name}() { [native code] }`;
+                };
+            }
+        });
+
+        thing.toString ??= function() {
+            return `function ${name ?? thing.name}() { [native code] }`;
+        };
+
+        return thing;
+    }
+
+    function overrideClass(base, thing) {
+        Object.setPrototypeOf(thing, base);
+        Object.setPrototypeOf(thing.prototype, base.prototype);
+
+        return encapsulateClass(thing, base.name);
+    }
 
     class TerminalDataEvent extends Event {
         constructor(data) {
@@ -208,19 +253,240 @@ function userAgent() {
     });
 
     window.sphere = {
-        TerminalDataEvent,
-        TerminalExitEvent,
-        Terminal
+        TerminalDataEvent: encapsulateClass(TerminalDataEvent),
+        TerminalExitEvent: encapsulateClass(TerminalExitEvent),
+        Terminal: encapsulateClass(Terminal)
     };
 
     if (window.navigator.usb) {
         var shadowed_requestDevice = window.navigator.usb.requestDevice;
 
-        window.navigator.usb.requestDevice = function(options) {
+        window.navigator.usb.requestDevice = encapsulateFunction("requestDevice", function(options) {
             _sphere.permissions_setSelectUsbDeviceFilters(options?.filters || []);
 
             return shadowed_requestDevice.apply(window.navigator.usb, arguments);
-        };
+        });
+    }
+
+    if (_sphere.isSystemApp()) {
+        window.FileSystemFileHandle = class {};
+        window.FileSystemDirectoryHandle = class {};
+    }
+
+    if (window.FileSystemFileHandle) {
+        window.FileSystemFileHandle = overrideClass(FileSystemFileHandle, class {
+            #path = [];
+            #size = null;
+            #lastModified = null;
+
+            constructor(accessKey, path, size, lastModified) {
+                ensureAccess(accessKey, true);
+
+                this.#path = path;
+                this.#size = size;
+                this.#lastModified = lastModified;
+            }
+
+            _getPath(accessKey) {
+                ensureAccess(accessKey);
+    
+                return [...this.#path];
+            }
+
+            _getPathString(accessKey) {
+                ensureAccess(accessKey);
+
+                return "/" + this._getPath(ACCESS_KEY).join("/");
+            }
+
+            get kind() {
+                return "file";
+            }
+    
+            get name() {
+                return this.#path.at(-1);
+            }
+
+            async getFile() {
+                return new (overrideClass(File, class {
+                    #name = null;
+                    #size = null;
+                    #lastModified = null;
+
+                    constructor(name, size, lastModified) {
+                        this.#name = name;
+                        this.#size = size;
+                        this.#lastModified = lastModified;
+                    }
+
+                    get lastModified() {
+                        return this.#lastModified;
+                    }
+
+                    get lastModifiedDate() {
+                        return new Date(this.lastModified);
+                    }
+
+                    get name() {
+                        return this.#name;
+                    }
+
+                    get type() {
+                        // TODO: Compute type from filename
+                        return "";
+                    }
+
+                    get size() {
+                        return this.#size;
+                    }
+
+                    get webkitRelativePath() {
+                        return "";
+                    }
+                }))(this.name, this.#size, this.#lastModified);
+            }
+        });
+    }
+
+    if (window.FileSystemDirectoryHandle) {
+        window.FileSystemDirectoryHandle = overrideClass(FileSystemDirectoryHandle, class {
+            #path = [];
+    
+            constructor(accessKey, path) {
+                ensureAccess(accessKey, true);
+    
+                this.#path = path;
+            }
+    
+            _getPath(accessKey) {
+                ensureAccess(accessKey);
+    
+                return [...this.#path];
+            }
+
+            _getPathString(accessKey, child = null) {
+                ensureAccess(accessKey);
+
+                var path = this._getPath(ACCESS_KEY);
+
+                if (child != null) {
+                    path.push(child);
+                }
+
+                return "/" + path.join("/");
+            }
+    
+            async _getEntries(accessKey) {
+                ensureAccess(accessKey);
+
+                try {
+                    return await _sphere.callPrivilegedCommand("storage_listFolderWithStats", {location: this._getPathString(ACCESS_KEY)});
+                } catch (error) {
+                    throw new DOMException("Cannot find directory entry", "NotFoundError");
+                }
+            }
+
+            get kind() {
+                return "directory";
+            }
+    
+            get name() {
+                return this.#path.at(-1);
+            }
+
+            async _getHandle(accessKey, name, stats = null, checkExistence = true) {
+                ensureAccess(accessKey);
+
+                var pathString = this._getPathString(ACCESS_KEY, name);
+
+                if ([".", ".."].includes(name) || name.match(/\//) || (checkExistence && !(await _sphere.callPrivilegedCommand("storage_exists", {location: pathString})))) {
+                    throw new DOMException("Cannot find entry", "NotFoundError");
+                }
+
+                stats ||= await _sphere.callPrivilegedCommand("storage_stat", {location: pathString});
+
+                if (stats.isDirectory) {
+                    return new FileSystemDirectoryHandle(ACCESS_KEY, [...this.#path, name]);
+                }
+
+                return new FileSystemFileHandle(ACCESS_KEY, [...this.#path, name], stats.size, stats.mtimeMs);
+            }
+
+            async getDirectoryHandle(name) {
+                var handle = await this._getHandle(ACCESS_KEY, name);
+
+                if (!(handle instanceof FileSystemDirectoryHandle)) {
+                    throw new DOMException("Entry is not a directory", "NotFoundError");
+                }
+
+                return handle;
+            }
+
+            async getFileHandle(name) {
+                var handle = await this._getHandle(ACCESS_KEY, name);
+
+                if (!(handle instanceof FileSystemFileHandle)) {
+                    throw new DOMException("Entry is not a file", "NotFoundError");
+                }
+
+                return handle;
+            }
+    
+            resolve(possibleDescendant) {
+                var otherPath = possibleDescendant._getPath(ACCESS_KEY);
+    
+                for (var part of this.#path) {
+                    var otherPathPart = otherPath.shift();
+    
+                    if (otherPathPart != part) {
+                        return Promise.resolve(null);
+                    }
+                }
+    
+                return Promise.resolve(otherPath);
+            }
+    
+            entries() {
+                var thisScope = this;
+
+                return (async function*() {
+                    for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
+                        yield {key: entry.name, value: thisScope._getHandle(ACCESS_KEY, entry.name, entry, false)};
+                    }
+                })();
+            }
+    
+            keys() {
+                var thisScope = this;
+
+                return (async function*() {
+                    for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
+                        yield entry.name;
+                    }
+                })();
+            }
+    
+            values() {
+                var thisScope = this;
+
+                return (async function*() {
+                    for (var entry of await thisScope._getEntries(ACCESS_KEY)) {
+                        yield thisScope._getHandle(ACCESS_KEY, entry.name, entry, false);
+                    }
+                })();
+            }
+        });
+    }
+
+    if (window.showDirectoryPicker || _sphere.isSystemApp()) {
+        window.showDirectoryPicker = encapsulateFunction("showDirectoryPicker", function() {
+            // TODO: Make this actually show a folder picker dialog
+            if (!_sphere.isSystemApp()) {
+                throw new Error("Permission denied");
+            }
+
+            return Promise.resolve(new FileSystemDirectoryHandle(ACCESS_KEY, []));
+        });
     }
 
     function storeConsoleValue(value) {
@@ -258,36 +524,29 @@ function userAgent() {
 
     var shadowed_consoleLog = console.log;
 
-    console.log = function() {
+    console.log = encapsulateFunction("log", function() {
         shadowed_consoleLog(...arguments);
 
         logConsoleValues("log", [...arguments]);
-    };
+    });
 
-    console.log.toString = () => "function log() { [native code] }";
-
-    console.info = () => console.log(...arguments);
-    console.info.toString = () => "function info() { [native code] }";
+    console.info = encapsulateFunction("info", () => console.log(...arguments));
 
     var shadowed_consoleWarn = console.warn;
 
-    console.warn = function() {
+    console.warn = encapsulateFunction("warn", function() {
         shadowed_consoleWarn(...arguments);
 
         logConsoleValues("warning", [...arguments]);
-    };
-
-    console.warn.toString = () => "function warn() { [native code] }";
+    });
 
     var shadowed_consoleError = console.error;
 
-    console.error = function() {
+    console.error = encapsulateFunction("error", function() {
         shadowed_consoleError(...arguments);
 
         logConsoleValues("error", [...arguments]);
-    };
-
-    console.error.toString = () => "function error() { [native code] }";
+    });
 
     window.addEventListener("error", function(event) {
         logConsoleValues("error", [event.error.stack]);
@@ -773,6 +1032,25 @@ window.addEventListener("DOMContentLoaded", function() {
 
         var closestTitleElement = event.target;
         var currentTooltip = null;
+        var currentElementStyle = getComputedStyle(event.target);
+        var currentElementCursor = currentElementStyle.cursor;
+
+        if (currentElementCursor == "auto") {
+            var range = document.caretRangeFromPoint(event.clientX, event.clientY);
+
+            currentElementCursor = (
+                event.target.hasAttribute("contenteditable") ||
+                (
+                    currentElementStyle.userSelect != "none" &&
+                    range &&
+                    range.startContainer.nodeType == Node.TEXT_NODE &&
+                    range.startOffset > 0 &&
+                    range.endOffset < range.startContainer.textContent.length
+                )
+            ) ? "text" : "default";
+        }
+
+        electron.ipcRenderer.sendToHost("cursor_setType", currentElementCursor);
 
         while (true) {
             if (closestTitleElement.hasAttribute && closestTitleElement.hasAttribute("sphere-title")) {

@@ -22,7 +22,7 @@
     top: -0.3rem;
 }
 
-[liveg-a11y-switch="false"] .a11y_switch_openMainMenuButton {
+[sphere-a11yswitch="false"] .a11y_switch_openMainMenuButton {
     display: none;
 }
 

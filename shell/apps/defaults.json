@@ -76,6 +76,14 @@
                 },
                 {
                     "name": {
+                        "ca_ES": "Navegació amb lectura",
+                        "en_GB": "Readout Navigation",
+                        "fr_FR": "Navigation par Lecteur"
+                    },
+                    "url": "gshell://apps/settings/index.html?shortcut=a11y_readout"
+                },
+                {
+                    "name": {
                         "ca_ES": "Navegació amb interruptors",
                         "en_GB": "Switch Navigation",
                         "fr_FR": "Navigation par Interrupteur"

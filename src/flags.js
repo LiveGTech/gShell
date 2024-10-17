@@ -23,6 +23,7 @@ exports.allowXorgWindowManagement = exports.isRealHardware || exports.inXephyr |
 exports.useHostMonitorLayout = !!exports.argv["use-host-monitor-layout"];
 exports.simulateDualMonitorLayout = !!exports.argv["sim-dual-monitor"];
 
+exports.enableA11yReadout = !!exports.argv["enable-a11y-readout"];
 exports.enableA11ySwitch = !!exports.argv["enable-a11y-switch"];
 
 exports.devTools = !!exports.argv["devtools"];

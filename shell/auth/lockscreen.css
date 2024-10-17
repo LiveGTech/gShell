@@ -126,7 +126,7 @@ html[aui-istouch="false"] .lockScreen_auth_passcodeButtons button:hover, .lockSc
     bottom: 2rem;
 }
 
-[liveg-a11y-switch="true"] .lockScreen_unlockButton {
+[sphere-a11yswitch="true"] .lockScreen_unlockButton {
     transition: none;
 }
 

@@ -15,6 +15,7 @@
 @import url("gshell://global/select.css");
 @import url("gshell://global/infobar.css");
 @import url("gshell://global/surfaces.css");
+@import url("gshell://a11y/panel.css");
 @import url("gshell://a11y/switch.css");
 @import url("gshell://auth/lockscreen.css");
 @import url("gshell://input/input.css");

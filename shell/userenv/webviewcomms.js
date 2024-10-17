@@ -115,6 +115,10 @@ export function attach(webview, privileged, user = null) {
                 webview.emit("openframe", event.args[0]);
                 break;
 
+            case "a11y_readout_announce":
+                a11y.callInAssistiveTechnology(a11y.modules.readout?.ReadoutNavigation, "announce", event.args[0]);
+                break;
+
             case "permissions_setSelectUsbDeviceFilters":
                 permissions.setSelectUsbDeviceFilters(webview, event.args[0]);
                 break;

@@ -10,12 +10,16 @@
 import * as config from "gshell://config/config.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
 import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
+import * as panel from "gshell://a11y/panel.js";
 
 export var options = {
     touch_holdDelay: 500, // 500 milliseconds
     touch_doublePressDelay: 500, // 500 milliseconds
 
     display_reduceMotion: false,
+
+    readout_enabled: false,
+    readout_scanColour: "blue",
 
     switch_enabled: false,
     switch_scanColour: "blue",
@@ -35,6 +39,16 @@ export class AssistiveTechnology {
 
 export function registerAssistiveTechnology(tech) {
     assistiveTechnologies.push(new tech());
+}
+
+export function callInAssistiveTechnology(techClass, identifier, ...args) {
+    if (!techClass) {
+        return null;
+    }
+
+    return assistiveTechnologies.filter((tech) => tech instanceof techClass).map(function(tech) {
+        return tech[identifier](...args);
+    });
 }
 
 export function setOption(optionName, value) {
@@ -63,6 +77,12 @@ export function load() {
 
 export function init() {
     gShell.call("system_getFlags").then(function(flags) {
+        if (flags.enableA11yReadout) {
+            options.readout_enabled = true;
+
+            update();
+        }
+
         if (flags.enableA11ySwitch) {
             options.switch_enabled = true;
 
@@ -79,7 +99,8 @@ export function init() {
     });
 
     Promise.all([
-        import("gshell://a11y/switch.js")
+        import("gshell://a11y/switch.js"),
+        import("gshell://a11y/readout.js")
     ]).then(function(loadedModules) {
         loadedModules.forEach(function(module) {
             modules[module.NAME] = module;
@@ -96,6 +117,21 @@ export function update() {
         name: "prefers-reduced-motion",
         value: options.display_reduceMotion ? "reduce" : "no-preference"
     });
+
+    $g.sel("body").setAttribute("sphere-a11yreadout", options.readout_enabled);
+    $g.sel("body").setAttribute("sphere-a11yswitch", options.switch_enabled);
+
+    $g.sel("body").setAttribute("sphere-a11yscancolour", (
+        (options.readout_enabled && options.readout_scanColour) ||
+        (options.switch_enabled && options.switch_scanColour) ||
+        ""
+    ));
+
+    console.log((
+        (options.readout_enabled && options.readout_scanColour) ||
+        (options.switch_enabled && options.switch_scanColour) ||
+        ""
+    ), $g.sel("body").getAttribute("sphere-a11yscancolour"));
 
     assistiveTechnologies.forEach((tech) => tech.update());
 

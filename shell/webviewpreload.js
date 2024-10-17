@@ -921,6 +921,16 @@ electron.contextBridge.exposeInMainWorld("_sphere", {
 
         privilegedDataAccessWaitQueue.push(callback);
     },
+    _a11y_readout_enabled: function() {
+        return mainState.a11y_options?.readout_enabled;
+    },
+    _a11y_readout_announce: function(data) {
+        if (!mainState.a11y_options?.readout_enabled) {
+            return;
+        }
+
+        electron.ipcRenderer.sendToHost("a11y_readout_announce", data);
+    },
     permissions_setSelectUsbDeviceFilters: function(filters) {
         electron.ipcRenderer.sendToHost("permissions_setSelectUsbDeviceFilters", filters);
     },
@@ -1148,7 +1158,14 @@ window.addEventListener("DOMContentLoaded", function() {
     electron.ipcRenderer.on("update", function(event, data) {
         mainState = data;
 
-        document.querySelector("body").setAttribute("sphere-a11yscancolour", data.a11y_options.switch_enabled ? data.a11y_options.switch_scanColour : "");
+        document.querySelector("body").setAttribute("sphere-a11yreadout", data.a11y_options.readout_enabled);
+        document.querySelector("body").setAttribute("sphere-a11yswitch", data.a11y_options.switch_enabled);
+
+        document.querySelector("body").setAttribute("sphere-a11yscancolour", (
+            (data.a11y_options.readout_enabled && data.a11y_options.readout_scanColour) ||
+            (data.a11y_options.switch_enabled && data.a11y_options.switch_scanColour) ||
+            ""
+        ));
 
         isPrivileged = data.isPrivileged;
 

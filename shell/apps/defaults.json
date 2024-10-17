@@ -76,9 +76,9 @@
                 },
                 {
                     "name": {
-                        "ca_ES": "Navegació amb lectura",
+                        "ca_ES": "Navegació amb narració",
                         "en_GB": "Readout Navigation",
-                        "fr_FR": "Navigation par Lecteur"
+                        "fr_FR": "Navigation par narration"
                     },
                     "url": "gshell://apps/settings/index.html?shortcut=a11y_readout"
                 },

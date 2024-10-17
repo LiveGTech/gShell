@@ -143,13 +143,15 @@
 
         "a11y_summary": "Personalitza l'accés visual, auditiu i de navegació",
 
-        "a11y_switch": "Navegació per commutador",
-        "a11y_switch_summary": "Control total i navegació amb almenys un commutador",
-        "a11y_switch_description": "La navegació per commutador et permet accedir i navegar pel teu dispositiu utilitzant un o més commutadors — com ara botons, pedals, commutadors d'aspiració i bufada, entre d'altres.",
-        "a11y_switch_enable": "Activa la navegació per commutador",
+        "a11y_readout": "Navegació amb narració",
 
-        "a11y_switch_disableDialog_title": "Desactivar la Navegació per commutador?",
-        "a11y_switch_disableDialog_description": "No podràs navegar utilitzant un commutador fins que la Navegació per commutador s'activi de nou",
+        "a11y_switch": "navegació amb interruptors",
+        "a11y_switch_summary": "Control total i navegació amb almenys un commutador",
+        "a11y_switch_description": "La navegació amb interruptors et permet accedir i navegar pel teu dispositiu utilitzant un o més commutadors — com ara botons, pedals, commutadors d'aspiració i bufada, entre d'altres.",
+        "a11y_switch_enable": "Activa la navegació amb interruptors",
+
+        "a11y_switch_disableDialog_title": "Desactivar la navegació amb interruptors?",
+        "a11y_switch_disableDialog_description": "No podràs navegar utilitzant un commutador fins que la navegació amb interruptors s'activi de nou",
         "a11y_switch_disableDialog_turnOff": "Desactivar",
 
         "a11y_reduceMotion": "Redueix les animacions i el moviment no essencial",

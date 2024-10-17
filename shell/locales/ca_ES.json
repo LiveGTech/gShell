@@ -196,7 +196,9 @@
         "updates_rolledBackDialog_title": "L'actualització del sistema no ha tingut èxit",
         "updates_rolledBackDialog_description": "Un problema ha impedit que el LiveG OS instal·lés una actualització, i per tant el sistema ha tornat a la versió anterior.",
 
-        "a11y_switch": "Navegació per commutació",
+        "a11y_readout": "Navegació amb narració",
+
+        "a11y_switch": "Navegació amb interruptors",
         "a11y_switch_openMainMenu": "Menú",
         "a11y_switch_switchToItemScan": "Escaneig d'elements",
         "a11y_switch_switchToPointScan": "Escaneig de punts",

@@ -30,6 +30,8 @@ const ROLES_TO_EARCONS = {
     "urlinput": "input"
 };
 
+var keyDescriptions = null;
+
 export class ReadoutNavigation extends a11y.AssistiveTechnology {
     lastUsedVoice = null;
     lastLocaleCode = null;
@@ -155,6 +157,9 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
         if (message.trim() == "") {
             return Promise.resolve();
         }
+
+        message = message.replace(/\bliveg\b/i, "livh-g");
+        message = message.replace(/\blivesey\b/i, "livh-see");
 
         return new Promise(function(resolve, reject) {
             speechSynthesis.cancel();
@@ -285,6 +290,20 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             }
         }
 
+        if (data.keyPress) {
+            var descriptions = await getKeyDescriptions();
+
+            await interruptable(this.speak, descriptions[l10n.currentLocale.localeCode]?.[data.keyPress] ?? data.keyPress);
+        }
+
+        if (data.textInsert) {
+            await interruptable(this.speak, data.textInsert);
+        }
+
+        if (data.textDelete) {
+            await interruptable(this.speak, data.textDelete, 0.5);
+        }
+
         if (data.message) {
             await interruptable(this.speak, _(`a11y_readout_message_${data.message}`));
         }
@@ -320,9 +339,26 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
         console.log("Readout Navigation announcement received:", data);
 
-        this.announceViaPanel(data, this.currentAnnouncementId);
+        if (!data.voiceOnly) {
+            this.announceViaPanel(data, this.currentAnnouncementId);
+        }
+
         this.announceViaVoice(data, this.currentAnnouncementId);
     }
+}
+
+function getKeyDescriptions() {
+    if (keyDescriptions) {
+        return Promise.resolve(keyDescriptions);
+    }
+
+    return fetch("gshell://a11y/l10nkeys.json").then(function(response) {
+        return response.json();
+    }).then(function(data) {
+        keyDescriptions = data;
+
+        return Promise.resolve(keyDescriptions);
+    });
 }
 
 a11y.registerAssistiveTechnology(ReadoutNavigation);

@@ -134,7 +134,10 @@ export class Switcher extends screenScroll.ScrollableScreen {
             this.element.find(":scope > *").forEach((element) => setWindowGeometry(element, getWindowGeometry(element), true));
 
             this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
+            this.element.find(":scope .switcher_screen").setAttribute("aria-hidden", true);
+
             screenElement.find("*:is(.switcher_titleBar, .switcher_apps)").removeAttribute("inert");
+            screenElement.removeAttribute("aria-hidden");
 
             if (device.data?.type == "desktop") {
                 bringWindowForward(screenElement);
@@ -167,6 +170,7 @@ export class Switcher extends screenScroll.ScrollableScreen {
         $g.sel(".desktop_appListButton").removeClass("selected");
 
         this.element.find(":scope *:is(.switcher_titleBar, .switcher_apps)").setAttribute("inert", true);
+        this.element.find(":scope .switcher_screen").setAttribute("aria-hidden", true);
 
         this.element.find(":scope > *").setStyle("position", null);
         this.element.find(":scope > *").setStyle("top", null);

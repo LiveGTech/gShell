@@ -311,6 +311,40 @@
         }
 
         if (!modifierKeyDown) {
+            if (event.code == "Space" && "value" in event.target) {
+                announce({
+                    textInsert: event.target.value.substring(0, event.target.selectionStart).split(" ").at(-1),
+                    voiceOnly: true
+                });
+            } else if ((event.code == "Backspace" || event.code == "Delete") && "value" in event.target) {
+                var deletedText = "";
+
+                if (event.target.selectionStart == event.target.selectionEnd) {
+                    deletedText = event.code == "Delete" ? event.target.value[event.target.selectionStart] : event.target.value[event.target.selectionStart - 1];
+                } else {
+                    deletedText = event.target.value.substring(event.target.selectionStart, event.target.selectionEnd);
+                }
+
+                if (deletedText == "") {
+                    announce({
+                        keyPress: event.key,
+                        voiceOnly: true
+                    });
+
+                    return;
+                }
+
+                announce({
+                    textDelete: deletedText,
+                    voiceOnly: true
+                });
+            } else {
+                announce({
+                    keyPress: event.key,
+                    voiceOnly: true
+                });
+            }
+
             return;
         }
 

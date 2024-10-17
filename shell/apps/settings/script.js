@@ -16,6 +16,7 @@ astronaut.unpack();
 
 import * as shortcuts from "./shortcuts.js";
 import * as network from "./networkpage.js";
+import * as users from "./userspage.js";
 import * as l10n from "./l10npage.js";
 import * as personalisation from "./personalisationpage.js";
 import * as a11y from "./a11ypage.js";
@@ -26,6 +27,7 @@ import * as about from "./aboutpage.js";
 
 export const PAGE_ICONS = {
     network: "wifi",
+    users: "user",
     l10n: "language",
     personalisation: "brush",
     a11y: "a11y",
@@ -119,6 +121,7 @@ $g.waitForLoad().then(function() {
     $g.sel("title").setText(_("settings"));
 
     pages.network = network.NetworkPage() ();
+    pages.users = users.UsersPage() ();
     pages.l10n = l10n.L10nPage() ();
     pages.personalisation = personalisation.PersonalisationPage() ();
     pages.a11y = a11y.A11yPage() ();

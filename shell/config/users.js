@@ -12,6 +12,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as config from "gshell://config/config.js";
 import * as auth from "gshell://auth/auth.js";
 import * as info from "gshell://global/info.js";
+import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 
 export const RE_LINUX_USERNAME = /^[a-zA-Z][a-zA-Z0-9-_]*\$?$/;
 
@@ -25,12 +26,20 @@ export class User {
         if (data.isAdmin) {
             // This is for backwards compatibility from V0.2.0 where `users.gsc` will still reference `isAdmin`
             this.permissionLevel = "admin";
+
+            this.save();
         }
 
-        this.history = data?.history || [
-            {eventType: "created", performedAt: Date.now()},
-            ...(this.isAdmin ? [{eventType: "givenAdminPrivileges", performedAt: Date.now()}] : [])
-        ];
+        this.history = data?.history;
+
+        if (!this.history) {
+            this.history = [
+                {eventType: "created", performedAt: Date.now()},
+                ...(this.isAdmin ? [{eventType: "givenAdminPrivileges", performedAt: Date.now()}] : [])
+            ];
+
+            this.save();
+        }
     }
 
     get isAdmin() {
@@ -256,6 +265,8 @@ export class User {
 
             return Promise.resolve(allData);
         }).then(function() {
+            userDataChangeCallback();
+
             info.applyCurrentUser();
 
             return Promise.resolve();
@@ -334,6 +345,25 @@ export function init() {
             });
         });
 
+        userDataChangeCallback();
+
+        onUserStateChange(userDataChangeCallback);
+
         return promiseChain;
+    });
+}
+
+function userDataChangeCallback() {
+    return config.read("users.gsc").then(function(data) {
+        // Don't include user history as it may be a lot of data
+        Object.keys(data.users || {}).forEach(function(uid) {
+            delete data.users[uid].history;
+        });
+
+        privilegedInterface.setData("users_data", data);
+
+        return getCurrentUser();
+    }).then(function(user) {
+        privilegedInterface.setData("users_currentUserId", user?.uid || null);
     });
 }

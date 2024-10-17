@@ -111,6 +111,15 @@
 
         "network_proxyConfig_saveNotice": "The proxy settings you choose will not be applied until you save them.",
 
+        "users": "Users and accounts",
+
+        "users_summary": "Manage user profiles and connected accounts",
+
+        "users_otherUsers": "Other users",
+
+        "users_admin": "Administrator",
+        "users_standard": "Standard user",
+
         "l10n": "Language and input",
 
         "l10n_summary": "Change language, region and keyboard settings",

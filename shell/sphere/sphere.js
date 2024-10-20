@@ -29,6 +29,7 @@ export class Browser {
         this.isFullChrome = false;
         this.lastTitle = null;
         this.lastIcon = null;
+        this._reloadAnimationTimeout = null;
     }
 
     static normaliseUrl(url) {
@@ -140,21 +141,42 @@ export class Browser {
     reload(hard = false) {
         var thisScope = this;
 
+        clearTimeout(this._reloadAnimationTimeout);
+
+        function removeReloadClasses() {
+            thisScope.uiChrome.find(".sphere_reloadButton")
+                .removeClass("reload")
+                .removeClass("hardReload")
+            ;
+        }
+
+        removeReloadClasses();
+
         if (hard) {
             this.webview.get()?.reloadIgnoringCache();
 
             this.uiChrome.find(".sphere_reloadButton").removeClass("hardReload");
 
             setTimeout(function() {
-                thisScope.uiChrome.find(".sphere_reloadButton").addClass("hardReload"); 
+                thisScope.uiChrome.find(".sphere_reloadButton").addClass("hardReload");
+            
+                thisScope._reloadAnimationTimeout = setTimeout(function() {
+                    removeReloadClasses();
+    
+                    thisScope._reloadAnimationTimeout = null;
+                }, 1_000); 
             });
         } else {
             this.webview.get()?.reload();
-
-            this.uiChrome.find(".sphere_reloadButton").removeClass("reload");
-
+            
             setTimeout(function() {
                 thisScope.uiChrome.find(".sphere_reloadButton").addClass("reload");
+            
+                thisScope._reloadAnimationTimeout = setTimeout(function() {
+                    removeReloadClasses();
+
+                    thisScope._reloadAnimationTimeout = null;
+                }, 1_000); 
             });
         }
     }

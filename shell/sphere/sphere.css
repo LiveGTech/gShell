@@ -106,4 +106,18 @@ webview {
         --secondaryBackground: rgb(37, 37, 37);
         --secondaryText: white;
     }
+
+    @keyframes sphere_hardReloadIcon {
+        0% {
+            transform: rotate(1deg);
+        }
+    
+        50% {
+            filter: contrast(0) brightness(10);
+        }
+    
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 }

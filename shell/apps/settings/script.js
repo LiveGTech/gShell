@@ -121,7 +121,7 @@ $g.waitForLoad().then(function() {
     $g.sel("title").setText(_("settings"));
 
     pages.network = network.NetworkPage() ();
-    pages.users = users.UsersPage() ();
+    // pages.users = users.UsersPage() ();
     pages.l10n = l10n.L10nPage() ();
     pages.personalisation = personalisation.PersonalisationPage() ();
     pages.a11y = a11y.A11yPage() ();

@@ -158,8 +158,8 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
             return Promise.resolve();
         }
 
-        message = message.replace(/\bliveg\b/i, "livh-g");
-        message = message.replace(/\blivesey\b/i, "livh-see");
+        message = message.replace(/\bliveg\b/gi, "livh-g");
+        message = message.replace(/\blivesey\b/gi, "livh-see");
 
         return new Promise(function(resolve, reject) {
             speechSynthesis.cancel();

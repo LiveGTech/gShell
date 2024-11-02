@@ -49,6 +49,27 @@ export var AboutPage = astronaut.component("AboutPage", function(props, children
                     Text(_("about_name"))
                 )
             ),
+            // TODO: Remove this after V0.3.0 (10th Anniversary Edition message/badge)
+            Container({
+                styles: {
+                    "display": "flex",
+                    "gap": "0.5rem",
+                    "align-items": "center",
+                    "justify-content": "center",
+                    "margin-top": "0.5rem"
+                }
+            }) (
+                Image({
+                    source: `gshell://media/10years_${$g.l10n.getSystemLocaleCode().split("_")[0]}.svg`,
+                    alt: "",
+                    styles: {
+                        "width": "unset",
+                        "height": "2rem",
+                        "margin": "0"
+                    }
+                }) (),
+                BoldTextFragment() (_("about_10years"))
+            ),
             Paragraph() (_("about_version", {version: about.VERSION})),
             Paragraph() (_("about_copyright"))
         ),

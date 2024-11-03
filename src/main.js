@@ -80,6 +80,13 @@ electron.app.on("ready", function() {
     }).then(function() {
         return network.updateProxy();
     }).then(function() {
+        // TODO: Implement advanced audio management
+        return system.executeOrLogCommand("wpctl", ["set-volume", "@DEFAULT_AUDIO_SINK@", "50%"]).catch(function(error) {
+            console.warn(error);
+
+            return Promise.resolve();
+        });
+    }).then(function() {
         return monitors.get();
     }).then(function(monitorData) {
         exports.window = new electron.BrowserWindow({

@@ -266,6 +266,10 @@ ipcMain.handle("io_setCapsLockEnabled", function(event, data) {
     return system.setCapsLockEnabled(data.enabled);
 });
 
+ipcMain.handle("io_setCapsLockState", function(event, data) {
+    return system.setCapsLockState(data.enabled);
+});
+
 ipcMain.handle("io_getMouseCursorPosition", function(event, data) {
     var cursorPoint = electron.screen.getCursorScreenPoint();
     var offsetPoint = main.window.getContentBounds();

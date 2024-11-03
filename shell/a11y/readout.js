@@ -12,6 +12,7 @@ import * as $g from "gshell://lib/adaptui/src/adaptui.js";
 import * as a11y from "gshell://a11y/a11y.js";
 import * as l10n from "gshell://config/l10n.js";
 import * as webviewComms from "gshell://userenv/webviewcomms.js";
+import * as switcher from "gshell://userenv/switcher.js";
 
 export const NAME = "readout";
 
@@ -104,10 +105,18 @@ export class ReadoutNavigation extends a11y.AssistiveTechnology {
 
         $g.sel("body").on("keydown", keydownCallback);
         webviewComms.onEvent("keydown", keydownCallback);
+
+        $g.sel(".readout_openSettings").on("click", function() {
+            switcher.openApp("gshell://apps/settings/index.html?shortcut=a11y_readout");
+        });
     }
 
     update() {
         gShell.call("io_setCapsLockEnabled", {enabled: !a11y.options.readout_enabled});
+
+        if (a11y.options.readout_enabled) {
+            gShell.call("io_setCapsLockState", {enabled: false});
+        }
     }
 
     getSuitableVoice() {

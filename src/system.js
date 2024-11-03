@@ -416,6 +416,14 @@ exports.setCapsLockEnabled = function(enabled) {
     return exports.executeCommand("setxkbmap", ["-option", "caps:none"]);
 };
 
+exports.setCapsLockState = function(enabled) {
+    if (!flags.isRealHardware && !flags.allowHostControl) {
+        return Promise.resolve();
+    }
+
+    return exports.executeCommand(`${main.rootDirectory}/src/cbin/clset`, [enabled ? "true" : "false"]);
+};
+
 exports.bcryptHash = function(data, saltRounds) {
     return new Promise(function(resolve, reject) {
         bcryptjs.hash(data, saltRounds, function(error, hash) {

@@ -7,19 +7,8 @@
 # https://liveg.tech
 # Licensed by the LiveG Open-Source Licence, which can be found at LICENCE.md.
 
-FORCE=false
-
-if [ "$1" == "--force" ]; then
-    FORCE=true
-fi
-
-if [ $FORCE == false ] && [ -f src/clib/libgslai.so ]; then
-    echo "Skipped building of included C libraries because they already exist (run \`$0 --force\` to force a build)"
-
-    exit
-fi
-
 mkdir -p src/clib
+mkdir -p src/cbin
 
 echo "Building included C libaries..."
 
@@ -30,5 +19,9 @@ fi
 echo "Using C compiler: $CC"
 
 $CC src/csrc/libgslai.c -o src/clib/libgslai.so -fPIC -shared -ldl
+
+echo "Building included C executables..."
+
+$CC src/csrc/clset.c -o src/cbin/clset $(pkg-config --cflags --libs x11 xkbcommon)
 
 echo "Build complete!"

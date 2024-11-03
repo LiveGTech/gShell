@@ -38,6 +38,7 @@ exports.ensureDebuggerAttached = function(webContents) {
 
 electron.app.commandLine.appendSwitch("disable-features", "CrossOriginOpenerPolicy");
 electron.app.commandLine.appendSwitch("disable-site-isolation-trials");
+electron.app.commandLine.appendSwitch("enable-speech-dispatcher");
 
 electron.protocol.registerSchemesAsPrivileged([
     {

@@ -187,6 +187,10 @@ export function init() {
                 touchTestTimeout = null;
             }, TIME_UNTIL_TOUCH_TEST);
         }
+
+        if (event.pointerType == "touch") {
+            touchReceived = true;
+        }
     });
 
     $g.sel("body").on("pointerdown", function(event) {

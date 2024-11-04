@@ -99,6 +99,8 @@ export const CURSOR_TYPE_ALIASES = {
     "sw-resize": "nesw-resize"
 };
 
+export const TIME_UNTIL_TOUCH_TEST = 100;
+
 export var x = 0;
 export var y = 0;
 export var currentType = null;
@@ -128,6 +130,9 @@ export function setType(type) {
 }
 
 export function init() {
+    var touchTestTimeout = null;
+    var touchReceived = false;
+
     setType("default");
 
     function updateRendering() {
@@ -171,10 +176,24 @@ export function init() {
             console.warn(error);
         });
 
-        mouseShouldShow = event.pointerType == "mouse";
+        if (touchTestTimeout == null) {
+            touchReceived = false;
+
+            setTimeout(function() {
+                mouseShouldShow = !touchReceived && event.pointerType == "mouse";
+
+                touchTestTimeout = null;
+            }, TIME_UNTIL_TOUCH_TEST);
+        }
     });
 
-    webviewComms.onEvent("pointermove", (event) => mouseShouldShow = event.pointerType == "mouse");
+    $g.sel("body").on("pointerdown", function(event) {
+        touchReceived = event.pointerType == "touch";
+    });
+
+    webviewComms.onEvent("pointerdown", function(event) {
+        touchReceived = event.pointerType == "touch";
+    });
 
     if (device.data?.type != "desktop") {
         $g.sel("#cursor").hide();

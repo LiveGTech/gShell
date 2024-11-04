@@ -972,7 +972,7 @@ window.addEventListener("DOMContentLoaded", function() {
         }
 
         if (event.target.matches(INPUT_SELECTOR)) {
-            if (!isTextualInput(event.target) || event.target.matches(":disabled, [inputmode='none']")) {
+            if (!isTextualInput(event.target) || event.target.matches(":disabled, [inputmode='none'], [inputmode='none'] *")) {
                 electron.ipcRenderer.sendToHost("input_hide");
 
                 return;
@@ -1078,7 +1078,7 @@ window.addEventListener("DOMContentLoaded", function() {
     });
 
     window.addEventListener("focusin", function(event) {
-        if (!mainState.a11y_options?.switch_enabled && isTextualInput(event.target) && !event.target.matches(":disabled, [inputmode='none']") && !shouldSkipNextInputShow) {
+        if (!mainState.a11y_options?.switch_enabled && isTextualInput(event.target) && !event.target.matches(":disabled, [inputmode='none'], [inputmode='none'] *") && !shouldSkipNextInputShow) {
             electron.ipcRenderer.sendToHost("input_show");
         }
 
@@ -1099,7 +1099,7 @@ window.addEventListener("DOMContentLoaded", function() {
         if (
             event.key == " " &&
             isTextualInput(document.activeElement) &&
-            !event.target.matches(":disabled, [inputmode='none']") &&
+            !event.target.matches(":disabled, [inputmode='none'], [inputmode='none'] *") &&
             mainState.a11y_options?.switch_enabled &&
             !mainState.input_showing
         ) {

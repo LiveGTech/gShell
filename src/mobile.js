@@ -137,6 +137,10 @@ exports.getSignalInfo = function(modemId) {
                 result.technologies[technology].signal = clampValue(remapValue(extractStrengthValue(technologyInfo["sinr"]), -3, 23, 0, 100), 0, 100);
             } else if (technologyInfo["rsrp"]) {
                 result.technologies[technology].signal = clampValue(remapValue(extractStrengthValue(technologyInfo["rsrp"]), -110, -70, 0, 100), 0, 100);
+            } else if (technologyInfo["rssi"]) {
+                result.technologies[technology].signal = clampValue(remapValue(extractStrengthValue(technologyInfo["rssi"]), -110, -70, 0, 100), 0, 100);
+            } else {
+                result.technologies[technology].signal = 100;
             }
 
             if (!anyStrengthAvailable) {

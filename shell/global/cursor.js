@@ -99,7 +99,7 @@ export const CURSOR_TYPE_ALIASES = {
     "sw-resize": "nesw-resize"
 };
 
-export const TIME_UNTIL_TOUCH_TEST = 100;
+export const TIME_UNTIL_TOUCH_TEST = 1_000;
 
 export var x = 0;
 export var y = 0;

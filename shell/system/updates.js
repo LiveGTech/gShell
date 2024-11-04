@@ -197,7 +197,11 @@ export function getPackagesToDownload(packagesToInstall, skipUnknowns = false) {
         var stdout = flags.isRealHardware ? output.stdout : DUMMY_APT_CACHE_SHOW_STDOUT;
 
         stdout.split(/\nPackage: /).forEach(function(packageResult, i) {
-            packages[i].downloadSize = Number(packageResult.match(/^Size: (\d+)$/m)[1]);
+            if (packageResult.match(/^Size: (\d+)$/m)) {
+                packages[i].downloadSize = Number(packageResult.match(/^Size: (\d+)$/m)[1]);
+            } else {
+                packages[i].downloadSize = 0;
+            }
 
             if (packageResult.match(/^Installed-Size: (\d+)$/m)) {
                 packages[i].installedSize = Number(packageResult.match(/^Installed-Size: (\d+)$/m)[1]) * 1_024;

@@ -70,7 +70,7 @@ export class Monitor {
 
         this.config = {
             isPrimary: primaryConnectedMonitor == this,
-            modeId: (this.inputState.modes.find((mode) => mode.isPreferred) || this.inputState.modes[0]).id,
+            modeId: (this.inputState.modes.find((mode) => mode.isActive) || this.inputState.modes[0]).id,
             ...(primaryConnectedMonitor == this ? {
                 view: "extend",
                 x: 0,

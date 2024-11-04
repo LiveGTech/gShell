@@ -156,6 +156,8 @@ export function init() {
                 }
 
                 mouseIsShowing = mouseShouldShow;
+
+                device.setTouchActive(!mouseIsShowing);
             }
 
             requestAnimationFrame(updateAuthoritative);

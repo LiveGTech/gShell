@@ -14,22 +14,11 @@ import * as privilegedInterface from "gshell://userenv/privilegedinterface.js";
 export var data = {};
 export var touchActive = false;
 
-var touchEventFired = false;
+export function setTouchActive(value) {
+    touchActive = value;
+}
 
 export function init() {
-    $g.sel("body").on("touchstart", function(event) {
-        touchActive = true;
-        touchEventFired = true;
-    });
-
-    $g.sel("body").on("mousedown", function(event) {
-        if (!touchEventFired) {
-            touchActive = false;
-        }
-
-        touchEventFired = false;
-    });
-
     return gShell.call("system_getDevice").then(function(deviceData) {
         data = deviceData;
 

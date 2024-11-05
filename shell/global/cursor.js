@@ -182,7 +182,7 @@ export function init() {
             touchReceived = false;
 
             setTimeout(function() {
-                mouseShouldShow = !touchReceived && event.pointerType == "mouse";
+                mouseShouldShow = !touchReceived && ["mouse", "pen"].includes(event.pointerType);
 
                 touchTestTimeout = null;
             }, TIME_UNTIL_TOUCH_TEST);

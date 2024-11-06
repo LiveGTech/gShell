@@ -60,9 +60,9 @@ n // New partition
 p // Primary
 1 // Partition number
 2048 // First sector
-+512M // 512 MiB for EFI
++512M // 512 MiB for EFI/BIOS boot
 t // Set type
-1 // EFI
+{bootType} // Specified boot sector type
 n // New partition
 p // Primary
 2 // Partition number
@@ -85,9 +85,9 @@ n // New partition
 p // Primary
 1 // Partition number
 2048 // First sector
-+512M // 512 MiB for EFI
++512M // 512 MiB for EFI/BIOS boot
 t // Set type
-1 // EFI
+{bootType} // Specified boot sector type
 n // New partition
 p // Primary
 2 // Partition number
@@ -102,9 +102,9 @@ n // New partition
 p // Primary
 1 // Partition number
 2048 // First sector
-+512M // 512 MiB for EFI
++512M // 512 MiB for EFI/BIOS boot
 t // Set type
-1 // EFI
+{bootType} // Specified boot sector type
 n // New partition
 p // Primary
 2 // Partition number
@@ -414,7 +414,7 @@ function makeError(code) {
 
 function getPartitionName(diskName, partitionNumber) {
     if (diskName.startsWith("nvme")) {
-        return `${diskName}p${partitionNumber}`;        
+        return `${diskName}p${partitionNumber}`;
     }
 
     return `${diskName}${partitionNumber}`;
@@ -423,12 +423,20 @@ function getPartitionName(diskName, partitionNumber) {
 function processInstallation() {
     var partitionMode = $g.sel("[name='oobs_partitionMode']:checked").getAttribute("value");
     var partitionName = null;
+    var systemUsesEfi = true;
     var shouldFormatEfi = true;
 
-    return gShell.call("system_executeCommand", {
-        command: "sudo",
-        args: ["mkdir", "-p", "/tmp/base", "/boot/efi"]
-    }).catch(makeError("GOS_OOBS_FAIL_CREATE_MOUNT_POINT")).then(function() {
+    return gShell.call("storage_exists", {
+        location: "/sys/firmware/efi"
+    }).then(function(result) {
+        systemUsesEfi = result;
+        shouldFormatEfi = systemUsesEfi;
+
+        return gShell.call("system_executeCommand", {
+            command: "sudo",
+            args: ["mkdir", "-p", "/tmp/base", "/boot/efi"]
+        }).catch(makeError("GOS_OOBS_FAIL_CREATE_MOUNT_POINT"));
+    }).then(function() {
         $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_partitioning"));
         $g.sel(".oobs_installProcess_progress").removeAttribute("value");
 
@@ -445,7 +453,8 @@ function processInstallation() {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
                     args: ["fdisk", `/dev/${installSelectedDisk}`],
-                    stdin: getSelectedDiskInfo().size >= MIN_SIZE_FOR_SWAP ? FDISK_ERASE_SWAP_STDIN : FDISK_ERASE_NOSWAP_STDIN
+                    stdin: (getSelectedDiskInfo().size >= MIN_SIZE_FOR_SWAP ? FDISK_ERASE_SWAP_STDIN : FDISK_ERASE_NOSWAP_STDIN)
+                        .replace(/{bootType}/g, systemUsesEfi ? "1" : "4")
                 });
             }).catch(makeError("GOS_OOBS_FAIL_PARTITION_DISK_ERASE")).then(function() {
                 return gShell.call("system_executeCommand", {
@@ -519,11 +528,9 @@ function processInstallation() {
                 return gShell.call("system_executeCommand", {
                     command: "sudo",
                     args: ["fdisk", `/dev/${installSelectedDisk}`],
-                    stdin: (
-                        hasEfiPartitions ?
-                        FDISK_NEW_EXISTING_STDIN :
-                        FDISK_NEW_STDIN
-                    ).replace(/{size}/g, String(Number($g.sel("#oobs_partitionMode_new_size").getValue()) || 0))
+                    stdin: (hasEfiPartitions ? FDISK_NEW_EXISTING_STDIN : FDISK_NEW_STDIN)
+                        .replace(/{bootType}/g, systemUsesEfi ? "1" : "4")
+                        .replace(/{size}/g, String(Number($g.sel("#oobs_partitionMode_new_size").getValue()) || 0))
                 }).catch(makeError("GOS_OOBS_FAIL_PARTITION_DISK_NEW"));
             }).then(function() {
                 return gShell.call("system_executeCommand", {
@@ -598,6 +605,10 @@ function processInstallation() {
             args: ["mount", `/dev/${partitionName}`, "/tmp/base"]
         }).catch(makeError("GOS_OOBS_FAIL_MOUNT_PARTITION"));
     }).then(function() {
+        if (!systemUsesEfi) {
+            return Promise.resolve();
+        }
+
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["mount", `/dev/${getPartitionName(installSelectedDisk, 1)}`, "/boot/efi"]
@@ -618,8 +629,10 @@ function processInstallation() {
             return new Promise(function(resolve, reject) {
                 (function poll() {
                     gShell.call("system_getCopyFileInfo", {id}).then(function(info) {
-                        $g.sel(".oobs_installProcess_progress").setValue(info.progress);
-                        $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_copyingProgress", {progress: Math.round(info.progress * 100)}));
+                        if (info.progress > 0) {
+                            $g.sel(".oobs_installProcess_progress").setValue(info.progress);
+                            $g.sel(".oobs_installProcess_status").setText(_("oobs_installProcess_status_copyingProgress", {progress: Math.round(info.progress * 100)}));
+                        }
 
                         switch (info.status) {
                             case "running":
@@ -685,8 +698,12 @@ function processInstallation() {
         return gShell.call("system_executeCommand", {
             command: "sudo",
             args: ["chroot", "/tmp/base", "/bin/bash", "-c",
-                `mkdir -p /boot/efi;` +
-                `mount /dev/${getPartitionName(installSelectedDisk, 1)} /boot/efi;` +
+                (
+                    systemUsesEfi ? (
+                        `mkdir -p /boot/efi;` +
+                        `mount /dev/${getPartitionName(installSelectedDisk, 1)} /boot/efi;`
+                    ) : ""
+                ) +
                 `grub-install /dev/${installSelectedDisk} --removable`
             ]
         }).catch(makeError("GOS_OOBS_FAIL_INSTALL_BOOTLOADER")).then(dummyDelay);

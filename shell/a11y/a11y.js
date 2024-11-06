@@ -127,12 +127,6 @@ export function update() {
         ""
     ));
 
-    console.log((
-        (options.readout_enabled && options.readout_scanColour) ||
-        (options.switch_enabled && options.switch_scanColour) ||
-        ""
-    ), $g.sel("body").getAttribute("sphere-a11yscancolour"));
-
     assistiveTechnologies.forEach((tech) => tech.update());
 
     privilegedInterface.setData("a11y_options", options);

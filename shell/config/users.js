@@ -321,7 +321,7 @@ export function onUserStateChange(callback) {
 export function create(uid = $g.core.generateKey(), data = {}) {
     var user = new User(uid, data);
 
-    return user.ensureLinuxUser().then(function() {
+    return user.init().then(function() {
         return user.save();
     }).then(function() {
         return Promise.resolve(user);

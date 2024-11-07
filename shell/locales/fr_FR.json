@@ -25,6 +25,8 @@
         "size_gib": "{size} Gio",
         "size_tib": "{size} Tio",
 
+        "usersFolder": "Utilisateurs",
+
         "info_batteryIcon_charging": "Batterie - charge",
         "info_batteryIcon_discharging": "Batterie - décharge",
         "info_batteryIcon_unknown": "Batterie - inconnue",

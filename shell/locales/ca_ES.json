@@ -25,6 +25,8 @@
         "size_gib": "{size} GiB",
         "size_tib": "{size} TiB",
 
+        "usersFolder": "Usuaris",
+
         "info_batteryIcon_charging": "Bateria - carregant-se",
         "info_batteryIcon_discharging": "Bateria - descarregant-se",
         "info_batteryIcon_unknown": "Bateria - estat desconegut",

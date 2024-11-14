@@ -112,7 +112,7 @@ exports.get = function() {
                 height: 800,
                 maxWidth: 32767,
                 maxHeight: 32767
-        },
+            },
             monitors: [
                 {
                     id: "HDMI-0",

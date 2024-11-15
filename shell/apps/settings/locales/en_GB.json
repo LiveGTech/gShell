@@ -68,8 +68,8 @@
         "network_wifiConfig_authMode": "Authentication mode",
         "network_wifiConfig_authMode_none": "None",
         "network_wifiConfig_authMode_wep": "WEP",
-        "network_wifiConfig_authMode_wpa": "WPA1/WPA2",
-        "network_wifiConfig_authMode_wpa_802_1x": "WPA1/WPA2 802.1x (enterprise)",
+        "network_wifiConfig_authMode_wpa": "WPA",
+        "network_wifiConfig_authMode_wpa_802_1x": "WPA 802.1x (enterprise)",
         "network_wifiConfig_connect": "Connect",
 
         "network_wifiConfig_authModes_password": "Password",

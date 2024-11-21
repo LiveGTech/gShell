@@ -411,8 +411,6 @@ exports.setCapsLockEnabled = function(enabled) {
         return exports.executeCommand("setxkbmap", ["-option"]);
     }
 
-    // TODO: Turn off Caps Lock if it is currently on
-
     return exports.executeCommand("setxkbmap", ["-option", "caps:none"]);
 };
 

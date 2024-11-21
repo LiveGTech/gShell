@@ -112,6 +112,7 @@ exports.scanWifi = function() {
                     "WEP": "wep",
                     "WPA1": "wpa1",
                     "WPA2": "wpa2",
+                    "WPA3": "wpa3",
                     "802.1X": "802_1x"
                 }[data] || "unknown")),
                 connected: data[6] == "yes"

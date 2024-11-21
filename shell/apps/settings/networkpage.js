@@ -62,6 +62,8 @@ export var NetworkPage = astronaut.component("NetworkPage", function(props, chil
 
                         if (result.security.length == 0) {
                             securityType = "open";
+                        } else if (result.security.includes("wpa3")) {
+                            securityType = "wpa3";
                         } else if (result.security.includes("wpa2")) {
                             securityType = "wpa2";
                         } else if (result.security.includes("wpa1")) {
@@ -595,7 +597,11 @@ export var ProxyConfigScreen = astronaut.component("ProxyConfigScreen", function
 export var WifiConnectionConfigDialog = astronaut.component("WifiConnectionConfigDialog", function(props, children) {
     var preferredAuthMode = props.accessPoint.security.filter((mode) => mode != "802_1x")[0] || "none";
 
-    if (props.accessPoint.security.includes("wpa1") || props.accessPoint.security.includes("wpa2")) {
+    if (
+        props.accessPoint.security.includes("wpa1") ||
+        props.accessPoint.security.includes("wpa2") ||
+        props.accessPoint.security.includes("wpa3")
+    ) {
         preferredAuthMode = "wpa";
     }
 

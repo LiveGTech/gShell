@@ -188,7 +188,7 @@
         "sphere_openMenu": "Ouvrir le menu",
 
         "sphere_menu_installApp": "Installer l'application",
-        "sphere_menu_openInvestigator": "Ouvrir Enquêteur Web",
+        "sphere_menu_openInvestigator": "Ouvrir enquêteur web",
 
         "permissions_selectUsbDevice_prefix": "Sélectionnez un appareil USB pour ",
         "permissions_selectUsbDevice_suffix": " pour accéder",
@@ -249,7 +249,7 @@
 
         "a11y_readout_hint_toLeaveContext": "Pour revenir au contexte principal, appuyez sur Caps Lock et Escape.",
 
-        "a11y_switch": "Navigation par Interrupteur",
+        "a11y_switch": "Navigation par interrupteur",
         "a11y_switch_openMainMenu": "Menu",
         "a11y_switch_switchToItemScan": "Scan des articles",
         "a11y_switch_switchToPointScan": "Scan du points",

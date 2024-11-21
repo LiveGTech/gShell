@@ -145,7 +145,7 @@
 
         "a11y_readout": "Navegació amb narració",
 
-        "a11y_switch": "navegació amb interruptors",
+        "a11y_switch": "Navegació amb interruptors",
         "a11y_switch_summary": "Control total i navegació amb almenys un commutador",
         "a11y_switch_description": "La navegació amb interruptors et permet accedir i navegar pel teu dispositiu utilitzant un o més commutadors — com ara botons, pedals, commutadors d'aspiració i bufada, entre d'altres.",
         "a11y_switch_enable": "Activa la navegació amb interruptors",
